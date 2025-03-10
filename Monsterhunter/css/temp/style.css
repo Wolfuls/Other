@@ -1,0 +1,290 @@
+	body {
+		font-family:'メイリオ', 'Meiryo', sans-serif;
+		margin:10px;
+		padding:0;
+		color:#ffffff;
+		background-size: auto 100%;
+		background-repeat: no-repeat;
+		background-position: center;
+		animation: fadeIn 1s ease 0s 1 normal;
+		-webkit-animation: fadeIn 0.5s ease 0s 1 normal;
+	}
+	
+
+	a:before {
+		display:inline;
+	}
+	a:link {
+		color:ffff00;
+		display:inline;
+	}
+	a:visited {
+		color:ffff00;
+	}
+	.bottun-hover:hover{
+		background: linear-gradient(45deg, rgba(128,255,255,0),rgba(128,255,255,0.5));
+		color:00ff00;
+	}
+	ul {
+		margin:0;
+	}
+	ol {
+		margin:0;
+	}
+
+	.frame {
+		height:175px;
+		width:175px;
+	}
+	h1 {
+		valign:middle;
+		}
+	h2 {
+		valign:middle;
+		}
+	h3 {
+		valign:middle;
+		}
+
+
+	@keyframes fadeIn {
+	    0% {opacity: 0}
+	    100% {opacity: 1}
+	}
+
+	@-webkit-keyframes fadeIn {
+	    0% {opacity: 0}
+	    100% {opacity: 1}
+	}
+
+
+	/* ポップアップ */
+
+
+.lb {
+    display: flex;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.8);
+    opacity: 0;
+    transition: .3s opacity ease;
+    pointer-events: none;
+    z-index: 100;
+}
+
+.lb img {
+    width: auto !important;
+    max-height: 100%!important;
+    cursor: pointer;
+}
+
+.lb img,
+.lb iframe {
+    transform: scale(.85);
+    transition: .3s all ease;
+}
+
+.lb:target {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 101;
+}
+
+.lb:target img,
+.lb:target iframe {
+    transform: scale(1);
+}
+
+/* なんちゃって閉じるボタン*/
+.lb::before,.lb::after {
+    display: block;
+    position: fixed;
+    content: "";
+    width: 24px;
+    height:3px;
+    top: 24px;
+    right: 12px;
+    background: #fff;
+    border-radius: 4px;
+}
+.lb::before {
+    transform: rotate(-315deg);
+}
+.lb::after {
+    transform: rotate(315deg);
+}
+
+
+
+	/* ハンバーガーボタン */
+	#menu-btn-check {
+    display: none;
+	}
+
+	.menu-content {
+	    width: 100%;
+	    height: 100%;
+	    position: fixed;
+	    top: 0;
+	    right: 0;
+	    z-index: 80;
+	    background-color: #212121;
+	}
+	
+
+
+	.menu-btn span:before {
+	    bottom: 16px;
+	}
+	.menu-btn span:after {
+	    top: 16px;
+	}
+	#menu-btn-check:checked ~ .menu-btn span {
+	    background-color: rgba(255, 255, 255, 0);/*メニューオープン時は真ん中の線を透明にする*/
+	}
+	#menu-btn-check:checked ~ .menu-btn span::before {
+	    bottom: 0;
+	    transform: rotate(45deg);
+	}
+	#menu-btn-check:checked ~ .menu-btn span::after {
+	    top: 0;
+	    transform: rotate(-45deg);
+	}
+
+
+	.menu-content ul li a::before {
+	    content: "";
+	    width: 7px;
+	    height: 7px;
+	    border-top: solid 2px #ffffff;
+	    border-left: solid 2px #ffffff;
+	    transform: rotate(45deg);
+	    position: absolute;
+	    left: 11px;
+	    top: 16px;
+	}
+	.menu-content {
+	    width: 100%;
+	    height: 100%;
+	    position: fixed;
+	    top: 0;
+	    right: 100%;/*leftの値を変更してメニューを画面外へ*/
+	    z-index: 80;
+	    background-color: rgba(0,0,0,0.5);
+	    transition: all 0.5s;/*アニメーション設定*/
+	}
+	.menu-content ul li a {
+	    display: block;
+	    width: 100%;
+	    font-size: 15px;
+	    box-sizing: border-box;
+	    color:#ffffff;
+	    text-decoration: none;
+	    padding: 9px 15px 10px 0;
+	    position: relative;
+	}
+
+	.menu-content ul {
+	    padding: 70px 10px 0;
+	}
+	.menu-content ul li {
+	    border-bottom: solid 1px #ffffff;
+	    list-style: none;
+	}
+	#menu-btn-check:checked ~ .menu-content {
+    	right: 0;/*メニューを画面内へ*/
+	}
+
+
+
+@media screen and  (orientation: landscape) { /*ウィンドウ幅が481px以上の場合に適用*/
+
+	body {
+		background:rgba(0,0,0,1)
+		background-size: 1920px 100%;
+	 }
+	 
+	.win480 {
+		display:none;
+	}
+	.win481 {
+		width: 100%;
+		height: 100%;
+		align: center;
+		vertical-align: middle;
+	}
+	
+	.winb {
+		width:250px;
+		height:95vh;
+		background: rgba(0,0,0,0.8);
+	}
+	
+	.winc {
+		width:1050px;
+		height:95vh;
+		background: rgba(0,0,0,0.8);
+	}
+	
+	.foriframe {
+		width:100%;
+		height:100%;
+	}
+}
+
+@media screen and (orientation: portrait) { /*ウィンドウ幅が最大480pxまでの場合に適用*/
+
+	.background {
+	 height: 100%;
+	}
+		 
+	.win480{
+		width: 100%;
+		height: 100%;
+		align: center;
+		vertical-align: middle;
+	}
+	.win481 {
+		display:none;
+	}
+	.winb {
+		display:none;
+	}
+	.winc {
+		width:95vw;
+		height:90vh;
+	}
+
+	.menu-btn {
+	    position: fixed;
+	    bottom: 10px;
+	    left: 10px;
+	    display: flex;
+	    height: 100px;
+	    width: 100px;
+	    justify-content: center;
+	    align-items: center;
+	    z-index: 90;
+	    background-color: #212121;
+	}
+
+	.menu-btn span,
+	.menu-btn span:before,
+	.menu-btn span:after {
+	    content: '';
+	    display: block;
+	    height: 6px;
+	    width: 50px;
+	    border-radius: 6px;
+	    background-color: #ffffff;
+	    position: absolute;
+	}
+
+}
+
+

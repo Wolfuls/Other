@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+  <meta http-equiv="Pragma" content="no-cache">
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  <title>鋼鉄の蟹ドラシル</title>
+  <style>
+    body {
+      transition: background-image 0.5s ease-in-out;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  </style>
+</head>
+<body id="randbg" text="#FFFFFF">
+
+  <div class="hamburger-menu">
+    <input type="checkbox" id="menu-btn-check">
+    <label for="menu-btn-check" class="menu-btn"><span></span></label>
+    <div class="menu-content">
+      <iframe name="menuwin" src="menu.html" frameborder="0" width="75%" height="100%"></iframe>
+    </div>
+  </div>
+
+  <div class="flex-container">
+    <iframe name="menuwin" src="menu.html" frameborder="0" class="menuwin" style="flex-grow:0" width="300"></iframe>
+    <iframe name="mainwin" src="top.html" frameborder="0" class="mainwin" id="mainwin"></iframe>
+  </div>
+
+  <script>
+    function changeBackground(event) {
+      const pathname = event.data;
+      const body = document.getElementById('randbg');
+
+      console.log('Current iframe src:', pathname);
+
+      if (pathname.includes('lore/world_ygg/')) {
+        body.style.backgroundImage = 'url("image/yggbg.jpg")';
+      } else {
+        body.style.backgroundImage = 'url("image/mainbg.png")';
+      }
+
+      console.log('Background image set to:', body.style.backgroundImage);
+    }
+
+    window.addEventListener('message', changeBackground);
+
+    // ページが読み込まれた時に背景画像を設定
+    document.getElementById('mainwin').onload = function() {
+      const mainwin = document.getElementById('mainwin');
+      mainwin.contentWindow.postMessage(mainwin.src, "*");
+    };
+  </script>
+</body>
+</html>

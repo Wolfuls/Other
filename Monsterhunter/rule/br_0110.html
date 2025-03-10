@@ -1,0 +1,356 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>鋼鉄の蟹ドラシル</title>
+</head>
+<body>
+
+<div style="margin-top: 50px; margin-bottom: 50px;">
+	<h1>■ダイスロール</h1>
+	<hr>
+	<ul>
+		<li><a href="#ダイスロール">ダイスロール</a>
+		<li><a href="#行為判定">行為判定</a>
+	</ul>
+</div>
+<div style="margin-top: 50px; margin-bottom: 50px;">
+	<p>
+		鋼鉄のユグドラシルで使用されるダイスは、<br>
+		原則として６面ダイスのみとなります。<br>
+		以後の記述では▲ｄと記述し、▲＝ダイスの個数となります。
+	</p>
+</div>
+
+<hr>
+<div style="margin-top: 50px; margin-bottom: 50px;">
+	<h2 id="ダイスロール">●ダイスロール</h2>
+	<p>
+		このゲームにおいて、ダイスを振る行為の総称です。<br>
+		出目に応じて様々な結果が発生します。
+	</p>
+	<p>
+		なお、各ダイスロールの最低値は【１】です。<br>
+		ファンブル等によって算出結果がマイナスを下回った場合でも、そのダイスロール結果は【１】として見なします。
+	</p>
+	<p>
+		ダイスロールの例には以下が存在します。
+	</p>
+	<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+		<tr>
+			<td align="center" valign="middle">
+				<b>行為判定</b></td>
+			<td>
+				<font size="2">
+					ダイスロールの内、キャラクターの行動の成否を決定するためのものです。<br>
+					行為判定については詳細を後述します。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>同値ロール</b></td>
+			<td>
+				<font size="2">
+					対抗判定などから派生する特殊なダイスロール。<br>
+					同一達成値の者がいる場合に１ｄを互いに振り、高い数値の者が優先される。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>偶奇ロール</b></td>
+			<td>
+				<font size="2">
+					１ｄをロールし、偶数の場合は成功、奇数の場合は失敗となる。<br>
+					性質上、コイントス等を使っても構わない。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>コンディションロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					セッション開始時にＨＰとＰＰに、それぞれ２ｄを加える。ＰＰ上昇分、暴走率も上昇する。<br>
+					また、因子ダイスを１つ消費する事でコンディションチェックをやり直す事ができる。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>暴走ロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						暴走率が【５０】【７０】【９０】に到達した際、<br>
+						それぞれ対応したダイスロールを行い、各出目に対応した効果を発生させる。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>臨界ロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						偶奇ロールの派生ロール。<br>
+						暴走率が【１２０】【１３０】【１４０】に到達した際に偶奇判定を行い、<br>
+						成否に応じて効果を適用する。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>オールレンジロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						ＳＥオールレンジを使用する際に１ｄをロールする。<br>
+						出目１の場合は制御失敗として、味方も攻撃に巻き込んでしまう。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>リスクロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						ＳＥリスクが設定された応用技を使う際、<br>
+						リスクロール表に対応した効果を発生させる。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>ＳＯペナルティロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						ＳＯ発動時に１ｄを振り、ＳＯ表に対応したペナルティ効果を発生させる。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>抑制ロール</b></td>
+			<td>
+				<font size="2">
+					クリアフェイズにて、使用選択した因子ダイス１つにつき、暴走率を【１ｄ】回復する。<br>
+					ただし、因子ダイスがマイナスだった場合、暴走率を【マイナス数×２ｄ】上昇する。<br>
+					抑制ロールの上で暴走率が【１００％】を超える場合、崩壊ロールを行う。<br>
+					抑制ロールは２回まで行える。<br>
+					また、抑制ロール時点で暴走率１５０％を超えた場合は、<br>
+					強制的に以後キャラクターを利用できなくなるキャラロストとなる。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>崩壊ロール</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						崩壊深度に応じて崩壊ロールを行う。<br>
+						１Ｄ６を振り、後遺症表に対応した後遺症が残る。<br>
+						<font color="ffff00">後遺症に関しては暴走ロールを行わず、選択しても良い。</font>
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>因子変化ロール</b></td>
+			<td>
+				<font size="2">
+					１Ｄ６を振り、因子変化表に対応した因子変化が発生する。
+				</font>
+			</td>
+		</tr>
+	</table>
+</div>
+<hr>
+<div style="margin-top: 50px; margin-bottom: 50px;">
+	<h2 id="行為判定">●行為判定</h2>
+	<p>
+		シナリオでの行為の成否を判定する技能判定や、戦闘で使用される基本の判定です。<br>
+		判定固定値と判定ダイスの組み合わせで算出される達成値が、目標値以上であれば成功となります。<br>
+		単に「判定」といった場合、基本的にはこの行為判定を指します。
+	</p>
+	<p>
+		また、一般的なダイスロールと比較した場合は以下のような差異があります。
+		・判定基礎値が存在する<br>
+		・クリティカル・ファンブルが発生する<br>
+		・ＡＥやバーストを宣言できる
+	</p>
+	<p>
+		<table>
+		<tr>
+			<td bgcolor="#ffff80">
+				<font color="000000">
+				【　判定固定値　】
+				</font>
+			</td>
+			<td>
+				＋
+			</td>
+			<td bgcolor="#8080ff">
+				<font color="000000">
+				【　判定ダイス　】
+				</font>
+			</td>
+			<td>
+				 ＝
+			</td>
+			<td bgcolor="#ff8080">
+				<font color="000000">
+				【　達成値　】
+				</font>
+			</td>
+		</table>
+	</p>
+	<p>
+		判定固定値は、指定されたステータス値や技能値を使用します。判定ダイスは基本的には１ｄからはじまり、<br>
+		それぞれ暴走率の上昇によるボーナスや、能力の効果などで増やす事ができます。<br>
+		また、行為判定に分類されるダイスロールではクリティカル・ファンブルが発生します。
+	</p>
+	<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+		<tr>
+			<td align="center" valign="middle">
+				<b>クリティカル</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					ダイス１つに対し、ダイス目６が出続ける限りダイスロールを追加で行い、数値を加える。<br>
+					クリティカル後のダイス目１はファンブル扱いにはせず、そのまま数値を加える。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>ファンブル</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					ダイス１つに対し、ダイス目１が出た場合ダイスロールを追加で行い、<br>
+					出た数値を合計値から減少する。はじめに出たダイス目１はそのまま加える。<br>
+					ファンブルによる追加ロールではクリティカル・ファンブルは発生しない。
+				</font>
+			</td>
+		</tr>
+	</table>
+	<br>
+	<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+		<tr>
+			<td align="center" valign="middle">
+				<b>対抗判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						固有の判定ではなく、他の判定へ補助的に付与される属性。<br>
+						二人以上のキャラクターが参加し、勝敗や優劣を競う判定の総称。
+					</p>
+					<p>
+						下記の命中・回避判定や解除判定も対抗判定の一パターン。<br>
+						技能判定も状況によっては対抗判定となる場合がある。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>刹那判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						固有の判定ではなく、他の判定へ補助的に付与される属性。<br>
+						刹那判定ではＡＥが宣言できない。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>技能判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						該当の技能値を判定基礎値として達成値を算出する。<br>
+						目標値より高い達成値を出す事で判定成功となる。
+					</p>
+					<p>
+						また、技能値の他に、能力精度を基礎値として、異能を用いた行動の成否も判定できる。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>命中・回避判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						攻撃行動時、アクション側は【命中力】を、<br>
+						リアクション側は【回避力】を判定基礎値として、それぞれ達成値を算出する。<br>
+						トラップや精神攻撃の場合、判定基礎値は両者【ＳＳ】を用いる。
+					</p>
+					<p>
+						アクション側の方が高い達成値を出せば命中成功、<br>
+						リアクション側の方が高い達成値を出せば命中失敗となる。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>ダメージ判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						攻撃命中時や自爆時などに、使用した攻撃の攻撃力で達成値を算出する。<br>
+						<font color="ffff00">ダメージ判定は例外的に、クリティカルやファンブルが発生しない。</font>
+					</p>
+					<p>
+						なお、【回復系】による回復量決定のためにダイスを振る場合もダメージ判定の一種として扱う。
+					</p>
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" valign="middle">
+				<b>衝動判定</b>
+			</td>
+			<td valign="top">
+				<font size="2">
+					<p>
+						衝撃的な場面への遭遇などで、判定固定値を精神とした技能判定を行う。<br>
+						所謂「ＳＡＮチェック」。<br>
+						判定の要否と目標値はＧＭが提示し、失敗した場合は設定された分、暴走率が上昇する。
+					</p>
+				</font>
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+</body>
+</html>

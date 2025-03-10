@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>ユグドラＴＲＰＧ　非公式サプリメント「蟹」</title>
+  <meta charset="utf-8">
+  <style>
+    /* レイアウトの調整 */
+    #container {
+      display: flex;
+      width: 100%;
+    }
+    #ef_a {
+      width: 225px;
+      height: 100vh;
+    }
+    #ef_b {
+      flex-grow: 1;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="container">
+    <iframe id="ef_a" name="ef_a" src="ef_index.html"></iframe>
+    <iframe id="ef_b" name="ef_b" src="ef_01.html"></iframe>
+  </div>
+
+<script>
+  // URLのクエリパラメータを解析
+  const urlParams = new URLSearchParams(window.location.search);
+  const iframeSrc = urlParams.get('iframe_src');
+
+  // クエリパラメータがあれば、iframeのsrcを変更
+  if (iframeSrc) {
+    document.getElementById('ef_b').src = iframeSrc;
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,479 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>鋼鉄の蟹ドラシル</title>
+</head>
+<body>
+
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h1>■アクションフェイズ</h1>
+		<ul>
+			<li><a href="#アクション宣言">アクション宣言</a>
+			</li>
+			<li><a href="#リアクション宣言">リアクション宣言</a></li>
+			<li><a href="#対抗宣言（アクション）">対抗宣言（アクション）</a></li>
+			<li><a href="#アクションリザルト">アクションリザルト</a></li>
+			<li><a href="#ポストアクション">ポストアクション</a>
+				<ul>
+					<li><a href="#解除判定ステップ">解除判定ステップ</a></li>
+					<li><a href="#コスト処理ステップ">コスト処理ステップ</a></li>
+					<li><a href="#暴走処理ステップ">暴走処理ステップ</a></li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	<hr>
+<div style="margin-bottom: 50px;">
+	<p>
+		バトル中、それぞれのキャラクターが実際にどのような行動をするか決定するフェイズです。<br>
+		イニシアティブに参加しているキャラクターの数だけ発生します。
+	</p>
+	<p>
+		所謂「手番」であり、単に「アクション」と呼ばれることもあります。<br>
+		イニシアティブ値が最も高かった者から行動を開始します。<br>
+		アクションフェイズの中でも、イニシアティブフェイズへの参加で獲得できるこのアクションを<font color="ffff00">【メインアクション】</font>と呼びます。
+	</p>
+	<p>
+		１つのアクションフェイズで１人のキャラクターが動き、<br>
+		全員のアクションフェイズが終了した時点でエンドフェイズになります。
+	</p>
+	<table>
+		<tr bgcolor="#eeeeff">
+			<td>
+				<font color="000000">
+				アクション宣言
+				</font>
+			</td>
+			<td>
+				<font color="000000">
+				自身の行動を宣言します。
+				</font>
+			</td>
+		</tr>
+		<tr align="center">
+			<td colspan="2">
+				▼　▼　▼
+			</td>
+		</tr>
+		<tr bgcolor="#ddddff">
+			<td>
+				<font color="000000">
+				リアクション宣言
+				</font>
+			</td>
+			<td>
+				<font color="000000">
+				攻撃対象が行動を宣言します。
+				</font>
+			</td>
+		</tr>
+		<tr align="center">
+			<td colspan="2">
+				▼　▼　▼
+			</td>
+		</tr>
+		<tr bgcolor="#ccccff">
+			<td>
+				<font color="000000">
+				対抗宣言（アクション）
+				</font>
+			</td>
+			<td>
+				<font color="000000">
+				自身と攻撃対象が互いに行動を追加します。
+				</font>
+			</td>
+		</tr>
+		<tr align="center">
+			<td colspan="2">
+				▼　▼　▼
+			</td>
+		</tr>
+		<tr bgcolor="#bbbbff">
+			<td>
+				<font color="000000">
+				アクションリザルト
+				</font>
+			</td>
+			<td>
+				<font color="000000">
+				決定した行動の行為判定や、効果の処理を行います。
+				</font>
+			</td>
+		</tr>
+		<tr align="center">
+			<td colspan="2">
+				▼　▼　▼
+			</td>
+		</tr>
+		<tr bgcolor="#aaaaff">
+			<td>
+				<font color="000000">
+				ポストアクション
+				</font>
+			</td>
+			<td>
+				<font color="000000">
+				コスト消費やそれに伴う暴走ロールを処理します。
+				</font>
+			</td>
+		</tr>
+	</table>
+	<div style="margin-bottom: 50px;">
+		<p>
+			なお、イニシアティブフェイズに参加することで得られるアクション以外に、<br>
+			カウンターやオート応用技など、独自のタイミングでアクションフェイズが発生する場合があります。<br>
+			<font color="#ffff00">この臨時のアクションフェイズを【サブアクション】といいます。</font>
+		</p>
+		<p>
+			サブアクションは他のメインアクションやサブアクションの中に入れ子状に展開されていきますが、<br>
+			それ以外に構造上の差異はありません。
+		</p>
+	</div>
+	<hr>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="アクション宣言">●アクション宣言</h2>
+		<p>
+			自身のアクションフェイズが巡ってきたキャラクターは、そのアクションフェイズで行う行動の内容を決定します。<br>
+			攻撃や能力の他には、一部のＡＥやＳＰＥなどが併用できます。<br>
+			取れる行動は以下となります。
+		</p>
+		<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+			<tr>
+				<td align="center" valign="middle">
+					<b>通常攻撃</b>
+				</td>
+				<td>
+					<font size="2">
+						格闘攻撃力または武器攻撃力を参照し、敵を攻撃します。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>応用技</b>
+				</td>
+				<td>
+					<font size="2">
+						キャラシートに登録された応用技を選択し、発動します。<br>
+						応用技は使用するとＰＰを消費します。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>特殊武装</b>
+				</td>
+				<td>
+					<font size="2">
+						キャラシートに登録された特殊武装を選択し、発動します。<br>
+						一部の特殊武装は使用すると残弾数を消費します。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>消費アイテム</b>
+				</td>
+				<td>
+					<font size="2">
+						所持品リストにある消費アイテムを使用します。<br>
+						使用した消費アイテムはアイテム欄からなくなります。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>ＡＥ・ＳＰＥ・カルマ</b>
+				</td>
+				<td>
+					<font size="2">
+						上記の宣言内容に加えて、ＡＥ・ＳＰＥ・カルマを宣言することができます。<br>
+						一部のＡＥ・ＳＰＥの中には、それ自体が一つのアクションになるものもあります。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>その他</b>
+				</td>
+				<td>
+					<font size="2">
+						その他、ＧＭへ提案しての行動など。
+					</font>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<hr>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="リアクション宣言">●リアクション宣言</h2>
+		<p>
+			攻撃行動の対象となった相手の行動を決定します。<br>
+			補助行動の場合、このリアクション宣言は行わず、リザルト処理まで処理をスキップします。
+		</p>
+		<p>
+			リアクション側は同タイミングで使用可能なＡＥやＳＰＥが使用できます。<br>
+			代表的な行動として以下が存在します。
+		</p>
+		<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+			<tr>
+				<td align="center" valign="middle">
+					<b>通常回避</b>
+				</td>
+				<td>
+					<font size="2">
+						回避力（精神攻撃の場合はＳＳ）を使って敵の攻撃を回避します。<br>
+						回避できるか心もとない場合は、ＰＰを消費してＡＥを宣言し、判定式を強化することもできます。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>回避放棄</b>
+				</td>
+				<td>
+					<font size="2">
+						ＡＥ【回避放棄】を使用した場合、命中回避リザルトをスキップしてダメージリザルトへ移ります。<br>
+						倍差命中によってダメージを受けるリスクがあります。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>応用技</b>
+				</td>
+				<td>
+					<font size="2">
+						リアクション宣言では原則として応用技の宣言ができませんが、<br>
+						ＳＥ【オート】【セミオート】【トラップ】を内包する応用技がトリガーを満たした場合は、<br>
+						それらの処理を行います。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>ＡＥ・ＳＰＥ・カルマ</b>
+				</td>
+				<td>
+					<font size="2">
+						上記の宣言内容に加えて、ＡＥ・ＳＰＥ・カルマを宣言することができます。
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>その他</b>
+				</td>
+				<td>
+					<font size="2">
+						その他、ＧＭへ提案しての行動など。
+					</font>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<hr>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="対抗宣言（アクション）">●対抗宣言（アクション）</h2>
+		<p>
+			リアクション側がＡＥ・ＳＰＥ・カルマを宣言したり、応用技を発動した場合、<br>
+			この対抗宣言に移行します。
+		</p>
+		<p>
+			アクション側はリアクション側の宣言を踏まえて、まだ宣言可能なアクションや特殊効果がある場合、<br>
+			追加でアクション宣言を行うことができます。<br>
+			リアクション側も、この追加宣言を受けてさらに別のリアクション宣言を追加することができます。
+		</p>
+		<p>
+			どちらかがそれ以上の追加をせず、「対抗なし」と宣言した時点で対抗宣言は終了となり、
+			以下のリザルト処理に移ります。
+		</p>
+	</div>
+	<hr>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="アクションリザルト">▼アクションリザルト</h2>
+		<p>
+			お互いの宣言が出揃った時点で、アクションの内容をそれぞれ処理していきます。<br>
+			多くの場合は、命中・回避判定や命中成功時の処理を行うことになります。
+		</p>
+		<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+			<tr>
+				<td align="center" valign="middle">
+					<b>命中・回避判定</b>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<p>
+							攻撃行動時、アクション側は【命中力】を、<br>
+							リアクション側は【回避力】を判定基礎値として、それぞれ達成値を算出する。<br>
+							トラップや精神攻撃の場合、判定基礎値は両者【ＳＳ】を用いる。
+						</p>
+						<p>
+							アクション側の方が高い達成値を出せば命中成功、<br>
+							リアクション側の方が高い達成値を出せば命中失敗となる。
+						</p>
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>ダメージ判定</b>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<p>
+							攻撃命中時や自爆時などに、使用した攻撃の攻撃力で達成値を算出する。<br>
+							<font color="ffff00">ダメージ判定は例外的に、クリティカルやファンブルが発生しない。</font><br>
+							また、ダメージ判定以外の各種効果処理（状態異常の付与など）もこのタイミングで適用する。
+						</p>
+						<p>
+							なお、【回復系】による回復量決定のダイスロールもダメージ判定の一種として扱う。
+						</p>
+					</font>
+				</td>
+			</tr>
+		</table>
+		<br>
+			また、命中・回避リザルトには以下のルールがあります。
+		<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+			<tr>
+				<td align="center" valign="middle">
+					<b>スマッシュクリティカル</b>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<p>
+							命中判定におけるクリティカル２つ毎に、<br>
+							ダメージリザルトに＋１ｄのボーナス。
+						</p>
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>倍差命中</b>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<p>
+							命中リザルトの結果が回避リザルトに対して倍以上大きい場合、<br>
+							ダメージリザルトに＋１ｄのボーナス。
+						</p>
+					</font>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" valign="middle">
+					<b>倍差回避</b>
+				</td>
+				<td valign="top">
+					<font size="2">
+						<p>
+							回避リザルトの結果が命中リザルトに対して倍以上大きい場合、<br>
+							ＡＥ【カウンター】宣言の権利を得る。<br>
+							<font color="8080ff">※宣言タイミングは【ダメージリザルト】後となる。</font>
+						</p>
+					</font>
+				</td>
+			</tr>
+		</table>
+		<br>
+			ダメージリザルトやカウンターの処理を行ったら、リザルト処理は終了です。<br>
+			その後はポストアクションの処理に移行します。
+	</div>
+	<hr>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="ポストアクション">●ポストアクション</h2>
+		<p>
+			各自の行動によるコスト消費・暴走率の上昇などをこのタイミングで行います。<br>
+			ポストアクション中の処理は以下の順番で処理します。
+		</p>
+		<table>
+			<tr bgcolor="#ffeeee">
+				<td>
+					<font color="000000">
+					解除判定ステップ
+					</font>
+				</td>
+				<td>
+					<font color="000000">
+					異能や特殊武装による状態異常を受けていた場合に発生します。
+					</font>
+				</td>
+			</tr>
+			<tr align="center">
+				<td colspan="2">
+					▼　▼　▼
+				</td>
+			</tr>
+			<tr bgcolor="#ffcccc">
+				<td>
+					<font color="000000">
+					コスト処理ステップ
+					</font>
+				</td>
+				<td>
+					<font color="000000">
+					ＰＰをはじめとしたコスト処理をこのタイミングで行います。
+					</font>
+				</td>
+			</tr>
+			<tr align="center">
+				<td colspan="2">
+					▼　▼　▼
+				</td>
+			</tr>
+			<tr bgcolor="#ffaaaa">
+				<td>
+					<font color="000000">
+					暴走処理ステップ
+					</font>
+				</td>
+				<td>
+					<font color="000000">
+					暴走率を上昇させ、それに応じた暴走・臨界ロールを行います。
+					</font>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="解除判定ステップ">○解除判定ステップ</h2>
+		<p>
+			状態異常が発生した場合、対抗宣言に移行します。
+		</p>
+		<p>
+			アクション側はリアクション側の宣言を踏まえて、まだ宣言可能なアクションや特殊効果がある場合、<br>
+			追加で特殊効果の宣言を行うことができます。<br>
+			リアクション側も、この追加宣言を受けてさらに別の宣言を追加することもできます。
+		</p>
+		<p>
+			どちらかがそれ以上の追加をせず、「対抗なし」と宣言した時点で対抗宣言は終了となり、<br>
+			以下のリザルト処理に移ります。
+		</p>
+	</div>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="コスト処理ステップ">○コスト処理ステップ</h2>
+		<p>
+			応用技やＡＥなど、ＰＰ消費・暴走率上昇といったコストを伴う行動の処理を行うタイミングです。<br>
+			コストの処理は宣言時点では行わず、このタイミングで行います。
+		</p>
+	</div>
+	<div style="margin-top: 50px; margin-bottom: 50px;">
+		<h2 id="暴走処理ステップ">○暴走処理ステップ</h2>
+		<p>
+			コスト処理などで暴走率が上昇した場合、その数値に応じて暴走処理を行います。<br>
+			活性効果等もこのタイミングで処理します。
+		</p>
+		<p>
+			なお、複数の効果が発生した場合、<br>
+			活性・暴走・臨界の分類を問わず、暴走率の低いものから適用します。
+		</p>
+	</div>
+</div>
+
+</body>
+</html>
+

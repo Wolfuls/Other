@@ -1,0 +1,211 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>基本ルール</title>
+</head>
+<body background="../../image/bg.png" bgcolor="#906060" text="#ffffff" link="#ffff00" vlink="#40bbff" alink="#1dedce">
+
+ <div style="padding: 10px; margin-bottom: 10px; border: 1px solid #FFFFFF; background-color: #000000;">
+
+<h1>■　ゲームの流れ</h1>
+<hr>
+<h2>①　シーン開始、行動順決定</h2>
+	<p>
+		シーン開始時、そのシーン中の行動順を確認します。<br>
+		行動は通常のバトルと同様に、【行動値が高い者から】行動します。<br>
+		<font color="ff8040">ただし、イニシアティブフェイズと違ってＡＥやオート技の宣言はできず、<br>
+		素の行動値を参照します。</font>
+	</p>
+	<p>
+		また、既に行動したキャラクターは、それ以降のシーンで最後尾に回ります。<br>
+		<font color="8080ff">（ABCDE→BCDEA→CDEAB→…）</font>
+	</p>
+<hr>
+<h2>②　パーティフェイズ</h2>
+	<p>
+		行動順決定後、山札から「パーティカード」が７枚、裏向きに出されます。<br>
+		各ＰＬは行動順にこれらをチェックし、その中から１枚を選んで好きなエリアに裏向きでセットします。
+	</p>
+	<p>
+		パーティカードは「<ruby>障害<rp>｛</rp><rt>フィート</rt><rp>｝</rp></ruby>」「<ruby>地形<rp>｛</rp><rt>グランド</rt><rp>｝</rp></ruby>」「<ruby>損失<rp>｛</rp><rt>ペナルティ</rt><rp>｝</rp></ruby>」「<ruby>特殊<rp>｛</rp><rt>イベント</rt><rp>｝</rp></ruby>」の４種類があります。<br>
+		複数の効果を併せ持つカードもあり、その場合はいずれかの効果から一つを選んで設置します。
+	</p>
+	<table cellspacing="0" cellpadding="10" bgcolor="#171717" border="1">
+		<tr><td align="center" colspan="2">カード一覧</td></tr>
+		<tr>
+			<td align="center" height="120"  width="180" rowspan="3">
+				<font size="4">
+					<ruby>障害<rp>｛</rp><rt>フィート</rt><rp>｝</rp></ruby>
+				</font>
+			</td>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・そのエリアを通過、突破するのに必要な障害を表すカードです。<br>
+					　エリアごとの設置上限は２枚です。
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・目標となる技能判定が書いてあり、成功すると１マス進みます。<br>
+					　失敗すると進むことはできず、同エリアのペナルティを受けます。<br>
+					　２枚設置されている場合は両方成功しなければいけません。
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・空欄の場合、【平坦な道】１枚が自動的に設置されます。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" height="120"  width="180" rowspan="3">
+				<font size="4">
+					<ruby>地形<rp>｛</rp><rt>グランド</rt><rp>｝</rp></ruby>
+				</font>
+			</td>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・そのエリアの地形や環境を表すカードです。<br>
+					　エリアごとの設置上限は１枚です。
+			</tr>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・目標となる技能判定が書いてあり、成功すると次のエリアに進ことができます。<br>
+					　失敗すると進むことはできず、同エリアのペナルティを受けます。<br>
+					　２枚設置されている場合は２つとも成功しなければいけません。
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・デフォルトは設置なし。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" height="120"  width="180" rowspan="3">
+				<font size="4">
+					<ruby>損失<rp>｛</rp><rt>ペナルティ</rt><rp>｝</rp></ruby>
+				</font>
+			</td>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・そのエリアに潜む危険を表現するカードです。<br>
+					　エリアごとの設置上限は３枚です。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・同エリア内で障害に失敗したユニットへ、このカードの効果を与えます。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・デフォルトは設置なし。
+				</font>
+			</td>
+		</tr>
+		<tr>
+			<td align="center" height="120"  width="180" rowspan="3">
+				<font size="4">
+					<ruby>特殊<rp>｛</rp><rt>イベント</rt><rp>｝</rp></ruby>
+				</font>
+			</td>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・そのエリアに特殊な効果を発生させるカードです。<br>
+					　パーティフェイズ時、他のカードのふりをして設置することができます。
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・このカードは設置後、パーティフェイズ終了時点で自動公開し、効果を発揮します。<br>
+					　効果の発揮後は消滅します。
+			</td>
+		</tr>
+		<tr>
+			<td align="left" bgcolor="#ffffff">
+				<font color="000000">
+					・デフォルトは設置なし。
+				</font>
+			</td>
+		</tr>
+	</table>
+	<p>
+		パーティカードの設置が完了したら、ラウンドを開始します。
+	</p>
+<hr>
+<h2>③　ラウンド開始、イニシアティブフェイズ</h2>
+	<table>
+		<tr>
+			<td>
+				<p>
+					　シーン開始後は通常のバトル同様、ラウンドとフェイズ単位で進行します。<br>
+					　ラウンド開始時は、通常のイニシアティブフェイズ処理の前に、<br>
+					　<font color="ff8040">ユニットがいるエリアのパーティカードを公開しましょう。</font>
+				</p>
+				<p>
+					　パーティカード公開以降は通常通りイニシアティブフェイズですが、<br>
+					　このゲームの行動順はステージ開始時に決定するもので固定なので、基本的には省略して構いません。
+				</p>
+			</td>
+		</tr>
+	</table>
+
+<hr>
+
+<h2>④　手番、障害への挑戦</h2>
+	<p>
+		イニシアティブフェイズが終わったら各々の手番を開始します。<br>
+		バトル中にとれる行動は基本的に何でもＯＫですが、<font color="ff0000">他のＰＣやそのクリーチャーへの攻撃は原則禁止</font>です。<br>
+		<font color="8080ff">（不可抗力的に攻撃が発生した場合、その攻撃は自動失敗として処理します）</font>
+	</p>
+	<p>
+		参加者はプリアクションを消費してエリアの【障害】に挑戦し、成功することで次のエリアに進むことができます。<br>
+		<font color="8080ff">（原則、１シーンはゴールを除いて３エリアで構成されます）</font><br>
+		複数の障害が存在する場合はその全てをクリアしなければなりません。
+	</p>
+	<p>
+		複数の障害に同じラウンドで挑戦することも可能ですが、その場合はＡＥ等の宣言も同一のプリアクションで行う必要があります。
+	</p>
+<hr>
+
+<h2>⑤　エンドフェイズ、ゴール！？</h2>
+	<p>
+		全員のターンが終了した場合、そのラウンドはエンドフェイズを迎えます。<br>
+		通常の戦闘と同様の処理を行った後、ラウンドを区切って③に戻ります。<br>
+		<font color="ff0000">なお、ゴール以外で復活Ｂを行う場合は振り出しに戻らなければなりません。</font>
+	</p>
+	<p>
+		エンドフェイズの時点で最終エリアに到達しているユニットがいる場合、<br>
+		<font color="ff8040">そのユニットは【自分の着順未満の参加者の数】だけ【フラッグ】を得ます。</font><br>
+		<font color="8080ff">（ex:４人プレイで１着なら、１着より下を数えて３点）</font><br>
+		同じラウンド中にゴールしたキャラクターはゴール時の達成値が高い者を先着とし、達成値も同じ場合は同着とします。
+	</p>
+	<p>
+		着順が確定した時点でそのシーンは終了となり、維持時間を問わず全ての効果が解除されます。<br>
+		<font color="8080ff">（【トラップ】のみ例外とします）</font><br>
+		その後、①に戻ってゲームを続行します。<br>
+		なお、７ラウンド経過しても決着がついていない場合は強制的にシーンを打ち切ります。
+	</p>
+<hr>
+
+<h2>⑥　あなたが究極の（無）能力者</h2>
+	<p>
+		【フラッグ】が１０点溜まった時点で、<br>
+		そのプレイヤーは抑制処理を行います。<font color="ff8040">抑制に成功した場合、そのプレイヤーの優勝です。</font><br>
+		もし失敗した場合はそのプレイヤーは失格としてゲームを続行します。
+	</p>
+	
+</div>
+
+</html>

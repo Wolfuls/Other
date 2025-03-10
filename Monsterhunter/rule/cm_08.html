@@ -1,0 +1,331 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>鋼鉄の蟹ドラシル</title>
+</head>
+<body>
+
+<div style="margin-top: 50px;">
+	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+		<tr>
+			<td>
+				<h1>⑧探索技能を算出する。</h1>
+				<a href="cm_07.html">BACK＜＜</a>　　<a href="cm_09.html">＞＞NEXT</a>
+				<hr size="2">
+				<p>
+					パラメーターを元に以下の探索技能を算出していきます。<br>
+					これはロールプレイをしていく上で各種判定時に用いられる技能になります。
+				</p>
+				<p>
+					<font color="#8080ff">※端数切捨て</font>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+					<tr bgcolor="#212121">
+						<td align="center" valign="middle">
+							探索技能
+						</td>
+						<td align="center" valign="middle">
+							算出式
+						</td>
+						<td>
+							技能の説明
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>力技</b>
+						</td>
+						<td align="center" valign="middle">
+							筋力×２
+						</td>
+						<td>
+							<font size="2">
+							モノを動かす、ドアを破るなど、力で物事を突破する際に必要な判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>威圧</b>
+						</td>
+						<td align="center" valign="middle">
+							筋力＋耐久
+						</td>
+						<td>
+							<font size="2">
+							強制的に対象を従わせる、威嚇で黙らせるなどに必要な判定技能。<br>
+							歌唱力の判定に使われることもあり、単に相手を畏怖させるのみでなく、<br>
+							人物としての凄みや迫力を表現する技能だと推察される。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>観察眼</b>
+						</td>
+						<td align="center" valign="middle">
+							【ＳＳ÷２】＋知力
+						</td>
+						<td>
+							<font size="2">
+							物事・現場を観察し、何かに気づけるかどうかの判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>察知</b>
+						</td>
+						<td align="center" valign="middle">
+							【ＳＳ÷２】＋敏捷
+						</td>
+						<td>
+							<font size="2">
+							突然の出来事・気配等に反応できるか・気づけるかどうかの判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>知識</b>
+						</td>
+						<td align="center" valign="middle">
+							知力×２
+						</td>
+						<td>
+							<font size="2">
+							物事・情報・使用方法などについて知っているかどうかの判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>技術</b>
+						</td>
+						<td align="center" valign="middle">
+							器用＋精神
+						</td>
+						<td>
+							<font size="2">
+							車の運転をする、機械を修理する、鍵開けを行うなど、<br>
+							手先の器用さを要求される場合に必要となる判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>隠密</b>
+						</td>
+						<td align="center" valign="middle">
+							器用＋敏捷
+						</td>
+						<td>
+							<font size="2">
+							身を隠す、対象を追跡する、物を隠す際の判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>俊敏</b>
+						</td>
+						<td align="center" valign="middle">
+							敏捷×２
+						</td>
+						<td>
+							<font size="2">
+							逃げる、対象を追いかける、高所からの着地ができるかなどの判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>話術</b>
+						</td>
+						<td align="center" valign="middle">
+							知力＋器用
+						</td>
+						<td>
+							<font size="2">
+							説得・言いくるめ・交渉など、話術が必要な際の判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>読心</b>
+						</td>
+						<td align="center" valign="middle">
+							【ＳＳ÷２】＋精神
+						</td>
+						<td>
+							<font size="2">
+							対象が嘘をついているかなど、相手の心情を察する判定技能。
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>閃き</b>
+						</td>
+						<td align="center" valign="middle">
+							【ＳＳ÷２】＋運
+						</td>
+						<td>
+							<font size="2">
+							推理・考察時に何かを思い付けるかどうかの判定技能。　
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<font size="4"><b>幸運</b>
+						</td>
+						<td align="center" valign="middle">
+							運×２
+						</td>
+						<td>
+							<font size="2">
+							運が試される際の判定技能。
+							</font>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div style="margin-top: 20px;">
+				なお、運の数値によっては基礎技能値に以下のボーナス・ペナルティがつきます。
+				<table cellspacing="0" cellpadding="10" bordercolor="#000000" border="1" bgcolor="#151515">
+					<tr>
+						<td align="center" valign="middle" colspan="3">
+							<b>【　運ボーナス　】</b>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運１～２</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値－２
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運１～２</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値－２
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運３～４</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値－１
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運５～９</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運１０～１３</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							―
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値＋１
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運１４～１７</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							命中・回避判定＋１ｄ
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値＋２
+							</font>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" valign="middle">
+							<b>運１８～２０</b>
+						</td>
+						<td valign="top">
+							<font size="2">
+							命中・回避判定＋１ｄ
+							</font>
+						</td>
+						<td valign="top">
+							<font size="2">
+							基礎技能値＋３
+							</font>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div style="margin-top: 20px;">
+				<p>
+					▼<br>
+					▼<br>
+					▼
+				</p>
+				<p>
+					<font size="4" color="ff8040">基礎技能値が出たら、基礎技能値を÷２します。</font>
+					それがあなたの技能判定値となります。
+					端数は切り捨てとなります。
+				</p>
+				<p>
+					<img src="image/sute8.jpg">
+			</div>
+
+</BODY>
+</HTML>
