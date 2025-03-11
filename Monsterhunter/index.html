@@ -5,12 +5,20 @@
   <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
   <meta http-equiv="Pragma" content="no-cache">
   <link rel="stylesheet" type="text/css" href="css/style.css">
-  <title>鋼鉄の蟹ドラシル</title>
+  <link rel="icon" href="icon/symbol.ico">
+  <!-- スマホ用アイコン -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icon/symbol.ico">
+
+  <title>鋼鉄の狩猟団</title>
   <style>
     body {
+    background: rgba(0,0,0,1);
       transition: background-image 0.5s ease-in-out;
+      background-size:90%;
+      background-position: center;
+      background-image: url("icon/bg.jpg");
       background-repeat: no-repeat;
-      background-size: cover;
+      align
     }
   </style>
 </head>
@@ -29,29 +37,5 @@
     <iframe name="mainwin" src="top.html" frameborder="0" class="mainwin" id="mainwin"></iframe>
   </div>
 
-  <script>
-    function changeBackground(event) {
-      const pathname = event.data;
-      const body = document.getElementById('randbg');
-
-      console.log('Current iframe src:', pathname);
-
-      if (pathname.includes('lore/world_ygg/')) {
-        body.style.backgroundImage = 'url("image/yggbg.jpg")';
-      } else {
-        body.style.backgroundImage = 'url("image/mainbg.png")';
-      }
-
-      console.log('Background image set to:', body.style.backgroundImage);
-    }
-
-    window.addEventListener('message', changeBackground);
-
-    // ページが読み込まれた時に背景画像を設定
-    document.getElementById('mainwin').onload = function() {
-      const mainwin = document.getElementById('mainwin');
-      mainwin.contentWindow.postMessage(mainwin.src, "*");
-    };
-  </script>
 </body>
 </html>

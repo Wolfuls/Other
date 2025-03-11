@@ -11,15 +11,21 @@ body {
   animation: fadeIn 1s ease 0s 1 normal;
 }
 
-.minifont {
-  font-size: 14px;
+table {
+  margin: 0;
+  padding: 0;
+  border-spacing: 3;
   }
 
 .borderless {
-  margin: 0;
-  padding: 0;
   border-spacing: 0;
   }
+
+td {
+  padding:0;
+}
+
+
 
 /* Flexbox */
 .flex-container {
@@ -83,10 +89,6 @@ h1, h2, h3 {
   opacity: 1;
   pointer-events: auto;
   z-index: 101;
-}
-
-.ygg_index {
-  max-height: 600px;
 }
 
 /* Hamburger Menu */
@@ -166,7 +168,7 @@ h1, h2, h3 {
   position: relative;
   cursor: pointer;
   padding: 5px;
-  color: #ffff00;
+  color: #ff4080;
 }
 .table-cell a {
   display: block;

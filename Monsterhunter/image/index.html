@@ -1,0 +1,196 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>イラスト</title>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<link href="../css/lity-2.4.1/dist/lity.css" rel="stylesheet">
+<script src="../css/lity-2.4.1/dist/lity.js"></script></head>
+</head>
+<style>
+	.sample_box{
+	 margin:0 auto;
+	 overflow:hidden;
+	}
+	.sample_box img{
+	 transition:0.2s all;
+	}
+	.sample_box img:hover{
+	  transform:scale(1.1,1.1);
+	  transition:0.2s all;
+	}
+
+
+	
+.tab_contents {
+	width: 100%;
+}
+
+.tab_wrap {
+	width: 100%;
+	margin: 50px auto;
+	opacity: 0.8;
+}
+@media screen and (max-width:900px) {
+	.tab_wrap {
+		width: 100%;
+		margin: 0 auto;
+		opacity: 0.8;
+	}
+}
+
+/*タブボタンデザイン*/
+.tab_lab1, .tab_lab2, .tab_lab3, .tab_lab4 {
+	background: #242424;
+	color: #fff;
+	padding: 15px;
+}
+
+/*タブにチェック入ったとき*/
+#tab1:checked~.tab_lab1 {
+	background: #ffffff;
+	color: #242424;
+}
+#tab2:checked~.tab_lab2 {
+	background: #ffffff;
+	color: #242424;
+}
+#tab3:checked~.tab_lab3 {
+	background: #ffffff;
+	color: #242424;
+}
+#tab4:checked~.tab_lab4 {
+	background: #ffffff;
+	color: #242424;
+}
+
+/*タブボタンとボックス連動*/
+#tab1:checked~.panels #area1 {
+	display: block;
+	background: #242424;
+}
+#tab2:checked~.panels #area2 {
+	display: block;
+	background: #242424;
+}
+#tab3:checked~.panels #area3 {
+	display: block;
+	background: #242424;
+}
+#tab4:checked~.panels #area4 {
+	display: block;
+	background: #242424;
+}
+
+/*チェックボックスとボックス非表示*/
+input[name="check"] {
+	display: none;
+}
+.panel {
+	padding: 50px;
+	display: none;
+}
+
+/*アニメーション設定*/
+@keyframes SlideUp {
+	0% {
+		transform: translateY(50px);
+		/* Y軸方向に50px */
+		opacity: 0;
+		/* 透明 */
+	}
+	100% {
+		transform: translateY(0);
+		/* Y軸方向に0px */
+		opacity: 1;
+		/* 不透明 */
+	}
+}
+/*アニメーション設定end*/
+
+/*ボックスを下から上へ*/
+.panel_content {
+	animation-name: SlideUp;
+	animation-duration: 2s;
+	background-color: #fff;
+	width: 100%;
+}
+
+</style>
+<body width="100%">
+<table style="background:rgba(0,0,0,0.6);" align="center" class="sample_box" border="1">
+	<tr>
+		<td colspan="4">
+			<section class="tab_contents">
+				<div class="tab_wrap">
+					<input id="tab1" type="radio" name="check" checked>
+					<label for="tab1" class="tab_lab1">ウルフ</label>
+<!--
+					<input id="tab3" type="radio" name="check">
+					<label for="tab3" class="tab_lab3">ラバソ</label>
+-->
+					<div class="panels">
+						<div id="area1" class="panel">
+							<table style="background:rgba(0,0,0,0.6);" align="center" border="1">
+								<tr align="center">
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1YKHnDRko0ayqVMFfzNtAgf7WeuzGsuJf/preview" data-lity="data-lity" title="【ピザ】">
+										<img src="illust/asaduke/pic000.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1YI5O8f8J3kXoH4POwUnpG-z5VCFZdQOC/preview" data-lity="data-lity" title="【マルコ表情】">
+										<img src="illust/asaduke/pic001.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1Y5E7u7iZTflpkwc4bDg-DHHeRsilu629/preview" data-lity="data-lity" title="【マルコVS須磨】">
+										<img src="illust/asaduke/pic002.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1Y3C9As7INBCB1ecgI_Cu_mH4eEFD9hUz/preview" data-lity="data-lity" title="【カペラ】">
+										<img src="illust/asaduke/pic003.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1Y-SuVUZXsTx_LbEI_2NYpqKysbWYG8wm/preview" data-lity="data-lity" title="【マネ子】">
+										<img src="illust/asaduke/pic004.jpg" width="150px"></a>
+									</td>
+								</tr>
+							</table>
+						</div>
+<!--
+
+						<div id="area2" class="panel">
+							<table style="background:rgba(0,0,0,0.6);" align="center" border="1">
+								<tr align="center">
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/1mn6H--gR29q5uFfRYLp8P7g7d16C91kc/preview" data-lity="data-lity" title="【旧き看守】">
+										<img src="illust/takuan/01.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+										<a href="https://drive.google.com/file/d/12qKBTZpXUTP3YcKAFTBkiWLF3FGmINMK/preview" data-lity="data-lity" title="【かしこさレベル】">
+										<img src="illust/takuan/02.jpg" width="150px"></a>
+									</td>
+									<td class="frame">
+									
+									</td>
+									<td class="frame">
+									
+									</td>
+									<td class="frame">
+									
+									</td>
+								</tr>
+							</table>
+						</div>
+-->
+
+
+					</div>
+				</div>
+			</section>
+		</td>
+	</tr>
+</table>
+
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+  <meta http-equiv="Pragma" content="no-cache">
+  <link rel="icon" href="../image/symbol.ico">
+  <!-- スマホ用アイコン -->
+  <link rel="apple-touch-icon" sizes="180x180" href="../image/symbol.ico">
+
+  <title>鋼鉄の狩猟団</title>
+<style>
+    /* Animations */
+    @keyframes fadeIn {
+        0% {opacity: 0}
+        100% {opacity: 1}
+    }
+    body {
+        font-family: 'メイリオ', 'Meiryo', sans-serif;
+        margin: 10px;
+        padding: 0;
+        color: #ffffff;
+        background: rgba(0,0,0,0.8);
+        animation: fadeIn 1s ease 0s 1 normal;
+        text-align: center;
+    }
+    .thumbnail-container {
+        display: inline-block;
+        vertical-align: middle;
+        margin: 5px;
+        border: 1px solid #f1f1f1;
+        padding: 10px;
+        cursor: pointer;
+        transition: transform 0.3s, border 0.3s;
+    }
+    .thumbnail-container:hover {
+        transform: scale(1.1);
+        border: 2px solid #f1f1f1;
+        text-align: center;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 30px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        vertical-align: middle;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 60%;
+        max-height: 85%;
+        text-align: left;
+        width: auto;
+        height: auto;
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+        animation: fadeIn 0.5s;
+        padding: 20px;
+        background: #333;
+        color: #fff;
+        overflow-y: auto; /* オーバーフローをスクロールに設定 */
+    }
+    .modal-content:hover {
+        cursor: pointer;
+    }
+    .prev, .next {
+        cursor: pointer;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 10%;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        user-select: none;
+        transition: background-color 0.3s;
+    }
+    .prev {
+        left: 0;
+    }
+    .next {
+        right: 0;
+    }
+    .prev:hover, .next:hover {
+        background-color: rgba(0,0,0,0.8);
+    }
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        z-index: 81;
+    }
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    .expanded-img-container {
+        display: none;
+        position: fixed;
+        z-index: 2;
+        padding-top: 30px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+    }
+    .expanded-img-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 90%;
+        width: auto;
+        height: auto;
+    }
+    .expanded-img-content img {
+        max-width: 80%;
+        max-height: 80%;
+        align-items: center;
+    }
+    .expanded-img-close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .expanded-img-close:hover,
+    .expanded-img-close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+
+<body>
+
+	<div>
+	<h1>△▼△▼△小説△▼△▼△</h1>
+	</div>
+
+<div style="display: inline-block; height: 150px; vertical-align: middle;"></div>
+<!-- Thumbnail texts -->
+<div class="thumbnail-container"><a href="novel250309.pdf" target="novel"><img src="img/novel250309.jpg" alt="食事のひととき" height="150px"><br>食事のひととき</a></div>
+
+
+
+
+
+
+
+</body>
+</html>
