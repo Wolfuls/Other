@@ -7,43 +7,38 @@
 <link href="../css/lity-2.4.1/dist/lity.css" rel="stylesheet">
 <script src="../css/lity-2.4.1/dist/lity.js"></script></head>
 <style>
-	.sample_box{
-	 margin:0 auto;
-	 overflow:hidden;
-	}
-	.sample_box img{
+    .thumbnail-container {
         display: inline-block;
         vertical-align: middle;
         margin: 5px;
         border: 1px solid #f1f1f1;
         padding: 10px;
         cursor: pointer;
-	 transition:0.2s all;
-	}
-	.sample_box img:hover{
-	  transform:scale(1.1,1.1);
-	  transition:0.2s all;
-	}
+        transition: transform 0.3s, border 0.3s;
+    }
+    .thumbnail-container:hover {
+        transform: scale(1.1);
+        border: 2px solid #f1f1f1;
+        text-align: center;
+    }
 	
 </style>
 
-<body width="100%">
-<table cellpadding="20" width="90%" align="center" class="sample_box">
-	<tr>
-		<td align="center">
-			<h1>△▼△▼△<b>動画</b>△▼△▼△</h1>
-		</td>
-	</tr>
-	<tr>
-		<td align="center" width="250px">
+
+<div align="center">
+	<h1>△▼△▼△動画△▼△▼△</h1>
+	<div style="display: inline-block;">
+		<!-- Thumbnail texts -->
+		<div class="thumbnail-container">
 			<a href="https://youtu.be/D9Cs-hDLYeY" data-lity="data-lity" title="AMV【The Beast】">
 			<img src="img/video241023.jpg"><br>
 			AMV【The Beast】
 			</a>
-		</td>
-	</tr>
-</table>
-</p>
+		</div>
+	</div>
+</div>
+
+
 
 </body>
 </html>

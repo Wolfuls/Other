@@ -1,0 +1,192 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>鋼鉄の狩猟団</title>
+</head>
+<style>
+    /* Animations */
+    .thumbnail-container {
+        display: inline-block;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: transform 0.3s, border 0.3s;
+    }
+    .thumbnail-container:hover {
+        transform: scale(1.1);
+    }
+</style>
+<body>
+
+<div class="thumbnail-container"><a href="index.html" target="mainwin"><img src="../icon/back.png" alt="戻る" height="50px"></a></div>
+
+
+<div>
+
+	<table border="0" cellpadding="5" cellspacing="5">
+		<tr valign="middle">
+			<td width="250">
+				<p><img border="0" alt="" src="img/eris.png" width="100%"></p>
+			</td>
+			<td>
+				<p>
+					<h2>エリス・クロード</h2>
+					<table>
+						<tr valign="top">
+							<td>
+								<table border="1" cellpadding="0" bgcolor="#000000" align="left">
+									<tr>
+										<td>
+											男性
+										</td>
+										<td>
+											２４歳→？
+										</td>
+									</tr>
+									<tr>
+										<td>
+											一人称
+										</td>
+										<td>
+											私
+										</td>
+									</tr>
+									<tr>
+										<td>
+											二人称
+										</td>
+										<td>
+											君、○○（呼び捨て）
+										</td>
+									</tr>
+									<tr>
+										<td>
+											三人称
+										</td>
+										<td>
+											彼、彼女
+										</td>
+									</tr>
+									<tr>
+										<td>
+											ベース
+										</td>
+										<td>
+											寡黙
+										</td>
+									</tr>
+									<tr>
+										<td>
+											その他<br>
+											口癖等
+										</td>
+										<td>
+											<p><font size="2">
+												
+											</p></font>
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td>
+								<table border="1" cellpadding="0" bgcolor="#000000" align="left">
+									<tr>
+										<td>
+											スタンス
+										</td>
+										<td>
+											冷静（寡黙）
+										</td>
+									</tr>
+									<tr>
+										<td>
+											トゥルー
+										</td>
+										<td>
+											鈍感
+										</td>
+									</tr>
+									<tr>
+										<td rowspan="2">
+											ライフパス
+										</td>
+										<td>
+											臨死
+										</td>
+									</tr>
+									<tr>
+										<td>
+											再生（兵士）
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<hr>
+				<font size="3">
+					<p>
+						髑髏を模した戦化粧が目を引く双剣使い。<br>
+						無口で表情にも乏しく、戦化粧も相まって何を考えているか読めない。<br>
+						ハンター業に関する以外の知識は疎く、本人も教えられたことを鵜呑みにする傾向があるため騙されやすい。<br>
+						各地のハンターやウェイン(オトモ)に、たびたびカスの嘘を吹き込まれているとか。
+					</p>
+					<p>
+						モンスター被害の多い乾燥地域の生まれであり、幼少期から戦士となるべく過酷な訓練を施されて育った。<br>
+						その結果、恐怖や想定外の事象に動じない「戦士に相応しい精神」を手には入れたもの、外部からの一般的な刺激に対して感覚が鈍くなってしまった。<br>
+						この影響でアドレナリン中毒気味であり、鎬を削るような命のやり取りに快感を見出すバトルジャンキー。
+					</p>
+					<p>
+						快感を求めてモンスターを蹴散らす過程で自らの実力を過信し、当時格上であった<ruby>角竜<rp>《</rp><rt>ディアブロス</rt><rp>》</rp></ruby>へ危険を省みずして挑んだ過去がある。<br>
+						結果は返り討ち。瀕死に追い込まれるのみならず、救出の過程で師にも手傷を負わせた苦い記憶となった。<br>
+						習慣としている骸骨の戦化粧は慢心によって周囲を危険に晒したことへの悔恨、そして「自らはあの時死んだも同然であり、これからの生は拾われたもの」という自戒が籠められている。
+					</p>
+					<p>
+						また、この一件で久しく感情を発露したことで軍事訓練の過程で“死んだ”自らの精神を自覚し、省みるようになる。<br>
+						新たな環境や多くの人々とのやり取りを通して徐々に普遍的な感性を取り戻しつつあるものの、未だ表情にも乏しく、呪縛が完全に解けたとも言い難いようだ。
+					</p>
+					<p>
+						故郷の村には頭髪を大切にする習慣があり、オフの日は頭から香油の香りがする。<br>
+						寒いのはちょっと苦手らしい。
+					</p>
+				</font>
+				</details>
+			</td>
+		</tr>
+	</table>
+</div>
+
+</div>
+</body>
+
+<script>
+	window.onload = function() {
+	    window.top.postMessage({ path: window.location.pathname, height: document.body.scrollHeight }, "*");
+	    initIframeListener();
+	};
+
+
+	function resizeIframe(iframe) {
+	    iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+	}
+
+	function initIframeListener() {
+		window.addEventListener('message', function(event) {
+		    if (event.origin !== window.location.origin && event.origin !== "null") {
+		        console.warn("Blocked message from:", event.origin);
+		        return;
+		    }
+		    if (event.data && event.data.height) {
+		        var iframe = document.getElementById('people_index');
+		        iframe.style.height = event.data.height + 'px';
+		    }
+		}, false);
+	}
+</script>
+
+</html>
