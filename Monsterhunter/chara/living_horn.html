@@ -1,0 +1,180 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="../css/style.css">
+<title>鋼鉄の狩猟団</title>
+</head>
+<style>
+    /* Animations */
+    .thumbnail-container {
+        display: inline-block;
+        vertical-align: middle;
+        cursor: pointer;
+        transition: transform 0.3s, border 0.3s;
+    }
+    .thumbnail-container:hover {
+        transform: scale(1.1);
+    }
+</style>
+<body>
+
+<div class="thumbnail-container"><a href="index.html" target="mainwin"><img src="../icon/back.png" alt="戻る" height="50px"></a></div>
+
+
+<div>
+
+	<table>
+		<tr valign="middle">
+			<td colspan="2" align="center">
+				
+				<h2>△▼△▼△“生き笛”△▼△▼△</h2>
+			</td>
+		</tr>
+		<tr>
+			<td width="250">
+				<img border="0" alt="" src="img/living_horn.png" width="100%">
+			</td>
+			<td>
+				<p>
+					<table>
+						<tr valign="top">
+							<td>
+								<table border="1" cellpadding="5" bgcolor="#000000" align="left">
+									<tr>
+										<td>
+											性別
+										</td>
+										<td>
+											女性
+										</td>
+									</tr>
+									<tr>
+										<td>
+											年齢
+										</td>
+										<td>
+											？？？
+										</td>
+									</tr>
+									<tr>
+										<td>
+											一人称
+										</td>
+										<td>
+											私
+										</td>
+									</tr>
+									<tr>
+										<td>
+											二人称
+										</td>
+										<td>
+											お前、○○（呼び捨て）
+										</td>
+									</tr>
+									<tr>
+										<td>
+											三人称
+										</td>
+										<td>
+											あいつ
+										</td>
+									</tr>
+									<tr>
+										<td>
+											ベース
+										</td>
+										<td>
+											中性的
+										</td>
+									</tr>
+									<tr>
+										<td>
+											その他<br>
+											口癖等
+										</td>
+										<td>
+											<p><font size="2">
+												
+											</p></font>
+										</td>
+									</tr>
+								</table>
+							</td>
+							<td>
+								<table border="1" cellpadding="0" bgcolor="#000000" align="left">
+									<tr>
+										<td>
+											使用武器
+										</td>
+										<td>
+											狩猟笛
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<hr>
+				<font size="3">
+					<p>
+						様々な逸話と共に“生き笛”の異名を取る、名うての女性ハンター。<br>
+						凄腕の狩猟笛使いとして、幾多のクエストを成功に導いてきた。ルックスも別嬪だ。<br>
+						しかしその狩りの全貌は彼女の従者に選ばれし者のみが目にする事を許され、謎に包まれている。
+					</p>
+					<p>
+						……とまぁ、巷ではこんな感じで伝わっている人物。<br>
+						実際のところ、モンスターとのやり取りはほぼ味方に丸投げしており、<b>“生き笛”自身は狩猟笛やアイテムで味方を鼓舞しているだけ。</b><br>
+						巷に出回った逸話も、大半は同行者の功績が何故か彼女のものとして伝わっていたり、事実であっても極端に誇張されているケースが大半だという。<br>
+						（これらは世間の噂に尾ひれがついたもので、“生き笛”本人の意思で詐術しているわけではないが……）
+					</p>
+					<p>
+						本来の性格はクエスト内外問わずいい加減。周囲のハンター（主にリオン）がたびたび振り回されている。<br>
+						一方、ひとたび攻撃に参加すれば彼女の一撃がモンスターをノックアウトする事も多く、なんだかんだでハンターとしての実力は確かなようだ。
+					</p>
+					<p>
+						その経歴には謎が多く、本名すら名乗ろうとしない。<br>
+						必然的に素性についての噂が付き纏う事になり、曰く「獣人族に育てられた」、曰く「ある名家の娘」等、さまざまに憶測されている。<br>
+						が、本人としては何か意味があって名乗らないのではなく、単に自らの過去や肩書に興味がないので名乗らないだけというのが実際のようだ。
+					</p>
+				</font>
+				</details>
+			</td>
+		</tr>
+	</table>
+</div>
+
+</div>
+</body>
+
+<script>
+	window.onload = function() {
+	    window.top.postMessage({ path: window.location.pathname, height: document.body.scrollHeight }, "*");
+	    initIframeListener();
+	};
+
+
+	function resizeIframe(iframe) {
+	    iframe.style.height = iframe.contentWindow.document.body.scrollHeight + 'px';
+	}
+
+	function initIframeListener() {
+		window.addEventListener('message', function(event) {
+		    if (event.origin !== window.location.origin && event.origin !== "null") {
+		        console.warn("Blocked message from:", event.origin);
+		        return;
+		    }
+		    if (event.data && event.data.height) {
+		        var iframe = document.getElementById('people_index');
+		        iframe.style.height = event.data.height + 'px';
+		    }
+		}, false);
+	}
+</script>
+
+</html>
