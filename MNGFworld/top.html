@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MNGF World — 序文</title>
+
+  <!-- 共有CSS -->
+  <link rel="stylesheet" href="style/css.css">
+
+  <!-- このページ専用の装飾（盛り） -->
+  <style>
+    /* 余白（下固定メニュー分） */
+    body{ padding-bottom: 92px; }
+
+    /* タイトルまわりを“導入の間”っぽく */
+    header.hero{
+      text-align: center;
+    }
+    header.hero .title{
+      justify-content: center;
+    }
+    .hero-orn{
+      margin-top: 10px;
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      opacity: .9;
+    }
+    .hero-orn span{
+      display:inline-block;
+      width: 36px;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(184,154,69,.55);
+      box-shadow: 0 0 0 3px rgba(184,154,69,.10);
+    }
+    .hero-sub{
+      margin: 10px auto 0;
+      max-width: 48em;
+      color: rgba(31,42,51,.72);
+      line-height: 1.9;
+      font-size: 13.5px;
+      letter-spacing: .06em;
+    }
+
+    /* “巻物カード” */
+    .scroll{
+      position: relative;
+      padding: 18px 16px 16px;
+      overflow: hidden;
+    }
+
+    /* 上下の棒（巻物の軸） */
+    .scroll::before,
+    .scroll::after{
+      content:"";
+      position:absolute;
+      left: 14px;
+      right: 14px;
+      height: 10px;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, rgba(184,154,69,.15), rgba(184,154,69,.50), rgba(184,154,69,.15));
+      box-shadow:
+        0 8px 18px rgba(0,0,0,.10),
+        0 0 0 1px rgba(184,154,69,.25) inset;
+      pointer-events:none;
+      opacity: .85;
+    }
+    .scroll::before{ top: 10px; }
+    .scroll::after{ bottom: 10px; }
+
+    /* 端の“房”っぽい装飾 */
+    .scroll .tassel{
+      position:absolute;
+      top: 6px;
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      background: rgba(178,58,47,.20);
+      box-shadow: 0 0 0 1px rgba(178,58,47,.25) inset, 0 10px 20px rgba(0,0,0,.10);
+      transform: rotate(8deg);
+      opacity: .9;
+      pointer-events:none;
+    }
+    .scroll .tassel.left{ left: 12px; }
+    .scroll .tassel.right{ right: 12px; transform: rotate(-8deg); }
+
+    /* うっすら文様（和紙＋雲） */
+    .scroll .pattern{
+      position:absolute;
+      inset: 0;
+      pointer-events:none;
+      opacity: .55;
+      background:
+        radial-gradient(70% 42% at 20% 20%, rgba(178,58,47,.10), transparent 60%),
+        radial-gradient(70% 42% at 85% 32%, rgba(31,111,99,.10), transparent 60%),
+        radial-gradient(80% 50% at 45% 82%, rgba(184,154,69,.10), transparent 62%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.06) 0 1px, transparent 1px 9px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0 1px, transparent 1px 13px);
+      mix-blend-mode: multiply;
+    }
+
+    /* 文章の組版（インデント＋行間） */
+    .prologue{
+      position: relative;
+      padding: 20px 20px 24px;
+    }
+    .prologue p{
+      position: relative;
+      margin: 0;
+      line-height: 2.05;
+      font-size: 14.5px;
+      letter-spacing: .05em;
+      color: rgba(31,42,51,.92);
+    }
+    .prologue p + p{
+      margin-top: 12px;
+    }
+
+    /* 冒頭の“ちょい装飾”：一文字だけ強め（ドロップキャップ風） */
+    .prologue p.first::first-letter{
+      float: left;
+      font-size: 44px;
+      line-height: 1;
+      margin: 4px 10px 0 0;
+      font-weight: 900;
+      color: rgba(31,42,51,.92);
+      text-shadow: 0 10px 18px rgba(0,0,0,.10);
+    }
+
+    /* 段落の区切り（破線＋金の点） */
+    .divider{
+      margin: 14px auto 0;
+      width: min(520px, 100%);
+      height: 1px;
+      background: rgba(31,42,51,.18);
+      position: relative;
+    }
+    .divider::after{
+      content:"";
+      position:absolute;
+      left: 50%;
+      top: 50%;
+      width: 10px;
+      height: 10px;
+      transform: translate(-50%, -50%) rotate(45deg);
+      border-radius: 2px;
+      background: var(--gold);
+      box-shadow: 0 0 0 3px rgba(184,154,69,.14);
+    }
+
+    /* 重要語（【大君】など）を“朱＋金縁”で */
+    .kw{
+      font-weight: 900;
+      color: rgba(178,58,47,.95);
+      text-shadow: 0 0 0 rgba(0,0,0,0);
+      padding: 0 .1em;
+      border-bottom: 1px solid rgba(184,154,69,.55);
+    }
+
+    /* 右下に“朱印”っぽい飾り */
+    .seal{
+      position:absolute;
+      right: 12px;
+      bottom: 16px;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(178,58,47,.18), rgba(178,58,47,.10));
+      border: 1px solid rgba(178,58,47,.28);
+      box-shadow: 0 14px 28px rgba(0,0,0,.14);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      letter-spacing: .12em;
+      color: rgba(178,58,47,.75);
+      font-weight: 900;
+      user-select:none;
+      transform: rotate(-6deg);
+      pointer-events:none;
+    }
+
+    /* 下固定メニュー（既存のsite-navを“ドック”化） */
+    .site-nav-dock{
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 999;
+      pointer-events: none;
+    }
+    .site-nav-dock .site-nav{
+      pointer-events: auto;
+      justify-content:center;
+      margin: 0 auto;
+      max-width: min(980px, 100%);
+      box-shadow: 0 12px 32px rgba(0,0,0,.28);
+      background: rgba(31,42,51,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ちょい演出：本文カードがほんのり浮く */
+    @media (min-width: 760px){
+      .scroll{
+        transform: translateY(0);
+        animation: floatIn 1.2s ease both;
+      }
+      @keyframes floatIn{
+        from{ opacity: 0; transform: translateY(10px); }
+        to{ opacity: 1; transform: translateY(0); }
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fog2" aria-hidden="true"></div>
+
+  <div class="wrap">
+
+    <header class="hero" id="top">
+      <div class="title">
+        <h1>MNGF World</h1>
+      </div>
+
+    </header>
+
+    <main>
+      <section class="card scroll" aria-label="序文本文">
+        <div class="pattern" aria-hidden="true"></div>
+        <div class="tassel left" aria-hidden="true"></div>
+        <div class="tassel right" aria-hidden="true"></div>
+
+
+        <div class="prologue">
+          <p class="first">
+            今は昔。国が幾つにも別れ、山河に境を引いて並び立っていた頃。<br>
+            世界が神の力で満たされ、その影として妖怪どもが跳梁跋扈していた頃。
+          </p>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <p>
+            その別れた国を背負う統治者たちを、人々は<span class="kw">【大君】</span>と呼んだ。<br>
+            切っ先で国をまとめるだけの王ではない。<br>
+            領を預かる諸家の思惑を束ね、民の飢えと怯えを背に受け、今日を明日に繋ぐ――そういった宿命を背負った名である。
+          </p>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <p>
+            そして各国の中枢には、表に出ぬ刃がある。<br>
+            彼らがいることは誰もが知っている。しかし彼らが何を見、何を消し、誰のために夜を越えるのかを知る者は少ない。<br>
+            ただ主と国のために動き、命じられたことを果たす影。
+          </p>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <p>
+            ――さて、そんな国々の中の一つに、一人の若者がいた。<br>
+            大君の子でありながら、家督を継ぐには至らぬ次男坊。<br>
+            これはその次男坊と、その傍らに寄り添う影――<span class="kw">【忍者】</span>たちの物語。
+          </p>
+
+          <div class="divider" aria-hidden="true"></div>
+
+          <p>
+            語られぬ努力と、見えぬ犠牲の上に、世界は静かに回り続けている。
+          </p>
+
+          <div class="seal" aria-hidden="true">序</div>
+        </div>
+      </section>
+    </main>
+
+  <!-- 下固定メニュー（あなたのnav.htmlを読み込む） -->
+  <div class="site-nav-dock">
+    <div data-site-nav data-base="."></div>
+  </div>
+
+  <script src="style/nav-loader.js"></script>
+</body>
+</html>

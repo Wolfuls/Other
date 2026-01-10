@@ -1,0 +1,15 @@
+root
+┃
+┣style
+┃┃
+┃┗css.css
+┃
+┣characters
+┃┃
+┃┣index.html
+┃┃
+┃┗#mikage_shou.html
+┃
+┗lore
+　┃
+　┗keyword.html

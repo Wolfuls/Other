@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MNGF World</title>
+
+  <!-- 共有CSS（あなたの構成に合わせてパス調整） -->
+  <link rel="stylesheet" href="../style/css.css">
+
+  <!-- このページ専用の追記（後でcss.css末尾に移してもOK） -->
+
+  <style>/* キャラ詳細ページ用 */
+
+    .profile-top{
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* ←これが効く */
+  gap: 14px;
+    }
+
+    .portrait{
+      width: 100%;
+      max-width: 420px;     /* PCで大きくなりすぎない上限 */
+      margin: 0 auto;
+      aspect-ratio: 3 / 4; /* 立ち絵向け。横長なら消してOK */
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(31,42,51,.08);
+      border: 1px solid rgba(31,42,51,.10);
+    }
+
+    .portrait img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* キャラの一言台詞（中央配置・完成版） */
+    .quote{
+      position: relative;
+
+      /* 中央に置く */
+      margin: 24px auto 16px;
+      display: block;
+
+      /* 幅を制御して「中央の塊」にする */
+
+      width: fit-content;
+      padding: 20px 30px;
+
+      text-align: center;
+
+      font-size: 15px;
+      line-height: 1.9;
+      letter-spacing: .08em;
+      font-style: italic;
+
+      color: rgba(31,42,51,.88);
+
+      background: linear-gradient(
+        180deg,
+        rgba(31,42,51,.05),
+        rgba(31,42,51,.02)
+      );
+      border-radius: 16px;
+
+      /* ほんのり浮かせる */
+      box-shadow:
+        0 6px 18px rgba(0,0,0,.08),
+        0 0 0 1px rgba(184,154,69,.25) inset;
+    }
+
+    /* 引用符 */
+    .quote::before,
+    .quote::after{
+      position: absolute;
+      font-size: 30px;
+      font-style: normal;
+      color: rgba(184,154,69,.55);
+      line-height: 1;
+    }
+
+    .quote::before{
+      content: "「";
+      top: 10px;
+      left: -10px;
+    }
+
+    .quote::after{
+      content: "」";
+      bottom: 10px;
+      right: -10px;
+    }
+
+    /* スマホ微調整 */
+    @media (max-width: 420px){
+      .quote{
+        font-size: 14.5px;
+        padding: 14px 16px;
+        letter-spacing: .06em;
+      }
+    }
+
+
+    
+    .kv{
+      display:grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 9em 1fr;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(31,42,51,.05);
+      border: 1px solid rgba(31,42,51,.10);
+    }
+    .k{ color: rgba(31,42,51,.70); font-size: 12.5px; }
+    .v{ color: rgba(31,42,51,.92); font-size: 13.5px; line-height: 1.7; }
+    @media (max-width: 420px){
+      .row{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fog2" aria-hidden="true"></div>
+  <div class="wrap">
+
+    <header class="hero" id="top">
+      <div class="title">
+        <h1>御影 俏（みかげ しょう）</h1>
+        <span class="badge">キャラクター</span>
+      </div>
+
+      <nav class="nav">
+        <a href="index.html">← 一覧へ戻る</a>
+      </nav>
+    </header>
+
+    <main class="profile">
+
+      <section class="card">
+      <h2><span class="h2mark"></span>概要</h2>
+
+      <div class="profile-top">
+        <div class="portrait">
+          <img src="img/mikage_portrait.jpg" alt="巳影 俏">
+        </div>
+
+        <p class="quote">
+          月並みでゴザルまするが……“お命頂戴するでゴザル”
+        </p>
+      </div>
+    </section>
+
+      <section class="card">
+        <h2><span class="h2mark"></span>基本データ</h2>
+        <div class="kv">
+          <div class="row"><div class="k">名前</div><div class="v"><ruby>巳影<rp>《</rp><rt>ミカゲ</rt><rp>》</rp></ruby> <ruby>俏<rp>《</rp><rt>ショウ</rt><rp>》</rp></ruby></div></div>
+          <div class="row"><div class="k">種族</div><div class="v"><ruby>人間</div></div>
+          <div class="row"><div class="k">性別</div><div class="v"><ruby>男性</div></div>
+          <div class="row"><div class="k">身長 / 体重</div><div class="v">六尺九寸（210cm） / 五十二貫（195kg）</div></div>
+          <div class="row"><div class="k">一人称</div><div class="v">セツ</div></div>
+          <div class="row"><div class="k">二人称</div><div class="v">オヌシ</div></div>
+          <div class="row"><div class="k">口癖</div><div class="v">ござる言葉はカタカナ表記<br>「ファファファ」と笑う</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark" aria-hidden="true"></span>概要</h2>
+        <p>
+        　諜報・工作・暗殺を生業とする忍者。<br>
+        　肉体改造技術およびそれを可能とする忍術を代々受け継いできた【巳影一族】の一員。<br>
+        　現在の俏は、大名家の嫡子の一人（ここでは正妻の子の意。跡取りではない）に付き従う世話役兼護衛として行動する。<br>
+        　表向きは身の回りの世話をする従者でありながら、実際には影となって脅威を排除する役目を担っている。
+		</p>
+		<p>
+        　巳影一族は、任務の達成を最優先とし、そのためならば人の身を捨てることすら厭わない忍者の一派。<br>
+        　現在はある大名一族と長期にわたる雇用関係を結び、その裏の仕事を一手に担っている。<br>
+        　一族の術は常人を遥かに超える力をもたらす一方、肉体の不可逆的な変容を代償としており、人の形を大きく損なった者も少なくない。<br>
+        　そのため巳影の名は、外部からはしばしば、畏敬と侮蔑の双方を含んだ視線で語られる。<br>
+        　並外れて大柄な俏の体躯も異形化の兆候として典型的なものであり、既に骨格や筋肉の構造は人のそれとは異なる段階に達している。
+		</p>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark" aria-hidden="true"></span>人物</h2>
+        <p>
+		<p>
+        　その威圧的な外見とは裏腹に、性格は驚くほど人懐っこい。<br>
+        　戯画された忍者口調で軽やかに話し、好奇心旺盛で楽天的。そして一度忠誠を誓った相手にはひたすら一途。<br>
+        　特に付き従う“若様”に対しては極めて健気で、やや的外れなほどの献身を惜しまない。<br>
+        　夜伽の役目が回ってくる日なんかは浮かれぶりが凄い。
+		</p>
+		<p>
+        　他の従者に曰く、「大型犬」。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark" aria-hidden="true"></span>関係</h2>
+
+      </section>
+
+    </main>
+
+    <div class="site-nav-dock">
+      <div data-site-nav data-base=".."></div>
+    </div>
+
+    <script src="../style/nav-loader.js"></script>
+</body>

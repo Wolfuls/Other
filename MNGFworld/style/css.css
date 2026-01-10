@@ -22,12 +22,14 @@
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
+      padding-bottom: 92px;
     }
     @media (max-width: 768px){
       body{
         background-image: url("../img/bg2.jpg"); /* スマホ用（縦長） */
-        background-attachment: scroll; /* スマホはfixedが不安定なので */
+        background-attachment: fixed; /* スマホはfixedが不安定なので */
         background-position: center top; /* 縦長は上寄せが安定しやすい */
+        padding-bottom: 92px;
       }
     }
     /* 霧レイヤー */
@@ -45,7 +47,7 @@
         radial-gradient(85% 55%  at 85% 118%, rgba(255,255,255,.10), transparent 65%),
         radial-gradient(70% 45%  at 55% 96%,  rgba(255,255,255,.08), transparent 60%);
 
-      filter: blur(50px);
+      filter: blur(0px);
       opacity: 1;
 
       /* 暗い場所にだけ霧が乗りやすくなる（ベール化防止） */
@@ -72,7 +74,7 @@
         radial-gradient(90% 55% at 35% 105%, rgba(255,255,255,.10), transparent 62%),
         radial-gradient(90% 55% at 75% 112%, rgba(255,255,255,.08), transparent 65%);
 
-      filter: blur(50px);
+      filter: blur(0px);
       opacity: 1;
       mix-blend-mode: screen;
 
@@ -321,3 +323,245 @@
       .card{ padding: 18px 18px; }
       main{ gap: 14px; }
     }
+
+/* ===== Character page add-ons ===== */
+
+.char-grid{
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (min-width: 760px){
+  .char-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+
+.char-card{
+  display: block;
+  position: relative;
+  border-radius: 16px;
+  padding: 12px 12px 10px;
+  background: rgba(255,255,255,.34);
+  border: 1px solid rgba(31,42,51,.10);
+  box-shadow: 0 8px 22px rgba(0,0,0,.16);
+  text-decoration: none;
+}
+
+.char-card:hover{
+  text-decoration: none;
+  background: rgba(255,255,255,.40);
+}
+
+.char-head{
+  display: grid;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.char-name{
+  font-weight: 800;
+  letter-spacing: .02em;
+  font-size: 15.5px;
+}
+
+.char-role{
+  font-size: 12.5px;
+  color: rgba(31,42,51,.72);
+}
+
+.char-tags{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 8px;
+}
+
+.tag{
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(31,42,51,.06);
+  border: 1px solid rgba(31,42,51,.10);
+}
+
+.char-one{
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: rgba(31,42,51,.90);
+}
+
+/* 詳細 */
+.char-detail{
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(31,42,51,.18);
+}
+
+.char-title{
+  margin: 0 0 10px;
+  font-size: 17px;
+  letter-spacing: .02em;
+}
+
+.char-sub{
+  font-size: 12.5px;
+  color: rgba(31,42,51,.70);
+  font-weight: 600;
+}
+
+.char-profile{
+  display: grid;
+  gap: 10px;
+}
+
+@media (min-width: 760px){
+  .char-profile{
+    grid-template-columns: 160px 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+}
+
+.char-portrait{
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(31,42,51,.12);
+  background: rgba(0,0,0,.06);
+}
+
+.char-portrait img{
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.char-dl{
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.char-dl > div{
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(31,42,51,.05);
+  border: 1px solid rgba(31,42,51,.10);
+}
+
+.char-dl dt{
+  font-weight: 800;
+  color: rgba(31,42,51,.85);
+}
+
+.char-dl dd{
+  margin: 0;
+  color: rgba(31,42,51,.92);
+}
+
+/* ===== Global menu: TOC-like bar ===== */
+
+.site-nav{
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  /* 目次帯っぽい“ひとまとまり感” */
+  padding: 10px 10px;
+  border-radius: 14px;
+  background: rgba(31,42,51,.05);
+  border: 1px solid rgba(31,42,51,.10);
+  backdrop-filter: blur(2px);
+}
+
+.site-nav a{
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.38);
+  border: 1px solid rgba(31,42,51,.10);
+  transition: transform .08s ease, background .2s ease, filter .2s ease;
+}
+
+.site-nav a:hover{
+  text-decoration: none;
+  background: rgba(255,255,255,.52);
+}
+
+.site-nav a:active{ transform: translateY(1px); }
+
+.site-nav a[aria-current="page"]{
+  color: rgba(255,255,255,.95);
+  background: linear-gradient(90deg, var(--accent2), #114a42);
+  border-color: rgba(31,111,99,.35);
+  box-shadow: 0 8px 22px rgba(31,111,99,.18);
+}
+
+
+
+.site-nav::before{
+  content:"";
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,154,69,.14);
+  align-self: center;
+  margin-right: 2px;
+}
+
+
+/* ===== Bottom dock (always visible) ===== */
+.site-nav-dock{
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 999;
+  pointer-events: none;
+  transition: opacity .6s ease, transform .6s ease;
+}
+
+.site-nav-dock .site-nav{
+  pointer-events: auto;
+  margin: 0 auto;
+  max-width: min(980px, 100%);
+  justify-content: center;
+  box-shadow: 0 12px 32px rgba(0,0,0,.28);
+  background: rgba(31,42,51,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(4px);
+}
+
+.site-nav-dock.is-hidden{
+  opacity: 0;
+  transform: translateY(12px);
+  pointer-events: none;
+}
+
+/* ===== Page transition (fade in/out) ===== */
+
+body{
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+body.is-ready{
+  opacity: 1;
+}
+
+body.is-leaving{
+  opacity: 0;
+}
+
+/* 動きが苦手な人向け */
+@media (prefers-reduced-motion: reduce){
+  body{ transition: none !important; }
+}
