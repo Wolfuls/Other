@@ -24,13 +24,19 @@
 
     body {
       position: relative;
-      background-image: url("../img/background.jpg"); /* 作った背景画像 */
+      background-image: url("../img/bg1.jpg"); /* 作った背景画像 */
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       background-attachment: fixed;
     }
-
+    @media (max-width: 768px){
+      body{
+        background-image: url("../img/bg2.jpg"); /* スマホ用（縦長） */
+        background-attachment: scroll; /* スマホはfixedが不安定なので */
+        background-position: center top; /* 縦長は上寄せが安定しやすい */
+      }
+    }
     /* 霧レイヤー */
     body::after{
       content:"";
