@@ -1,32 +1,3 @@
-// ===== Global site navigation loader =====
-(() => {
-  const mount = document.querySelector('[data-site-nav]');
-  if (!mount) return;
-
-  // 現在ページから root までの相対パスを指定
-  // characters/, lore/ 配下 → ".."
-  const base = mount.getAttribute('data-base') || '..';
-
-  fetch(`${base}/nav.html`, { cache: 'no-store' })
-    .then(res => res.text())
-    .then(html => {
-      mount.innerHTML = html;
-
-      // data-href を実際の href に変換
-      mount.querySelectorAll('a[data-href]').forEach(a => {
-        a.href = `${base}${a.dataset.href}`;
-      });
-
-      // 現在ページをハイライト
-      const here = location.pathname.split('/').pop();
-      mount.querySelectorAll('a[href]').forEach(a => {
-        if (a.getAttribute('href')?.endsWith(here)) {
-          a.setAttribute('aria-current', 'page');
-        }
-      });
-    });
-})();
-
 
 // ===== Global site navigation loader (debuggable) =====
 (() => {

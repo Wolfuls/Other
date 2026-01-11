@@ -61,14 +61,13 @@
 
   const HIDE_DELAY = 4000; // 4秒
   let timer = null;
-  let armed = false;
+  
 
   const hide = () => {
     dock.classList.add('is-hidden');
   };
 
   const showAndArm = () => {
-    armed = true;
     dock.classList.remove('is-hidden');
     clearTimeout(timer);
     timer = setTimeout(hide, HIDE_DELAY);
@@ -126,6 +125,9 @@
     // 外部サイトは除外（必要ならここ外してもOK）
     const url = new URL(href, location.href);
     if (url.origin !== location.origin) return;
+
+    // ★ここに追加する
+    if (url.href === location.href) return;
 
     // ここまで来たらフェードアウト遷移
     e.preventDefault();
