@@ -32,59 +32,6 @@
         padding-bottom: 92px;
       }
     }
-    /* 霧レイヤー */
-    body::after{
-      content:"";
-      position: fixed;
-      inset: 0;                 /* -30%はやめる */
-      pointer-events: none;
-      z-index: 2;
-
-      /* 霧は下〜中段に溜める（上は薄い） */
-      background:
-        radial-gradient(120% 70% at 50% 110%, rgba(255,255,255,.18), transparent 60%),
-        radial-gradient(80% 55%  at 18% 112%, rgba(255,255,255,.12), transparent 62%),
-        radial-gradient(85% 55%  at 85% 118%, rgba(255,255,255,.10), transparent 65%),
-        radial-gradient(70% 45%  at 55% 96%,  rgba(255,255,255,.08), transparent 60%);
-
-      filter: blur(0px);
-      opacity: 1;
-
-      /* 暗い場所にだけ霧が乗りやすくなる（ベール化防止） */
-      mix-blend-mode: screen;
-
-      animation: fogDrift 15s ease-in-out infinite alternate;
-    }
-
-    @keyframes fogDrift{
-      from { transform: translate3d(-2%, 1%, 0) scale(1.03); }
-      to   { transform: translate3d( 2%,-1%, 0) scale(1.05); }
-    }
-
-    .fog2{
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-
-      /* body::after より上、本文(.wrap)より下 */
-      z-index: 3;
-
-      background:
-        linear-gradient(0deg, rgba(255,255,255,.08), transparent 45%),
-        radial-gradient(90% 55% at 35% 105%, rgba(255,255,255,.10), transparent 62%),
-        radial-gradient(90% 55% at 75% 112%, rgba(255,255,255,.08), transparent 65%);
-
-      filter: blur(0px);
-      opacity: 1;
-      mix-blend-mode: screen;
-
-      animation: fogDrift2 20s ease-in-out infinite alternate;
-    }
-
-    @keyframes fogDrift2{
-      from { transform: translate3d(1%, 0, 0) scale(1.08); }
-      to   { transform: translate3d(-1%, -1%, 0) scale(1.10); }
-    }
 
 
     /* subtle washi texture */
