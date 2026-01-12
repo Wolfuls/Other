@@ -27,13 +27,11 @@
     .card.linkcard:hover{ text-decoration: none; filter: brightness(1.02); }
     .card.linkcard:active{ transform: translateY(1px); }
 
-    /* キャラ一覧カード内部 */
     .char-head{
       display:flex;
       align-items:center;
       gap: 12px;
     }
-
     .avatar{
       width: 100px;
       height: 100px;
@@ -49,7 +47,6 @@
       object-fit: cover;
       display: block;
     }
-
     .char-meta{
       display:flex;
       flex-direction: column;
@@ -63,7 +60,6 @@
       margin: 0;
       line-height: 1.25;
     }
-
     .chips{
       display:flex;
       flex-wrap: wrap;
@@ -78,65 +74,6 @@
       border: 1px solid rgba(31,42,51,.10);
       white-space: nowrap;
     }
-
-    /* ===== 区切りカード（国家セクション） ===== */
-    .card.sectioncard{
-      grid-column: 1 / -1;   /* グリッド全幅 */
-      margin: 10px 0 6px;
-      position: relative;
-      padding: 14px 14px;
-      border-radius: 18px;
-
-      background:
-        linear-gradient(90deg, rgba(31,111,99,.20), rgba(184,154,69,.14), rgba(31,111,99,.10)),
-        linear-gradient(180deg, rgba(245,240,230,.90), rgba(250,246,238,.82));
-      border: 1px solid rgba(31,111,99,.28);
-
-      box-shadow:
-        0 12px 32px rgba(0,0,0,.22),
-        0 0 0 1px rgba(184,154,69,.20) inset;
-    }
-
-    /* 上下の装飾ライン */
-    .card.sectioncard::before,
-    .card.sectioncard::after{
-      content:"";
-      position:absolute;
-      left: 14px;
-      right: 14px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(184,154,69,.55), transparent);
-      opacity: .9;
-      pointer-events:none;
-    }
-    .card.sectioncard::before{ top: 10px; }
-    .card.sectioncard::after{ bottom: 10px; }
-
-    /* 区切りカードの中身：中央縦積み（アサナギの意図に合わせて統一） */
-    .sectioncard-head{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 10px;
-    }
-
-    /* 区切りカード内のアイコン */
-    .sectioncard-head .avatar{
-      margin: 0 auto;
-    }
-
-    /* 区切りカードの国名 */
-    .sectioncard-title{
-      margin: 0;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: .03em;
-      line-height: 1.2;
-    }
-
-
   </style>
 </head>
 
@@ -160,6 +97,7 @@
         <a class="card linkcard" href="ch_mikage_shou.html">
           <div class="char-head">
             <div class="avatar">
+              <!-- 画像が無いならimgタグ自体消してOK -->
               <img src="img/mikage_icon.jpg" alt="ミカゲ・ショウ">
             </div>
             <div class="char-meta">
@@ -172,22 +110,6 @@
             <span class="chip">忍者</span>
           </div>
         </a>
-
-<a class="card linkcard sectioncard"
-   href="na_asanagi.html"
-   aria-label="覇権国家『アサナギ』">
-
-  <div class="sectioncard-head">
-    <div class="avatar large">
-      <img src="img/na_asanagi_icon.png" alt="覇権国家『アサナギ』">
-    </div>
-    <p class="sectioncard-title">覇権国家『アサナギ』</p>
-  </div>
-
-</a>
-
-
-        <!-- アサナギ所属キャラ -->
         <a class="card linkcard" href="ch_amagi_kagehisa.html">
           <div class="char-head">
             <div class="avatar">
@@ -204,7 +126,6 @@
             <span class="chip">大君</span>
           </div>
         </a>
-
         <a class="card linkcard" href="ch_amagi_kagari.html">
           <div class="char-head">
             <div class="avatar">
@@ -224,7 +145,6 @@
 
       </div>
     </main>
-
 
     <div class="site-nav-dock">
       <div data-site-nav data-base=".."></div>

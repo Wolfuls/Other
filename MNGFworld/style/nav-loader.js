@@ -59,7 +59,7 @@
   const dock = document.querySelector('.site-nav-dock');
   if (!dock) return;
 
-  const HIDE_DELAY = 4000; // 4秒
+  const HIDE_DELAY = 3000; // 3秒
   let timer = null;
   
 

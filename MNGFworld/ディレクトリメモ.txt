@@ -16,7 +16,13 @@ root
 ┃┃
 ┃┣index.html
 ┃┃
-┃┗character_mikage_shou.html
+┃┣ch_mikage_shou.html
+┃┃
+┃┣ch_amagi_kagehisa.html
+┃┃
+┃┣ch_amagi_kagari.html
+┃┃
+┃┗na_asanagi.html
 ┃
 ┗lore
 　┃

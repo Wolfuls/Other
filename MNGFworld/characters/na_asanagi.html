@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MNGF World</title>
+
+  <!-- 共有CSS（lore配下から見て ../style/） -->
+  <link rel="stylesheet" href="../style/css.css">
+
+  <style>/* キャラ詳細ページ用 */
+
+    .profile-top{
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* ←これが効く */
+  gap: 14px;
+    }
+
+    .portrait{
+      width: 100%;
+      max-width: 640px;     /* PCで大きくなりすぎない上限 */
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(31,42,51,.08);
+      border: 1px solid rgba(31,42,51,.10);
+    }
+
+    .portrait img{
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .quote{
+      position: relative;
+      margin: 24px auto 16px;
+      display: block;
+
+      width: fit-content;
+      padding: 20px 30px;
+
+      text-align: center;
+
+      font-size: 15px;
+      line-height: 1.9;
+      letter-spacing: .08em;
+      font-style: italic;
+
+      color: rgba(31,42,51,.88);
+
+      background: linear-gradient(
+        180deg,
+        rgba(31,42,51,.05),
+        rgba(31,42,51,.02)
+      );
+      border-radius: 16px;
+
+      /* ほんのり浮かせる */
+      box-shadow:
+        0 6px 18px rgba(0,0,0,.08),
+        0 0 0 1px rgba(184,154,69,.25) inset;
+    }
+
+    /* 引用符 */
+    .quote::before,
+    .quote::after{
+      position: absolute;
+      font-size: 30px;
+      font-style: normal;
+      color: rgba(184,154,69,.55);
+      line-height: 1;
+    }
+
+    .quote::before{
+      content: "「";
+      top: 10px;
+      left: -10px;
+    }
+
+    .quote::after{
+      content: "」";
+      bottom: 10px;
+      right: -10px;
+    }
+
+    /* スマホ微調整 */
+    @media (max-width: 420px){
+      .quote{
+        font-size: 14.5px;
+        padding: 14px 16px;
+        letter-spacing: .06em;
+      }
+    }
+
+
+    
+    .kv{
+      display:grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .row{
+      display:grid;
+      grid-template-columns: 9em 1fr;
+      gap: 10px;
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(31,42,51,.05);
+      border: 1px solid rgba(31,42,51,.10);
+    }
+    .k{ color: rgba(31,42,51,.70); font-size: 12.5px; }
+    .v{ color: rgba(31,42,51,.92); font-size: 13.5px; line-height: 1.7; }
+    @media (max-width: 420px){
+      .row{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+  <div aria-hidden="true"></div>
+  <div class="wrap">
+
+    <header class="hero" id="top">
+      <div class="title">
+        <h1>覇権国家『アサナギ』</h1>
+        <span class="badge">キャラクター</span>
+      </div>
+
+      <nav class="nav">
+        <a href="index.html">← 一覧へ戻る</a>
+      </nav>
+    </header>
+
+    <main class="profile">
+
+      <section class="card">
+      <h2><span class="h2mark"></span>概要</h2>
+
+      <div class="profile-top">
+        <div class="portrait">
+          <img src="img/na_asanagi_portrait.jpg" alt="アサナギの風景">
+        </div>
+
+        <p class="quote">
+          日輪は等しく照らし、旭は万里を統べる
+        </p>
+      </div>
+    </section>
+
+      <section class="card">
+        <h2><span class="h2mark"></span>基礎情報</h2>
+        <div class="kv">
+          <div class="row"><div class="k">国名</div><div class="v">アサナギ（旭和）</div></div>
+          <div class="row"><div class="k">首都</div><div class="v">オウギ（央祁）</div></div>
+          <div class="row"><div class="k">統治形態</div><div class="v">武家政権を頂点とした連合國家型（中央集権化が進行）</div></div>
+          <div class="row"><div class="k">中枢人物</div><div class="v">アマギ・カゲヒサ、アマギ・カガリ</div></div>
+          <div class="row"><div class="k">繁栄の基盤</div><div class="v">國土に点在する龍脈（農業・民生・軍事・法術・物流の基盤）</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark"></span>国際的立ち位置</h2>
+        <p>
+          大陸各地で大小の國家が群雄割拠する中、アサナギは「基準となる国家」「中心に最も近い国家」として振る舞う。<br>
+          その存在は、同盟・交易・軍事均衡のいずれにおいても参照点となる。
+        </p>
+        <p>
+          近年は大妃『カガリ』の手腕によって再びの繁栄期を迎えると同時に、覇権主義的な気運が高まりつつある。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark"></span>政体と制度整備</h2>
+        <p>
+          広大な領土と人口を抱え、武家政権を頂点とした連合國家型の体制を取る。<br>
+          大君を頂点として法制度・軍制・問屋網・法術運用の規格化・整備が行われており、大陸の中ではかなり中央集権化が進んでいる。
+        </p>
+
+        <div class="sub">
+          <h3><span class="h3mark"></span>整備されている領域</h3>
+          <ul>
+            <li>法制度：統一的ルールと裁定の整備</li>
+            <li>軍制：動員・指揮系統・装備運用の標準化</li>
+            <li>問屋網：物流・流通の基盤</li>
+            <li>法術運用：規格化による効率・互換性の確保</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2><span class="h2mark"></span>繁栄の構造：龍脈インフラ</h2>
+        <p>
+          アサナギの繁栄は國土に点在する龍脈に支えられており、そこから生じるエネルギーは農業、民生、軍事、法術、物流といったあらゆる産業の基盤となる。
+        </p>
+
+        <div class="sub">
+          <h3><span class="h3mark"></span>主な影響範囲</h3>
+          <ul>
+            <li>農業：生産性の底上げ／安定供給</li>
+            <li>民生：都市機能・生活基盤の維持</li>
+            <li>軍事：兵站と戦力投射能力の強化</li>
+            <li>法術：運用規格化と大規模実装の前提</li>
+            <li>物流：問屋網と連動した輸送力</li>
+          </ul>
+        </div>
+       
+        <p>
+          反面、過剰に噴き出した法力によって人や土地が穢れを背負う事故も度々起き、社会問題となっている。
+        </p>
+      </section>
+
+    </main>
+
+    <div class="site-nav-dock">
+      <div data-site-nav data-base=".."></div>
+    </div>
+
+  </div>
+
+  <script src="../style/nav-loader.js"></script>
+</body>
+</html>
