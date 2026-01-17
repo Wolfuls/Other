@@ -8,127 +8,10 @@
   <!-- 共有CSS（あなたの構成に合わせてパス調整） -->
   <link rel="stylesheet" href="../style/css.css">
 
-  <!-- このページ専用の追記（後でcss.css末尾に移してもOK） -->
-
-  <style>/* キャラ詳細ページ用 */
-
-    .profile-top{
-  display: flex;
-  flex-direction: column;
-  align-items: center;  /* ←これが効く */
-  gap: 14px;
-    }
-
-    .portrait{
-      width: 100%;
-      max-width: 420px;     /* PCで大きくなりすぎない上限 */
-      margin: 0 auto;
-      aspect-ratio: 3 / 4; /* 立ち絵向け。横長なら消してOK */
-      border-radius: 20px;
-      overflow: hidden;
-      background: rgba(31,42,51,.08);
-      border: 1px solid rgba(31,42,51,.10);
-    }
-
-    .portrait img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* キャラの一言台詞（中央配置・完成版） */
-    .quote{
-      position: relative;
-
-      /* 中央に置く */
-      margin: 24px auto 16px;
-      display: block;
-
-      /* 幅を制御して「中央の塊」にする */
-
-      width: fit-content;
-      padding: 20px 30px;
-
-      text-align: center;
-
-      font-size: 15px;
-      line-height: 1.9;
-      letter-spacing: .08em;
-      font-style: italic;
-
-      color: rgba(31,42,51,.88);
-
-      background: linear-gradient(
-        180deg,
-        rgba(31,42,51,.05),
-        rgba(31,42,51,.02)
-      );
-      border-radius: 16px;
-
-      /* ほんのり浮かせる */
-      box-shadow:
-        0 6px 18px rgba(0,0,0,.08),
-        0 0 0 1px rgba(184,154,69,.25) inset;
-    }
-
-    /* 引用符 */
-    .quote::before,
-    .quote::after{
-      position: absolute;
-      font-size: 30px;
-      font-style: normal;
-      color: rgba(184,154,69,.55);
-      line-height: 1;
-    }
-
-    .quote::before{
-      content: "「";
-      top: 10px;
-      left: -10px;
-    }
-
-    .quote::after{
-      content: "」";
-      bottom: 10px;
-      right: -10px;
-    }
-
-    /* スマホ微調整 */
-    @media (max-width: 420px){
-      .quote{
-        font-size: 14.5px;
-        padding: 14px 16px;
-        letter-spacing: .06em;
-      }
-    }
-
-
-    
-    .kv{
-      display:grid;
-      gap: 8px;
-      margin-top: 10px;
-    }
-    .row{
-      display:grid;
-      grid-template-columns: 9em 1fr;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(31,42,51,.05);
-      border: 1px solid rgba(31,42,51,.10);
-    }
-    .k{ color: rgba(31,42,51,.70); font-size: 12.5px; }
-    .v{ color: rgba(31,42,51,.92); font-size: 13.5px; line-height: 1.7; }
-    @media (max-width: 420px){
-      .row{ grid-template-columns: 1fr; }
-    }
-  </style>
 </head>
 
 <body>
-  <div class="fog2" aria-hidden="true"></div>
+  <div aria-hidden="true"></div>
   <div class="wrap">
 
     <header class="hero" id="top">
@@ -149,7 +32,7 @@
 
       <div class="profile-top">
         <div class="portrait">
-          <img src="img/kagari_portrait.jpg" alt="アマギ・カガリ">
+          <img src="img/ch_ptr_kagari.jpg" alt="アマギ・カガリ">
         </div>
 
         <p class="quote">
