@@ -1,0 +1,655 @@
+{
+  "version": 2,
+  "collection": "Ratatoskr Avatar Collection 01",
+  "total": 32,
+  "assigned": 24,
+  "available": 8,
+  "generation_mode": "Built-in image generation",
+  "processing": "Built-in image editing converted the 17 photographic icons to 2D illustrations. Other individual icons retain their previous pixels. Cropped PNGs are 304px; the scene embeds 256px WebP copies.",
+  "icons": [
+    {
+      "id": 1,
+      "slug": "rail-overpass",
+      "title": "Rail overpass",
+      "handle": "ash_underrail",
+      "file": "icons/01-rail-overpass.png",
+      "sheet": "A",
+      "row": 1,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        4,
+        308,
+        308
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 2,
+      "slug": "moth",
+      "title": "Moth on fabric",
+      "handle": "m0th_eaten",
+      "file": "icons/02-moth.png",
+      "sheet": "A",
+      "row": 1,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        4,
+        622,
+        308
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 3,
+      "slug": "crt-signal",
+      "title": "CRT signal",
+      "handle": "nosignal_47",
+      "file": "icons/03-crt-signal.png",
+      "sheet": "A",
+      "row": 1,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        4,
+        936,
+        308
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 4,
+      "slug": "urban-researcher",
+      "title": "City portrait",
+      "handle": "samira_khoury",
+      "file": "icons/04-urban-researcher.png",
+      "sheet": "A",
+      "row": 1,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        4,
+        1249,
+        308
+      ],
+      "status": "assigned",
+      "style": "2D anime character illustration",
+      "revision": 2
+    },
+    {
+      "id": 5,
+      "slug": "toy-train",
+      "title": "Toy train doodle",
+      "handle": "train2urhouse",
+      "file": "icons/05-toy-train.png",
+      "sheet": "A",
+      "row": 2,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        318,
+        308,
+        622
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 6,
+      "slug": "blue-patch",
+      "title": "Blue chevron patch",
+      "handle": "bluepatch_ydf",
+      "file": "icons/06-blue-patch.png",
+      "sheet": "A",
+      "row": 2,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        318,
+        622,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 7,
+      "slug": "round-glasses",
+      "title": "Round glasses portrait",
+      "handle": "marivas_studies",
+      "file": "icons/07-round-glasses.png",
+      "sheet": "A",
+      "row": 2,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        318,
+        936,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D anime character illustration",
+      "revision": 2
+    },
+    {
+      "id": 8,
+      "slug": "crow",
+      "title": "Crow on a railing",
+      "handle": "crowfeed",
+      "file": "icons/08-crow.png",
+      "sheet": "A",
+      "row": 2,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        318,
+        1249,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 9,
+      "slug": "skull-sticker",
+      "title": "Skull sticker",
+      "handle": "marrow_loop",
+      "file": "icons/09-skull-sticker.png",
+      "sheet": "A",
+      "row": 3,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        631,
+        308,
+        935
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 10,
+      "slug": "rainy-train-window",
+      "title": "Rainy train window",
+      "handle": "s2line_res",
+      "file": "icons/10-rainy-train-window.png",
+      "sheet": "A",
+      "row": 3,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        631,
+        622,
+        935
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 11,
+      "slug": "auburn-portrait",
+      "title": "Auburn hair portrait",
+      "handle": "elenapetrov_md",
+      "file": "icons/11-auburn-portrait.png",
+      "sheet": "A",
+      "row": 3,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        631,
+        936,
+        935
+      ],
+      "status": "assigned",
+      "style": "2D anime character illustration",
+      "revision": 2
+    },
+    {
+      "id": 12,
+      "slug": "paper-castle",
+      "title": "Paper castle",
+      "handle": "paper_citadel",
+      "file": "icons/12-paper-castle.png",
+      "sheet": "A",
+      "row": 3,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        631,
+        1249,
+        935
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 13,
+      "slug": "rust-robot",
+      "title": "Rust robot",
+      "handle": "rustchild_x",
+      "file": "icons/13-rust-robot.png",
+      "sheet": "A",
+      "row": 4,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        945,
+        308,
+        1249
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 14,
+      "slug": "sun-over-blocks",
+      "title": "Sun over apartment blocks",
+      "handle": "undersun_mid",
+      "file": "icons/14-sun-over-blocks.png",
+      "sheet": "A",
+      "row": 4,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        945,
+        622,
+        1249
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 15,
+      "slug": "bookshelf-portrait",
+      "title": "Bookshelf portrait",
+      "handle": "jonas_feld",
+      "file": "icons/15-bookshelf-portrait.png",
+      "sheet": "A",
+      "row": 4,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        945,
+        936,
+        1249
+      ],
+      "status": "assigned",
+      "style": "2D anime character illustration",
+      "revision": 2
+    },
+    {
+      "id": 16,
+      "slug": "velvet-cat",
+      "title": "Black cat on velvet",
+      "handle": "velvetcoffin",
+      "file": "icons/16-velvet-cat.png",
+      "sheet": "A",
+      "row": 4,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        945,
+        1249,
+        1249
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 17,
+      "slug": "hex-milk",
+      "title": "Milk carton mascot",
+      "handle": "hexmilk",
+      "file": "icons/17-hex-milk.png",
+      "sheet": "B",
+      "row": 1,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        4,
+        308,
+        308
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 18,
+      "slug": "warm-film-portrait",
+      "title": "Warm illustrated portrait",
+      "handle": "noura_elh",
+      "file": "icons/18-warm-film-portrait.png",
+      "sheet": "B",
+      "row": 1,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        4,
+        622,
+        308
+      ],
+      "status": "assigned",
+      "style": "2D anime character illustration",
+      "revision": 2
+    },
+    {
+      "id": 19,
+      "slug": "glitch-window",
+      "title": "Glitched stained glass",
+      "handle": "cathedral_err",
+      "file": "icons/19-glitch-window.png",
+      "sheet": "B",
+      "row": 1,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        4,
+        936,
+        308
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 20,
+      "slug": "rail-ghost",
+      "title": "Railway ghost",
+      "handle": "thirdrail_ghost",
+      "file": "icons/20-rail-ghost.png",
+      "sheet": "B",
+      "row": 1,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        4,
+        1249,
+        308
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 21,
+      "slug": "faceless-hood",
+      "title": "Faceless hood",
+      "handle": "nullcitizen_",
+      "file": "icons/21-faceless-hood.png",
+      "sheet": "B",
+      "row": 2,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        318,
+        308,
+        622
+      ],
+      "status": "assigned"
+    },
+    {
+      "id": 22,
+      "slug": "worn-book",
+      "title": "Well-worn book",
+      "handle": "priyasen_archive",
+      "file": "icons/22-worn-book.png",
+      "sheet": "B",
+      "row": 2,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        318,
+        622,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 23,
+      "slug": "toy-teeth",
+      "title": "Wind-up toy teeth",
+      "handle": "bite_down",
+      "file": "icons/23-toy-teeth.png",
+      "sheet": "B",
+      "row": 2,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        318,
+        936,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 24,
+      "slug": "sleeping-tabby",
+      "title": "Sleeping orange tabby",
+      "handle": "random_reply",
+      "file": "icons/24-sleeping-tabby.png",
+      "sheet": "B",
+      "row": 2,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        318,
+        1249,
+        622
+      ],
+      "status": "assigned",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 25,
+      "slug": "noodle-bowl",
+      "title": "Noodle bowl",
+      "handle": null,
+      "file": "icons/25-noodle-bowl.png",
+      "sheet": "B",
+      "row": 3,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        630,
+        308,
+        934
+      ],
+      "status": "available",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 26,
+      "slug": "koi",
+      "title": "Watercolor koi",
+      "handle": null,
+      "file": "icons/26-koi.png",
+      "sheet": "B",
+      "row": 3,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        630,
+        622,
+        934
+      ],
+      "status": "available"
+    },
+    {
+      "id": 27,
+      "slug": "game-controller",
+      "title": "Game controller",
+      "handle": null,
+      "file": "icons/27-game-controller.png",
+      "sheet": "B",
+      "row": 3,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        630,
+        936,
+        934
+      ],
+      "status": "available",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 28,
+      "slug": "window-plant",
+      "title": "Window plant",
+      "handle": null,
+      "file": "icons/28-window-plant.png",
+      "sheet": "B",
+      "row": 3,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        630,
+        1249,
+        934
+      ],
+      "status": "available",
+      "style": "2D illustrated scene, animal or object",
+      "revision": 2
+    },
+    {
+      "id": 29,
+      "slug": "crayon-fish",
+      "title": "Crayon fish",
+      "handle": null,
+      "file": "icons/29-crayon-fish.png",
+      "sheet": "B",
+      "row": 4,
+      "column": 1,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        4,
+        943,
+        308,
+        1247
+      ],
+      "status": "available"
+    },
+    {
+      "id": 30,
+      "slug": "wavy-stripes",
+      "title": "Wavy stripes",
+      "handle": null,
+      "file": "icons/30-wavy-stripes.png",
+      "sheet": "B",
+      "row": 4,
+      "column": 2,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        318,
+        943,
+        622,
+        1247
+      ],
+      "status": "available"
+    },
+    {
+      "id": 31,
+      "slug": "holographic-butterfly",
+      "title": "Holographic butterfly",
+      "handle": null,
+      "file": "icons/31-holographic-butterfly.png",
+      "sheet": "B",
+      "row": 4,
+      "column": 3,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        632,
+        943,
+        936,
+        1247
+      ],
+      "status": "available"
+    },
+    {
+      "id": 32,
+      "slug": "pixel-mountains",
+      "title": "Pixel sunset mountains",
+      "handle": null,
+      "file": "icons/32-pixel-mountains.png",
+      "sheet": "B",
+      "row": 4,
+      "column": 4,
+      "width": 304,
+      "height": 304,
+      "source_crop": [
+        945,
+        943,
+        1249,
+        1247
+      ],
+      "status": "available"
+    }
+  ],
+  "edition": "Illustrated edition",
+  "revised_icons": 17
+}
