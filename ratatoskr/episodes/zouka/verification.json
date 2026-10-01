@@ -1,0 +1,27 @@
+{
+  "revision": 9,
+  "basedOnRevision": 8,
+  "totalPosts": 300,
+  "addedPosts": {
+    "provocations": 18,
+    "residents-daily": 51,
+    "shijima-daily": 3
+  },
+  "all228ExistingPostsUnchanged": true,
+  "beforeNewsPostCount": 24,
+  "addedShijimaDailyPostsBeforeNews": true,
+  "referencesAndChronology": "passed",
+  "newThreads": [
+    "awake-and-chatting"
+  ],
+  "threadCount": 8,
+  "accountCount": 37,
+  "imageCount": 39,
+  "imagesAndAllHtmlFilesUnchanged": true,
+  "restrictedProfilePreserved": true,
+  "lateNightMatchesUnfollowed": true,
+  "medicalDeparture": "0d · 12:29:30",
+  "englishDraft": "Japanese-only script; no English translation has been added",
+  "sourceHtmlSha256": "e06040340e0aee501400a930bd0a234eadfa675ef38241082b5095ff5f02602a",
+  "scopeJa": "第9稿の台本作成時の確認。今回のHTML反映結果はhtml-verification.jsonとbrowser-verification.jsonを参照。"
+}

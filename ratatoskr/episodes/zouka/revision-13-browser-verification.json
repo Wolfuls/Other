@@ -1,0 +1,16 @@
+{
+  "languages": "Japanese/English/Japanese round trip; all feed accessibility labels exactly match the prior renderer.",
+  "incrementalUpdates": "Bookmarking a distant post preserves scroll position and the DOM nodes of unchanged posts.",
+  "offscreenNavigation": "Distant and final posts render after scrolling; nested quotes expand, reorder, jump and collapse correctly.",
+  "filtersAndStorage": "Search, following/all, sort order, conversation view and bookmark persistence passed.",
+  "avatars": "New 314px stock icons load, and account profiles retain restriction notices.",
+  "migration": "Existing v12 saved state retains edited text, bookmarks, likes and subscriptions while adopting the display-size icons.",
+  "export": "Saved HTML reopens beside index.html with all posts, relative WebP paths and working language switching.",
+  "javascriptErrors": [],
+  "failedHttpRequests": [],
+  "method": "Chromium over local HTTP. Managed environment blocks file:// navigation.",
+  "earlierSavedState": "Version 14 (300 posts) upgrades to version 18 (301 posts), including author corrections and removal of the withdrawn quote.",
+  "browserFindAndPrint": "Native find locates an off-screen post; print mode disables deferred layout.",
+  "staticStructure": "HTML structure outside scripts/styles/data is identical to v12.",
+  "mobile": "390px viewport fits and the final off-screen post is reachable."
+}

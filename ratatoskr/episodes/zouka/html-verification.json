@@ -1,0 +1,16 @@
+{
+  "postCount": 300,
+  "threadCount": 8,
+  "followedPosts": 288,
+  "japaneseScriptUnchanged": true,
+  "englishPosts": 300,
+  "addedOrRevisedEnglishPosts": 145,
+  "externalImages": 40,
+  "originalMarkupAndCssPreserved": true,
+  "scriptChanges": "Relative local images accepted by image validation, display, and editing; logo moved to shared/ui.",
+  "unmodifiedTemplateSha256": "f0ceb4f8e29d4c2d22a1957a9bf2277c02061c8d17d8df597746e4f35f9c1510",
+  "html": "/workspace/ratatoskr-series/episodes/zouka/index.html",
+  "htmlBytes": 562816,
+  "defaultView": "Following, Japanese, chronological",
+  "gameThreadStillUnfollowed": true
+}

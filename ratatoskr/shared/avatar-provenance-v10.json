@@ -1,0 +1,100 @@
+[
+  {
+    "handle": "doorframe_24",
+    "file": "shared/avatars/doorframe_24.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 2,
+    "column": 4,
+    "crop": [
+      940,
+      314,
+      1254,
+      627
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "save_slot_zero",
+    "file": "shared/avatars/save_slot_zero.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 3,
+    "column": 2,
+    "crop": [
+      314,
+      627,
+      627,
+      940
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "moss_on_glass",
+    "file": "shared/avatars/moss_on_glass.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 3,
+    "column": 4,
+    "crop": [
+      940,
+      627,
+      1254,
+      940
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "third_landing",
+    "file": "shared/avatars/third_landing.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 3,
+    "column": 3,
+    "crop": [
+      627,
+      627,
+      940,
+      940
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "latch_17",
+    "file": "shared/avatars/latch_17.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 4,
+    "column": 3,
+    "crop": [
+      627,
+      940,
+      940,
+      1254
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "paper_comet",
+    "file": "shared/avatars/paper_comet.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 4,
+    "column": 1,
+    "crop": [
+      0,
+      940,
+      314,
+      1254
+    ],
+    "unchangedExistingIllustration": true
+  },
+  {
+    "handle": "afterimage_txt",
+    "file": "shared/avatars/afterimage_txt.webp",
+    "source": "shared/sheets/avatars-reserve-4x4.png",
+    "row": 4,
+    "column": 4,
+    "crop": [
+      940,
+      940,
+      1254,
+      1254
+    ],
+    "unchangedExistingIllustration": true
+  }
+]

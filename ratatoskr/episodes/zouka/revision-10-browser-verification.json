@@ -1,0 +1,11 @@
+{
+  "initialViewAndFilters": "All 302 posts selected by default; all/following order preserved; following shows 231 posts.",
+  "priorSettings": "Three official threads, three unfollowed threads, and Shijima account restriction preserved.",
+  "newContent": "Reassigned authors render correctly; both new replies and the Theseus exchange open with the correct parent accounts; Japanese and English render.",
+  "savedStateMigration": "Version 14 becomes 15, with 302 unique posts and 44 accounts. Bookmarks and unrelated engagement retained; reload does not duplicate replies.",
+  "entryPointsAndImages": "Root and episode-local index.html load all images over local HTTP.",
+  "javascriptErrors": [],
+  "failedHttpRequests": [],
+  "remoteRequests": [],
+  "directFileOpening": "Not tested: managed environment blocks file://. Browser checks use local HTTP."
+}

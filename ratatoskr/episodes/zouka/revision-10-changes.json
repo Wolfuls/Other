@@ -1,0 +1,73 @@
+{
+  "revision": 10,
+  "previousRevision": 9,
+  "reassignedPosts": {
+    "zouka-prov01": {
+      "from": "bent_spoon_jpg",
+      "to": "doorframe_24"
+    },
+    "zouka-prov03": {
+      "from": "bent_spoon_jpg",
+      "to": "doorframe_24"
+    },
+    "zouka-a29": {
+      "from": "bent_spoon_jpg",
+      "to": "save_slot_zero"
+    },
+    "zouka-a07": {
+      "from": "inklong_88",
+      "to": "moss_on_glass"
+    },
+    "zouka-29": {
+      "from": "inklong_88",
+      "to": "third_landing"
+    },
+    "zouka-72": {
+      "from": "inklong_88",
+      "to": "third_landing"
+    },
+    "zouka-prov05": {
+      "from": "inklong_88",
+      "to": "latch_17"
+    },
+    "zouka-prov07": {
+      "from": "inklong_88",
+      "to": "latch_17"
+    },
+    "zouka-prov09": {
+      "from": "inklong_88",
+      "to": "paper_comet"
+    },
+    "zouka-prov10": {
+      "from": "feed_wick",
+      "to": "afterimage_txt"
+    },
+    "zouka-prov12": {
+      "from": "feed_wick",
+      "to": "afterimage_txt"
+    },
+    "zouka-prov14": {
+      "from": "feed_wick",
+      "to": "afterimage_txt"
+    }
+  },
+  "changedTextPosts": [
+    "zouka-prov02",
+    "zouka-tb14",
+    "zouka-prov11",
+    "zouka-prov13"
+  ],
+  "newPosts": [
+    "zouka-v10-01",
+    "zouka-v10-02"
+  ],
+  "newHandles": [
+    "doorframe_24",
+    "save_slot_zero",
+    "moss_on_glass",
+    "third_landing",
+    "latch_17",
+    "paper_comet",
+    "afterimage_txt"
+  ]
+}

@@ -1,0 +1,3426 @@
+{
+  "method": "Chromium, local HTTP, 1440x1000, fresh context and disabled cache; three runs per condition, medians. Timeline proxy: second animation frame after initial script completes. CPU x4 is simulated slowdown, not the user PC.",
+  "summary": [
+    {
+      "cpuSlowdown": 1,
+      "previous": {
+        "timelinePresentedMs": 702.3,
+        "scriptMs": 105.6,
+        "imageBytes": 4559216
+      },
+      "optimized": {
+        "timelinePresentedMs": 202.6,
+        "scriptMs": 60.9,
+        "imageBytes": 303295
+      },
+      "initialDisplayReductionPercent": 71.2
+    },
+    {
+      "cpuSlowdown": 4,
+      "previous": {
+        "timelinePresentedMs": 2929.1,
+        "scriptMs": 453.1,
+        "imageBytes": 4559216
+      },
+      "optimized": {
+        "timelinePresentedMs": 816.4,
+        "scriptMs": 294,
+        "imageBytes": 303295
+      },
+      "initialDisplayReductionPercent": 72.1
+    }
+  ],
+  "availableImageBytes": 1346327,
+  "rawMeasurements": [
+    {
+      "scriptMs": 115.70000000298023,
+      "timelinePresentedMs": 856.8000000044703,
+      "domReadyMs": 178.60000000149012,
+      "loadMs": 854.8000000044703,
+      "fcpMs": 908,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 33.899999998509884,
+          "duration": 138
+        },
+        {
+          "start": 178.20000000298023,
+          "duration": 536
+        },
+        {
+          "start": 743.3000000044703,
+          "duration": 100
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 30.100000001490116,
+          "end": 41.899999998509884
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 163.80000000447035,
+          "end": 241.70000000298023
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 164,
+          "end": 188.30000000447035
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 164.20000000298023,
+          "end": 186.80000000447035
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 164.30000000447035,
+          "end": 181.30000000447035
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 164.39999999850988,
+          "end": 187.89999999850988
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 164.5,
+          "end": 188.80000000447035
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 164.5,
+          "end": 192.5
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 164.60000000149012,
+          "end": 196
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 164.70000000298023,
+          "end": 196.30000000447035
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 164.80000000447035,
+          "end": 198.30000000447035
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 164.89999999850988,
+          "end": 198.60000000149012
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 165,
+          "end": 198.89999999850988
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 165.10000000149012,
+          "end": 201.30000000447035
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 165.20000000298023,
+          "end": 205.20000000298023
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 165.30000000447035,
+          "end": 205.70000000298023
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 165.30000000447035,
+          "end": 206.60000000149012
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 165.30000000447035,
+          "end": 206.80000000447035
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 165.5,
+          "end": 209.80000000447035
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 165.60000000149012,
+          "end": 211.20000000298023
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 165.60000000149012,
+          "end": 211.30000000447035
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 165.70000000298023,
+          "end": 243.80000000447035
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 166.39999999850988,
+          "end": 215.39999999850988
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 166.5,
+          "end": 216.30000000447035
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 166.60000000149012,
+          "end": 219.20000000298023
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 166.80000000447035,
+          "end": 220.20000000298023
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 166.89999999850988,
+          "end": 222.60000000149012
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 167,
+          "end": 224.60000000149012
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 167.10000000149012,
+          "end": 226.10000000149012
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 167.10000000149012,
+          "end": 228
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 167.30000000447035,
+          "end": 229.20000000298023
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 167.89999999850988,
+          "end": 232.70000000298023
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 168.20000000298023,
+          "end": 235.70000000298023
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 168.20000000298023,
+          "end": 235.10000000149012
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 168.5,
+          "end": 235.60000000149012
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 168.5,
+          "end": 239.60000000149012
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 168.70000000298023,
+          "end": 240.20000000298023
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 168.80000000447035,
+          "end": 240.60000000149012
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 169,
+          "end": 241.5
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 169.10000000149012,
+          "end": 246.5
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 169.20000000298023,
+          "end": 253
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 169.39999999850988,
+          "end": 248.70000000298023
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 169.60000000149012,
+          "end": 253.30000000447035
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 169.80000000447035,
+          "end": 253.5
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 170.30000000447035,
+          "end": 253.60000000149012
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 170.5,
+          "end": 254.70000000298023
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 171.5,
+          "end": 254.89999999850988
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 888.5,
+          "end": 892.6000000014901
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.122384,
+        "LayoutDuration": 0.452828,
+        "RecalcStyleDuration": 0.106116,
+        "TaskDuration": 0.868568,
+        "JSHeapUsedSize": 5064712,
+        "LayoutCount": 2,
+        "RecalcStyleCount": 2
+      },
+      "variant": "previous",
+      "cpuRate": 1,
+      "run": 0,
+      "errors": []
+    },
+    {
+      "scriptMs": 105.60000000149012,
+      "timelinePresentedMs": 702.2999999970198,
+      "domReadyMs": 161.79999999701977,
+      "loadMs": 700.1999999955297,
+      "fcpMs": 752,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 29.19999999552965,
+          "duration": 126
+        },
+        {
+          "start": 161.5,
+          "duration": 397
+        },
+        {
+          "start": 598.6000000014901,
+          "duration": 94
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 22.399999998509884,
+          "end": 25.69999999552965
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 148.29999999701977,
+          "end": 207.39999999850988
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 148.60000000149012,
+          "end": 175.69999999552965
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 148.60000000149012,
+          "end": 178.19999999552965
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 148.69999999552965,
+          "end": 177.79999999701977
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 148.89999999850988,
+          "end": 177.39999999850988
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 149,
+          "end": 176.79999999701977
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 149,
+          "end": 186.60000000149012
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 149.10000000149012,
+          "end": 187.79999999701977
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 149.19999999552965,
+          "end": 187.60000000149012
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 149.19999999552965,
+          "end": 188.29999999701977
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 149.39999999850988,
+          "end": 188.10000000149012
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 149.39999999850988,
+          "end": 196.39999999850988
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 149.5,
+          "end": 194.79999999701977
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 149.60000000149012,
+          "end": 196.69999999552965
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 149.69999999552965,
+          "end": 196.89999999850988
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 149.79999999701977,
+          "end": 197.10000000149012
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 149.89999999850988,
+          "end": 199.79999999701977
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 150,
+          "end": 203
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 150.19999999552965,
+          "end": 204.5
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 150.29999999701977,
+          "end": 204.29999999701977
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 150.29999999701977,
+          "end": 234.10000000149012
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 150.39999999850988,
+          "end": 206.5
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 150.5,
+          "end": 206.79999999701977
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 150.60000000149012,
+          "end": 210
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 150.69999999552965,
+          "end": 210.69999999552965
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 150.79999999701977,
+          "end": 213.79999999701977
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 151,
+          "end": 214.10000000149012
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 151.19999999552965,
+          "end": 214.19999999552965
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 151.19999999552965,
+          "end": 216.89999999850988
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 151.29999999701977,
+          "end": 217.60000000149012
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 151.39999999850988,
+          "end": 219.69999999552965
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 151.69999999552965,
+          "end": 219.89999999850988
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 151.69999999552965,
+          "end": 220
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 152,
+          "end": 222.29999999701977
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 152,
+          "end": 222.10000000149012
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 152.19999999552965,
+          "end": 225.19999999552965
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 152.29999999701977,
+          "end": 227.10000000149012
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 152.5,
+          "end": 226.5
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 152.60000000149012,
+          "end": 228.69999999552965
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 152.79999999701977,
+          "end": 228.29999999701977
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 153,
+          "end": 231.60000000149012
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 153.10000000149012,
+          "end": 233.79999999701977
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 153.19999999552965,
+          "end": 232.39999999850988
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 154.10000000149012,
+          "end": 234.79999999701977
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 154.19999999552965,
+          "end": 235
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 155.29999999701977,
+          "end": 236.39999999850988
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 728.1000000014901,
+          "end": 732.6000000014901
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.109407,
+        "LayoutDuration": 0.32181,
+        "RecalcStyleDuration": 0.092334,
+        "TaskDuration": 0.717294,
+        "JSHeapUsedSize": 5063556,
+        "LayoutCount": 2,
+        "RecalcStyleCount": 2
+      },
+      "variant": "previous",
+      "cpuRate": 1,
+      "run": 1,
+      "errors": []
+    },
+    {
+      "scriptMs": 99.10000000149012,
+      "timelinePresentedMs": 691,
+      "domReadyMs": 662.8999999985099,
+      "loadMs": 716.1999999955297,
+      "fcpMs": 676,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 43.099999994039536,
+          "duration": 115
+        },
+        {
+          "start": 160.09999999403954,
+          "duration": 468
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 22.19999999552965,
+          "end": 30.599999994039536
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 151.39999999850988,
+          "end": 208.69999999552965
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 151.59999999403954,
+          "end": 170.89999999850988
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 151.79999999701977,
+          "end": 171.09999999403954
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 151.89999999850988,
+          "end": 171.29999999701977
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 152,
+          "end": 171.39999999850988
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 152.09999999403954,
+          "end": 177.29999999701977
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 152.09999999403954,
+          "end": 183.39999999850988
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 152.19999999552965,
+          "end": 181
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 152.19999999552965,
+          "end": 183.59999999403954
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 152.29999999701977,
+          "end": 180.59999999403954
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 152.39999999850988,
+          "end": 183.79999999701977
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 152.5,
+          "end": 186.39999999850988
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 152.5,
+          "end": 189.39999999850988
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 152.59999999403954,
+          "end": 189.59999999403954
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 152.69999999552965,
+          "end": 190.09999999403954
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 152.89999999850988,
+          "end": 190.79999999701977
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 153,
+          "end": 192.5
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 153,
+          "end": 194.09999999403954
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 153.09999999403954,
+          "end": 198.39999999850988
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 153.19999999552965,
+          "end": 198.19999999552965
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 153.29999999701977,
+          "end": 200.79999999701977
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 153.29999999701977,
+          "end": 221.59999999403954
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 153.39999999850988,
+          "end": 201.69999999552965
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 153.5,
+          "end": 203.09999999403954
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 153.5,
+          "end": 206.69999999552965
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 153.69999999552965,
+          "end": 206.59999999403954
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 153.79999999701977,
+          "end": 207.5
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 153.89999999850988,
+          "end": 209.59999999403954
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 154.39999999850988,
+          "end": 213.29999999701977
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 154.5,
+          "end": 212.69999999552965
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 154.59999999403954,
+          "end": 214.19999999552965
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 154.69999999552965,
+          "end": 218.39999999850988
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 154.79999999701977,
+          "end": 218.59999999403954
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 154.89999999850988,
+          "end": 218.79999999701977
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 155.09999999403954,
+          "end": 219.09999999403954
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 155.09999999403954,
+          "end": 220
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 155.19999999552965,
+          "end": 222.5
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 155.5,
+          "end": 224.29999999701977
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 155.5,
+          "end": 224.39999999850988
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 155.59999999403954,
+          "end": 225.09999999403954
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 155.69999999552965,
+          "end": 226.89999999850988
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 155.89999999850988,
+          "end": 226.69999999552965
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 156.09999999403954,
+          "end": 227.09999999403954
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 156.59999999403954,
+          "end": 229
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 156.59999999403954,
+          "end": 229.5
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 157.89999999850988,
+          "end": 231
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 727.7999999970198,
+          "end": 732.7999999970198
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.102906,
+        "LayoutDuration": 0.32728,
+        "RecalcStyleDuration": 0.087123,
+        "TaskDuration": 0.736198,
+        "JSHeapUsedSize": 5240380,
+        "LayoutCount": 2,
+        "RecalcStyleCount": 2
+      },
+      "variant": "previous",
+      "cpuRate": 1,
+      "run": 2,
+      "errors": []
+    },
+    {
+      "scriptMs": 70.5,
+      "timelinePresentedMs": 223.70000000298023,
+      "domReadyMs": 106.80000000447035,
+      "loadMs": 193.20000000298023,
+      "fcpMs": 276,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 19.5,
+          "duration": 83
+        },
+        {
+          "start": 106.40000000596046,
+          "duration": 88
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 15.200000002980232,
+          "end": 17.900000005960464
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 220.60000000149012,
+          "end": 227.20000000298023
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 220.80000000447035,
+          "end": 235.60000000149012
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 220.80000000447035,
+          "end": 235.80000000447035
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 220.90000000596046,
+          "end": 236
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 221,
+          "end": 236.70000000298023
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 221,
+          "end": 237.70000000298023
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 221,
+          "end": 239.10000000149012
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 221.10000000149012,
+          "end": 242.80000000447035
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 221.30000000447035,
+          "end": 245.20000000298023
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 221.30000000447035,
+          "end": 242.70000000298023
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 232.40000000596046,
+          "end": 245.70000000298023
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 233.40000000596046,
+          "end": 242.5
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.073121,
+        "LayoutDuration": 0.083573,
+        "RecalcStyleDuration": 0.021501,
+        "TaskDuration": 0.288198,
+        "JSHeapUsedSize": 5726396,
+        "LayoutCount": 5,
+        "RecalcStyleCount": 5
+      },
+      "variant": "optimized",
+      "cpuRate": 1,
+      "run": 0,
+      "errors": []
+    },
+    {
+      "scriptMs": 60.80000000447035,
+      "timelinePresentedMs": 200.20000000298023,
+      "domReadyMs": 100.30000000447035,
+      "loadMs": 196.90000000596046,
+      "fcpMs": 268,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 100,
+          "duration": 69
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 18.5,
+          "end": 24.900000005960464
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 194.30000000447035,
+          "end": 206.90000000596046
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 194.40000000596046,
+          "end": 213
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 194.5,
+          "end": 213.30000000447035
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 194.5,
+          "end": 213.70000000298023
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 194.60000000149012,
+          "end": 213.5
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 194.70000000298023,
+          "end": 216.40000000596046
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 194.80000000447035,
+          "end": 219.40000000596046
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 194.80000000447035,
+          "end": 220.70000000298023
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 196.10000000149012,
+          "end": 218.5
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 196.30000000447035,
+          "end": 217
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 206.60000000149012,
+          "end": 226.70000000298023
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 259.20000000298023,
+          "end": 265.1000000014901
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.06138,
+        "LayoutDuration": 0.068152,
+        "RecalcStyleDuration": 0.019162,
+        "TaskDuration": 0.273496,
+        "JSHeapUsedSize": 5729768,
+        "LayoutCount": 5,
+        "RecalcStyleCount": 5
+      },
+      "variant": "optimized",
+      "cpuRate": 1,
+      "run": 1,
+      "errors": []
+    },
+    {
+      "scriptMs": 60.899999998509884,
+      "timelinePresentedMs": 202.59999999403954,
+      "domReadyMs": 194.39999999850988,
+      "loadMs": 198.29999999701977,
+      "fcpMs": 240,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 19.099999994039536,
+          "duration": 75
+        },
+        {
+          "start": 98.5,
+          "duration": 94
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 15.199999995529652,
+          "end": 19.299999997019768
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 192.19999999552965,
+          "end": 206.09999999403954
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 192.29999999701977,
+          "end": 206
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 192.39999999850988,
+          "end": 205.79999999701977
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 192.5,
+          "end": 205.59999999403954
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 192.59999999403954,
+          "end": 206.79999999701977
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 192.69999999552965,
+          "end": 205.79999999701977
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 192.79999999701977,
+          "end": 210.59999999403954
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 192.89999999850988,
+          "end": 216.59999999403954
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 192.89999999850988,
+          "end": 216.39999999850988
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 193,
+          "end": 216.79999999701977
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 212.19999999552965,
+          "end": 218.19999999552965
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 227.79999999701977,
+          "end": 233.09999999403954
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.063034,
+        "LayoutDuration": 0.070669,
+        "RecalcStyleDuration": 0.02027,
+        "TaskDuration": 0.245638,
+        "JSHeapUsedSize": 5724432,
+        "LayoutCount": 5,
+        "RecalcStyleCount": 6
+      },
+      "variant": "optimized",
+      "cpuRate": 1,
+      "run": 2,
+      "errors": []
+    },
+    {
+      "scriptMs": 464.30000000447035,
+      "timelinePresentedMs": 2929.0999999940395,
+      "domReadyMs": 2878.7999999970198,
+      "loadMs": 2919.39999999851,
+      "fcpMs": 220,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 200.59999999403954,
+          "duration": 549
+        },
+        {
+          "start": 829.5,
+          "duration": 2042
+        },
+        {
+          "start": 2928.89999999851,
+          "duration": 69
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 48.599999994039536,
+          "end": 52.099999994039536
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 692.1999999955297,
+          "end": 751
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 692.5,
+          "end": 707.3999999985099
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 692.5999999940395,
+          "end": 706.0999999940395
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 692.7999999970198,
+          "end": 709.1999999955297
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 693,
+          "end": 709.5999999940395
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 693.0999999940395,
+          "end": 710
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 693.2999999970198,
+          "end": 719.5999999940395
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 693.3999999985099,
+          "end": 720.6999999955297
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 693.5999999940395,
+          "end": 720.0999999940395
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 693.6999999955297,
+          "end": 721
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 693.7999999970198,
+          "end": 721.1999999955297
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 694,
+          "end": 730.0999999940395
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 694.0999999940395,
+          "end": 732.8999999985099
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 697.3999999985099,
+          "end": 731.1999999955297
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 700.2999999970198,
+          "end": 733.7999999970198
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 702.1999999955297,
+          "end": 734.0999999940395
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 705.5,
+          "end": 738.3999999985099
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 706.5,
+          "end": 740.8999999985099
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 708.6999999955297,
+          "end": 749.5
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 711.3999999985099,
+          "end": 744.3999999985099
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 712.5999999940395,
+          "end": 767.1999999955297
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 714.0999999940395,
+          "end": 746.2999999970198
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 714.3999999985099,
+          "end": 747.2999999970198
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 714.6999999955297,
+          "end": 749.1999999955297
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 715.0999999940395,
+          "end": 761.2999999970198
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 721.6999999955297,
+          "end": 762.1999999955297
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 723,
+          "end": 758.0999999940395
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 723.1999999955297,
+          "end": 757.6999999955297
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 723.3999999985099,
+          "end": 761.8999999985099
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 727.0999999940395,
+          "end": 765.7999999970198
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 727.2999999970198,
+          "end": 765.5
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 728.5,
+          "end": 765.8999999985099
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 729.5999999940395,
+          "end": 770.3999999985099
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 735.7999999970198,
+          "end": 770.2999999970198
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 736.7999999970198,
+          "end": 770.5
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 738,
+          "end": 783.2999999970198
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 738.1999999955297,
+          "end": 780.1999999955297
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 738.3999999985099,
+          "end": 779.2999999970198
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 738.3999999985099,
+          "end": 782.5
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 738.5999999940395,
+          "end": 783.5999999940395
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 738.7999999970198,
+          "end": 785.6999999955297
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 739,
+          "end": 784.3999999985099
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 739.0999999940395,
+          "end": 786.1999999955297
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 742.6999999955297,
+          "end": 787.5999999940395
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 743,
+          "end": 790.3999999985099
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 745.8999999985099,
+          "end": 790.2999999970198
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 3014.89999999851,
+          "end": 3018.1999999955297
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.477421,
+        "LayoutDuration": 1.474578,
+        "RecalcStyleDuration": 0.359794,
+        "TaskDuration": 3.075859,
+        "JSHeapUsedSize": 5244296,
+        "LayoutCount": 3,
+        "RecalcStyleCount": 4
+      },
+      "variant": "previous",
+      "cpuRate": 4,
+      "run": 0,
+      "errors": []
+    },
+    {
+      "scriptMs": 453.1000000014901,
+      "timelinePresentedMs": 2801.3000000044703,
+      "domReadyMs": 2772.7000000029802,
+      "loadMs": 2799.60000000149,
+      "fcpMs": 236,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 219.5,
+          "duration": 511
+        },
+        {
+          "start": 840.2000000029802,
+          "duration": 1930
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 42.5,
+          "end": 45.600000001490116
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 698,
+          "end": 736.2000000029802
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 698.2000000029802,
+          "end": 704.2000000029802
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 698.3000000044703,
+          "end": 704.4000000059605
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 698.3000000044703,
+          "end": 707.1000000014901
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 698.4000000059605,
+          "end": 704
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 700.3000000044703,
+          "end": 711.6000000014901
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 700.5,
+          "end": 712.5
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 700.5,
+          "end": 711.5
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 700.7000000029802,
+          "end": 713.9000000059605
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 700.9000000059605,
+          "end": 714.8000000044703
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 701.1000000014901,
+          "end": 717.3000000044703
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 701.2000000029802,
+          "end": 717.1000000014901
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 704.4000000059605,
+          "end": 720.2000000029802
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 704.5,
+          "end": 719.1000000014901
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 704.6000000014901,
+          "end": 721.2000000029802
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 704.7000000029802,
+          "end": 727.1000000014901
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 704.8000000044703,
+          "end": 724
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 706.9000000059605,
+          "end": 728.3000000044703
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 707,
+          "end": 726.5
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 707.1000000014901,
+          "end": 728.4000000059605
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 707.1000000014901,
+          "end": 739.7000000029802
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 707.2000000029802,
+          "end": 730.9000000059605
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 707.2000000029802,
+          "end": 734.4000000059605
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 707.3000000044703,
+          "end": 733.2000000029802
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 709.5,
+          "end": 733.1000000014901
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 710.3000000044703,
+          "end": 735.1000000014901
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 710.5,
+          "end": 743.8000000044703
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 711.3000000044703,
+          "end": 744.5
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 711.3000000044703,
+          "end": 745
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 711.6000000014901,
+          "end": 746.9000000059605
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 712.8000000044703,
+          "end": 746.3000000044703
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 712.9000000059605,
+          "end": 749
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 712.9000000059605,
+          "end": 751.1000000014901
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 714.7000000029802,
+          "end": 747.8000000044703
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 714.8000000044703,
+          "end": 749.5
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 714.9000000059605,
+          "end": 751.2000000029802
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 715,
+          "end": 756.8000000044703
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 715.2000000029802,
+          "end": 755.3000000044703
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 715.3000000044703,
+          "end": 754.2000000029802
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 718,
+          "end": 756.2000000029802
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 718.1000000014901,
+          "end": 758.7000000029802
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 719.2000000029802,
+          "end": 758.2000000029802
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 719.4000000059605,
+          "end": 759.4000000059605
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 722.1000000014901,
+          "end": 759.8000000044703
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 722.3000000044703,
+          "end": 761
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 727,
+          "end": 761.1000000014901
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 2852,
+          "end": 2854.9000000059605
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.464595,
+        "LayoutDuration": 1.370946,
+        "RecalcStyleDuration": 0.381707,
+        "TaskDuration": 2.914311,
+        "JSHeapUsedSize": 5241308,
+        "LayoutCount": 2,
+        "RecalcStyleCount": 3
+      },
+      "variant": "previous",
+      "cpuRate": 4,
+      "run": 1,
+      "errors": []
+    },
+    {
+      "scriptMs": 446.19999999552965,
+      "timelinePresentedMs": 3032.2000000029802,
+      "domReadyMs": 2967.89999999851,
+      "loadMs": 3020.89999999851,
+      "fcpMs": 260,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 47,
+      "imageBytes": 4559216,
+      "feedHtmlBytes": 1090508,
+      "longtasks": [
+        {
+          "start": 225.10000000149012,
+          "duration": 511
+        },
+        {
+          "start": 846.1000000014901,
+          "duration": 2112
+        },
+        {
+          "start": 3032.10000000149,
+          "duration": 79
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 56.70000000298023,
+          "end": 68.60000000149012
+        },
+        {
+          "name": "S_Enmi_Parapsych.png",
+          "type": "img",
+          "bytes": 1898094,
+          "start": 703.1000000014901,
+          "end": 739.3999999985099
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 704.2000000029802,
+          "end": 712.8999999985099
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 704.3000000044703,
+          "end": 713.6000000014901
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 705.3999999985099,
+          "end": 711.8000000044703
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 705.5,
+          "end": 715
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 706.3000000044703,
+          "end": 715.5
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 706.3000000044703,
+          "end": 718.1000000014901
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 706.3999999985099,
+          "end": 721.3999999985099
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 706.5,
+          "end": 720.3000000044703
+        },
+        {
+          "name": "old_cable_h.webp",
+          "type": "img",
+          "bytes": 38600,
+          "start": 706.6000000014901,
+          "end": 721.6000000014901
+        },
+        {
+          "name": "sana_belkacem.webp",
+          "type": "img",
+          "bytes": 29776,
+          "start": 708.3999999985099,
+          "end": 721.2000000029802
+        },
+        {
+          "name": "inklong_88.webp",
+          "type": "img",
+          "bytes": 39970,
+          "start": 708.5,
+          "end": 724.5
+        },
+        {
+          "name": "two_frames_late.webp",
+          "type": "img",
+          "bytes": 28564,
+          "start": 709.1000000014901,
+          "end": 727
+        },
+        {
+          "name": "mira_at_night.webp",
+          "type": "img",
+          "bytes": 23352,
+          "start": 709.2000000029802,
+          "end": 727.6000000014901
+        },
+        {
+          "name": "pepper_has_chair.webp",
+          "type": "img",
+          "bytes": 34484,
+          "start": 709.3000000044703,
+          "end": 728.6000000014901
+        },
+        {
+          "name": "keel_home.webp",
+          "type": "img",
+          "bytes": 29946,
+          "start": 710.3000000044703,
+          "end": 730.3999999985099
+        },
+        {
+          "name": "talia_reed.webp",
+          "type": "img",
+          "bytes": 31374,
+          "start": 710.3999999985099,
+          "end": 730.6000000014901
+        },
+        {
+          "name": "mend_by_eight.webp",
+          "type": "img",
+          "bytes": 47616,
+          "start": 710.3999999985099,
+          "end": 732.7000000029802
+        },
+        {
+          "name": "oren_bell.webp",
+          "type": "img",
+          "bytes": 35618,
+          "start": 711.5,
+          "end": 732.1000000014901
+        },
+        {
+          "name": "rounds_after.webp",
+          "type": "img",
+          "bytes": 23316,
+          "start": 711.8999999985099,
+          "end": 733.2000000029802
+        },
+        {
+          "name": "Nibelung_Report.png",
+          "type": "img",
+          "bytes": 1362535,
+          "start": 712.2000000029802,
+          "end": 746.2000000029802
+        },
+        {
+          "name": "oiltea_machine.webp",
+          "type": "img",
+          "bytes": 32996,
+          "start": 712.3000000044703,
+          "end": 736.7000000029802
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 712.3000000044703,
+          "end": 736.2000000029802
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 712.5,
+          "end": 736.5
+        },
+        {
+          "name": "folkpond.webp",
+          "type": "img",
+          "bytes": 47230,
+          "start": 713.8000000044703,
+          "end": 738.1000000014901
+        },
+        {
+          "name": "worn_socket.webp",
+          "type": "img",
+          "bytes": 45434,
+          "start": 714.6000000014901,
+          "end": 744.6000000014901
+        },
+        {
+          "name": "rashid_mansur.webp",
+          "type": "img",
+          "bytes": 21562,
+          "start": 715.3999999985099,
+          "end": 743
+        },
+        {
+          "name": "feed_wick.webp",
+          "type": "img",
+          "bytes": 23922,
+          "start": 715.5,
+          "end": 741.3999999985099
+        },
+        {
+          "name": "marta_seidel.webp",
+          "type": "img",
+          "bytes": 21814,
+          "start": 716.7000000029802,
+          "end": 744.8999999985099
+        },
+        {
+          "name": "sparrowtube.webp",
+          "type": "img",
+          "bytes": 35638,
+          "start": 717.1000000014901,
+          "end": 744.8000000044703
+        },
+        {
+          "name": "bent_spoon_jpg.webp",
+          "type": "img",
+          "bytes": 26394,
+          "start": 717.6000000014901,
+          "end": 747.7000000029802
+        },
+        {
+          "name": "carmine_sleeve.webp",
+          "type": "img",
+          "bytes": 36812,
+          "start": 717.6000000014901,
+          "end": 754.7000000029802
+        },
+        {
+          "name": "little_receipt.webp",
+          "type": "img",
+          "bytes": 13848,
+          "start": 718.5,
+          "end": 756.3000000044703
+        },
+        {
+          "name": "smallbone_t.webp",
+          "type": "img",
+          "bytes": 16770,
+          "start": 718.7000000029802,
+          "end": 755.7000000029802
+        },
+        {
+          "name": "axiom_lad.webp",
+          "type": "img",
+          "bytes": 19704,
+          "start": 718.7000000029802,
+          "end": 757.2000000029802
+        },
+        {
+          "name": "moss_on_glass.webp",
+          "type": "img",
+          "bytes": 40598,
+          "start": 718.8000000044703,
+          "end": 759.8000000044703
+        },
+        {
+          "name": "lemon_wire.webp",
+          "type": "img",
+          "bytes": 13570,
+          "start": 719,
+          "end": 760.7000000029802
+        },
+        {
+          "name": "third_landing.webp",
+          "type": "img",
+          "bytes": 24154,
+          "start": 721.7000000029802,
+          "end": 762.2000000029802
+        },
+        {
+          "name": "peripheral_zero.webp",
+          "type": "img",
+          "bytes": 22504,
+          "start": 722.3000000044703,
+          "end": 765.3999999985099
+        },
+        {
+          "name": "doorframe_24.webp",
+          "type": "img",
+          "bytes": 33066,
+          "start": 722.5,
+          "end": 767.2000000029802
+        },
+        {
+          "name": "civic_status.webp",
+          "type": "img",
+          "bytes": 7684,
+          "start": 724.1000000014901,
+          "end": 767
+        },
+        {
+          "name": "latch_17.webp",
+          "type": "img",
+          "bytes": 28274,
+          "start": 724.3000000044703,
+          "end": 768.5
+        },
+        {
+          "name": "eamon_quay.webp",
+          "type": "img",
+          "bytes": 29248,
+          "start": 724.3999999985099,
+          "end": 768.8999999985099
+        },
+        {
+          "name": "save_slot_zero.webp",
+          "type": "img",
+          "bytes": 30292,
+          "start": 727.3999999985099,
+          "end": 772.3999999985099
+        },
+        {
+          "name": "paper_comet.webp",
+          "type": "img",
+          "bytes": 43970,
+          "start": 728.2000000029802,
+          "end": 771.3000000044703
+        },
+        {
+          "name": "afterimage_txt.webp",
+          "type": "img",
+          "bytes": 39684,
+          "start": 732.8999999985099,
+          "end": 772.2000000029802
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 3129.89999999851,
+          "end": 3133.2000000029802
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 1254
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.464428,
+        "LayoutDuration": 1.444658,
+        "RecalcStyleDuration": 0.391996,
+        "TaskDuration": 3.222632,
+        "JSHeapUsedSize": 5245172,
+        "LayoutCount": 3,
+        "RecalcStyleCount": 4
+      },
+      "variant": "previous",
+      "cpuRate": 4,
+      "run": 2,
+      "errors": []
+    },
+    {
+      "scriptMs": 294,
+      "timelinePresentedMs": 849.6000000014901,
+      "domReadyMs": 832.5,
+      "loadMs": 892.2000000029802,
+      "fcpMs": 252,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 216.39999999850988,
+          "duration": 328
+        },
+        {
+          "start": 545.2000000029802,
+          "duration": 254
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 49.20000000298023,
+          "end": 55.29999999701977
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 786.7999999970198,
+          "end": 792.1000000014901
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 788.1000000014901,
+          "end": 799.7000000029802
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 791.7000000029802,
+          "end": 799.5
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 792.3999999985099,
+          "end": 798.6000000014901
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 792.8999999985099,
+          "end": 811.5
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 797.1000000014901,
+          "end": 811.7999999970198
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 797.2999999970198,
+          "end": 813.7000000029802
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 798.6000000014901,
+          "end": 820.1000000014901
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 799.2000000029802,
+          "end": 820.2000000029802
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 799.2000000029802,
+          "end": 820.2999999970198
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 887.8999999985099,
+          "end": 892.8999999985099
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 936.2000000029802,
+          "end": 938.5
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.297522,
+        "LayoutDuration": 0.236284,
+        "RecalcStyleDuration": 0.078732,
+        "TaskDuration": 1.027201,
+        "JSHeapUsedSize": 5728748,
+        "LayoutCount": 6,
+        "RecalcStyleCount": 6
+      },
+      "variant": "optimized",
+      "cpuRate": 4,
+      "run": 0,
+      "errors": []
+    },
+    {
+      "scriptMs": 280.5,
+      "timelinePresentedMs": 816.4000000059605,
+      "domReadyMs": 790.1000000014901,
+      "loadMs": 865.5,
+      "fcpMs": 232,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 206.80000000447035,
+          "duration": 315
+        },
+        {
+          "start": 523.1000000014901,
+          "duration": 235
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 42.5,
+          "end": 46
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 751.7000000029802,
+          "end": 757.5
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 752.5,
+          "end": 757
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 753.4000000059605,
+          "end": 759.6000000014901
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 754.3000000044703,
+          "end": 759.8000000044703
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 754.8000000044703,
+          "end": 762.4000000059605
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 755.6000000014901,
+          "end": 763.6000000014901
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 755.7000000029802,
+          "end": 763.6000000014901
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 756.4000000059605,
+          "end": 763.8000000044703
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 757.3000000044703,
+          "end": 763.4000000059605
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 758.1000000014901,
+          "end": 764.8000000044703
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 859.5,
+          "end": 863.1000000014901
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 919,
+          "end": 921.4000000059605
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.286203,
+        "LayoutDuration": 0.22154,
+        "RecalcStyleDuration": 0.079779,
+        "TaskDuration": 0.998018,
+        "JSHeapUsedSize": 5738748,
+        "LayoutCount": 7,
+        "RecalcStyleCount": 7
+      },
+      "variant": "optimized",
+      "cpuRate": 4,
+      "run": 1,
+      "errors": []
+    },
+    {
+      "scriptMs": 316,
+      "timelinePresentedMs": 783.5,
+      "domReadyMs": 767.1000000014901,
+      "loadMs": 770.2999999970198,
+      "fcpMs": 232,
+      "domElements": 15772,
+      "bodyNodes": 21516,
+      "posts": 301,
+      "imageElements": 549,
+      "imageResources": 12,
+      "imageBytes": 303295,
+      "feedHtmlBytes": 1107969,
+      "longtasks": [
+        {
+          "start": 198.60000000149012,
+          "duration": 354
+        },
+        {
+          "start": 554,
+          "duration": 211
+        }
+      ],
+      "functions": null,
+      "resources": [
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "img",
+          "bytes": 22411,
+          "start": 39.69999999552965,
+          "end": 43.69999999552965
+        },
+        {
+          "name": "S_Enmi_Parapsych.webp",
+          "type": "img",
+          "bytes": 22492,
+          "start": 762.5,
+          "end": 778.8999999985099
+        },
+        {
+          "name": "sora_loading.webp",
+          "type": "img",
+          "bytes": 27684,
+          "start": 762.6000000014901,
+          "end": 789.5
+        },
+        {
+          "name": "nessa_six.webp",
+          "type": "img",
+          "bytes": 31336,
+          "start": 762.6999999955297,
+          "end": 787.7999999970198
+        },
+        {
+          "name": "freight_16.webp",
+          "type": "img",
+          "bytes": 30922,
+          "start": 762.7999999970198,
+          "end": 788.8999999985099
+        },
+        {
+          "name": "luz_turns_pages.webp",
+          "type": "img",
+          "bytes": 37114,
+          "start": 765.3999999985099,
+          "end": 786.6999999955297
+        },
+        {
+          "name": "paperless_bird.webp",
+          "type": "img",
+          "bytes": 20148,
+          "start": 765.5,
+          "end": 788.3999999985099
+        },
+        {
+          "name": "violet_pad.webp",
+          "type": "img",
+          "bytes": 7524,
+          "start": 765.5,
+          "end": 789.2999999970198
+        },
+        {
+          "name": "camber_line.webp",
+          "type": "img",
+          "bytes": 15214,
+          "start": 765.6000000014901,
+          "end": 793
+        },
+        {
+          "name": "cat-chair.webp",
+          "type": "img",
+          "bytes": 33354,
+          "start": 765.6999999955297,
+          "end": 792.7999999970198
+        },
+        {
+          "name": "washer.webp",
+          "type": "img",
+          "bytes": 26148,
+          "start": 765.6999999955297,
+          "end": 793.1000000014901
+        },
+        {
+          "name": "window_warm.webp",
+          "type": "img",
+          "bytes": 28948,
+          "start": 812.8999999985099,
+          "end": 825.3999999985099
+        },
+        {
+          "name": "ratatoskr-logo.png",
+          "type": "other",
+          "bytes": 22411,
+          "start": 886.3999999985099,
+          "end": 889
+        }
+      ],
+      "avatarSizes": [
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 34,
+          "height": 34,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 314
+        },
+        {
+          "width": 35,
+          "height": 35,
+          "naturalWidth": 313
+        }
+      ],
+      "storageBytes": 0,
+      "browserMetrics": {
+        "ScriptDuration": 0.320268,
+        "LayoutDuration": 0.186661,
+        "RecalcStyleDuration": 0.094217,
+        "TaskDuration": 0.982237,
+        "JSHeapUsedSize": 5693568,
+        "LayoutCount": 5,
+        "RecalcStyleCount": 6
+      },
+      "variant": "optimized",
+      "cpuRate": 4,
+      "run": 2,
+      "errors": []
+    }
+  ]
+}

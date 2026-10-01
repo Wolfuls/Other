@@ -1,0 +1,132 @@
+{
+  "sourceSceneId": "ratatoskr-artificial-flowers-v7",
+  "profileAtCapture": {
+    "name": "遠見 静寂 (Enmi Shijima)",
+    "handle": "S_Enmi_Parapsych",
+    "initials": "ES",
+    "color": "#766776",
+    "avatar": "asset:enmi-square",
+    "verified": true,
+    "notice": "Account temporarily restricted",
+    "noticeJa": "アカウントを一時的に制限中",
+    "bio": "Researcher / Forensic Science Division “Hermes” / Flamel\nParapsychology / Ability Formation / Behavioral Analysis",
+    "bioJa": "研究員／フラメル 法科学部門「ヘルメス」\n超心理学／能力形成／行動分析",
+    "location": "Yggdrasil",
+    "locationJa": "ユグドラシル"
+  },
+  "threadsAtCapture": [
+    {
+      "id": "nibelung-report",
+      "name": "Nibelung Report",
+      "nameJa": "ニーベルング報道",
+      "description": "Official news and public updates from Nibelung.",
+      "descriptionJa": "ニーベルングによる公式ニュースと発表。",
+      "kind": "official",
+      "owner": "Nibelung_Report",
+      "members": "286K",
+      "color": "#8eb4c8",
+      "following": true,
+      "live": false
+    },
+    {
+      "id": "enmi-fieldnotes",
+      "name": "Notes",
+      "nameJa": "メモ書き",
+      "description": "Notes on ability, behavior, and the institutions around them.",
+      "descriptionJa": "能力、行動、そしてそれを取り巻く制度についての記録。",
+      "kind": "personal",
+      "owner": "S_Enmi_Parapsych",
+      "members": "",
+      "color": "#b09cc5",
+      "following": true,
+      "live": false
+    },
+    {
+      "id": "helheim-daily",
+      "name": "Helheim · Daily notices",
+      "nameJa": "ヘルヘイム・生活連絡",
+      "description": "Checkpoints, deliveries, opening hours. What is happening in your block?",
+      "descriptionJa": "検問、配達、営業時間。そちらの街区はどうなっている？",
+      "kind": "official",
+      "owner": "",
+      "members": "8.4K",
+      "color": "#bd916f",
+      "following": true,
+      "live": false
+    },
+    {
+      "id": "midgard-neighborhood",
+      "name": "Midgard · Street level",
+      "nameJa": "ミズガルズ・街の話",
+      "description": "Local life, transport, neighborhood chatter. What’s happening around you?",
+      "descriptionJa": "暮らし、交通、ご近所の話。今、そちらはどうなっている？",
+      "kind": "official",
+      "owner": "",
+      "members": "42.8K",
+      "color": "#baac7c",
+      "following": true,
+      "live": false
+    },
+    {
+      "id": "rooms-and-repairs",
+      "name": "Rooms & Repairs",
+      "nameJa": "部屋と修理",
+      "description": "Things that broke, things that worked, and the things under the furniture.",
+      "descriptionJa": "壊れたもの、直ったもの、家具の下から出てきたもの。",
+      "kind": "community",
+      "owner": "",
+      "members": "2.1K",
+      "color": "#9aaf9b",
+      "following": false,
+      "live": false
+    },
+    {
+      "id": "late-night-matches",
+      "name": "Late-night matches",
+      "nameJa": "夜更かし対戦会",
+      "description": "Room times, rematches, spectating, and excuses.",
+      "descriptionJa": "部屋立て、再戦、観戦、ときどき言い訳。",
+      "kind": "community",
+      "owner": "",
+      "members": "640",
+      "color": "#a89bc8",
+      "following": false,
+      "live": false
+    },
+    {
+      "id": "civic-rights-statements",
+      "name": "Civic Rights Forum · Statements",
+      "nameJa": "市民権フォーラム・声明",
+      "description": "Statements and responses from the Civic Rights Forum.",
+      "descriptionJa": "市民権フォーラムの声明と応答。",
+      "kind": "official",
+      "owner": "civic_status",
+      "members": "6.2K",
+      "color": "#77afad",
+      "following": true,
+      "live": false
+    },
+    {
+      "id": "awake-and-chatting",
+      "name": "Anyone awake?",
+      "nameJa": "起きてる人の雑談",
+      "description": "Early shifts, slow mornings, lunch breaks, and whoever is still awake.",
+      "descriptionJa": "早番、遅い朝、休憩中。起きている人が、とりとめなく話すところ。",
+      "kind": "community",
+      "owner": "",
+      "members": "1.8K",
+      "color": "#a9a28e",
+      "following": false,
+      "live": false
+    }
+  ],
+  "noteJa": "第13版で表示を軽量化。台本は第12稿の全301投稿をそのまま使用。",
+  "scriptRevision": 12,
+  "htmlFile": "../../index.html",
+  "initialView": "all",
+  "timelineTabs": [
+    "all",
+    "home"
+  ],
+  "htmlRevision": 13
+}

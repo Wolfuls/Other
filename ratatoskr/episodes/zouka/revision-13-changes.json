@@ -1,0 +1,25 @@
+{
+  "revision": 13,
+  "previousRevision": 12,
+  "contentVersion": 18,
+  "postCount": 301,
+  "storyAndSettingsUnchanged": true,
+  "previousHtmlBytes": 568477,
+  "htmlBytes": 419169,
+  "previousScriptBytes": 232840,
+  "scriptBytes": 83103,
+  "avatars": {
+    "S_Enmi_Parapsych": {
+      "width": 314,
+      "height": 314,
+      "bytes": 22492,
+      "originalBytes": 1898094
+    },
+    "Nibelung_Report": {
+      "width": 314,
+      "height": 314,
+      "bytes": 25248,
+      "originalBytes": 1362535
+    }
+  }
+}

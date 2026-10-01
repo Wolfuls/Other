@@ -1,0 +1,14 @@
+{
+  "initialView": "288 followed posts, Japanese, chronological; hospital posts precede the news",
+  "profile": "Restriction displayed; new chat thread followed; game thread unfollowed",
+  "languagesAndFilters": "Japanese/English, following/all, chronological/reverse order passed",
+  "references": "Reply expansion, new provocations, Tinderbox ending, and quote destinations passed",
+  "mediaAndProfile": "External attachment opens; Shijima profile restriction retained",
+  "persistenceAndValidation": "Reload retains bookmarks and all external assets; image validation rejects remote URLs",
+  "saveHtml": "Exported HTML reloads with images when saved beside index.html",
+  "directFileOpening": "Not tested: environment blocks file:// with ERR_BLOCKED_BY_ADMINISTRATOR. All browser checks use local HTTP.",
+  "mobile": "390px home fits; conversation retains original template width (up to 400px)",
+  "javascriptErrors": [],
+  "failedHttpRequests": [],
+  "remoteRequests": []
+}
