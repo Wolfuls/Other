@@ -1,0 +1,20 @@
+{
+  "replyButton": {
+    "postsInTinderboxExchange": 31,
+    "startMiddleEnd": "A middle or final reply opens the same connected exchange, including source context; unrelated daily posts are absent.",
+    "controls": "Compact source links jump within the page. Selected post is highlighted. Writing is a separate action."
+  },
+  "returnToTimeline": {
+    "anchorDriftPx": 0.42,
+    "unchangedCardNodesRetained": true
+  },
+  "viewsAndPersistence": "Search and profile return intact. Single posts, JA/EN, reload, exported HTML, and direct-link fallback to TL pass.",
+  "zoukaGraphChecked": 301,
+  "lunaGraphChecked": 262,
+  "existingQuotes": "Legacy inline conversations still expand; replies within them open the reader; foreign quote IDs do not pull in local posts.",
+  "mobile": "390px and 320px conversation views fit, including selected-post jumps and compact references.",
+  "storyDataUnchanged": true,
+  "javascriptErrors": [],
+  "failedRequests": [],
+  "method": "Chromium over local HTTP; file:// is blocked in this environment."
+}

@@ -1,6 +1,6 @@
 {
   "format": "ratatoskr-script-draft",
-  "revision": 10,
+  "revision": 12,
   "language": "ja",
   "sourceSceneId": "ratatoskr-artificial-flowers-v7",
   "translationStatus": "English counterparts in translations-en.json and index.html.",
@@ -1934,7 +1934,7 @@
       "handle": "S_Enmi_Parapsych",
       "thread": "rooms-and-repairs",
       "time": "0d · 10:46:36",
-      "textJa": "それはよかった。あちらは直れば静かになるからね。\n\n私の方は、返事をもらうほど調子がよくなる。修理を断られるのも、まあ無理はない。",
+      "textJa": "何よりだ。私の方は、返事をもらうほど調子がよくなるので心配無用だよ。",
       "parentId": "zouka-a27",
       "quoteId": "",
       "quoteExcerptJa": "",
@@ -2155,7 +2155,7 @@
       "handle": "S_Enmi_Parapsych",
       "thread": "midgard-neighborhood",
       "time": "0d · 11:02:36",
-      "textJa": "ほう。法理学と刑法理論を修め、犯罪心理学へ進んだ人間が、犯罪に多少明るいと。よいところにお気付きになったね。\n\n私の勉強の動機まで考えてくれるとは、ありがたいことだ。何を勉強してきたかをお確かめになる前に、そこまで気を回していただけるとは思わなかったよ。",
+      "textJa": "ほう。法理学と刑法理論を修め、犯罪心理学へ進んだ人間が、犯罪に多少明るいと。よいところに気付いたね。\n\n私の勉強の動機まで考えてくれるとは、ありがたいことだ。何を勉強してきたかを確かめる前に、そこまで気を回してくれるとは思わなかったよ。",
       "parentId": "zouka-prov09",
       "quoteId": "",
       "quoteExcerptJa": "",
@@ -3169,7 +3169,7 @@
       "handle": "S_Enmi_Parapsych",
       "thread": "midgard-neighborhood",
       "time": "0d · 12:02:47",
-      "textJa": "おや、付き添いが要るのか。\n\n君一人でも話してくれてよいのだよ。",
+      "textJa": "おや。私が気に入らないという用件で呼ばれたら、先方も驚くだろうね。",
       "parentId": "zouka-prov10",
       "quoteId": "",
       "quoteExcerptJa": "",
@@ -3234,7 +3234,7 @@
       "handle": "afterimage_txt",
       "thread": "midgard-neighborhood",
       "time": "0d · 12:04:38",
-      "textJa": "先生みたいな偉い人の話は、偉い人同士でやってもらった方がいいかなってｗ",
+      "textJa": "ただの通報ネタにマジレスしてくるの草。\n\n先生、ネット向いてないよｗ",
       "parentId": "zouka-prov11",
       "quoteId": "",
       "quoteExcerptJa": "",
@@ -3325,7 +3325,7 @@
       "handle": "S_Enmi_Parapsych",
       "thread": "midgard-neighborhood",
       "time": "0d · 12:07:31",
-      "textJa": "そう遠慮しなくても。私の話へ誰を呼ぶかまで決めてくれる人だ。君自身にも、さぞ聞かせたい意見があるのだろう。\n\nご紹介は後でよいから、まず君の話をどうぞ。",
+      "textJa": "それは失礼。君の好き嫌いまでテセウスが面倒を見てくれる、というところで笑えばよかったのか。",
       "parentId": "zouka-prov12",
       "quoteId": "",
       "quoteExcerptJa": "",
@@ -3497,19 +3497,6 @@
       "textJa": "弁当の箸を忘れて、引き出しの奥にあった予備に助けられた。\n\n入れたの去年の私だと思う。えらい。",
       "parentId": "",
       "quoteId": "",
-      "quoteExcerptJa": "",
-      "image": "",
-      "imageAltJa": "",
-      "noticeJa": ""
-    },
-    {
-      "id": "zouka-prov14",
-      "handle": "afterimage_txt",
-      "thread": "midgard-neighborhood",
-      "time": "0d · 12:12:43",
-      "textJa": "軽く呼んだだけなのに引き留め方が重いｗ",
-      "parentId": "",
-      "quoteId": "zouka-prov13",
       "quoteExcerptJa": "",
       "image": "",
       "imageAltJa": "",
@@ -3932,5 +3919,5 @@
       "noticeJa": ""
     }
   ],
-  "basedOnRevision": 9
+  "basedOnRevision": 11
 }

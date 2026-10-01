@@ -8,7 +8,347 @@
     "verified": true,
     "bio": "Researcher / Forensic Science Division “Hermes” / Flamel\nParapsychology / Ability Formation / Behavioral Analysis",
     "bioJa": "研究員／フラメル 法科学部門「ヘルメス」\n超心理学／能力形成／行動分析",
-    "avatarFile": "shared/avatars/S_Enmi_Parapsych.webp.webp"
+    "avatarFile": "shared/avatars/S_Enmi_Parapsych.webp",
+    "records": [
+      "luna",
+      "zouka"
+    ]
+  },
+  {
+    "name": "paper_citadel",
+    "handle": "paper_citadel",
+    "initials": "PC",
+    "color": "#80734f",
+    "avatar": "asset:avatar-12",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-12.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "thirdrailghost",
+    "handle": "thirdrail_ghost",
+    "initials": "TG",
+    "color": "#537b71",
+    "avatar": "asset:avatar-20",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-20.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Priya Sen",
+    "handle": "priyasen_archive",
+    "initials": "PS",
+    "color": "#86745b",
+    "avatar": "asset:avatar-22",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-22.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "cathedral_error",
+    "handle": "cathedral_err",
+    "initials": "CE",
+    "color": "#606476",
+    "avatar": "asset:avatar-19",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-19.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "random_reply",
+    "handle": "random_reply",
+    "initials": "RR",
+    "color": "#ab8054",
+    "avatar": "asset:avatar-24",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-24.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Noura El-Haddad",
+    "handle": "noura_elh",
+    "initials": "NE",
+    "color": "#547c76",
+    "avatar": "asset:avatar-18",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-18.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "CrowFeed",
+    "handle": "crowfeed",
+    "initials": "CF",
+    "color": "#484e58",
+    "avatar": "asset:avatar-08",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-08.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "bite_down",
+    "handle": "bite_down",
+    "initials": "BD",
+    "color": "#873f4d",
+    "avatar": "asset:avatar-23",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-23.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Mateo A. Rivas",
+    "handle": "marivas_studies",
+    "initials": "MR",
+    "color": "#7a7760",
+    "avatar": "asset:avatar-07",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-07.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "UnderSunMid",
+    "handle": "undersun_mid",
+    "initials": "UM",
+    "color": "#9b8045",
+    "avatar": "asset:avatar-14",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-14.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "RUST//CHILD",
+    "handle": "rustchild_x",
+    "initials": "RC",
+    "color": "#985b42",
+    "avatar": "asset:avatar-13",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-13.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "NoSignal_47",
+    "handle": "nosignal_47",
+    "initials": "47",
+    "color": "#57716b",
+    "avatar": "asset:avatar-03",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-03.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "hexmilk",
+    "handle": "hexmilk",
+    "initials": "HX",
+    "color": "#6b6286",
+    "avatar": "asset:avatar-17",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-17.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Elena Petrov",
+    "handle": "elenapetrov_md",
+    "initials": "EP",
+    "color": "#6e8692",
+    "avatar": "asset:avatar-11",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-11.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "VelvetCoffin",
+    "handle": "velvetcoffin",
+    "initials": "VC",
+    "color": "#6c4865",
+    "avatar": "asset:avatar-16",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-16.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Null Citizen",
+    "handle": "nullcitizen_",
+    "initials": "NC",
+    "color": "#575b65",
+    "avatar": "asset:avatar-21",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-21.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "moth/eaten",
+    "handle": "m0th_eaten",
+    "initials": "ME",
+    "color": "#655e78",
+    "avatar": "asset:avatar-02",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-02.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "S2_LineResident",
+    "handle": "s2line_res",
+    "initials": "S2",
+    "color": "#637c79",
+    "avatar": "asset:avatar-10",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-10.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Samira Khoury",
+    "handle": "samira_khoury",
+    "initials": "SK",
+    "color": "#94786a",
+    "avatar": "asset:avatar-04",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-04.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Jonas Feld",
+    "handle": "jonas_feld",
+    "initials": "JF",
+    "color": "#637259",
+    "avatar": "asset:avatar-15",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-15.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "_marrow_",
+    "handle": "marrow_loop",
+    "initials": "M",
+    "color": "#8a5f69",
+    "avatar": "asset:avatar-09",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-09.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "BluePatch",
+    "handle": "bluepatch_ydf",
+    "initials": "BP",
+    "color": "#41668c",
+    "avatar": "asset:avatar-06",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-06.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "train_to_your_house",
+    "handle": "train2urhouse",
+    "initials": "T2",
+    "color": "#536975",
+    "avatar": "asset:avatar-05",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-05.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "AshUnderRail",
+    "handle": "ash_underrail",
+    "initials": "AR",
+    "color": "#776451",
+    "avatar": "asset:avatar-01",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-01.webp",
+    "records": [
+      "luna"
+    ]
   },
   {
     "name": "NIBELUNG REPORT",
@@ -19,7 +359,903 @@
     "verified": true,
     "bio": "Official news from Nibelung.",
     "bioJa": "ニーベルング公式報道アカウント。",
-    "avatarFile": "shared/avatars/Nibelung_Report.webp.webp"
+    "avatarFile": "shared/avatars/Nibelung_Report.webp",
+    "records": [
+      "luna",
+      "zouka"
+    ]
+  },
+  {
+    "name": "Hotbranch",
+    "handle": "hotbranch",
+    "initials": "HB",
+    "color": "#d77431",
+    "avatar": "asset:hotbranch-icon",
+    "verified": false,
+    "bio": "Trending stories, public reactions, and everything Yggdrasil is arguing about right now.",
+    "bioJa": "話題のニュース、みんなの反応、そして今ユグドラシル中で議論されているあらゆること。",
+    "avatarFile": "shared/avatars/luna-hotbranch-icon.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Mina Velasquez",
+    "handle": "mina_vlz",
+    "initials": "Mi",
+    "color": "#716657",
+    "avatar": "asset:avatar-33",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-33.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "OldMidgardHand",
+    "handle": "oldmidhand",
+    "initials": "Ol",
+    "color": "#716657",
+    "avatar": "asset:avatar-34",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-34.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Marcos Dae",
+    "handle": "marcosdae",
+    "initials": "Ma",
+    "color": "#716657",
+    "avatar": "asset:avatar-35",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-35.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Yuri//offline",
+    "handle": "yuri_offline",
+    "initials": "Yu",
+    "color": "#716657",
+    "avatar": "asset:avatar-36",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-36.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "GlassHammer",
+    "handle": "glasshammer_11",
+    "initials": "Gl",
+    "color": "#716657",
+    "avatar": "asset:avatar-37",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-37.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "KiteString",
+    "handle": "kite_str",
+    "initials": "Ki",
+    "color": "#716657",
+    "avatar": "asset:avatar-38",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-38.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Ibrahim Saleh",
+    "handle": "isaleh_mid",
+    "initials": "Ib",
+    "color": "#716657",
+    "avatar": "asset:avatar-39",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-39.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "MidgardTenantUnion",
+    "handle": "midgard_tenants",
+    "initials": "Mi",
+    "color": "#716657",
+    "avatar": "asset:avatar-40",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-40.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "teethinthewall",
+    "handle": "teethinthewall",
+    "initials": "te",
+    "color": "#716657",
+    "avatar": "asset:avatar-41",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-41.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "latentfactor",
+    "handle": "latentfactor",
+    "initials": "la",
+    "color": "#716657",
+    "avatar": "asset:avatar-42",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-42.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "randomguy",
+    "handle": "randomguy",
+    "initials": "ra",
+    "color": "#716657",
+    "avatar": "asset:avatar-43",
+    "verified": false,
+    "bio": "",
+    "bioJa": "",
+    "avatarFile": "shared/avatars/luna-avatar-43.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "PlatformNine",
+    "handle": "platform_nine",
+    "initials": "Pl",
+    "color": "#706b67",
+    "avatar": "asset:avatar-49",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-49.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "stairwell_echo",
+    "handle": "stairwell_echo",
+    "initials": "st",
+    "color": "#706b67",
+    "avatar": "asset:avatar-47",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-47.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Tarek's Repairs",
+    "handle": "tarek_repairs",
+    "initials": "Ta",
+    "color": "#706b67",
+    "avatar": "asset:avatar-55",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-55.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Miri Vale",
+    "handle": "miri_vale",
+    "initials": "Mi",
+    "color": "#706b67",
+    "avatar": "asset:avatar-51",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-51.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Aki Morita",
+    "handle": "aki_morita",
+    "initials": "Ak",
+    "color": "#706b67",
+    "avatar": "asset:avatar-28",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-28.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "landing_light",
+    "handle": "landing_light",
+    "initials": "la",
+    "color": "#706b67",
+    "avatar": "asset:avatar-52",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-52.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "null_route",
+    "handle": "null_route",
+    "initials": "nu",
+    "color": "#706b67",
+    "avatar": "asset:avatar-27",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-27.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "spare_fuse",
+    "handle": "spare_fuse",
+    "initials": "sp",
+    "color": "#706b67",
+    "avatar": "asset:avatar-50",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-50.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Mrs. Rowan",
+    "handle": "mrs_rowan",
+    "initials": "Mr",
+    "color": "#706b67",
+    "avatar": "asset:avatar-46",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-46.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "South Concourse Neighbors",
+    "handle": "south_concourse",
+    "initials": "So",
+    "color": "#706b67",
+    "avatar": "asset:avatar-32",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-32.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "delayedagain",
+    "handle": "delayed_again",
+    "initials": "de",
+    "color": "#706b67",
+    "avatar": "asset:avatar-25",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-25.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "foldingchair",
+    "handle": "foldingchair_9",
+    "initials": "fo",
+    "color": "#706b67",
+    "avatar": "asset:avatar-29",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-29.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "scrollback",
+    "handle": "scrollback_03",
+    "initials": "sc",
+    "color": "#706b67",
+    "avatar": "asset:avatar-57",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-57.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "peelhere",
+    "handle": "peel_here",
+    "initials": "pe",
+    "color": "#706b67",
+    "avatar": "asset:avatar-30",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-30.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "oops.all.tabs",
+    "handle": "oops_all_tabs",
+    "initials": "oo",
+    "color": "#706b67",
+    "avatar": "asset:avatar-48",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-48.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Lena Voss",
+    "handle": "lena_voss",
+    "initials": "Le",
+    "color": "#706b67",
+    "avatar": "asset:avatar-31",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-31.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "late2this",
+    "handle": "late2_this",
+    "initials": "la",
+    "color": "#706b67",
+    "avatar": "asset:avatar-45",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-45.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "slowmargin",
+    "handle": "slowmargin",
+    "initials": "sl",
+    "color": "#706b67",
+    "avatar": "asset:avatar-56",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-56.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "copper_afterimage",
+    "handle": "copper_afterimg",
+    "initials": "co",
+    "color": "#706b67",
+    "avatar": "asset:avatar-26",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-26.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "puddle.zip",
+    "handle": "puddle_zip",
+    "initials": "pu",
+    "color": "#706b67",
+    "avatar": "asset:avatar-53",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-53.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "read_receipt",
+    "handle": "readreceipt_",
+    "initials": "re",
+    "color": "#706b67",
+    "avatar": "asset:avatar-59",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-59.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "cupholder",
+    "handle": "cupholder_r2",
+    "initials": "cu",
+    "color": "#706b67",
+    "avatar": "asset:avatar-54",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-54.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "mooncrumb",
+    "handle": "mooncrumbs",
+    "initials": "mo",
+    "color": "#706b67",
+    "avatar": "asset:avatar-44",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-44.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "elsewhere_today",
+    "handle": "elsewhere_today",
+    "initials": "el",
+    "color": "#706b67",
+    "avatar": "asset:avatar-58",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-58.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Lina Arendt",
+    "handle": "lina_arendt",
+    "initials": "Li",
+    "color": "#72736b",
+    "avatar": "asset:avatar-60",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-60.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "drysocket",
+    "handle": "drysocket_m",
+    "initials": "dr",
+    "color": "#72736b",
+    "avatar": "asset:avatar-61",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-61.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "receipt_fold",
+    "handle": "receipt_fold",
+    "initials": "re",
+    "color": "#72736b",
+    "avatar": "asset:avatar-62",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-62.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "frog_docket",
+    "handle": "frog_docket",
+    "initials": "fr",
+    "color": "#72736b",
+    "avatar": "asset:avatar-63",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-63.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "last_tram",
+    "handle": "last_tram",
+    "initials": "la",
+    "color": "#72736b",
+    "avatar": "asset:avatar-64",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-64.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "pricklyquiet",
+    "handle": "pricklyquiet",
+    "initials": "pr",
+    "color": "#72736b",
+    "avatar": "asset:avatar-65",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-65.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Ada Mendez",
+    "handle": "ada_mendez",
+    "initials": "Ad",
+    "color": "#72736b",
+    "avatar": "asset:avatar-66",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-66.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "cone_watch",
+    "handle": "cone_watch",
+    "initials": "co",
+    "color": "#72736b",
+    "avatar": "asset:avatar-67",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-67.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Dev Banerji",
+    "handle": "dev_banerji",
+    "initials": "De",
+    "color": "#72736b",
+    "avatar": "asset:avatar-68",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-68.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "paperclip_rat",
+    "handle": "paperclip_rat",
+    "initials": "pa",
+    "color": "#72736b",
+    "avatar": "asset:avatar-69",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-69.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "deadcoin",
+    "handle": "deadcoin_",
+    "initials": "de",
+    "color": "#72736b",
+    "avatar": "asset:avatar-70",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-70.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "yellow_depth",
+    "handle": "yellow_depth",
+    "initials": "ye",
+    "color": "#72736b",
+    "avatar": "asset:avatar-71",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-71.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "tapeworm.fm",
+    "handle": "tapeworm_fm",
+    "initials": "ta",
+    "color": "#72736b",
+    "avatar": "asset:avatar-72",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-72.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "foxinacup",
+    "handle": "foxinacup",
+    "initials": "fo",
+    "color": "#72736b",
+    "avatar": "asset:avatar-73",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-73.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Tessa Rook",
+    "handle": "tessa_rook",
+    "initials": "Te",
+    "color": "#72736b",
+    "avatar": "asset:avatar-74",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-74.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "pigeon_hours",
+    "handle": "pigeon_hours",
+    "initials": "pi",
+    "color": "#72736b",
+    "avatar": "asset:avatar-75",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-75.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "block4window",
+    "handle": "block4window",
+    "initials": "bl",
+    "color": "#72736b",
+    "avatar": "asset:avatar-76",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-76.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "glovebox",
+    "handle": "glovebox_m",
+    "initials": "gl",
+    "color": "#72736b",
+    "avatar": "asset:avatar-77",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-77.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Owen Hale",
+    "handle": "owen_hale",
+    "initials": "Ow",
+    "color": "#72736b",
+    "avatar": "asset:avatar-78",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-78.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "glassbeetle",
+    "handle": "glassbeetle",
+    "initials": "gl",
+    "color": "#72736b",
+    "avatar": "asset:avatar-79",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-79.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "balcony_mug",
+    "handle": "skyward_mug",
+    "initials": "ba",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-81",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-81.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Iris Chen",
+    "handle": "iris_chen",
+    "initials": "Ir",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-82",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-82.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "lowlamp",
+    "handle": "lowlamp",
+    "initials": "lo",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-83",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-83.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "drainradio",
+    "handle": "drainradio",
+    "initials": "dr",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-84",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-84.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "permit_fold",
+    "handle": "permit_fold",
+    "initials": "pe",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-85",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-85.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Kei Arata",
+    "handle": "kei_outbound",
+    "initials": "Ke",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-86",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-86.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "northwindow",
+    "handle": "northwindow",
+    "initials": "no",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-87",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-87.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "brickmoss",
+    "handle": "brickmoss",
+    "initials": "br",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-88",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-88.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "porch_static",
+    "handle": "porch_static",
+    "initials": "po",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-89",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-89.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "soft_return",
+    "handle": "soft_return",
+    "initials": "so",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-90",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-90.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "hold_music",
+    "handle": "hold_music",
+    "initials": "ho",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-91",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-91.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Ellis Ward",
+    "handle": "ellis_ward",
+    "initials": "El",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-92",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-92.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Dogear Books",
+    "handle": "dogear_books",
+    "initials": "Do",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-93",
+    "verified": true,
+    "bio": "Second-hand books in Asgard. Folklore, psychical research, and whatever turns up in the margins.",
+    "bioJa": "アースガルズの古書店。民俗学、心霊研究、ときどき余白の書き込み。",
+    "avatarFile": "shared/avatars/luna-avatar-93.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "Kiln & Corner",
+    "handle": "kiln_corner",
+    "initials": "Ki",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-94",
+    "verified": true,
+    "bio": "Coffee and small-batch baking in Midgard. Arrivals, opening updates, and the occasional sold-out tray.",
+    "bioJa": "ミズガルズの小さな喫茶店。焼き上がり、営業案内、ときどき売り切れのお知らせ。",
+    "avatarFile": "shared/avatars/luna-avatar-94.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "splitcrumb",
+    "handle": "splitcrumb",
+    "initials": "sp",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-95",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-95.webp",
+    "records": [
+      "luna"
+    ]
+  },
+  {
+    "name": "dullsilver",
+    "handle": "dullsilver",
+    "initials": "du",
+    "color": "#8b9b8b",
+    "avatar": "asset:avatar-96",
+    "verified": false,
+    "avatarFile": "shared/avatars/luna-avatar-96.webp",
+    "records": [
+      "luna"
+    ]
   },
   {
     "name": "oiltea",
@@ -30,7 +1266,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/oiltea_machine.webp"
+    "avatarFile": "shared/avatars/oiltea_machine.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Sixth Run",
@@ -41,7 +1280,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/freight_16.webp"
+    "avatarFile": "shared/avatars/freight_16.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Jun & Pepper",
@@ -52,7 +1294,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/pepper_has_chair.webp"
+    "avatarFile": "shared/avatars/pepper_has_chair.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "camber_line",
@@ -63,7 +1308,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/camber_line.webp"
+    "avatarFile": "shared/avatars/camber_line.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Sora Dispatch",
@@ -74,7 +1322,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/sora_loading.webp"
+    "avatarFile": "shared/avatars/sora_loading.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Repairs Until Eight",
@@ -85,7 +1336,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/mend_by_eight.webp"
+    "avatarFile": "shared/avatars/mend_by_eight.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "keelhome",
@@ -96,7 +1350,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/keel_home.webp"
+    "avatarFile": "shared/avatars/keel_home.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Nessa",
@@ -107,7 +1364,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/nessa_six.webp"
+    "avatarFile": "shared/avatars/nessa_six.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "violet_pad",
@@ -118,7 +1378,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/violet_pad.webp"
+    "avatarFile": "shared/avatars/violet_pad.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Rashid Mansur",
@@ -129,7 +1392,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/rashid_mansur.webp"
+    "avatarFile": "shared/avatars/rashid_mansur.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "古いケーブル",
@@ -140,7 +1406,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/old_cable_h.webp"
+    "avatarFile": "shared/avatars/old_cable_h.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "sparrowtube",
@@ -151,7 +1420,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/sparrowtube.webp"
+    "avatarFile": "shared/avatars/sparrowtube.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "carmine sleeve",
@@ -162,7 +1434,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/carmine_sleeve.webp"
+    "avatarFile": "shared/avatars/carmine_sleeve.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "worn socket",
@@ -173,7 +1448,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/worn_socket.webp"
+    "avatarFile": "shared/avatars/worn_socket.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "two frames late",
@@ -184,7 +1462,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/two_frames_late.webp"
+    "avatarFile": "shared/avatars/two_frames_late.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Talia Reed",
@@ -195,7 +1476,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/talia_reed.webp"
+    "avatarFile": "shared/avatars/talia_reed.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Sana Belkacem",
@@ -206,7 +1490,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/sana_belkacem.webp"
+    "avatarFile": "shared/avatars/sana_belkacem.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Smallbone",
@@ -217,7 +1504,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/smallbone_t.webp"
+    "avatarFile": "shared/avatars/smallbone_t.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "lemon wire",
@@ -228,7 +1518,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/lemon_wire.webp"
+    "avatarFile": "shared/avatars/lemon_wire.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "rounds after",
@@ -239,7 +1532,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/rounds_after.webp"
+    "avatarFile": "shared/avatars/rounds_after.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "inklong",
@@ -250,7 +1546,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/inklong_88.webp"
+    "avatarFile": "shared/avatars/inklong_88.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "peripheral zero",
@@ -261,7 +1560,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/peripheral_zero.webp"
+    "avatarFile": "shared/avatars/peripheral_zero.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Civic Rights Forum",
@@ -272,7 +1574,10 @@
     "verified": true,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/civic_status.webp"
+    "avatarFile": "shared/avatars/civic_status.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Eamon Quay",
@@ -283,7 +1588,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/eamon_quay.webp"
+    "avatarFile": "shared/avatars/eamon_quay.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "window warm",
@@ -294,7 +1602,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/window_warm.webp"
+    "avatarFile": "shared/avatars/window_warm.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Marta Seidel",
@@ -305,7 +1616,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/marta_seidel.webp"
+    "avatarFile": "shared/avatars/marta_seidel.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "paperless bird",
@@ -316,7 +1630,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/paperless_bird.webp"
+    "avatarFile": "shared/avatars/paperless_bird.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Oren Bell",
@@ -327,7 +1644,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/oren_bell.webp"
+    "avatarFile": "shared/avatars/oren_bell.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "folkpond",
@@ -338,7 +1658,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/folkpond.webp"
+    "avatarFile": "shared/avatars/folkpond.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Luz Ortega",
@@ -349,7 +1672,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/luz_turns_pages.webp"
+    "avatarFile": "shared/avatars/luz_turns_pages.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "little receipt",
@@ -360,7 +1686,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/little_receipt.webp"
+    "avatarFile": "shared/avatars/little_receipt.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Mira Sol",
@@ -371,7 +1700,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/mira_at_night.webp"
+    "avatarFile": "shared/avatars/mira_at_night.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Tinderbox",
@@ -382,7 +1714,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/feed_wick.webp"
+    "avatarFile": "shared/avatars/feed_wick.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "bent spoon",
@@ -393,7 +1728,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/bent_spoon_jpg.webp"
+    "avatarFile": "shared/avatars/bent_spoon_jpg.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "AXIOM",
@@ -404,7 +1742,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/axiom_lad.webp"
+    "avatarFile": "shared/avatars/axiom_lad.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "doorframe",
@@ -415,7 +1756,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/doorframe_24.webp"
+    "avatarFile": "shared/avatars/doorframe_24.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "save slot 0",
@@ -426,7 +1770,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/save_slot_zero.webp"
+    "avatarFile": "shared/avatars/save_slot_zero.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "moss on glass",
@@ -437,7 +1784,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/moss_on_glass.webp"
+    "avatarFile": "shared/avatars/moss_on_glass.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "third landing",
@@ -448,7 +1798,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/third_landing.webp"
+    "avatarFile": "shared/avatars/third_landing.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "Latch",
@@ -459,7 +1812,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/latch_17.webp"
+    "avatarFile": "shared/avatars/latch_17.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "paper comet",
@@ -470,7 +1826,10 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/paper_comet.webp"
+    "avatarFile": "shared/avatars/paper_comet.webp",
+    "records": [
+      "zouka"
+    ]
   },
   {
     "name": "afterimage.txt",
@@ -481,6 +1840,9 @@
     "verified": false,
     "bio": "",
     "bioJa": "",
-    "avatarFile": "shared/avatars/afterimage_txt.webp"
+    "avatarFile": "shared/avatars/afterimage_txt.webp",
+    "records": [
+      "zouka"
+    ]
   }
 ]

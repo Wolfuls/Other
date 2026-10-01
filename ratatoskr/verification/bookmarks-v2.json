@@ -1,0 +1,10 @@
+{
+  "savedTimelines": "Both saved TLs open from Bookmarks (301/262 posts), with all-posts selected; old archive routes remain compatible.",
+  "profiles": "Original per-period author feed and account profile restored; cross-period links removed; profile no longer fetches other episode data.",
+  "postBookmarksAndExport": "Post bookmarks, reload, active navigation, JA/EN labels, old #archive links and saved HTML reopening pass.",
+  "mobile": "390px and 320px fit without horizontal overflow; 4-item navigation opens TL bookmarks.",
+  "storyData": "Both original episode JSON and JS files are byte-for-byte unchanged.",
+  "javascriptErrors": [],
+  "failedRequests": [],
+  "method": "Chromium over local HTTP; file:// browsing is blocked in this environment."
+}

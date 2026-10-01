@@ -1,0 +1,12 @@
+{
+  "initialArchive": "Two news-led records with original daily-post excerpts; Luna data not loaded on entry.",
+  "recordIsolation": "262/301 posts, original subscriptions/statuses, independent bookmarks, reload and browser back passed.",
+  "history": "One Shijima profile exposes posts from both periods; read-in-context and exact-author history links reopen correctly.",
+  "crossPeriodQuotes": "Create, expand, edit, reload and source navigation passed using a deliberately colliding report ID. Local conversation trees exclude foreign quotes.",
+  "exports": "Both periods export and reopen with their focused post; thread routing and reopening pass. Exports require the shared/episodes folders.",
+  "coreRegression": "Japanese/English, following/all, chronological sort, full-text search, distant quote expansion, and scroll-preserving bookmarks passed.",
+  "mobileAndFolders": "390px mobile archive and timeline fit; bottom navigation works; both episode-folder entry points redirect correctly.",
+  "javascriptErrors": [],
+  "failedHttpRequests": [],
+  "method": "Chromium over local HTTP. This environment blocks file:// browsing; code uses relative classic scripts and no fetch/modules."
+}

@@ -1,0 +1,17 @@
+{
+  "lunaSourceConfirmed": false,
+  "sources": {
+    "luna": {
+      "file": "1-Ratatoskr-scene-2-.html",
+      "sha256": "d7ad43a89d9e1e039d3c09a12df6525440c7079cc822ef55c35470267e65ddc9",
+      "posts": 262,
+      "postsThreadsAccountsProfileUnchanged": true
+    },
+    "zouka": {
+      "file": "index.html",
+      "sha256": "8f528715e718f72c3065758508e723708fd68feaa70cca9b79aac00b5d9aeebb",
+      "posts": 301,
+      "postsThreadsAccountsProfileUnchanged": true
+    }
+  }
+}

@@ -1,0 +1,205 @@
+{
+  "method": "3 cold-context runs per case, cache disabled, local HTTP Chromium. TaskDuration through two frames after the requested view is present; host timing varies.",
+  "results": [
+    {
+      "case": "standalone-v13",
+      "cpuThrottle": 1,
+      "runs": [
+        {
+          "taskMs": 339.903,
+          "scriptMs": 88.21600000000001,
+          "layoutMs": 130.489,
+          "posts": 301
+        },
+        {
+          "taskMs": 263.121,
+          "scriptMs": 68.118,
+          "layoutMs": 57.118,
+          "posts": 301
+        },
+        {
+          "taskMs": 237.846,
+          "scriptMs": 61.461,
+          "layoutMs": 70.29199999999999,
+          "posts": 301
+        }
+      ],
+      "medianTaskMs": 263.1
+    },
+    {
+      "case": "archive",
+      "cpuThrottle": 1,
+      "runs": [
+        {
+          "taskMs": 160.473,
+          "scriptMs": 22.267,
+          "layoutMs": 66.18499999999999,
+          "posts": 0
+        },
+        {
+          "taskMs": 160.516,
+          "scriptMs": 15.817999999999998,
+          "layoutMs": 70.979,
+          "posts": 0
+        },
+        {
+          "taskMs": 141.6,
+          "scriptMs": 18.648,
+          "layoutMs": 59.171,
+          "posts": 0
+        }
+      ],
+      "medianTaskMs": 160.5
+    },
+    {
+      "case": "zouka",
+      "cpuThrottle": 1,
+      "runs": [
+        {
+          "taskMs": 277.075,
+          "scriptMs": 11.069,
+          "layoutMs": 84.18599999999999,
+          "posts": 301
+        },
+        {
+          "taskMs": 253.98900000000003,
+          "scriptMs": 9.727,
+          "layoutMs": 58.304,
+          "posts": 301
+        },
+        {
+          "taskMs": 298.043,
+          "scriptMs": 9.209999999999999,
+          "layoutMs": 74.019,
+          "posts": 301
+        }
+      ],
+      "medianTaskMs": 277.1
+    },
+    {
+      "case": "luna",
+      "cpuThrottle": 1,
+      "runs": [
+        {
+          "taskMs": 391.70700000000005,
+          "scriptMs": 11.228,
+          "layoutMs": 86.402,
+          "posts": 262
+        },
+        {
+          "taskMs": 284.831,
+          "scriptMs": 18.134999999999998,
+          "layoutMs": 82.177,
+          "posts": 262
+        },
+        {
+          "taskMs": 295.343,
+          "scriptMs": 12.228,
+          "layoutMs": 78.376,
+          "posts": 262
+        }
+      ],
+      "medianTaskMs": 295.3
+    },
+    {
+      "case": "standalone-v13",
+      "cpuThrottle": 4,
+      "runs": [
+        {
+          "taskMs": 930.798,
+          "scriptMs": 290.093,
+          "layoutMs": 202.535,
+          "posts": 301
+        },
+        {
+          "taskMs": 843.585,
+          "scriptMs": 261.284,
+          "layoutMs": 191.12,
+          "posts": 301
+        },
+        {
+          "taskMs": 922.384,
+          "scriptMs": 277.223,
+          "layoutMs": 202.01,
+          "posts": 301
+        }
+      ],
+      "medianTaskMs": 922.4
+    },
+    {
+      "case": "archive",
+      "cpuThrottle": 4,
+      "runs": [
+        {
+          "taskMs": 480.69800000000004,
+          "scriptMs": 66.18499999999999,
+          "layoutMs": 162.26399999999998,
+          "posts": 0
+        },
+        {
+          "taskMs": 459.35900000000004,
+          "scriptMs": 82.872,
+          "layoutMs": 175.451,
+          "posts": 0
+        },
+        {
+          "taskMs": 522.278,
+          "scriptMs": 69.786,
+          "layoutMs": 172.88400000000001,
+          "posts": 0
+        }
+      ],
+      "medianTaskMs": 480.7
+    },
+    {
+      "case": "zouka",
+      "cpuThrottle": 4,
+      "runs": [
+        {
+          "taskMs": 916.9000000000001,
+          "scriptMs": 39.374,
+          "layoutMs": 202.922,
+          "posts": 301
+        },
+        {
+          "taskMs": 946.4879999999999,
+          "scriptMs": 34.501999999999995,
+          "layoutMs": 205.35500000000002,
+          "posts": 301
+        },
+        {
+          "taskMs": 1004.689,
+          "scriptMs": 34.471000000000004,
+          "layoutMs": 209.59,
+          "posts": 301
+        }
+      ],
+      "medianTaskMs": 946.5
+    },
+    {
+      "case": "luna",
+      "cpuThrottle": 4,
+      "runs": [
+        {
+          "taskMs": 957.625,
+          "scriptMs": 41.266,
+          "layoutMs": 221.98999999999998,
+          "posts": 262
+        },
+        {
+          "taskMs": 1131.376,
+          "scriptMs": 38.029,
+          "layoutMs": 244.385,
+          "posts": 262
+        },
+        {
+          "taskMs": 930.846,
+          "scriptMs": 36.748000000000005,
+          "layoutMs": 227.864,
+          "posts": 262
+        }
+      ],
+      "medianTaskMs": 957.6
+    }
+  ]
+}

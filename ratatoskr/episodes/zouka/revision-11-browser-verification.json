@@ -1,0 +1,8 @@
+{
+  "freshLoad": "302 posts, default all, images loaded",
+  "dialogue": "Retaken conversation renders in Japanese and English",
+  "savedStateMigration": "v15 to v16: all six revised bodies updated, bookmark and existing settings retained",
+  "javascriptErrors": [],
+  "failedHttpRequests": [],
+  "method": "Chromium via local HTTP; file:// not tested because the environment blocks it."
+}

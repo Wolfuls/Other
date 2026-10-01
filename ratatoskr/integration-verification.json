@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "lunaSource": "Previously attached Ratatoskr-scene (2).html; supplied Windows folder is not accessible from this environment.",
+  "lunaSourceConfirmed": false,
+  "postCounts": {
+    "luna": 262,
+    "zouka": 301
+  },
+  "accountCount": 140,
+  "storyContentUnchanged": true,
+  "sharedPostIdsKeptSeparate": [
+    "enmi-luna-assessment",
+    "nibelung-midgard-luna-report"
+  ],
+  "initialView": "archive",
+  "timelineInitialView": "all",
+  "revision": 3,
+  "entry": "Bookmarked timelines",
+  "profile": "Original per-period post list; no cross-period profile links",
+  "revisionVerification": "verification/conversation-v3.json",
+  "replyAction": "Open connected exchange, including earlier context, in reading order",
+  "conversationReader": true
+}
