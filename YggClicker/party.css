@@ -1,0 +1,301 @@
+/* Native body heights: Meta 144px (140cm), Richter 185px (180cm). */
+.meta-arena.has-richter{height:600px}
+.has-richter .meta-combatant{top:22%;height:180px}
+.has-richter .meta-orbits{top:-15px}
+.has-richter .meta-ground{bottom:5px}
+.richter-combatant{position:absolute;left:max(112px,32%);top:70%;width:208px;height:224px;transform:translate(-50%,-50%);z-index:3}
+.richter-combatant .meta-ground{background:#9a704133;border-color:#e5ae8366;bottom:9px}
+.richter-combatant .meta-caption strong{color:#e5ae83;font-size:13px;letter-spacing:0}
+.meta-arena .richter-combatant .meta-caption{bottom:-28px}
+.richter-standing{display:block;flex-shrink:0;width:192px;height:224px;background-image:var(--richter-sheet);background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;filter:drop-shadow(0 3px 0 #090d1499)}
+.richter-combatant.attacking .richter-standing{animation:richter-frames .62s steps(1,end) both}
+.richter-combatant.attacking .meta-body{animation:meta-lunge .62s steps(5,end) both}
+.richter-combatant.bursting .richter-standing{width:240px;background-image:var(--richter-burst-sheet);background-size:400% 100%;animation:richter-rapid .32s steps(1,end) infinite}
+.richter-combatant.bursting .meta-body{animation:richter-burst-rock .32s steps(1,end) infinite}
+.richter-combatant.is-paused *{animation-play-state:paused!important}
+.richter-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #bade9055}
+.richter-combatant.manual-selected .meta-caption strong{color:var(--accent)}
+.richter-projectile{position:absolute;width:40px;height:40px;margin:-20px 0 0 -20px;z-index:5;animation:richter-bomb-flight var(--flight-duration,560ms) var(--throw-delay,200ms) linear both;pointer-events:none}
+.richter-projectile img{display:block;width:100%;height:100%;animation:richter-bomb-spin var(--flight-duration,560ms) var(--throw-delay,200ms) steps(6,end) both}
+.richter-projectile .projectile-count{top:34px}
+.richter-explosion{position:absolute;left:76%;top:48%;width:160px;height:160px;transform:translate(-50%,-50%);z-index:4;pointer-events:none;isolation:isolate}
+.blast-fireball{position:absolute;inset:0;background-image:var(--explosion-sheet);background-repeat:no-repeat;background-size:600% 100%;animation:richter-blast-frames var(--blast-duration,640ms) steps(1,end) both,richter-blast-fade var(--blast-duration,640ms) linear both}
+.richter-explosion:before{content:'';position:absolute;left:50%;top:50%;width:72%;height:72%;border:3px solid #ffe6a4;border-radius:50%;box-shadow:0 0 0 2px #ed8b4b66,inset 0 0 0 2px #ffe5a455;animation:richter-shockwave .48s steps(8,end) both}
+.blast-sparks{position:absolute;left:50%;top:50%;width:3px;height:3px;background:#fff0a8;box-shadow:-12px -11px #ffe19a,16px -13px #ffb450,21px 4px #ffd078,-20px 6px #ff923d,-7px 22px #ffd078,10px 20px #f78136,2px -24px #ffb450;animation:richter-sparks .52s steps(8,end) both}
+.richter-explosion.chain-explosion{width:192px;height:192px}
+.meta-arena .damage-float{z-index:7}
+.perk-list{border-top:1px solid #49605a;margin-top:12px;padding-top:10px;font-size:13px}
+.perk-list summary{cursor:pointer;color:#e5c49f;font-weight:600}
+.perk-list summary>span{display:block;margin:4px 0 0 13px;font-weight:400;font-size:12px;color:var(--muted)}
+.perk-note{font-size:12px;color:var(--muted);line-height:1.6;margin:10px 0}
+.perk{border-left:2px solid #425252;padding:7px 0 7px 9px;color:var(--muted)}
+.perk>div{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.perk>div>span:first-child{font:12px var(--mono)}
+.perk strong{font:600 14px var(--mono)}
+.perk-status{font-size:12px;margin-left:auto}
+.damage-growth{font-size:12px;line-height:1.6;color:var(--muted);margin:5px 0 9px}
+.character-stats>span:first-child{overflow-wrap:anywhere}
+#enemy-rules{font-size:12px;color:var(--muted)}
+.perk strong{overflow-wrap:anywhere;min-width:0}
+.attack-button{min-width:0;white-space:normal}
+.attack-button>span:nth-child(2){min-width:0;overflow-wrap:anywhere}
+.attack-symbol,.button-arrow{flex-shrink:0}
+.perk p{font-size:12px;margin:4px 0 0;line-height:1.6}
+.perk-buy{display:block;width:100%;margin-top:7px;font-size:12px;padding:7px 5px}
+.perk.unlocked{border-color:#e5ae83;color:#efcda6;background:#a06b2712}
+.perk.unlocked .perk-status{color:var(--accent)}
+#card-richter{background:linear-gradient(125deg,#302b27,#1b282d 70%)}
+#card-richter.owned{border-color:#9a785a}
+#card-richter .avatar.sprite-avatar img{width:68px;top:-2px}
+@keyframes richter-frames{0%{background-position:33.333333% 0}32%{background-position:66.666667% 0}64%{background-position:100% 0}95%,100%{background-position:0 0}}
+@keyframes richter-rapid{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@keyframes richter-burst-rock{0%,50%,100%{transform:translate(2px,0)}25%,75%{transform:translate(6px,-2px)}}
+@keyframes richter-blast-frames{0%{background-position:0 0}16%{background-position:20% 0}32%{background-position:40% 0}48%{background-position:60% 0}64%{background-position:80% 0}80%,100%{background-position:100% 0}}
+@keyframes richter-blast-fade{0%{opacity:1;transform:scale(.85)}32%{opacity:1;transform:scale(1.05)}64%{opacity:.9;transform:scale(1.12)}100%{opacity:0;transform:scale(1.2) translateY(-5px)}}
+@keyframes richter-shockwave{0%{transform:translate(-50%,-50%) scale(.15);opacity:.85}50%{opacity:.55}100%{transform:translate(-50%,-50%) scale(1.6);opacity:0}}
+@keyframes richter-sparks{0%{transform:translate(-50%,-50%) scale(.5);opacity:1}35%{opacity:1}100%{transform:translate(-50%,-50%) scale(3.4) rotate(12deg);opacity:0}}
+@keyframes richter-bomb-flight{0%{transform:translate(0,0);opacity:0}1%{opacity:1}45%{transform:translate(calc(var(--travel) * .45),calc(var(--rise) * .45 - 28px));opacity:1}90%{opacity:1}100%{transform:translate(var(--travel),var(--rise));opacity:1}}
+@keyframes richter-bomb-spin{from{transform:rotate(-12deg)}to{transform:rotate(24deg)}}
+@media(min-width:601px) and (max-width:900px){#character-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.richter-standing{width:180px;height:210px}.richter-combatant{left:max(108px,32%);width:198px;height:210px}.richter-combatant.bursting .richter-standing{width:225px}.richter-orbits{width:204px;height:214px}.richter-projectile{width:36px;height:36px;margin:-18px 0 0 -18px}.richter-explosion{left:78%}.has-richter .meta-caption{bottom:-18px}}
+@media(prefers-reduced-motion:reduce){.richter-standing{background-position:0 0!important}.richter-projectile,.richter-explosion{display:none}}
+
+/* Counter-rotation keeps every creature's face upright as the ring moves. */
+.richter-orbits{position:absolute;left:50%;top:50%;width:220px;height:230px;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
+.creature-ring{position:absolute;inset:0;animation:creature-orbit var(--orbit-duration) linear infinite;animation-direction:var(--orbit-direction)}
+.creature-slot{position:absolute;width:42px;height:42px;transform:translate(-50%,-50%)}
+.richter-creature{display:block;width:100%;height:100%;animation:creature-upright var(--orbit-duration) linear infinite;animation-direction:var(--orbit-direction)}
+.richter-orbits.dense .creature-slot{width:24px;height:24px}
+.richter-growth span:first-child{color:#efa1cd}
+@keyframes creature-orbit{to{transform:rotate(360deg)}}
+@keyframes creature-upright{to{transform:rotate(-360deg)}}
+@media(max-width:600px){.richter-orbits{width:204px;height:214px}.creature-slot{width:38px;height:38px}.richter-orbits.dense .creature-slot{width:22px;height:22px}}
+@media(max-width:600px){.richter-explosion{width:128px;height:128px}.richter-explosion.chain-explosion{width:154px;height:154px}}
+
+/* Each hit owns its variation, so overlapping defeats keep independent paths. */
+.meta-arena.hit #enemy-art{animation:enemy-impact-varied .18s ease-out both}
+.meta-arena .enemy-art.enemy-defeat{animation:enemy-defeat-varied var(--fall-duration,500ms) cubic-bezier(.25,.1,.65,1) both}
+.meta-arena .defeat-label{animation:defeat-label-varied var(--fall-duration,500ms) ease-out both}
+.meta-arena .damage-float{animation:damage-varied .8s ease-out both}
+@keyframes enemy-impact-varied{0%,100%{transform:translate(-50%,-50%) rotate(0)}35%{transform:translate(calc(-50% + var(--hit-x)),calc(-50% + var(--hit-y))) rotate(var(--hit-angle))}70%{transform:translate(calc(-50% - var(--hit-x) * .25),-50%) rotate(calc(var(--hit-angle) * -.35))}}
+@keyframes enemy-defeat-varied{0%{transform:translate(-50%,-50%) rotate(0);opacity:1}25%{transform:translate(calc(-50% + var(--fall-x) * .2),calc(-50% + var(--pop-y))) rotate(calc(var(--fall-angle) * .2));opacity:1}100%{transform:translate(calc(-50% + var(--fall-x)),calc(-50% + var(--fall-y))) rotate(var(--fall-angle)) scale(var(--fall-scale));opacity:0}}
+@keyframes defeat-label-varied{from{transform:translate(-50%,0);opacity:1}to{transform:translate(calc(-50% + var(--label-drift)),28px);opacity:0}}
+@keyframes damage-varied{from{transform:translate(-50%,0);opacity:1}to{transform:translate(calc(-50% + var(--float-drift)),var(--float-rise));opacity:0}}
+
+/* Damage terms are separate from the compact attack-button formula. */
+.damage-breakdown{margin:10px 0 14px;border:1px solid #3c5554;border-radius:5px;padding:10px;background:#122025;color:var(--text);font-size:13px;line-height:1.65;overflow-wrap:anywhere}
+.damage-breakdown summary{cursor:pointer;color:var(--teal);font-weight:650}
+.formula-order{color:var(--accent);font-size:13px;margin:10px 0;line-height:1.8}
+.damage-breakdown dl{margin:0}
+.damage-breakdown dl>div{display:grid;grid-template-columns:minmax(105px,.85fr) minmax(0,1.25fr);gap:10px;padding:7px 0;border-bottom:1px solid #ffffff0c}
+.damage-breakdown dt{color:var(--muted)}
+.damage-breakdown dd{margin:0;font-variant-numeric:tabular-nums}
+.formula-subtotals,.formula-result{font-size:12px;color:var(--muted);margin:10px 0 0}
+.formula-subtotals:empty{display:none}
+.formula-result{color:#d0dfbd}
+.character-controls .enhancement-row{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:8px;align-items:center}
+.enhancement-row .button{min-width:0;flex-wrap:wrap}
+.enhancement-bonus{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0;text-align:right;overflow-wrap:anywhere;line-height:1.5}
+.enhancement-bonus small{font-size:11px;color:var(--muted)}
+.enhancement-bonus strong{font:600 15px var(--mono);color:var(--accent)}
+.action-enhancement .enhancement-bonus strong{color:var(--teal)}
+.character-card:not(.owned) .action-enhancement{display:none}
+.upgrade-purchase{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.upgrade-purchase .button{flex:1;min-width:0}
+.upgrade-purchase .enhancement-bonus{flex:0 0 86px}
+@media(prefers-reduced-motion:reduce){.meta-arena.hit #enemy-art,.meta-arena .enemy-defeat,.meta-arena .defeat-label,.meta-arena .damage-float{animation:none!important}}
+
+/* Larger type needs wrapping instead of narrower text on small screens. */
+.panel-heading,.battle-heading,.session-top{gap:8px;flex-wrap:wrap}
+.character-head{flex-wrap:wrap;gap:8px}
+.character-select{flex-basis:100%}
+.character-head .level{position:static;margin-left:55px;font-size:13px}
+.character-identity strong{font-size:15px}
+.character-stats,.meta-growth,.action-note,.manual-selection{flex-wrap:wrap}
+.meta-growth span:last-child{font-size:12px}
+.character-controls .button,.perk-buy{white-space:normal;overflow-wrap:anywhere}
+.hire-button{gap:8px}
+.hire-button span:last-child{flex-shrink:0}
+.section-number{letter-spacing:0}
+.status-pill{white-space:nowrap}
+.metric>div{flex-wrap:wrap}
+.metric strong{max-width:100%;overflow-wrap:anywhere}
+.meta-caption{line-height:1.5}
+.meta-caption strong{letter-spacing:0}
+.has-richter .meta-caption{bottom:-65px}
+.meta-arena .richter-combatant .meta-caption{bottom:-65px}
+.meta-arena:not(.has-richter){height:320px}
+.meta-arena:not(.has-richter) .meta-combatant{top:44%}
+.meta-arena:not(.has-richter) .meta-caption{bottom:-52px}
+.meta-combatant{left:max(92px,24%)}
+.reward-line{flex-wrap:wrap}
+#last-roll{max-width:100%}
+.upgrade-card h3,.upgrade-card p{min-height:0}
+.upgrade-card .button{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:1120px){.workspace{grid-template-columns:180px minmax(285px,1fr) 300px}}
+@media(max-width:980px){.workspace{grid-template-columns:190px minmax(0,1fr)}.character-panel{grid-column:1/3;grid-row:2}#character-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.log-panel{grid-column:1/3}.upgrades-panel{grid-row:3}}
+@media(max-width:600px){
+ .topbar{height:auto;min-height:88px;gap:12px;flex-wrap:wrap;padding:16px 0}.brand{font-size:21px}.brand small{font-size:11px;letter-spacing:0}
+ .top-actions .button{font-size:13px}.top-actions .button span{display:none}
+ .workspace{display:flex}#character-list{display:block}
+ #session-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .session-card .session-top{font-size:11px;line-height:1.5;min-height:34px;align-content:start}
+ .session-card strong{font-size:14px;min-height:42px;line-height:1.5}
+ .session-card .session-bottom{font-size:12px}
+ .section-hint{font-size:12px}.character-head{flex-wrap:wrap}.character-head .level{margin-left:53px}
+ .upgrade-list{grid-template-columns:1fr;gap:10px}.upgrade-card{padding:14px}.upgrade-card h3{font-size:15px;margin-top:8px}.upgrade-card p{font-size:12px;margin-bottom:10px}.upgrade-card .button{font-size:13px}
+ .boost-row{align-items:flex-start;flex-wrap:wrap}.boost-row .button{font-size:13px}
+ .meta-combatant{left:max(87px,29%)}.has-richter .meta-caption{bottom:-65px}
+ .battle-panel{padding:16px 12px}.meta-arena .richter-combatant .meta-caption{bottom:-65px}
+ .manual-selection{font-size:13px}.battle-footnote{font-size:12px}
+}
+@media(max-width:360px){.metrics{grid-template-columns:1fr}.metric{border-right:0;border-bottom:1px solid var(--line)}.metric:last-child{border-bottom:0}}
+
+/* Attack level controls size independently of the action-based orbit count. */
+.meta-orbits{--orbit-weapon-size:28px}
+.richter-orbits{--orbit-weapon-size:42px}
+.meta-orbits .saw-slot,.meta-orbits.dense .saw-slot{width:calc(var(--orbit-weapon-size) * var(--weapon-scale,1));height:calc(var(--orbit-weapon-size) * var(--weapon-scale,1));margin:calc(var(--orbit-weapon-size) * var(--weapon-scale,1) * -.5) 0 0 calc(var(--orbit-weapon-size) * var(--weapon-scale,1) * -.5)}
+.richter-orbits .creature-slot,.richter-orbits.dense .creature-slot{width:calc(var(--orbit-weapon-size) * var(--weapon-scale,1));height:calc(var(--orbit-weapon-size) * var(--weapon-scale,1))}
+.saw-projectile{--shot-size:32px;width:calc(var(--shot-size) * var(--weapon-scale,1));height:calc(var(--shot-size) * var(--weapon-scale,1));margin:calc(var(--shot-size) * var(--weapon-scale,1) * -.5) 0 0 calc(var(--shot-size) * var(--weapon-scale,1) * -.5)}
+.richter-projectile{--shot-size:40px;width:calc(var(--shot-size) * var(--weapon-scale,1));height:calc(var(--shot-size) * var(--weapon-scale,1));margin:calc(var(--shot-size) * var(--weapon-scale,1) * -.5) 0 0 calc(var(--shot-size) * var(--weapon-scale,1) * -.5)}
+.saw-projectile .projectile-count,.richter-projectile .projectile-count{top:calc(100% - 4px)}
+.meta-growth{align-items:flex-start;flex-wrap:wrap}
+.meta-growth span:last-child{white-space:normal}
+.session-bottom{flex-wrap:wrap}
+/* Reserve room for the largest orbit and a wrapping caption below each actor. */
+.meta-arena.has-richter{height:720px}
+.has-richter .meta-combatant{top:20%}
+.richter-combatant{top:69%}
+.meta-arena .meta-combatant .meta-caption{top:calc(100% + 40px);bottom:auto}
+.meta-arena .richter-combatant .meta-caption{top:calc(100% + 45px);bottom:auto}
+.meta-arena:not(.has-richter){height:380px}
+.meta-arena:not(.has-richter) .meta-combatant{top:40%}
+@media(max-width:600px){.meta-orbits{--orbit-weapon-size:24px}.richter-orbits{--orbit-weapon-size:38px}.saw-projectile{--shot-size:27px}.richter-projectile{--shot-size:36px}.meta-caption span{font-size:11px;overflow-wrap:anywhere}}
+
+/* Localize battle layout/paint; moving effects avoid costly blur filters. */
+.meta-arena{contain:layout paint style;isolation:isolate}
+.saw-projectile .meta-saw,.meta-arena .enemy-art.enemy-defeat{filter:none}
+
+/* Full balances have a whole row; the complete battlefield fits its viewport. */
+.topbar{margin-bottom:22px}
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:8px}
+.metric{min-width:0}.metric.primary{grid-column:1/-1;display:flex;align-items:baseline;flex-wrap:wrap;gap:12px 24px;border-right:0;border-bottom:1px solid var(--line)}
+.metric.primary>div{min-width:0;flex:1;margin-top:0}.metric.primary .metric-label{flex-shrink:0}
+#factors{font-size:clamp(20px,2.6vw,35px);overflow-wrap:anywhere;word-break:normal}
+.income-metric strong{font-size:27px}.income-metric small{display:block;font-size:11px;color:var(--muted);margin-top:5px}
+.income-details{font-size:13px;color:var(--muted);margin:8px 0 20px;line-height:1.8}.income-details summary{cursor:pointer;color:var(--teal)}.income-details p{margin:8px 0}
+.arena-viewport{position:relative;max-width:100%;overflow:hidden;border-radius:4px}
+.arena-viewport>.meta-arena{position:absolute;left:0;top:0;transform-origin:top left}
+.arena-zoom{position:absolute;right:8px;top:8px;font:11px var(--mono);color:var(--muted);background:#142126d9;padding:3px 6px;border-radius:3px;pointer-events:none}
+.meta-arena .meta-orbits,.meta-arena .richter-orbits{left:50%;top:50%;width:var(--orbit-width);height:var(--orbit-height);transform:translate(-50%,-50%)}
+.meta-arena .meta-combatant .meta-caption,.meta-arena .richter-combatant .meta-caption{top:calc(50% + var(--orbit-half) + 12px);bottom:auto}
+.meta-arena #enemy-art,.meta-arena .enemy-art.enemy-defeat{left:var(--enemy-x);top:var(--enemy-y);width:var(--enemy-width);max-width:none}
+.meta-arena .target-ring,.meta-arena .richter-explosion{left:var(--enemy-x);top:var(--enemy-y)}
+.meta-arena .damage-float{left:var(--enemy-x);top:calc(var(--enemy-y) - 70px)}
+.meta-arena .defeat-label{left:var(--enemy-x);top:calc(var(--enemy-y) + 35px)}
+@media(max-width:600px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:12px;border-bottom:1px solid var(--line)}.metric.primary{gap:6px 12px}.metric.primary>div{flex-basis:100%}.metric:nth-child(3){border-right:0}.metric strong{font-size:25px}.income-metric strong{font-size:23px}}
+
+/* Hold projectiles hidden only during wind-up, then visible through arrival. */
+.richter-projectile,.saw-projectile{animation-fill-mode:backwards;opacity:0}
+
+.upgrade-list{grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+
+/* Four-frame idle sprites animate independently from the hit/down wrapper. */
+.enemy-sprite{display:block;width:100%;height:100%;background:var(--enemy-image) center/contain no-repeat}
+.animated-enemy .enemy-sprite{background-size:400% 100%;animation:mohican-idle 1s steps(1,end) infinite}
+.meta-arena .enemy-art{height:var(--enemy-height,162px)}
+.meta-arena.mohican-line #enemy-art,.meta-arena .enemy-reserve{animation:none;filter:none}
+.meta-arena .enemy-reserve{width:var(--enemy-width);max-width:none;z-index:0;pointer-events:none}
+.meta-arena #enemy-next-1{left:calc(var(--enemy-x) + var(--reserve-1-x));top:calc(var(--enemy-y) + var(--reserve-1-y))}
+.meta-arena #enemy-next-2{left:calc(var(--enemy-x) + var(--reserve-2-x));top:calc(var(--enemy-y) + var(--reserve-2-y))}
+#enemy-next-1 .enemy-sprite{animation-delay:-.33s}#enemy-next-2 .enemy-sprite{animation-delay:-.66s}
+.meta-arena.mohican-line.hit #enemy-art{animation:enemy-impact-varied .18s ease-out both}
+.meta-arena.mohican-line.enemy-spawning #enemy-art{animation:mohican-step-front .18s ease-out both}
+.meta-arena.mohican-line.enemy-spawning #enemy-next-1{animation:mohican-step-next .18s ease-out both}
+.meta-arena.mohican-line.enemy-spawning #enemy-next-2{animation:mohican-step-enter .18s ease-out both}
+.enemy-paused .enemy-art,.enemy-paused .enemy-sprite{animation-play-state:paused!important}
+.enemy-defeat .enemy-sprite{animation:none;background-position:0 0}
+@keyframes mohican-idle{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@keyframes mohican-step-front{from{transform:translate(calc(-50% + var(--reserve-1-x)),calc(-50% + var(--reserve-1-y)))}to{transform:translate(-50%,-50%)}}
+@keyframes mohican-step-next{from{transform:translate(calc(-50% + var(--reserve-2-x) - var(--reserve-1-x)),calc(-50% + var(--reserve-2-y) - var(--reserve-1-y)))}to{transform:translate(-50%,-50%)}}
+@keyframes mohican-step-enter{from{transform:translate(calc(-50% + 28px),-50%);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
+#boost-cost-rule{display:block;color:var(--muted);font-size:12px;margin-top:5px;overflow-wrap:anywhere}
+.boost-row>div{min-width:0}.boost-row .button{white-space:normal;overflow-wrap:anywhere}
+@media(prefers-reduced-motion:reduce){.animated-enemy .enemy-sprite{animation:none;background-position:0 0}}
+
+/* Dedicated four-pose defeat sheets keep the final slump visible before fading.
+   Extra width fits a fallen body; its height/scale matches the idle sprite. */
+.meta-arena .enemy-art.enemy-defeat.has-defeat-sheet{width:calc(var(--enemy-width) * 4 / 3);animation-name:enemy-defeat-poses}
+.enemy-defeat.has-defeat-sheet .enemy-sprite{background-size:400% 100%;animation:enemy-defeat-frames var(--fall-duration) steps(1,end) both}
+@keyframes enemy-defeat-frames{0%{background-position:0 0}22%{background-position:33.333333% 0}44%{background-position:66.666667% 0}66%,100%{background-position:100% 0}}
+@keyframes enemy-defeat-poses{
+ 0%{transform:translate(-50%,-50%);opacity:1}
+ 25%{transform:translate(calc(-50% + var(--fall-x) * .2),calc(-50% + var(--pop-y)));opacity:1}
+ 70%{transform:translate(calc(-50% + var(--fall-x) * .65),calc(-50% + var(--fall-y) * .4)) rotate(calc(var(--fall-angle) * .1));opacity:1}
+ 100%{transform:translate(calc(-50% + var(--fall-x)),calc(-50% + var(--fall-y) * .55)) rotate(calc(var(--fall-angle) * .15));opacity:0}
+}
+@media(prefers-reduced-motion:reduce){.enemy-defeat.has-defeat-sheet .enemy-sprite{animation:none;background-position:100% 0}}
+
+/* The backdrop shares the grounded canvas; dice rain stays in screen space. */
+.arena-viewport{isolation:isolate;background:#15252b}
+.arena-viewport.has-scene::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:var(--scene-width);transform:translateX(-50%);z-index:0;pointer-events:none;background:linear-gradient(#10202724,#10202744),var(--session-background) center/cover no-repeat;image-rendering:pixelated}
+.arena-viewport>.meta-arena{z-index:2}
+.arena-viewport.has-scene>.meta-arena{background:transparent}
+.arena-viewport.has-scene .arena-grid{opacity:.12}
+.arena-viewport.has-scene .target-ring{top:calc(var(--enemy-y) + var(--enemy-foot));height:20px;opacity:.4}
+.arena-viewport.has-scene .ring-outer{height:28px}
+.arena-viewport.has-scene .ring-inner::before,.arena-viewport.has-scene .ring-inner::after{display:none}
+.grounded .meta-combatant .meta-ground,.grounded .richter-combatant .meta-ground{top:calc(50% + var(--body-foot) - 5px);bottom:auto;background:radial-gradient(ellipse,#071311bb,transparent 75%)}
+.grounded .enemy-art:not(.enemy-defeat)::before{content:"";position:absolute;left:20%;width:60%;top:calc(50% + var(--enemy-foot) - 5px);height:12px;border-radius:50%;background:radial-gradient(ellipse,#071311bb,transparent 75%);z-index:-1}
+.grounded .enemy-art:not(.enemy-defeat) .enemy-sprite{transform:translateY(var(--foot-shift,0%))}
+.grounded #enemy-art{z-index:1}
+.grounded #enemy-next-2{z-index:2}
+.arena-viewport.has-scene .meta-caption{text-shadow:0 1px 3px #081418;background:#112025dc;border:1px solid #6a807244;border-radius:6px;padding:3px 6px}
+#enemy-name[hidden]{display:none}
+#kills{font-size:clamp(18px,2.3vw,27px);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#factor-rain{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.factor-crystal{position:absolute;top:-60px;width:var(--crystal-size);height:var(--crystal-size);opacity:0;animation:factor-rain var(--rain-duration) linear var(--rain-delay) infinite}
+.factor-die::before{content:"";position:absolute;inset:0;border-radius:16%;background:var(--die-pips),linear-gradient(135deg,#dcffc1,#91cfac 70%,#6baf93);box-shadow:inset 1px 1px #eeffdc,inset -2px -2px #508575,2px 2px #2c5c4f}
+.factor-crystal[hidden]{display:none;animation:none}
+.scene-paused .factor-crystal{animation-play-state:paused}
+@keyframes factor-rain{0%{transform:translate3d(0,0,0) rotate(-18deg);opacity:0}12%,75%{opacity:.5}100%{transform:translate3d(var(--rain-drift),var(--rain-distance),0) rotate(162deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){#factor-rain{display:none}}
+
+/* Clear rewards fall quickly in front, independent of the slow income rain. */
+#reward-rain{position:absolute;inset:0;z-index:3;overflow:hidden;pointer-events:none}
+.reward-die{position:absolute;top:-45px;width:var(--crystal-size);height:var(--crystal-size);opacity:0;animation:reward-fall var(--reward-duration) cubic-bezier(.35,.05,.72,.5) var(--reward-delay) both}
+.reward-die::before{background:var(--die-pips),linear-gradient(135deg,#fffbd0,#cceba6 65%,#9cc98a);box-shadow:inset 1px 1px #fffde6,inset -2px -2px #79a770,2px 2px #345646}
+.reward-die[hidden]{display:none;animation:none}
+@keyframes reward-fall{0%{transform:translate3d(0,0,0) rotate(-24deg);opacity:0}8%,78%{opacity:.5}100%{transform:translate3d(var(--rain-drift),var(--rain-distance),0) rotate(250deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){#reward-rain{display:none}}
+
+/* Compact cards keep the identity, two purchases, perks and current formula. */
+.compact-character{padding:14px}
+.compact-character>.character-select{width:100%;margin:0 0 12px;gap:10px;align-items:center}
+.compact-character .character-identity{font-size:16px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.compact-character .character-controls{display:grid;gap:8px}
+.compact-character .character-controls .enhancement-row{grid-template-columns:minmax(0,1fr) minmax(58px,auto);gap:10px;align-items:end}
+.compact-character .hire-button{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;width:100%;min-height:66px;text-align:left;padding:10px 12px;font-size:14px}
+.compact-character .hire-button span:last-child{font-size:13px;font-weight:400;color:var(--muted);max-width:100%;overflow-wrap:anywhere}
+.compact-character .current-multiplier{font:600 17px var(--mono);color:var(--accent);text-align:right;max-width:100px;overflow-wrap:anywhere;padding-bottom:10px}
+.compact-character:not(.owned) .action-button{display:flex}
+.compact-character .action-multiplier{color:var(--teal)}
+.compact-character .perk-list{margin:12px 0 0;padding-top:10px}
+.compact-character .perk-list summary>span{display:inline;margin-left:8px;font-size:12px}
+.compact-character .current-attack{border-top:1px solid #49605a;padding-top:10px;margin:12px 0 0;line-height:1.65;overflow-wrap:anywhere}
+.current-attack>span{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.current-attack>strong{font:500 13px/1.7 var(--mono);color:var(--text)}
+
+.hit-spark{position:absolute;left:var(--enemy-x);top:var(--enemy-y);width:76px;height:76px;z-index:6;pointer-events:none;animation:hit-spark .3s steps(5,end) both}
+.hit-spark::before{content:"";position:absolute;inset:9%;background:linear-gradient(135deg,#fffdeb 20%,#fff4a2 48%,#efa755);clip-path:polygon(44% 0,56% 0,56% 27%,65% 27%,65% 35%,100% 44%,100% 56%,73% 56%,73% 65%,65% 65%,56% 100%,44% 100%,44% 73%,35% 73%,35% 65%,0 56%,0 44%,27% 44%,27% 35%,35% 35%)}
+.hit-spark::after{content:"";position:absolute;left:47%;top:47%;width:5px;height:5px;background:#fffdeb;box-shadow:-30px -21px #fff0a2,25px -29px #fff6cf,31px 20px #efb35c,-25px 30px #fff0a2}
+@keyframes hit-spark{0%{transform:translate(-50%,-50%) rotate(var(--spark-angle)) scale(.25);opacity:1}30%{transform:translate(-50%,-50%) rotate(var(--spark-angle)) scale(1);opacity:1}100%{transform:translate(-50%,-50%) rotate(var(--spark-angle)) scale(1.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){#hit-effects{display:none}}
+
+.workspace.single-session{grid-template-columns:minmax(0,1fr) 360px}
+.single-session .battle-panel{grid-column:1;grid-row:1}.single-session .character-panel{grid-column:2;grid-row:1}
+.single-session .upgrades-panel{grid-column:1;grid-row:2}.single-session .log-panel{grid-column:2;grid-row:2}
+@media(max-width:1100px){.workspace.single-session{grid-template-columns:minmax(0,1fr) 320px}}
+@media(min-width:761px){.single-session #character-list{display:block}}
+@media(max-width:760px){.workspace.single-session{display:flex;flex-direction:column}.single-session>.panel{width:100%}.single-session #character-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.single-session #character-list{display:block}}

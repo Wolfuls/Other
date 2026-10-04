@@ -1,0 +1,142 @@
+(function (root) {
+  'use strict';
+  const MAX_PROJECTILES = 120;
+  const MAX_STEPS = 120, FLIGHT_MS = 320;
+  const PROJECTILE_FLIGHT_MS = 560;
+  // Pure visual variation; values never enter HP, dice, rewards or action points.
+  function impactMotion(random = Math.random) {
+    const between = (min, max) => min + (max - min) * random();
+    const direction = [-1, 0, 1][Math.min(2, Math.floor(random() * 3))];
+    const spin = direction || (random() < .5 ? -1 : 1);
+    return {
+      x:between(-22, 22), y:between(-14, 14),
+      recoilX:spin * between(7, 17), recoilY:between(-9, -3), recoilAngle:spin * between(3, 8),
+      driftX:between(-20, 20), floatRise:between(48, 72),
+      fallDirection:direction < 0 ? 'left' : direction > 0 ? 'right' : 'down',
+      fallX:direction ? direction * between(42, 88) : between(-12, 12),
+      fallY:between(65, 105), popY:between(-26, -10),
+      fallAngle:spin * between(direction ? 32 : 8, direction ? 82 : 24),
+      fallScale:between(.65, .85), fallMs:Math.round(between(420, 620))
+    };
+  }
+  function metaAttackCount(events) {
+    return events.reduce((sum, e) => sum + (e.type !== 'attack' ? 0 : e.actorId === 'meta' ? (e.count || 1) : (e.metaAttacks || 0)), 0);
+  }
+  // One sprite per attack normally. Extreme rates share up to 12 labelled
+  // sprites, preserving the whole count without allocating millions of nodes.
+  function projectileGroups(count, available = MAX_PROJECTILES, summarized = false) {
+    if (!Number.isFinite(count) || count < 1 || available < 1) return [];
+    count = Math.floor(count);
+    const slots = Math.min(MAX_PROJECTILES, Math.floor(available));
+    // A planned summary already represents one of at most 12 visual steps.
+    // Do not expand every summary into another 12 projectiles (12 × 12).
+    if (summarized) return slots ? [count] : [];
+    const size = count <= slots ? count : Math.min(12, slots);
+    const base = Math.floor(count / size), remainder = count - base * size;
+    return Array.from({ length: size }, (_, i) => base + (i < remainder ? 1 : 0));
+  }
+  const volleySpan = count => Math.min(720, Math.max(0, count - 1) * 120);
+  function mergeFrames(frames) {
+    const first = frames[0], last = frames[frames.length - 1];
+    const merged = { ...last, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null };
+    for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'clears', 'knockouts', 'overkills', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
+    merged.actor = frames.every(f => f.actor === first.actor) ? first.actor : 'パーティ';
+    merged.volleyMetaCount = Math.max(merged.metaAttacks, ...frames.map(f => f.volleyMetaCount));
+    merged.volleyRichterCount = Math.max(merged.richterAttacks, ...frames.map(f => f.volleyRichterCount));
+    return merged;
+  }
+  function compact(frames) {
+    if (frames.length <= MAX_STEPS) return frames;
+    return Array.from({length:12}, (_, i) => mergeFrames(frames.slice(Math.floor(i * frames.length / 12), Math.floor((i + 1) * frames.length / 12))));
+  }
+  function plan(events, { sustainedActors = [] } = {}) {
+    const raw = [], volleyMetaCount = metaAttackCount(events);
+    const volleyRichterCount = events.reduce((n,e) => n + (e.type !== 'attack' || e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0)), 0);
+    for (const e of events) {
+      if (e.type === 'attack') raw.push({ ...e, count:e.count || 1, metaAttacks:e.actorId === 'meta' ? (e.count || 1) : (e.metaAttacks || 0),
+        richterAttacks:e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0),
+        clears:0, knockouts:0, overkills:0, reward:0, volleyMetaCount, volleyRichterCount, endHP:e.hpAfter });
+      else if (e.type === 'clear' && raw.length) {
+        const frame = raw[raw.length - 1];
+        frame.clears += e.count || 1; frame.reward += e.reward;
+        frame.knockouts += e.reason === 'knockout' ? (e.count || 1) : (e.knockouts || 0);
+        frame.overkills += e.overkills || 0;
+        frame.endHP = e.hpAfter;
+      }
+    }
+    let frames = raw.flatMap(frame => {
+      if (frame.count === 1) return [frame];
+      const groups = projectileGroups(frame.count), size = groups.length;
+      const integers = Object.fromEntries(['metaAttacks','richterAttacks','clears','knockouts','overkills'].map(key => [key, projectileGroups(frame[key], size)]));
+      // Distribute summaries without inventing individual rolls or HP states.
+      return groups.map((count, i) => ({ ...frame, count, damage:frame.damage / size, reward:frame.reward / size,
+        metaAttacks:integers.metaAttacks[i] || 0, richterAttacks:integers.richterAttacks[i] || 0, clears:integers.clears[i] || 0, knockouts:integers.knockouts[i] || 0, overkills:integers.overkills[i]||0,
+        hpBefore:i === 0 ? frame.hpBefore : null, hpAfter:i === size - 1 ? frame.hpAfter : null,
+        endHP:i === size - 1 ? frame.endHP : null, approximate:true }));
+    });
+    frames = compact(frames);
+    if(sustainedActors.length){
+      // Spread each actor's actual releases over its whole one-second charge
+      // interval. Overflow impacts do not steal release slots from that actor.
+      const slots=Object.fromEntries(['meta','richter'].map(id=>[id,frames.filter(f=>f[`${id}Attacks`]>0).length]));
+      const used={meta:0,richter:0};let lastOffset=0;
+      frames=frames.map((frame,index)=>{
+        const actors=['meta','richter'].filter(id=>frame[`${id}Attacks`]>0);
+        let offset=lastOffset;
+        if(actors.length){offset=Math.min(...actors.map(id=>used[id]*(sustainedActors.includes(id)?1000/slots[id]:120)));actors.forEach(id=>used[id]++);lastOffset=offset;}
+        return {...frame,offset,index};
+      }).sort((a,b)=>a.offset-b.offset||a.index-b.index);
+      return frames.map((frame,i)=>({...frame,gap:i+1<frames.length?frames[i+1].offset-frame.offset:0}));
+    }
+    const count = frames.reduce((n, f) => n + f.count, 0), gap = frames.length > 1 ? volleySpan(count) / (frames.length - 1) : 120;
+    return frames.map(frame => ({ ...frame, gap }));
+  }
+  // Simulation is immediate; this bounded queue only presents its ordered hits.
+  // Independent defeat snapshots let every clear fall while the next target
+  // is already arriving, rather than discarding clears during a down animation.
+  function createPlayback({ onLaunch, onImpact, onActorIdle = () => {}, onIdle = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
+    let queue = [], launchTimer = null, inFlight = 0;
+    const timers = new Set(), releases = { meta:0, richter:0 };
+    function later(fn, delay) { const id = schedule(() => { timers.delete(id); fn(); }, delay); timers.add(id); return id; }
+    function trackReleases(frame, delays) {
+      // onLaunch returns the time until each actor's last projectile leaves.
+      // End its pose independently of in-flight hits, overflow and other actors.
+      for (const actor of ['meta', 'richter']) {
+        const field = `${actor}Attacks`;
+        if (!frame[field]) continue;
+        releases[actor]++;
+        const delay = Number.isFinite(delays?.[actor]) ? Math.max(0, delays[actor]) : 0;
+        later(() => {
+          releases[actor]--;
+          if (!releases[actor] && !queue.some(queued => queued[field] > 0)) onActorIdle(actor);
+        }, delay);
+      }
+    }
+    function pump() {
+      launchTimer = null;
+      if (!queue.length) return;
+      if (inFlight >= MAX_STEPS) { launchTimer = later(pump, 8); return; }
+      const frame = queue.shift(); inFlight++;
+      const timing=onLaunch(frame);
+      trackReleases(frame, timing);
+      later(() => { inFlight--; onImpact(frame); if (!queue.length && !inFlight && launchTimer === null) onIdle(); }, Number.isFinite(timing?.impact)?timing.impact:FLIGHT_MS);
+      if (queue.length) launchTimer = later(pump, frame.gap);
+    }
+    return {
+      enqueue(events, options) {
+        queue.push(...plan(events,options));
+        if (queue.length > MAX_STEPS) {
+          queue = compact(queue);
+          const gap = volleySpan(queue.reduce((n,f) => n + f.count, 0)) / Math.max(1, queue.length - 1);
+          queue.forEach(frame => { frame.gap = gap; });
+        }
+        if (queue.length && launchTimer === null) pump();
+      },
+      reset() { for (const id of timers) cancel(id); timers.clear(); releases.meta = releases.richter = 0; queue = []; inFlight = 0; launchTimer = null; },
+      get pending() { return queue.length + inFlight; }
+    };
+  }
+  const api = { MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  else root.YggCombatEffects = api;
+})(typeof window !== 'undefined' ? window : globalThis);
