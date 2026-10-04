@@ -3,7 +3,7 @@ require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),FX=require('../js/combat-effects.js');
 
-test('displayed additive terms equal actual damage while keeping the 1.25 x 2 boost effect',()=>{
+test('displayed additive terms equal actual damage with global concentration and SPE',()=>{
   for(const actor of [null,...D.characters])for(const face of [1,4,6]){
     const s=E.createState();s.upgrades.click=3;s.upgrades.power=1;s.boostSeconds=30;
     if(actor){s.levels[actor.id]=50;s.selectedCharacterId=actor.id;s.purchasedPerks[actor.id]=actor.perks.map(p=>p.id);}
@@ -14,11 +14,11 @@ test('displayed additive terms equal actual damage while keeping the 1.25 x 2 bo
     const upgrade=b.upgrade.flat+subtotalA*b.upgrade.rate;
     const spe=(base+perk+upgrade)*b.spe.rate;
     const total=Math.floor((base+perk+upgrade+spe+b.item.flat)*b.levelMultiplier+1e-9);
-    assert.equal((1+b.upgrade.rate)*(1+b.spe.rate),2.5);
-    assert.equal(total,Math.floor(subtotalA*2.5*b.levelMultiplier+1e-9));
+    assert.equal((1+b.upgrade.rate)*(1+b.spe.rate),2);
+    assert.equal(total,Math.floor(subtotalA*2*b.levelMultiplier+1e-9));
     const hits=E.click(s,()=>(face-.5)/6).filter(e=>e.type==='attack');
-    assert.equal(hits.reduce((n,e)=>n+e.damage,0),total);
-    assert.equal(E.attackBreakdown(s,actor).upgrade.flat,0,'automatic damage excludes manual training');
+    assert.equal(hits.filter(e=>!e.extraAttack).reduce((n,e)=>n+e.damage,0),total);
+    assert.equal(E.attackBreakdown(s,actor).upgrade.flat,3,'concentration also adds to automatic damage');
   }
 });
 

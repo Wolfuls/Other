@@ -2,7 +2,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const UI=require('../js/display.js'),E=require('../js/engine.js'),D=require('../js/data.js'),{harness}=require('./app-harness.cjs');
 
-test('Utgard keeps feet on the cover-cropped pavement and complete visible orbit/caption bounds at every zoom',()=>{
+test('Utgard keeps feet on the cover-cropped pavement and complete visible orbit bounds at every zoom',()=>{
  for(const width of [240,390,700,950,1400])for(const mobile of [true,false])for(const richterHired of [true,false])for(const metaScale of [1,2.15,4])for(const richterScale of [1,2.15,4]){
   const l=UI.orbitLayout({width,mobile,richterHired,metaScale,richterScale,enemyCount:3,grounded:true});
   assert.equal(l.groundY,l.height/2+.16*Math.max(l.height,l.width/1.5));
@@ -11,7 +11,7 @@ test('Utgard keeps feet on the cover-cropped pavement and complete visible orbit
    const p=l[id],feet=p.y+p.footOffset;
    assert.ok(feet>l.groundY&&feet<l.height,`${id} feet must stay on pavement`);
    assert.ok(p.x-p.footprint/2>=0&&p.x+p.footprint/2<l.width);
-   assert.ok(p.y-p.extentY/2>=0&&p.y+p.extentY/2+76<=l.height);
+   assert.ok(p.y-p.extentY/2>=0&&p.y+p.extentY/2+12<=l.height);
   }
   if(richterHired){assert.ok(l.meta.x+l.meta.footprint/2<l.richter.x-l.richter.footprint/2);assert.equal(l.meta.y+l.meta.footOffset,l.richter.y+l.richter.footOffset);}
   const last=richterHired?l.richter:l.meta;assert.ok(last.x+last.footprint/2<l.enemyX-l.enemyWidth/2);
@@ -39,9 +39,10 @@ test('resize refreshes background bounds and combat coordinates without altering
 
 test('enemy feet correction follows the individual when the queue advances',()=>{
  const s=E.createState(1000);s.sessionId='mohicans';s.hp=10;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
- const expected=D.sessions.find(s=>s.id==='mohicans').variants;
- assert.equal(h.get('enemy-art').firstElementChild.style.getPropertyValue('--foot-shift'),((211-expected[0].footY)/224*100)+'%');
- h.click('attack');h.advance(630);assert.equal(h.get('enemy-art').firstElementChild.style.getPropertyValue('--foot-shift'),'0%');
+ const expected=D.sessions.find(s=>s.id==='mohicans').variants.find(v=>v.sheet===h.get('enemy-art').dataset.appearance);
+ assert.equal(h.get('enemy-art').firstElementChild.style.getPropertyValue('--foot-shift'),((211-(expected.footY??211))/224*100)+'%');
+ const next=h.get('enemy-next-1').firstElementChild.style.getPropertyValue('--foot-shift');
+ h.click('attack');h.advance(630);assert.equal(h.get('enemy-art').firstElementChild.style.getPropertyValue('--foot-shift'),next);
 });
 
 test('the fixed rain pool contains all six dice faces and a fivefold size range even at low income',()=>{

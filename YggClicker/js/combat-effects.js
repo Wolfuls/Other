@@ -39,10 +39,11 @@
   function mergeFrames(frames) {
     const first = frames[0], last = frames[frames.length - 1];
     const merged = { ...last, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null };
-    for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'clears', 'knockouts', 'overkills', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
+    for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'vishunalAttacks', 'clears', 'knockouts', 'overkills', 'overkillBonus', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
     merged.actor = frames.every(f => f.actor === first.actor) ? first.actor : 'パーティ';
     merged.volleyMetaCount = Math.max(merged.metaAttacks, ...frames.map(f => f.volleyMetaCount));
     merged.volleyRichterCount = Math.max(merged.richterAttacks, ...frames.map(f => f.volleyRichterCount));
+    merged.volleyVishunalCount = Math.max(merged.vishunalAttacks, ...frames.map(f => f.volleyVishunalCount));
     return merged;
   }
   function compact(frames) {
@@ -52,25 +53,29 @@
   function plan(events, { sustainedActors = [] } = {}) {
     const raw = [], volleyMetaCount = metaAttackCount(events);
     const volleyRichterCount = events.reduce((n,e) => n + (e.type !== 'attack' || e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0)), 0);
+    const volleyVishunalCount = events.reduce((n,e)=>n+(e.type!=='attack'||e.continuation?0:e.actorId==='vishunal'?(e.count||1):(e.vishunalAttacks||0)),0);
     for (const e of events) {
       if (e.type === 'attack') raw.push({ ...e, count:e.count || 1, metaAttacks:e.actorId === 'meta' ? (e.count || 1) : (e.metaAttacks || 0),
         richterAttacks:e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0),
-        clears:0, knockouts:0, overkills:0, reward:0, volleyMetaCount, volleyRichterCount, endHP:e.hpAfter });
+        vishunalAttacks:e.continuation ? 0 : e.actorId === 'vishunal' ? (e.count || 1) : (e.vishunalAttacks || 0),
+        clears:0, knockouts:0, overkills:0, overkillBonus:0, reward:0, volleyMetaCount, volleyRichterCount, volleyVishunalCount, endHP:e.hpAfter });
       else if (e.type === 'clear' && raw.length) {
         const frame = raw[raw.length - 1];
         frame.clears += e.count || 1; frame.reward += e.reward;
         frame.knockouts += e.reason === 'knockout' ? (e.count || 1) : (e.knockouts || 0);
         frame.overkills += e.overkills || 0;
+        frame.overkillBonus += e.overkillBonus || 0;
         frame.endHP = e.hpAfter;
       }
     }
     let frames = raw.flatMap(frame => {
       if (frame.count === 1) return [frame];
       const groups = projectileGroups(frame.count), size = groups.length;
-      const integers = Object.fromEntries(['metaAttacks','richterAttacks','clears','knockouts','overkills'].map(key => [key, projectileGroups(frame[key], size)]));
+      const integers = Object.fromEntries(['metaAttacks','richterAttacks','vishunalAttacks','clears','knockouts','overkills'].map(key => [key, projectileGroups(frame[key], size)]));
       // Distribute summaries without inventing individual rolls or HP states.
       return groups.map((count, i) => ({ ...frame, count, damage:frame.damage / size, reward:frame.reward / size,
-        metaAttacks:integers.metaAttacks[i] || 0, richterAttacks:integers.richterAttacks[i] || 0, clears:integers.clears[i] || 0, knockouts:integers.knockouts[i] || 0, overkills:integers.overkills[i]||0,
+        overkillBonus:frame.overkills ? frame.overkillBonus*(integers.overkills[i]||0)/frame.overkills : 0,
+        metaAttacks:integers.metaAttacks[i] || 0, richterAttacks:integers.richterAttacks[i] || 0, vishunalAttacks:integers.vishunalAttacks[i] || 0, clears:integers.clears[i] || 0, knockouts:integers.knockouts[i] || 0, overkills:integers.overkills[i]||0,
         hpBefore:i === 0 ? frame.hpBefore : null, hpAfter:i === size - 1 ? frame.hpAfter : null,
         endHP:i === size - 1 ? frame.endHP : null, approximate:true }));
     });
@@ -78,10 +83,10 @@
     if(sustainedActors.length){
       // Spread each actor's actual releases over its whole one-second charge
       // interval. Overflow impacts do not steal release slots from that actor.
-      const slots=Object.fromEntries(['meta','richter'].map(id=>[id,frames.filter(f=>f[`${id}Attacks`]>0).length]));
-      const used={meta:0,richter:0};let lastOffset=0;
+      const slots=Object.fromEntries(['meta','richter','vishunal'].map(id=>[id,frames.filter(f=>f[`${id}Attacks`]>0).length]));
+      const used={meta:0,richter:0,vishunal:0};let lastOffset=0;
       frames=frames.map((frame,index)=>{
-        const actors=['meta','richter'].filter(id=>frame[`${id}Attacks`]>0);
+        const actors=['meta','richter','vishunal'].filter(id=>frame[`${id}Attacks`]>0);
         let offset=lastOffset;
         if(actors.length){offset=Math.min(...actors.map(id=>used[id]*(sustainedActors.includes(id)?1000/slots[id]:120)));actors.forEach(id=>used[id]++);lastOffset=offset;}
         return {...frame,offset,index};
@@ -96,12 +101,12 @@
   // is already arriving, rather than discarding clears during a down animation.
   function createPlayback({ onLaunch, onImpact, onActorIdle = () => {}, onIdle = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
     let queue = [], launchTimer = null, inFlight = 0;
-    const timers = new Set(), releases = { meta:0, richter:0 };
+    const timers = new Set(), releases = { meta:0, richter:0, vishunal:0 };
     function later(fn, delay) { const id = schedule(() => { timers.delete(id); fn(); }, delay); timers.add(id); return id; }
     function trackReleases(frame, delays) {
       // onLaunch returns the time until each actor's last projectile leaves.
       // End its pose independently of in-flight hits, overflow and other actors.
-      for (const actor of ['meta', 'richter']) {
+      for (const actor of ['meta', 'richter', 'vishunal']) {
         const field = `${actor}Attacks`;
         if (!frame[field]) continue;
         releases[actor]++;
@@ -132,7 +137,7 @@
         }
         if (queue.length && launchTimer === null) pump();
       },
-      reset() { for (const id of timers) cancel(id); timers.clear(); releases.meta = releases.richter = 0; queue = []; inFlight = 0; launchTimer = null; },
+      reset() { for (const id of timers) cancel(id); timers.clear(); releases.meta = releases.richter = releases.vishunal = 0; queue = []; inFlight = 0; launchTimer = null; },
       get pending() { return queue.length + inFlight; }
     };
   }

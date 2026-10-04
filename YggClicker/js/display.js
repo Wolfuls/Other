@@ -8,12 +8,12 @@
   const incomeNumber = value => rates.format(value);
   // Grow the orbit and its inter-ring distances with the weapon, not the body.
   // Preserve world-space spacing, then fit the complete scene into its viewport.
-  function orbitLayout({ metaScale=1, richterScale=1, richterHired=false, width=500, mobile=false, enemyCount=1, grounded=false,metaCount=60,richterCount=60 }) {
+  function orbitLayout({ metaScale=1, richterScale=1, metaHired=true, richterHired=false, vishunalHired=false, width=500, mobile=false, enemyCount=1, grounded=false,metaCount=60,richterCount=60 }) {
     const orbit = (w,h,size,scale) => ({width:w*scale,height:h*scale,footprint:(Math.max(w,h)+size)*scale});
     const meta=orbit(mobile?180:210,mobile?180:210,mobile?24:28,metaScale);
     const richter=orbit(mobile?204:220,mobile?214:230,mobile?38:42,richterScale);
     meta.footprint=Math.max(224,meta.footprint);richter.footprint=Math.max(240,richter.footprint);
-    if (grounded) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),richterHired,width,mobile,enemyCount});
+    if (grounded || vishunalHired) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),metaHired,richterHired,vishunalHired,width,mobile,enemyCount});
     const partyWidth=Math.max(meta.footprint,richterHired?richter.footprint:0),enemyWidth=mobile?144:(enemyCount>1?176:200);
     const enemyHeight=enemyCount>1?enemyWidth*224/192:(mobile?154:162);
     const enemyGroupWidth=enemyWidth*(enemyCount>1?1.9:1);
@@ -41,28 +41,57 @@
   }
   // Fit actual visible orbits. Cover cropping determines the pavement line
   // without forcing empty space into a fixed 3:2 canvas.
-  function groundLayout({meta,richter,richterHired,width,mobile,enemyCount}) {
+  function groundLayout({meta,richter,metaHired,richterHired,vishunalHired,width,mobile,enemyCount}) {
     const metaFoot=72,richterFoot=mobile?93:99;
     const enemyWidth=mobile?144:176,enemyHeight=enemyWidth*224/192;
-    const partyWidth=meta.footprint+(richterHired?32+richter.footprint:0);
+    const spriteScale=mobile?105/224:.5;
+    const vishunal={width:0,height:0,footprint:224*spriteScale,extentY:224*spriteScale,footOffset:90*spriteScale,spriteScale};
+    const party=[...(metaHired?[meta]:[]),...(richterHired?[richter]:[]),...(vishunalHired?[vishunal]:[])];
+    const partyWidth=party.reduce((sum,p)=>sum+p.footprint,0)+Math.max(0,party.length-1)*32;
     const groupWidth=enemyWidth*(enemyCount>1?1.95:1),edge=24,gap=56;
-    const belowFeet=Math.max(meta.extentY/2-metaFoot,richterHired?richter.extentY/2-richterFoot:0)+76;
+    const belowFeet=Math.max(metaHired?meta.extentY/2-metaFoot:0,richterHired?richter.extentY/2-richterFoot:0,vishunalHired?vishunal.extentY/2-vishunal.footOffset:0);
     const canvasWidth=Math.max(width,partyWidth+groupWidth+gap+edge*2);
     // A centered 3:2 cover image has its safe ground line at the larger of
     // .66H and .5H + (.16 * 2/3)W. Solve bottom clearance before zooming.
-    const height=Math.max(360,(belowFeet+40)/.34,canvasWidth*(.32*2/3)+2*(belowFeet+40),
-      (meta.extentY/2+metaFoot-8)/.66,richterHired?(richter.extentY/2+richterFoot-8)/.66:0);
+    const minimumHeight=Math.max(360,(belowFeet+40)/.34,canvasWidth*(.32*2/3)+2*(belowFeet+40),
+      metaHired?(meta.extentY/2+metaFoot-8)/.66:0,richterHired?(richter.extentY/2+richterFoot-8)/.66:0);
+    // The outer window stays fixed through purchases. Only the world inside
+    // scales when actual sprite/orbit bounds no longer fit the available area.
+    const heightLimit=mobile?360:480;
+    const zoom=Math.min(1,width/canvasWidth,heightLimit/minimumHeight);
+    const height=heightLimit/zoom;
     const groundY=height/2+.16*Math.max(height,canvasWidth/1.5),feetY=groundY+24;
-    meta.x=edge+meta.footprint/2;meta.y=feetY-metaFoot;meta.footOffset=metaFoot;
-    richter.x=edge+meta.footprint+32+richter.footprint/2;richter.y=feetY-richterFoot;richter.footOffset=richterFoot;
+    let partyLeft=edge;
+    for(const p of [meta,richter,vishunal]){p.x=partyLeft+p.footprint/2;if(party.includes(p))partyLeft+=p.footprint+32;}
+    meta.y=feetY-metaFoot;meta.footOffset=metaFoot;
+    richter.y=feetY-richterFoot;richter.footOffset=richterFoot;
+    vishunal.y=feetY-vishunal.footOffset;
     const enemyFoot=enemyHeight*99/224;
     const floorDepth=height-groundY;
     const enemyX=canvasWidth-edge-groupWidth+enemyWidth/2,enemyY=groundY+floorDepth*.45-enemyFoot;
-    const heightLimit=mobile?560:700;
-    const zoom=Math.min(1,width/canvasWidth,heightLimit/height);
-    return {meta,richter,width:canvasWidth,height,groundY,enemyX,enemyY,enemyWidth,enemyHeight,enemyFoot,
+    return {meta,richter,vishunal,width:canvasWidth,height,groundY,enemyX,enemyY,enemyWidth,enemyHeight,enemyFoot,
       reserves:enemyCount>1?[{x:enemyWidth*.95,y:-floorDepth*.25},{x:enemyWidth*.95,y:floorDepth*.33}]:[],
-      zoom,viewWidth:canvasWidth*zoom,viewHeight:height*zoom,offsetX:(width-canvasWidth*zoom)/2,heightLimit};
+      zoom,viewWidth:canvasWidth*zoom,viewHeight:heightLimit,offsetX:(width-canvasWidth*zoom)/2,heightLimit};
+  }
+  // Keep the two visible reserves in order, randomize each new arrival, and
+  // avoid duplicate appearances in the three currently visible slots.
+  function advanceEnemyQueue(queue, variantCount, steps=0, rng=Math.random) {
+    const size=Math.min(3,variantCount);
+    if (!size) return [];
+    let next=queue.slice(0,size);
+    if(next.length!==size || steps>=size) next=[];
+    else next=next.slice(Math.max(0,Math.floor(steps)));
+    while(next.length<size) {
+      const choices=Array.from({length:variantCount},(_,i)=>i).filter(i=>!next.includes(i));
+      next.push(choices[Math.min(choices.length-1,Math.floor(rng()*choices.length))]);
+    }
+    return next;
+  }
+  // A shuffled cycle reaches every muzzle without repeating only two ports.
+  function shuffledPorts(count, rng=Math.random) {
+    const ports=Array.from({length:count},(_,i)=>i);
+    for(let i=ports.length-1;i>0;i--){const j=Math.min(i,Math.floor(rng()*(i+1)));[ports[i],ports[j]]=[ports[j],ports[i]];}
+    return ports;
   }
   // Decoration grows slowly with income and never grows the DOM without bound.
   const MAX_FACTOR_CRYSTALS = 24;
@@ -74,7 +103,7 @@
     const face=index%6+1,size=[8,20,40,12,28,10,16,34][index%8];
     return {face,size,pips:dieFaces[face-1].map(([x,y])=>`radial-gradient(circle at ${x}% ${y}%,#1d4b40 0 8%,transparent 9%)`).join(',')};
   };
-  const api={fullNumber,currencyNumber,incomeNumber,orbitLayout,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
+  const api={fullNumber,currencyNumber,incomeNumber,orbitLayout,advanceEnemyQueue,shuffledPorts,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   else root.YggDisplay=api;
 })(typeof window !== 'undefined' ? window : globalThis);

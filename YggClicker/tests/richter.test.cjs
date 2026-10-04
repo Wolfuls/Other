@@ -35,7 +35,7 @@ test('the last spillover target checks KO; its unused HP creates neither damage 
     const s=stateAt(50);s.upgrades.reward=2;E.selectSession(s,'patrol');
     const events=E.click(s,rolls(.5,.5,...Array(8).fill(0),(face-.5)/6));
     assert.equal(s.totalDamage,359);assert.equal(s.kills,face===1?9:8);assert.equal(s.hp,face===1?40:1);
-    assert.equal(s.factors,5+s.kills*15);assert.equal(events.filter(e=>e.type==='attack').length,9);
+    assert.equal(s.factors,5+s.kills*12);assert.equal(events.filter(e=>e.type==='attack').length,9);
     assert.equal(events.filter(e=>e.type==='attack').at(-1).knockoutRoll,face);
   }
 });

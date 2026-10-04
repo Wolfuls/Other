@@ -1,0 +1,26 @@
+/* One external 4 x 2 PNG: upper row idle/single fire, lower row rapid fire. */
+.vishunal-combatant{--vishunal-scale:.5;position:absolute;width:calc(224px * var(--vishunal-scale));height:calc(224px * var(--vishunal-scale));transform:translate(-50%,-50%);z-index:3}
+.vishunal-standing{display:block;flex-shrink:0;width:224px;height:224px;transform:scale(var(--vishunal-scale));background:var(--vishunal-sheet) 0 0/400% 200% no-repeat;animation:vishunal-idle 2.6s steps(1,end) infinite;filter:drop-shadow(0 3px 0 #090d1499)}
+.vishunal-combatant .meta-body{animation:none}
+.vishunal-combatant.attacking .vishunal-standing{animation:vishunal-fire .56s steps(1,end) both}
+.vishunal-combatant.bursting .vishunal-standing{animation:vishunal-rapid .28s steps(1,end) infinite}
+.vishunal-combatant.is-paused *{animation-play-state:paused!important}
+.vishunal-combatant .meta-select{inset:12px 6px 8px}
+.vishunal-combatant .meta-ground{width:70px;left:calc(50% - 35px);height:10px}
+.grounded .vishunal-combatant .meta-ground{top:calc(50% + var(--body-foot) - 5px);bottom:auto;background:radial-gradient(ellipse,#071311bb,transparent 75%)}
+.vishunal-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #bade9055}
+.vishunal-avatar{display:block;width:70px;height:70px;background-position:0 0;background-size:400% 200%;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+#card-vishunal{background:linear-gradient(125deg,#2a2b3c,#1b282d 70%)}
+#card-vishunal.owned{border-color:#7f8faa}
+.vishunal-projectile{position:absolute;width:calc(52px * var(--weapon-scale));height:calc(22px * var(--weapon-scale));margin:calc(-11px * var(--weapon-scale)) 0 0 calc(-26px * var(--weapon-scale));z-index:5;pointer-events:none;animation:vishunal-flight var(--flight-duration) linear var(--launch-delay) both}
+.vishunal-projectile img{display:block;width:100%;height:100%;object-fit:contain;transform:rotate(var(--missile-angle));filter:drop-shadow(-3px 0 2px #ffb65466)}
+.vishunal-projectile .projectile-count{top:100%}
+#vishunal-muzzles{position:absolute;left:50%;top:50%;width:224px;height:224px;transform:translate(-50%,-50%) scale(var(--vishunal-scale));z-index:6;pointer-events:none}
+.vishunal-muzzle{position:absolute;width:28px;height:22px;margin:-11px 0 0 -7px;opacity:0;background:#ffe4a0;clip-path:polygon(0 35%,22% 35%,22% 15%,46% 28%,100% 0,71% 43%,100% 64%,53% 67%,58% 100%,27% 74%,0 68%);animation:vishunal-muzzle .12s steps(3,end) var(--launch-delay) both}
+.vishunal-muzzle::after{content:"";position:absolute;inset:7px 10px 7px 4px;background:#fffdf0}
+@keyframes vishunal-muzzle{0%{opacity:0;transform:scale(.5)}1%,45%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.6)}}
+@keyframes vishunal-idle{0%,75%,100%{background-position:0 0}35%,65%{background-position:33.333333% 0}}
+@keyframes vishunal-fire{0%{background-position:66.666667% 0}35%,65%{background-position:100% 0}85%,100%{background-position:0 0}}
+@keyframes vishunal-rapid{0%,100%{background-position:0 100%}25%{background-position:33.333333% 100%}50%{background-position:66.666667% 100%}75%{background-position:100% 100%}}
+@keyframes vishunal-flight{0%{transform:translate(0,0);opacity:0}1%{opacity:1}45%{transform:translate(calc(var(--travel) * .45),calc(var(--rise) * .45 + var(--lane)));opacity:1}100%{transform:translate(var(--travel),var(--rise));opacity:1}}
+@media(prefers-reduced-motion:reduce){.vishunal-standing{animation:none!important;background-position:0 0!important}.vishunal-projectile{display:none}}

@@ -36,13 +36,13 @@ test('automatic zoom fits every allowed size in both dimensions without enlargin
   assert.equal(UI.orbitLayout({width:900}).zoom,1);
 });
 
-test('income is zero without allies; ignores manual training, balance, current HP and pause for its long-term estimate',()=>{
+test('income is zero without allies; ignores balance, current HP and pause for its long-term estimate',()=>{
   const s=E.createState();assert.equal(E.expectedIncome(s).factorsPerSecond,0);
   s.levels.meta=1;const before=structuredClone(s),income=E.expectedIncome(s);assert.ok(income.factorsPerSecond>0);assert.deepEqual(s,before);
-  s.hp=1;s.factors=1e20;s.upgrades.click=99;s.selectedCharacterId='meta';s.actionPoints.meta=50;s.paused=true;
+  s.hp=1;s.factors=1e20;s.selectedCharacterId='meta';s.actionPoints.meta=50;s.paused=true;
   assert.strictEqual(E.expectedIncome(s),income,'reuse the calculation while only non-performance state changes');
   s.actionLevels.meta=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.1)<1e-10);
-  s.actionLevels.meta=0;s.upgrades.reward=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.25)<1e-10);
+  s.actionLevels.meta=0;s.upgrades.reward=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.1)<1e-10);
 });
 
 test('guaranteed one-hit kills cap income at attack frequency unless paid BoM-BeR enables spillover',()=>{
@@ -98,8 +98,8 @@ test('UI reflects loaded target conditions and does not abbreviate the balance',
 test('UI shows fractional rewards, balances and the total reward bonus consistently',()=>{
   const s=E.createState(1000);s.levels.meta=1;s.factors=1234567.25;s.upgrades.reward=1;s.paused=true;
   const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567.25');
-  assert.equal(h.get('reward').textContent,'◇ 2.5Rd');assert.equal(h.get('reward-bonus').textContent,'＋25%');
-  assert.match(h.get('income-formula').textContent,/2\.5Rd/);
+  assert.equal(h.get('reward').textContent,'◇ 2.2Rd');assert.equal(h.get('reward-bonus').textContent,'＋10%');
+  assert.match(h.get('income-formula').textContent,/2\.2Rd/);
   E.selectSession(s,'heavy');const armored=harness(s);
-  assert.equal(armored.get('reward').textContent,'◇ 56.25Rd');assert.match(armored.get('income-formula').textContent,/56\.25Rd/);
+  assert.equal(armored.get('reward').textContent,'◇ 49.5Rd');assert.match(armored.get('income-formula').textContent,/49\.5Rd/);
 });

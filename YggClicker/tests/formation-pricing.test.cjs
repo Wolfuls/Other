@@ -40,9 +40,9 @@ test('mohican front plus two reserves rotate on clears and preserve the down sna
  const appearance=()=>ids.map(id=>h.get(id).dataset.appearance),before=appearance();assert.equal(new Set(before).size,3);
  assert.ok(ids.every(id=>h.get(id).firstElementChild));assert.ok(!h.get('enemy-next-1').hidden);
  h.click('attack');h.advance(630);
- assert.deepEqual(appearance(),[before[1],before[2],D.sessions.find(s=>s.id==='mohicans').variants[3].sheet]);
+ assert.deepEqual(appearance().slice(0,2),[before[1],before[2]]);assert.equal(new Set(appearance()).size,3);
  const ghost=h.get('enemy-defeats').children.find(n=>n.classList.contains('enemy-defeat'));
- assert.equal(ghost.dataset.appearance,before[0]);assert.equal(ghost.firstElementChild.style.getPropertyValue('--enemy-image'),'url("'+D.sessions.find(s=>s.id==='mohicans').variants[0].defeatSheet+'")');
+ assert.equal(ghost.dataset.appearance,before[0]);assert.equal(ghost.firstElementChild.style.getPropertyValue('--enemy-image'),'url("'+D.sessions.find(s=>s.id==='mohicans').variants.find(v=>v.sheet===before[0]).defeatSheet+'")');
  h.click('pause');assert.ok(h.get('arena').classList.contains('enemy-paused'));const paused=appearance();h.advance(1500);assert.deepEqual(appearance(),paused);
 });
 

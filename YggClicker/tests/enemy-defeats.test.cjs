@@ -26,8 +26,8 @@ test('ten gang appearances include women and two bald enemies, all sharing the s
 test('each defeated variant keeps its own four-pose sheet while the next enemy advances; pause clears all falling sprites',()=>{
  const variants=D.sessions.find(s=>s.id==='mohicans').variants;
  for(let i=0;i<variants.length;i++){
-  const s=E.createState(1000);s.sessionId='mohicans';s.levels.meta=50;s.hp=10;s.selectedCharacterId='meta';const h=harness(s);
-  h.media.matches=true;h.media.change();for(let n=0;n<i;n++)h.click('attack');h.media.matches=false;h.media.change();
+  const s=E.createState(1000);s.sessionId='mohicans';s.levels.meta=50;s.hp=10;s.selectedCharacterId='meta';const h=harness(s,undefined,{visualRandom:()=> (i+.1)/variants.length});
+  const next=h.get('enemy-next-1').dataset.appearance;
   assert.equal(h.get('enemy-art').dataset.appearance,variants[i].sheet);
   h.click('attack');h.advance(800);
   const ghosts=h.get('enemy-defeats').children.filter(n=>n.classList.contains('enemy-defeat'));
@@ -35,7 +35,7 @@ test('each defeated variant keeps its own four-pose sheet while the next enemy a
   assert.equal(ghost.dataset.reason,'hp');assert.equal(ghost.dataset.defeatSheet,variants[i].defeatSheet);
   assert.equal(ghost.firstElementChild.style.getPropertyValue('--enemy-image'),'url("'+variants[i].defeatSheet+'")');
   assert.ok(parseFloat(ghost.style.getPropertyValue('--fall-duration'))>=660);
-  assert.equal(h.get('enemy-art').dataset.appearance,variants[(i+1)%variants.length].sheet);
+  assert.equal(h.get('enemy-art').dataset.appearance,next);
   h.click('pause');assert.equal(h.get('enemy-defeats').children.length,0);
   assert.equal(E.selectSession(s,'practice'),false,'retired sessions cannot be selected');
  }

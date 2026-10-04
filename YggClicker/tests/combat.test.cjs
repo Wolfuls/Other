@@ -14,7 +14,7 @@ test('selected character supplies manual damage and actor, without consuming act
     assert.deepEqual(E.manualStats(state), E.stats(state, c));
     const oldClock = state.actionClock, event = E.click(state, () => 0)[0];
     assert.equal(event.actorId, c.id); assert.equal(event.actor, c.name);
-    assert.equal(event.damage, c.id === 'meta' ? 3 : 8, 'Lv7 multiplies the base roll by 1.6, then rounds down');
+    assert.equal(event.damage, {meta:3,richter:8,vishunal:16}[c.id], 'Lv7 multiplies the base roll by 1.6, then rounds down');
     assert.equal(state.actionPoints[c.id], 40); assert.equal(state.actionClock, oldClock);
   }
   E.selectCharacter(state, null);
@@ -34,12 +34,12 @@ test('unhired and unknown characters cannot be selected; all hired characters st
   assert.deepEqual([...new Set(actors)].sort(), ['meta', 'richter']);
 });
 
-test('manual training remains a flat bonus and scales with the selected actor and global boosts', () => {
+test('concentration remains a flat bonus and scales with the selected actor and SPE', () => {
   const state = E.createState(); state.factors=100; E.hire(state, 'meta'); state.levels.meta = 3;
   E.selectCharacter(state, 'meta'); state.upgrades.click = 3;
   assert.deepEqual(E.manualStats(state), { dice: 2, flat: 3 });
   state.upgrades.power = 1; state.boostSeconds = 30;
-  assert.equal(E.click(state, () => .999)[0].damage, 45);
+  assert.equal(E.click(state, () => .999)[0].damage, 36);
   state.paused = true;
   assert.deepEqual(E.click(state), []);
 });

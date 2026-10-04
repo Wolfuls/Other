@@ -20,7 +20,7 @@
     return (character.perks || []).map(perk => {
       const unlocked = level >= perk.level && (state.purchasedPerks[character.id] || []).includes(perk.id);
       return { ...perk, unlocked, eligible: level >= perk.level,
-        dice: unlocked && perk.diceEvery ? Math.floor(level / perk.diceEvery) : 0 };
+        dice: unlocked ? (perk.diceBonus || 0) + (perk.diceEvery ? Math.floor(level / perk.diceEvery) : 0) : 0 };
     });
   }
   const hasOverflow = (state, character) => !!character && perks(state, character).some(p => p.unlocked && p.overflow);
@@ -33,11 +33,12 @@
       base:{ dice:base.dice, flat:base.flat, source:replacement?.name || '' },
       perk:{ dice:active.reduce((n,p) => n + p.dice, 0), flat:active.reduce((n,p) => n + (p.flat || 0), 0),
         conditional:active.reduce((n,p) => n + (p.targetTrait && (session.traits || []).includes(p.targetTrait) ? p.damageBonus || 0 : 0), 0) },
-      upgrade:{ flat:manual ? state.upgrades.click * D.balance.manualFlatPerLevel : 0, rate:state.upgrades.power * D.balance.upgradeDamagePerLevel },
+      upgrade:{ flat:state.upgrades.click * D.balance.concentrationPerLevel, rate:0 },
       spe:{ rate:state.boostSeconds > 0 ? D.balance.boostDamageBonus : 0 },
       item:{ flat:0 },
       levelMultiplier:characterMultiplier(state, character),
-      defense:ignoreDefense ? 0 : enemyDefense(session), ignoreDefense, overflow:active.some(p => p.overflow)
+      defense:ignoreDefense ? 0 : enemyDefense(session), ignoreDefense, overflow:active.some(p => p.overflow),
+      extraAttackChance:Math.max(0,...active.map(p=>p.extraAttackChance||0))
     };
   }
   function stats(state, character) {
@@ -48,7 +49,7 @@
   function manualStats(state) {
     const character = selectedCharacter(state);
     const base = character ? stats(state, character) : { dice: D.balance.manualDice, flat: D.balance.manualFlat };
-    return { dice:base.dice, flat:base.flat + state.upgrades.click * D.balance.manualFlatPerLevel };
+    return { dice:base.dice, flat:base.flat + state.upgrades.click * D.balance.concentrationPerLevel };
   }
   function selectCharacter(state, id) {
     if (id !== null && !D.characters.some(c => c.id === id && state.levels[id] > 0)) return false;
@@ -70,24 +71,27 @@
     const level = Math.max(1, Math.min(MAX_LEVEL, state.levels[id] || 0));
     return 1 + Math.log2(level) * D.balance.weaponSizePerDoubling;
   }
-  const multiplier = state => (1 + state.upgrades.power * D.balance.upgradeDamagePerLevel) * (state.boostSeconds > 0 ? 1 + D.balance.boostDamageBonus : 1);
+  const multiplier = state => state.boostSeconds > 0 ? 1 + D.balance.boostDamageBonus : 1;
   const characterMultiplier = (state, character) => 1 + Math.max(0, (character ? state.levels[character.id] : 1) - 1) * D.balance.characterDamagePerLevel;
   const enemyDefense = session => Math.max(0, Math.floor(session.defense || 0));
   function attackProfile(state, character, manual = false, session = getSession(state)) {
     const breakdown = attackBreakdown(state, character, manual, session), b = breakdown;
     return { dice:b.base.dice + b.perk.dice, flat:b.base.flat + b.perk.flat + b.upgrade.flat + b.item.flat,
       bonus:b.perk.conditional, multiplier:(1 + b.upgrade.rate) * (1 + b.spe.rate) * b.levelMultiplier,
-      defense:b.defense, ignoreDefense:b.ignoreDefense, overflow:b.overflow,
+      defense:b.defense, ignoreDefense:b.ignoreDefense, overflow:b.overflow, extraAttackChance:b.extraAttackChance,
       overkillThreshold:state.upgrades.overkill ? D.upgrades.find(u=>u.id==='overkill').threshold : 0, breakdown };
   }
   const reward = (state, session = getSession(state)) => session.reward * (1 + state.upgrades.reward * D.balance.rewardPerLevel);
+  const overkillBonus = state => state.upgrades.overkill ? reward(state) * D.upgrades.find(u=>u.id==='overkill').bonusRate : 0;
   // Each repeatable purchase track has its own unrounded geometric curve.
   // Recompute from the level rather than multiplying an already rounded price.
   const geometricCost = (base, purchases, growth = D.balance.purchaseCostGrowth) => Math.ceil(base * growth ** purchases);
   const hireCost = (state, c) => state.levels[c.id] === 0 ? c.cost
     : geometricCost(c.powerCost, state.levels[c.id] - 1);
-  const actionPower = (state, c) => c.action * (1 + state.actionLevels[c.id] * D.balance.actionPerLevel);
+  const actionMultiplier = (state, c) => (1 + state.actionLevels[c.id] * D.balance.actionPerLevel) * (1 + state.upgrades.power * D.balance.speedPerLevel);
+  const actionPower = (state, c) => c.action * actionMultiplier(state,c);
   const attackRate = (state, c) => actionPower(state, c) / D.balance.actionThreshold;
+  const effectiveAttackRate = (state, c) => attackRate(state,c) / (1-attackProfile(state,c).extraAttackChance);
   const actionCost = (state, c) => geometricCost(c.actionCost, state.actionLevels[c.id]);
   const upgradeCost = (state, u) => geometricCost(u.cost, state.upgrades[u.id], D.balance.upgradeCostGrowth);
   function roll(dice, flat, random = Math.random) {
@@ -95,7 +99,7 @@
     for (let i = 0; i < dice; i++) amount += 1 + Math.floor(random() * 6);
     return amount;
   }
-  function applyDamage(state, amount, events, actor, actorId, random, profile) {
+  function applyDamage(state, amount, events, actor, actorId, random, profile, extraAttack = false) {
     const { overflow, defense } = profile;
     let remaining = amount, continuation = false;
     do {
@@ -109,14 +113,14 @@
       // 1-4 HP requires another roll; zero HP is an unconditional defeat.
       const knockoutRoll = damage > 0 && state.hp > 0 && state.hp <= D.balance.knockoutHP ? roll(1, 0, random) : null;
       const knockedOut = knockoutRoll !== null && knockoutRoll % 2 === 1;
-      if (events) events.push({ type: 'attack', actor, actorId, damage, hpBefore, hpAfter:state.hp, knockoutRoll, knockedOut, continuation });
+      if (events) events.push({ type: 'attack', actor, actorId, damage, hpBefore, hpAfter:state.hp, knockoutRoll, knockedOut, continuation, ...(extraAttack ? {extraAttack:true} : {}) });
       if (state.hp <= 0 || knockedOut) {
-        const gain = reward(state) + (overkill ? 1 : 0);
+        const bonus=overkill ? overkillBonus(state) : 0, gain = reward(state) + bonus;
         state.factors += gain;
         state.earned += gain;
         state.kills++;
         state.hp = getSession(state).hp;
-        if (events) events.push({ type: 'clear', reward: gain, overkills:overkill?1:0, reason:knockedOut ? 'knockout' : 'hp', hpAfter:state.hp });
+        if (events) events.push({ type: 'clear', reward: gain, overkillBonus:bonus, overkills:overkill?1:0, reason:knockedOut ? 'knockout' : 'hp', hpAfter:state.hp });
       }
       remaining = overflow ? Math.max(0, afterDefense - damage) : 0;
       continuation = true;
@@ -126,15 +130,29 @@
       const fullKills = Math.floor(remaining / fullKillCost);
       if (fullKills > 12) {
         const overkills = profile.overkillThreshold > 0 ? Math.max(0,Math.floor((remaining-profile.overkillThreshold)/fullKillCost)) : 0;
-        const dealt = fullKills * getSession(state).hp, gain = fullKills * reward(state) + overkills;
+        const bonus=overkills*overkillBonus(state),dealt = fullKills * getSession(state).hp, gain = fullKills * reward(state) + bonus;
         state.kills += fullKills; state.totalDamage += dealt; state.factors += gain; state.earned += gain;
         if (events) {
-          events.push({ type:'attack', actor, actorId, damage:dealt, count:fullKills, hpBefore:state.hp, hpAfter:0, continuation:true, approximate:true });
-          events.push({ type:'clear', count:fullKills, reward:gain, overkills, reason:'hp', hpAfter:state.hp });
+          events.push({ type:'attack', actor, actorId, damage:dealt, count:fullKills, hpBefore:state.hp, hpAfter:0, continuation:true, approximate:true, ...(extraAttack ? {extraAttack:true} : {}) });
+          events.push({ type:'clear', count:fullKills, reward:gain, overkillBonus:bonus, overkills, reason:'hp', hpAfter:state.hp });
         }
         remaining -= fullKills * fullKillCost;
       }
     } while (remaining > 0);
+  }
+  // A chain ends at its first failed reattack roll. Inverse sampling gives
+  // exactly that geometric distribution without an unbounded random loop.
+  function chainAttackCount(chance, random = Math.random) {
+    if (!(chance>0 && chance<1)) return 1;
+    const u=Math.max(0,Math.min(1-Number.EPSILON/2,random()));
+    return 1+Math.floor(Math.log1p(-u)/Math.log(chance));
+  }
+  function performAttack(state, character, profile, random, events) {
+    const count=chainAttackCount(profile.extraAttackChance,random);
+    for(let i=0;i<count;i++) {
+      const amount=B.scaleDamage(roll(profile.dice,profile.flat,random)+profile.bonus,profile.multiplier);
+      applyDamage(state,amount,events,character?character.name:'あなた',character?character.id:null,random,profile,i>0);
+    }
   }
   function click(state, random = Math.random) {
     if (state.paused) return [];
@@ -142,8 +160,7 @@
     const events = [];
     const character = selectedCharacter(state);
     const profile = attackProfile(state, character, true);
-    const amount = B.scaleDamage(roll(profile.dice, profile.flat, random) + profile.bonus, profile.multiplier);
-    applyDamage(state, amount, events, character ? character.name : 'あなた', character ? character.id : null, random, profile);
+    performAttack(state,character,profile,random,events);
     return events;
   }
   function chargeActions(state, c, ticks) {
@@ -157,21 +174,22 @@
   }
   function advanceBatch(state, ticks, active, events) {
     const profiles = [];
-    let attacks = 0, metaAttacks = 0, richterAttacks = 0;
+    let attacks = 0, metaAttacks = 0, richterAttacks = 0, vishunalAttacks = 0;
     for (const c of active) {
-      const count = chargeActions(state, c, ticks);
+      const profile=attackProfile(state,c),count=chargeActions(state,c,ticks)/(1-profile.extraAttackChance);
       attacks += count;
-      if (count) profiles.push({ ...attackProfile(state, c), rate:count });
+      if (count) profiles.push({ ...profile, rate:count });
       if (c.id === 'meta') metaAttacks = count;
       if (c.id === 'richter') richterAttacks = count;
+      if (c.id === 'vishunal') vishunalAttacks = count;
     }
     const hpBefore = state.hp;
     const result = B.resolve(state.hp, getSession(state).hp, attacks, profiles, { threshold:D.balance.knockoutHP, chance:.5 });
-    const gain = result.kills * reward(state) + (result.overkills || 0);
+    const bonus=(result.overkills || 0)*overkillBonus(state),gain = result.kills * reward(state) + bonus;
     state.hp = result.hp; state.kills += result.kills; state.totalDamage += result.damage;
     state.factors += gain; state.earned += gain;
-    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, metaAttacks, richterAttacks, count:attacks, damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
-    if (events && result.kills) events.push({ type:'clear', count:result.kills, knockouts:result.knockouts, overkills:result.overkills||0, reward:gain, reason:'average', hpAfter:state.hp });
+    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks), count:metaAttacks+richterAttacks+Math.round(vishunalAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
+    if (events && result.kills) events.push({ type:'clear', count:result.kills, knockouts:result.knockouts, overkills:result.overkills||0, overkillBonus:bonus, reward:gain, reason:'average', hpAfter:state.hp });
   }
   // All hired characters gain action points on each whole-second game tick.
   // Unspent points and the fractional second both survive saves and pauses.
@@ -187,7 +205,7 @@
       state.boostSeconds = Math.max(0, oldBoost - duration);
       return [];
     }
-    const estimated = active.reduce((sum, c) => sum + Math.ceil((state.actionPoints[c.id] + actionPower(state, c) * ticks) / D.balance.actionThreshold), 0);
+    const estimated = active.reduce((sum, c) => sum + Math.ceil((state.actionPoints[c.id] + actionPower(state, c) * ticks) / D.balance.actionThreshold)/(1-attackProfile(state,c).extraAttackChance), 0);
     if (estimated > EXACT_ATTACK_BUDGET) {
       // A boost ending exactly on a tick has already expired for that tick.
       const boostedTicks = Math.min(ticks, Math.max(0, Math.ceil(oldBoost + oldClock) - 1));
@@ -201,8 +219,7 @@
       for (const c of active) {
         const count = chargeActions(state, c, 1), attack = attackProfile(state, c);
         for (let action = 0; action < count; action++) {
-          const amount = B.scaleDamage(roll(attack.dice, attack.flat, random) + attack.bonus, attack.multiplier);
-          applyDamage(state, amount, events, c.name, c.id, random, attack);
+          performAttack(state,c,attack,random,events);
         }
       }
     }
@@ -268,12 +285,8 @@
     state.hp = session.hp;
     return true;
   }
-  function dps(state) {
-    return D.characters.reduce((sum, c) => {
-      if (!state.levels[c.id]) return sum;
-      return sum + B.averageDamage(attackProfile(state, c)) * attackRate(state, c);
-    }, 0);
-  }
+  const characterDps = (state, c) => state.levels[c.id] ? B.averageDamage(attackProfile(state,c)) * effectiveAttackRate(state,c) : 0;
+  const dps = state => D.characters.reduce((sum,c)=>sum+characterDps(state,c),0);
   // The active boost never inflates its own next price. Defense and paid
   // target-specific perks use the same unboosted DPS shown by the game.
   const unboostedDps = state => dps(state.boostSeconds > 0 ? {...state, boostSeconds:0} : state);
@@ -281,15 +294,15 @@
   function expectedIncome(state) {
     const session=getSession(state),boosted=state.boostSeconds>0;
     const key=JSON.stringify([session.id,session.hp,session.defense,session.traits,state.levels,state.actionLevels,
-      state.purchasedPerks,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
+      state.purchasedPerks,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
     if (key===incomeKey) return incomeValue;
-    const profiles=D.characters.filter(c=>state.levels[c.id]>0).map(c=>({...attackProfile(state,c),rate:attackRate(state,c)}));
+    const profiles=D.characters.filter(c=>state.levels[c.id]>0).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
     const rates=B.rewardRates(session.hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}),clearsPerSecond=rates.clears,perClear=reward(state);
-    const bonusPerSecond=rates.overkills;
+    const bonusPerSecond=rates.overkills*overkillBonus(state);
     incomeKey=key;incomeValue=Object.freeze({clearsPerSecond,reward:perClear,bonusPerSecond,factorsPerSecond:clearsPerSecond*perClear+bonusPerSecond,boosted});
     return incomeValue;
   }
-  const api = { MAX_LEVEL, createState, getSession, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, hireCost, actionPower, attackRate, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, expectedIncome };
+  const api = { MAX_LEVEL, createState, getSession, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

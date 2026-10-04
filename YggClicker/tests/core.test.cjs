@@ -216,14 +216,14 @@ test('unupgraded manual attack rolls exactly 1 through 6 and session 1 pays 2Rd'
   assert.equal(state.kills, 1);
   assert.equal(state.factors, 7);
 });
-test('first manual and reward upgrades have an immediate effect at small values', () => {
+test('first concentration and reward upgrades have an immediate effect at small values', () => {
   const state = E.createState();
   assert.equal(E.buyUpgrade(state, 'click'), true);
   assert.equal(E.click(state, fixedRoll)[0].damage, 2);
   state.factors = 100;
   assert.equal(E.buyUpgrade(state, 'reward'), true);
-  assert.equal(E.reward(state), 2.5);
-  assert.equal(E.reward(state, D.sessions[1]), 12.5);
+  assert.equal(E.reward(state), 2.2);
+  assert.equal(E.reward(state, D.sessions[1]), 11);
 });
 test('schema 1 migration preserves progress and converts remaining HP proportion for every session', () => {
   for (const [id, oldHP, newHP] of [['practice', 80, 10], ['patrol', 400, 40], ['heavy', 2000, 150]]) {
@@ -438,7 +438,7 @@ test('average batches with knockout disabled preserve the original overkill cost
 test('huge multi-character offline progress handles boost expiry, paused games and large counters', () => {
   const state=hiredState();state.factors=1e40;
   E.hire(state,'richter');
-  for(const c of D.characters){state.actionLevels[c.id]=1e14;state.actionPoints[c.id]=0;}
+  for(const c of D.characters){if(!state.levels[c.id])E.hire(state,c.id);state.actionLevels[c.id]=1e14;state.actionPoints[c.id]=0;}
   E.buyBoost(state);
   const paused=structuredClone(state);paused.paused=true;
   E.catchUp(paused,paused.savedAt+86400000);

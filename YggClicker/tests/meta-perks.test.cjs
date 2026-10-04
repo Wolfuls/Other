@@ -36,7 +36,7 @@ test('level growth applies after perks, then global boosts, with one final round
   E.selectSession(s,'heavy');
   const plain=E.click(s,()=>0)[0];assert.equal(plain.damage,123,'(4+17) ×5.9 floors to 123');
   s.upgrades.power=1;s.boostSeconds=30;s.hp=150;
-  assert.equal(E.click(s,()=>0)[0].damage,309,'21 ×5.9 ×1.25 ×2 is rounded only once');
+  assert.equal(E.click(s,()=>0)[0].damage,247,'21 ×5.9 ×2 is rounded only once; speed does not change damage');
   E.selectCharacter(s,null);s.hp=150;
   assert.equal(E.click(s,()=>0)[0].damage,0,'self attack has no character multiplier and is blocked by defense4');
 });

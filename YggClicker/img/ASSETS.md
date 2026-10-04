@@ -669,3 +669,45 @@ Colors: dark desaturated steel teal, blue grey, weathered charcoal, restrained r
 ## v0.28：旧セッション素材の保管
 
 起動訓練・通路の巡回・重装甲試験の削除に伴い、enemy-drone.png・enemy-guard.png・enemy-heavy.png を img/old/ へ移動。PNGの内容は変更せず保管。汎用ヒット火花はCSSで描画し、画像素材は追加していません。
+
+## 右藤ビシュナル：素材制作記録（v0.29.0）
+
+生成：内蔵 image_gen ツール（transparent_background:true）。外部API用CLIは使用していません。
+参照：ユーザー提供画像 codex-clipboard-82fe869b-d919-4a6e-9b90-5e09244140f8.png（キャラクターデザイン）、img/meta-poses-v3.png（ドットの画風）。
+
+保存先：
+- D:/マイドキュメント/GitHub/Other/YggClicker/img/vishunal-poses-v1.png — 896×448、4列×2行、1コマ224×224。
+- D:/マイドキュメント/GitHub/Other/YggClicker/img/vishunal-missile-v1.png — 64×27。
+
+生成原画：exec-bdbdf2a2-302f-4793-8928-bca38e314657.png、exec-b783e7ac-fbb9-4cd2-9f41-9864c678c588.png。
+組込み処理：最近傍縮小、各コマの足元をY=202へ整列、透過PNGのパレット最適化。手描きによる加筆・デザイン変更なし。
+
+最終生成プロンプト（スプライト）
+
+Use case: stylized-concept. Asset: transparent PNG pixel-art animation sprite sheet for an existing Japanese idle RPG. Input 1 is the CHARACTER DESIGN reference; Input 2 is the PIXEL ART STYLE reference only. Create new companion Uto Vishunal (右藤ビシュナル), a cute small chubby brown-and-tan DOG mascot wearing a blue collar with a small gold square tag and carrying a bulky blue-grey six-tube missile launcher with lilac-purple tube interiors on its back, plus one small matching side launcher. Match the first image's big rounded muzzle, tiny unreadable black bead eyes, two small tan eyebrows, pointy triangular ears, short legs and rotund body. An adorable but inscrutable face; keep mouth closed and tiny, no manic grinning or angry brows. Face RIGHT in a three-quarter game battle view so muzzle and launch tubes point toward enemies on the RIGHT. Convert to the same crisp, fine square-pixel, dark outline, restrained stepped shading style as input2, NOT smooth 3D, painting, or blurry antialiasing. One consistent character/palette/proportions throughout. Exact FOUR COLUMNS by TWO ROWS with EIGHT equal cells. Upper row: 4 normal/attack frames: 1 idle standing grounded on all four paws, 2 subtle breathing idle, 3 slight body brace and launcher tilting forward to aim, 4 single shot with a small yellow-white muzzle flash at one tube, small recoil while paws stay planted. Lower row: FOUR consecutive rapid missile firing frames: alternating tube muzzle flashes and small yellow-orange exhaust puffs, launcher kicking/tilting a few pixels, dog's ears and body jiggling with recoil but face remains cute inscrutable and mouth closed. Clear frame-to-frame differences, same size and shared floor baseline in every cell. Do not draw flying missiles outside the tubes; projectiles are separate game objects. Draw dog plus launcher about the same combined height as the character in style reference but wide and stocky, dog itself much shorter than a human. Keep ALL pixels of each pose/flashes inside its OWN equal cell with ample transparent padding on all four sides; equal cell spacing, no overlaps. True transparent alpha background. No floor, shadow ellipse, background, frame dividers, letters, text labels, watermark. Use simple tiny geometric marks on launcher sides; omit lettering.
+
+最終生成プロンプト（ミサイル）
+
+Use case: stylized-concept. Asset: single transparent PNG pixel-art projectile sprite for a cute Japanese idle RPG. Draw ONE small stubby blue-grey missile flying horizontally toward the RIGHT, with a pale silver cylindrical body, short rounded violet-purple nose cone pointing right, two tiny blue-grey fins near the back and a short yellow-white/orange pixel flame extending from the left rear. True crisp square-pixel art, dark navy outline, stepped limited palette shading. Readable compact silhouette at 48x24 game pixels. Side view, perfectly horizontal RIGHTWARD orientation, entire projectile and exhaust inside frame with generous transparent padding. Center one missile only, no duplicates or multi-frame sheet, no scenery, no smoke cloud, no shadow, no text, no watermark, genuinely transparent background.
+
+
+## v0.30.0：目・首輪と動的な砲口
+
+ビシュナル表示修正（v0.30.0）
+生成方法：内蔵 image_gen ツール（transparent_background:true）。
+保存先：D:/マイドキュメント/GitHub/Other/YggClicker/img/vishunal-poses-v2.png
+画像仕様：896×448、4列×2行、各224×224、透過PNG。
+変更：白い瞳と大きな黒い瞳孔、黄色い五芒星と中央の青い球、固定の発射光を除去。
+原画：C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-21fd8478-2f3d-46a1-b8a9-5e96f6ebbc98.png
+参照：現行v1スプライト（編集対象）、C:/Users/user/Downloads/a1.png（目のみ参考）。
+組み込み：最近傍で224×224へ縮小、8コマの足元Y=202に統一、PNGパレット最適化。旧v1画像は保持。
+発射光：ゲーム側の小さなピクセル状CSSエフェクトとして、ミサイルと同じ砲口・同じ遅延で表示。
+
+最終プロンプト：
+Use case: precise-object-edit. Edit target: Image 1 is an existing transparent pixel-art game animation sprite sheet (4 columns x 2 rows, eight dog poses). Reference only: Image 2 old dog portrait is ONLY a reference for eye anatomy, NOT fur, pose, proportions, or style.
+Make only these surgical edits throughout all eight frames:
+1. Replace the tiny black bead eyes with clearly visible white sclera crescents around large black pupils as in reference 2. Keep the same cute unreadable neutral expression, existing brown/tan dog design, face silhouette, head direction, eyebrows and tiny mouth. Pixel-art eyes, not shiny dots.
+2. Collar pendant must be a distinct yellow FIVE-POINT STAR, with a BLUE spherical gem at its center. Keep the current blue collar.
+3. Remove all yellow/orange missile muzzle flashes from the sprite sheet, restore clean purple muzzle openings behind them; the game will overlay dynamic flashes at every individual port. Keep each of the eight existing body/recoil poses, including the four lower-row rapid-fire poses. Visible large back launcher has FOUR ports in a 2x2 arrangement, small side launcher has FOUR ports in a 2x2 arrangement. Preserve the hardware and ports consistently.
+Strict invariants: keep ONLY this same small four-legged brown/tan dog with blue collar, grey-blue/purple launchers, same eight silhouettes, same frame placement/padding/foot baseline, same pixel resolution and clean pixel edges, same palette/shading everywhere except edited eyes and pendant. Do NOT adopt the old black-fur portrait, do not redesign anything, no new background/text/items. Output transparent PNG, exact 4x2 equally spaced atlas preferably 896x448, no cropped paws or overlapping cells.
+

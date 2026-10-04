@@ -2,7 +2,9 @@
 // Minimal DOM/timer harness for app scheduling. Layout and pixels are checked in the browser.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),FX=require('../js/combat-effects.js');
-function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8')){
+function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8'),options={}){
+  let visualSeed=81423;
+  const visualRandom=options.visualRandom||(()=>((visualSeed=(Math.imul(1664525,visualSeed)+1013904223)>>>0)/4294967296));
   let now=state.savedAt,next=0;const timers=new Map(),ids=new Map(),selectors=new Map();
   const metrics={text:0,formulas:0,controls:0,layout:0},windowEvents=new Map(),documentEvents=new Map();
   const schedule=(fn,delay=0,repeat=0)=>{const id=++next;timers.set(id,{fn,at:now+delay,repeat});return id;};
@@ -34,7 +36,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
   const data=new Map([[S.KEY,S.encode(state)]]),storage={getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,v),removeItem:k=>data.delete(k)};
   const media={matches:false,addEventListener(type,fn){this.change=fn;}};
   const fakeDate=class extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}};
-  const context={document,navigator:{},Date:fakeDate,performance:{now:()=>now},Math:Object.assign(Object.create(Math),{random:()=>.999}),
+  const context={document,navigator:{},Date:fakeDate,performance:{now:()=>now},Math:Object.assign(Object.create(Math),{random:visualRandom}),
     setTimeout:(fn,delay)=>schedule(fn,delay),clearTimeout:id=>timers.delete(id),setInterval:(fn,delay)=>schedule(fn,delay,delay),
     requestAnimationFrame:fn=>schedule(fn,16),cancelAnimationFrame:id=>timers.delete(id),Image:class{},ResizeObserver:class{observe(){}},
     addEventListener:(type,fn)=>windowEvents.set(type,fn),matchMedia:()=>media,localStorage:storage,

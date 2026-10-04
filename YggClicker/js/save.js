@@ -4,7 +4,7 @@
   const D = commonJS ? require('./data.js') : root.YggData;
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 10;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 11;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
@@ -86,6 +86,11 @@
         return {...document,schemaVersion:10,state:{...state,sessionId:target.id,hp:target.hp}};
       }
       return {...document,schemaVersion:10};
+    },
+    10(document) {
+      // New IDs default to unowned during validation. The version gate also
+      // prevents old clients from treating the third character as corrupt.
+      return {...document,schemaVersion:11};
     }
   };
   function record(value, label) {

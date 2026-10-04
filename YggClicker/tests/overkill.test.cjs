@@ -2,25 +2,25 @@
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js');
-test('overkill unlock costs 200 once; HP -19 fails, -20 and below gain one unmultiplied Rd',()=>{
+test('overkill unlock costs 200 once; HP -19 fails, -20 and below gain 25% of the upgraded reward',()=>{
  const s=E.createState(1000);s.factors=199;assert.equal(E.buyUpgrade(s,'overkill'),false);s.factors=200;
  assert.ok(E.buyUpgrade(s,'overkill'));assert.equal(s.factors,0);s.factors=999;assert.equal(E.buyUpgrade(s,'overkill'),false);assert.equal(s.factors,999);
  s.levels.meta=1;s.selectedCharacterId='meta';s.upgrades.reward=2;
  for(const [flat,bonus]of [[17,0],[18,1],[19,1]]){s.hp=10;s.upgrades.click=flat;const old=s.factors;
-  const clear=E.click(s,()=>.999).find(e=>e.type==='clear');assert.equal(clear.overkills,bonus);assert.equal(clear.reward,3+bonus);assert.equal(s.factors-old,3+bonus);
+  const clear=E.click(s,()=>.999).find(e=>e.type==='clear');assert.equal(clear.overkills,bonus);assert.equal(clear.reward,2.4+bonus*.6);assert.ok(Math.abs(s.factors-old-(2.4+bonus*.6))<1e-10);
  }
- s.upgrades.overkill=0;s.hp=10;s.upgrades.click=19;assert.equal(E.click(s,()=>.999).find(e=>e.type==='clear').reward,3);
+ s.upgrades.overkill=0;s.hp=10;s.upgrades.click=19;assert.equal(E.click(s,()=>.999).find(e=>e.type==='clear').reward,2.4);
 });
 test('overkill uses current HP after armor and never pays for a knockout',()=>{
  const s=E.createState(1000);s.levels.meta=1;s.selectedCharacterId='meta';s.upgrades.overkill=1;s.upgrades.reward=1;E.selectSession(s,'patrol');
- for(const [flat,bonus]of [[19,0],[20,1]]){s.hp=10;s.upgrades.click=flat;const event=E.click(s,()=>.999).find(e=>e.type==='clear');assert.equal(event.reward,12.5+bonus);}
- s.upgrades.click=0;E.selectSession(s,'practice');s.hp=6;const event=E.click(s,()=>0).find(e=>e.type==='clear');assert.equal(event.reason,'knockout');assert.equal(event.reward,2.5);assert.equal(event.overkills,0);
+ for(const [flat,bonus]of [[19,0],[20,1]]){s.hp=10;s.upgrades.click=flat;const event=E.click(s,()=>.999).find(e=>e.type==='clear');assert.equal(event.reward,11+bonus*2.75);}
+ s.upgrades.click=0;E.selectSession(s,'practice');s.hp=6;const event=E.click(s,()=>0).find(e=>e.type==='clear');assert.equal(event.reason,'knockout');assert.equal(event.reward,2.2);assert.equal(event.overkills,0);
 });
 test('spillover pays overkill for each eligible enemy including compacted kills',()=>{
  const s=E.createState(1000);s.levels.richter=50;s.selectedCharacterId='richter';s.purchasedPerks.richter=['bom-ber'];s.upgrades.overkill=1;
  const events=E.click(s,()=>.999),clears=events.filter(e=>e.type==='clear');
- assert.equal(s.kills,17);assert.equal(clears.reduce((n,e)=>n+e.overkills,0),15);assert.equal(s.earned,17*2+15);assert.ok(clears.some(e=>e.count>12));
- E.selectSession(s,'heavy');s.hp=150;const old=s.earned;E.click(s,()=>.999);assert.equal(s.earned-old,46,'177 damage pays defense4, overkills HP150 by23');
+ assert.equal(s.kills,17);assert.equal(clears.reduce((n,e)=>n+e.overkills,0),15);assert.equal(s.earned,17*2+15*.5);assert.ok(clears.some(e=>e.count>12));
+ E.selectSession(s,'heavy');s.hp=150;const old=s.earned;E.click(s,()=>.999);assert.equal(s.earned-old,56.25,'177 damage pays defense4, overkills HP150 by23');
 });
 test('offline overkill expectations match independent seeded rolls with armor and mixed spillover',()=>{
  for(const overflow of [false,true]){

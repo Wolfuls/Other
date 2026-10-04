@@ -19,9 +19,9 @@ test('Meta rolls two dice, keeps floor rounding and benefits from the first powe
 });
 test('reward levels apply the same additive percentage to every session without truncating cents',()=>{
   const s=E.createState(1000);s.upgrades.reward=1;
-  assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[2.5,12.5,56.25,2.5]);
-  s.upgrades.reward=2;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[3,15,67.5,3]);
-  s.upgrades.reward=25;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[14.5,72.5,326.25,14.5]);
+  D.sessions.forEach((session,i)=>assert.ok(Math.abs(E.reward(s,session)-[2.2,11,49.5,2.2][i])<1e-10));
+  s.upgrades.reward=2;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[2.4,12,54,2.4]);
+  s.upgrades.reward=25;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[7,35,157.5,7]);
 });
 test('manual clears, auto clears, spillover and offline batches award the same fractional reward',()=>{
   for(const mode of ['manual','auto','offline']){
@@ -30,7 +30,7 @@ test('manual clears, auto clears, spillover and offline batches award the same f
     if(mode==='manual')E.click(s,()=>.999);
     else if(mode==='auto')E.advance(s,4,()=>.999);
     else E.catchUp(s,1000+8*3600*1000);
-    assert.ok(s.kills>0);assert.equal(s.factors,s.kills*56.25);assert.equal(s.earned,s.factors);
+    assert.ok(s.kills>0);assert.ok(Math.abs(s.factors-s.kills*49.5)<1e-7);assert.equal(s.earned,s.factors);
     const saved=S.decode(S.encode(s));assert.deepEqual(saved,s);
   }
 });
@@ -38,7 +38,7 @@ test('proportional reward upgrades preserve the ranking of sessions including Bo
   const s=E.createState();for(const c of D.characters){s.levels[c.id]=50;s.purchasedPerks[c.id]=c.perks.map(p=>p.id);}
   const rates=level=>{s.upgrades.reward=level;return D.sessions.map(session=>{s.sessionId=session.id;return E.expectedIncome(s).factorsPerSecond;});};
   const base=rates(0);assert.ok(base[2]>base[1]&&base[1]>base[0]);
-  for(const level of [1,3,25]){const upgraded=rates(level);for(let i=0;i<3;i++)assert.ok(Math.abs(upgraded[i]/base[i]-(1+.25*level))<1e-10);}
+  for(const level of [1,3,25]){const upgraded=rates(level);for(let i=0;i<3;i++)assert.ok(Math.abs(upgraded[i]/base[i]-(1+.1*level))<1e-10);}
 });
 test('rebalanced prices keep entry hires affordable, grow continuously and preserve purchase boundaries',()=>{
   const s=E.createState();assert.equal(E.hireCost(s,D.characters[0]),10);assert.equal(E.hireCost(s,D.characters[1]),100);
@@ -57,7 +57,7 @@ test('rebalanced prices keep entry hires affordable, grow continuously and prese
 test('old saves retain balances and all purchases when only the balance configuration changes',()=>{
   const s=E.createState(1000);s.levels.meta=50;s.levels.richter=50;s.factors=12345.25;s.earned=50000.75;
   s.actionLevels.meta=70;s.actionLevels.richter=99;s.upgrades.reward=3;s.upgrades.power=2;
-  for(const c of D.characters)s.purchasedPerks[c.id]=c.perks.map(p=>p.id);
+  for(const c of D.characters.filter(c=>s.levels[c.id]))s.purchasedPerks[c.id]=c.perks.map(p=>p.id);
   const doc=JSON.parse(S.encode(s));doc.gameVersion='0.20.1';assert.deepEqual(S.decode(JSON.stringify(doc)),s);
 });
 test('currency formatting retains cents, grouping and non-exponential large values',()=>{
