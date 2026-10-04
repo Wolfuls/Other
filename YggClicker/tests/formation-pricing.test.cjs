@@ -6,7 +6,7 @@ const {harness}=require('./app-harness.cjs');
 
 test('character and global prices use separate exact growth rates before rounding',()=>{
  const s=E.createState();
- const reference=(base,n,numerator=115n)=>{const den=100n**BigInt(n);return Number((BigInt(base)*numerator**BigInt(n)+den-1n)/den);};
+ const reference=(base,n,numerator=115n)=>{const den=100n**BigInt(n);return Math.max(base+(n?1:0),Number(BigInt(base)*numerator**BigInt(n)/den));};
  for(let n=0;n<=60;n++){
   for(const c of D.characters){s.levels[c.id]=n+1;s.actionLevels[c.id]=n;assert.equal(E.hireCost(s,c),reference(c.powerCost,n));assert.equal(E.actionCost(s,c),reference(c.actionCost,n));}
   if(n<25)for(const u of D.upgrades.filter(u=>u.max!==1)){s.upgrades[u.id]=n;assert.equal(E.upgradeCost(s,u),reference(u.cost,n,125n));}
@@ -15,11 +15,11 @@ test('character and global prices use separate exact growth rates before roundin
  const before=structuredClone(s);S.decode(S.encode(s));assert.deepEqual(s,before,'price calculation does not rewrite old levels');
 });
 
-test('limit break charges 100% unboosted target-aware party DPS, rounds up and never feeds back into its price',()=>{
+test('limit break charges 100% unboosted target-aware party DPS, rounds down and never feeds back into its price',()=>{
  const s=E.createState();s.levels.meta=1;s.factors=100;
- assert.ok(Math.abs(E.unboostedDps(s)-7/1.8)<1e-10);assert.equal(E.boostCost(s),4);
- s.factors=3.99;assert.equal(E.buyBoost(s),false);s.factors=4;assert.equal(E.buyBoost(s),true);assert.equal(s.factors,0);assert.equal(s.boostSeconds,30);
- assert.equal(E.boostCost(s),4);assert.ok(E.dps(s)>E.unboostedDps(s));s.factors=100;assert.equal(E.buyBoost(s),false);assert.equal(s.factors,100);
+ assert.ok(Math.abs(E.unboostedDps(s)-7*.5)<1e-10);assert.equal(E.boostCost(s),3);
+ s.factors=2;assert.equal(E.buyBoost(s),false);s.factors=3;assert.equal(E.buyBoost(s),true);assert.equal(s.factors,0);assert.equal(s.boostSeconds,30);
+ assert.equal(E.boostCost(s),3);assert.ok(E.dps(s)>E.unboostedDps(s));s.factors=100;assert.equal(E.buyBoost(s),false);assert.equal(s.factors,100);
  const before=structuredClone(s);E.boostCost(s);assert.deepEqual(s,before);
  s.boostSeconds=0;s.levels.meta=30;s.purchasedPerks.meta=['mohican-slayer'];s.sessionId='mohicans';s.hp=10;
  const special=E.boostCost(s);E.selectSession(s,'practice');assert.ok(E.boostCost(s)<special);

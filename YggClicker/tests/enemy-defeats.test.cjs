@@ -2,12 +2,12 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const E=require('../js/engine.js'),D=require('../js/data.js'),{harness}=require('./app-harness.cjs');
 
-test('manual startup earns the three clears needed for Meta; hire and global upgrade boundaries use the new prices',()=>{
- const s=E.createState();assert.equal(s.factors,5);assert.equal(E.hire(s,'meta'),false);
- for(let i=0;i<6;i++)E.click(s,()=>.999);
- assert.equal(s.kills,3);assert.equal(s.factors,11);assert.ok(E.hire(s,'meta'));assert.equal(s.factors,1);
+test('manual startup earns the five clears needed for Meta; hire and global upgrade boundaries use the new prices',()=>{
+ const s=E.createState();assert.equal(s.factors,0);assert.equal(E.hire(s,'meta'),false);
+ for(let i=0;i<20;i++)E.click(s,()=>.999);
+ assert.equal(s.kills,5);assert.equal(s.factors,10);assert.ok(E.hire(s,'meta'));assert.equal(s.factors,0);
  s.factors=99;assert.equal(E.hire(s,'richter'),false);s.factors=100;assert.ok(E.hire(s,'richter'));assert.equal(s.factors,0);
- for(const[id,first,next]of [['power',30,38],['reward',100,125]]){
+ for(const[id,first,next]of [['power',30,37],['reward',100,125]]){
   const u=D.upgrades.find(u=>u.id===id);s.factors=first-.01;assert.equal(E.buyUpgrade(s,id),false);
   s.factors=first;assert.ok(E.buyUpgrade(s,id));assert.equal(s.factors,0);assert.equal(E.upgradeCost(s,u),next);
  }
@@ -15,7 +15,7 @@ test('manual startup earns the three clears needed for Meta; hire and global upg
 
 test('ten gang appearances include women and two bald enemies, all sharing the same special-damage trait and complete sprite assets',()=>{
  const session=D.sessions.find(s=>s.id==='mohicans');assert.equal(session.variants.length,10);
- assert.equal(session.variants.filter(v=>v.name.startsWith('ハゲ')).length,2);assert.deepEqual(session.traits,['mohican']);
+ assert.equal(session.variants.filter(v=>v.name.startsWith('ハゲ')).length,2);assert.deepEqual(session.traits,['mohican','swarm']);
  for(const v of session.variants)for(const[key,width]of [['sheet',768],['defeatSheet',1024]]){
   const file=path.join(__dirname,'..',v[key]),png=fs.readFileSync(file);
   assert.equal(png.subarray(1,4).toString(),'PNG');

@@ -3,14 +3,14 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),S=require('../js/save.js'),UI=require('../js/display.js');
 const {harness}=require('./app-harness.cjs');
 
-test('only the gang session is playable; all schema9 targets migrate without losing owned progress',()=>{
- assert.deepEqual(D.sessions.map(s=>s.id),['mohicans']);
+test('the three quests are playable; all schema9 targets migrate without losing owned progress',()=>{
+ assert.deepEqual(D.sessions.map(s=>s.id),['mohicans','scarecrow','dementor']);
  for(const sessionId of ['practice','patrol','heavy','mohicans']){
   const s=E.createState(1000);s.sessionId=sessionId;s.hp=3;s.levels.meta=50;s.levels.richter=50;
-  s.factors=12345.75;s.upgrades.reward=25;s.actionLevels.meta=71;s.purchasedPerks.meta=['metal-blade'];
+  s.factors=12345;s.upgrades.reward=25;s.actionLevels.meta=71;s.purchasedPerks.meta=['metal-blade'];
   s.boostSeconds=12;s.actionPoints.meta=37;s.actionClock=.4;s.paused=true;
   const migrated=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:9,state:s}));
-  assert.deepEqual(migrated,{...s,sessionId:'mohicans',hp:sessionId==='mohicans'?3:10});
+  assert.deepEqual(migrated,{...s,sessionId:'mohicans',hp:sessionId==='mohicans'?6:20});
   assert.deepEqual(S.decode(S.encode(migrated)),migrated);
  }
  for(const sessionId of ['practice','patrol','heavy'])assert.equal(E.selectSession(E.createState(),sessionId),false);
@@ -32,7 +32,7 @@ test('migration still rejects unknown targets and invalid old HP or upgrade valu
 test('all repeatable upgrades purchase beyond25 with the same cost/effect rules, and survive save transfer',()=>{
  for(const id of ['click','power','reward'])for(const level of [25,26,100,500]){
   const s=E.createState(1000),u=D.upgrades.find(u=>u.id===id);s.upgrades[id]=level;
-  const cost=E.upgradeCost(s,u);assert.equal(cost,Math.ceil(u.cost*1.25**level));
+  const cost=E.upgradeCost(s,u);assert.equal(cost,Math.floor(u.cost*1.25**level));
   s.factors=cost*.99;assert.equal(E.buyUpgrade(s,id),false);
   s.factors=cost;assert.equal(E.buyUpgrade(s,id),true);assert.equal(s.factors,0);assert.equal(s.upgrades[id],level+1);
   assert.deepEqual(S.decode(S.encode(s)),s);

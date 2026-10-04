@@ -1,0 +1,83 @@
+{
+  "id": "gamer-throne",
+  "version": 2,
+  "status": "sprite-assets-only",
+  "format": "PNG RGBA",
+  "facing": "right",
+  "character": {
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "anchor": {
+      "x": 128,
+      "y": 242
+    },
+    "atlas": "gamer-throne-atlas-v2.png",
+    "atlasColumns": 4,
+    "atlasRows": 3,
+    "standing": "gamer-throne-standing-v2.png",
+    "states": {
+      "idle": {
+        "file": "gamer-throne-idle-v2.png",
+        "frames": 4,
+        "durationsMs": [
+          650,
+          250,
+          100,
+          300
+        ],
+        "loop": true
+      },
+      "attack": {
+        "file": "gamer-throne-attack-v2.png",
+        "frames": 4,
+        "durationsMs": [
+          120,
+          120,
+          120,
+          120
+        ],
+        "loop": false,
+        "releaseFrame": 2,
+        "nextState": "idle"
+      },
+      "burst": {
+        "file": "gamer-throne-burst-v2.png",
+        "frames": 4,
+        "durationsMs": [
+          90,
+          90,
+          90,
+          90
+        ],
+        "loop": true,
+        "releaseFrame": 2,
+        "interruptible": true
+      }
+    },
+    "continuity": {
+      "sharedRestFrame": 0,
+      "gestureOrder": [
+        "low",
+        "middle",
+        "high",
+        "middle"
+      ],
+      "staticBodyAndProps": true
+    }
+  },
+  "projectile": {
+    "frameWidth": 96,
+    "frameHeight": 96,
+    "spawn": "above-target",
+    "fall": "tarai-fall-v1.png",
+    "impact": "tarai-impact-v1.png",
+    "framesPerStrip": 4,
+    "fallFrameDurationMs": 70,
+    "impactFrameDurationMs": 65,
+    "anchor": {
+      "x": 48,
+      "y": 82
+    }
+  },
+  "note": "The same low-middle-high-middle gesture is used once for normal attacks and looped faster for burst attacks. Damage and character registration are not assigned."
+}

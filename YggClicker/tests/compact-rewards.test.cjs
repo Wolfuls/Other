@@ -4,7 +4,7 @@ const E=require('../js/engine.js'),D=require('../js/data.js'),UI=require('../js/
 const active=h=>h.get('reward-rain').children.filter(n=>!n.hidden);
 
 test('manual clears trigger fast dice at impact even with no party income; ordinary hits do not',()=>{
- const s=E.createState(1000),h=harness(s);const pool=[...h.get('reward-rain').children];
+ const s=E.createState(1000);s.hp=10;const h=harness(s);const pool=[...h.get('reward-rain').children];
  assert.equal(pool.length,48);h.click('attack');h.advance(560);assert.equal(active(h).length,0);
  h.click('attack');h.advance(559);assert.equal(active(h).length,0);h.advance(1);assert.equal(active(h).length,3);
  assert.ok(h.get('factor-rain').children.every(n=>n.hidden),'slow income rain is independent');

@@ -23,7 +23,7 @@ test('finite rapid manual attacks stop at their release, with no forced full spr
 });
 
 test('a burst produced by accumulated points at low action returns to idle',()=>{
-  const s=fixture(50);s.actionPoints.richter=75;const h=harness(s);
+  const s=fixture(20);s.actionPoints.richter=75;const h=harness(s);
   h.advance(1100);assert.ok(h.get('richter-combatant').classList.contains('bursting'));
   h.advance(110);assert.ok(!h.get('richter-combatant').classList.contains('bursting'));
 });
@@ -59,7 +59,7 @@ test('extreme attack summaries are not expanded again into hundreds of projectil
 
 test('both actors keep projectiles in flight between one-second ticks at two attacks per second',()=>{
   for(const spillover of [false,true]){
-    const s=fixture(70);s.levels.meta=50;s.actionLevels.meta=26;s.sessionId='practice';s.hp=10;
+    const s=fixture(30);s.levels.meta=50;s.actionLevels.meta=30;s.sessionId='practice';s.hp=10;
     if(spillover)s.purchasedPerks.richter=['bom-ber'];
     const h=harness(s);h.advance(2500);
     for(let i=0;i<250;i++){

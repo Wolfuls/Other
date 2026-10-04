@@ -22,7 +22,7 @@ test('character identity stays hidden below hire price, reveals at affordability
  assert.ok(h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,'？？？');
  assert.equal(h.get('hire-cost-richter').textContent,'◇ 100Rd');assert.equal(h.get('meta-combatant').hidden,false);
  h.click('attack');assert.ok(h.get('card-richter').classList.contains('obscured'));
- h.click('attack');assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters[1].name);
+ h.click('attack');h.click('attack');h.click('attack');assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters[1].name);
  buy(h,{hire:'richter'});assert.equal(h.saved().factors,1);assert.ok(!h.get('card-richter').classList.contains('obscured'));
  assert.ok(h.get('card-vishunal').classList.contains('obscured'));
  const t=E.createState(1000);t.paused=true;t.factors=100;t.levels.meta=1;const k=harness(t);

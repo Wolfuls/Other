@@ -20,14 +20,14 @@ test('action purchases grow orbit counts while damage purchases grow size, indep
 });
 
 test('the configured armor applies to every manual and automatic spillover target',()=>{
-  assert.deepEqual(D.sessions.map(s=>[s.id,s.defense]),[['practice',0],['patrol',2],['heavy',4],['mohicans',0]]);
-  for(const [session,kills,hp,damage] of [['practice',34,8,342],['patrol',8,36,324],['heavy',2,120,330]]){
+  assert.deepEqual(D.sessions.map(s=>[s.id,s.defense]),[['practice',0],['patrol',2],['heavy',4],['mohicans',0],['scarecrow',35],['dementor',3]]);
+  for(const [session,kills,hp,damage] of [['practice',11,10,106],['patrol',2,20,100],['heavy',0,48,102]]){
     for(const manual of [true,false]){
       const s=E.createState();s.levels.richter=50;s.selectedCharacterId='richter';
-      s.purchasedPerks.richter=D.characters.find(c=>c.id==='richter').perks.map(p=>p.id);
+      s.purchasedPerks.richter=D.characters.find(c=>c.id==='richter').perks.filter(p=>p.level<=50).map(p=>p.id);
       E.selectSession(s,session);
-      // Minimum (10D6+48) ×5.9 =342. Each full target costs HP + its defense.
-      const events=manual?E.click(s,()=>0):E.advance(s,4,()=>0);
+      // Minimum (10D6+8) ×5.9 =106. Each full target costs HP + its defense.
+      const events=manual?E.click(s,()=>0):E.advance(s,2,()=>0);
       assert.equal(s.kills,kills);assert.equal(s.hp,hp);assert.equal(s.totalDamage,damage);
       assert.equal(events.filter(e=>e.type==='attack'&&!e.continuation).length,1);
     }

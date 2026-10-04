@@ -41,14 +41,14 @@ test('income is zero without allies; ignores balance, current HP and pause for i
   s.levels.meta=1;const before=structuredClone(s),income=E.expectedIncome(s);assert.ok(income.factorsPerSecond>0);assert.deepEqual(s,before);
   s.hp=1;s.factors=1e20;s.selectedCharacterId='meta';s.actionPoints.meta=50;s.paused=true;
   assert.strictEqual(E.expectedIncome(s),income,'reuse the calculation while only non-performance state changes');
-  s.actionLevels.meta=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.1)<1e-10);
-  s.actionLevels.meta=0;s.upgrades.reward=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.1)<1e-10);
+  s.actionLevels.meta=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-55/50)<1e-10);
+  s.actionLevels.meta=0;s.upgrades.reward=1;assert.ok(Math.abs(E.expectedIncome(s).factorsPerSecond/income.factorsPerSecond-1.5)<1e-10);
 });
 
 test('guaranteed one-hit kills cap income at attack frequency unless paid BoM-BeR enables spillover',()=>{
   const s=E.createState();s.levels.richter=50;
-  assert.equal(E.expectedIncome(s).factorsPerSecond,.5);s.boostSeconds=30;
-  assert.equal(E.expectedIncome(s).factorsPerSecond,.5,'extra damage is still discarded');
+  assert.equal(E.expectedIncome(s).factorsPerSecond,1);s.boostSeconds=30;
+  assert.equal(E.expectedIncome(s).factorsPerSecond,1,'extra damage is still discarded');
   s.boostSeconds=0;s.purchasedPerks.richter=['bom-ber'];const spill=E.expectedIncome(s).factorsPerSecond;assert.ok(spill>4);
   s.boostSeconds=30;const boost=E.expectedIncome(s);assert.ok(boost.factorsPerSecond>spill*1.8);s.boostSeconds=10;assert.strictEqual(E.expectedIncome(s),boost);
   s.boostSeconds=0;assert.ok(E.expectedIncome(s).factorsPerSecond<boost.factorsPerSecond);
@@ -58,12 +58,12 @@ test('defense, defense bypass, target perks and knockout are included in expecte
   const p={dice:0,flat:6,multiplier:1,rate:1,defense:0,overflow:false};
   assert.equal(B.clearRate(10,[p],{threshold:4,chance:0}),.5);
   assert.ok(Math.abs(B.clearRate(10,[p])-2/3)<1e-12,'half the first hits clear by knockout');
-  assert.equal(B.clearRate(10,[{...p,defense:6}]),0);
-  const s=E.createState();s.levels.meta=30;E.selectSession(s,'heavy');
+  assert.ok(Math.abs(B.clearRate(10,[{...p,defense:6}])-16/111)<1e-12);
+  const s=E.createState();s.levels.meta=50;E.selectSession(s,'heavy');
   const armored=E.expectedIncome(s).factorsPerSecond;s.purchasedPerks.meta=['metal-blade'];
   assert.ok(E.expectedIncome(s).factorsPerSecond>armored);
   s.purchasedPerks.meta.push('mohican-slayer');const neutral=E.expectedIncome(s).factorsPerSecond;
-  const enemy=E.getSession(s),traits=enemy.traits;try{enemy.traits=['mohican'];assert.ok(E.expectedIncome(s).factorsPerSecond>neutral);}finally{enemy.traits=traits;}
+  const enemy=D.sessions.find(enemy=>enemy.id===s.sessionId),traits=enemy.traits;try{enemy.traits=['mohican'];assert.ok(E.expectedIncome(s).factorsPerSecond>neutral);}finally{enemy.traits=traits;}
 });
 
 test('spillover pays armor on every subsequent target in the income model',()=>{
@@ -90,16 +90,16 @@ test('mixed-party expected clears agree with independent sampled attacks includi
 test('UI reflects loaded target conditions and does not abbreviate the balance',()=>{
   const s=E.createState(1000);s.levels.richter=50;s.factors=1234567890123;s.paused=true;
   const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567,890,123');
-  assert.equal(h.get('income-rate').textContent,'0.5');assert.match(h.get('income-context').textContent,/再開時/);
+  assert.equal(h.get('income-rate').textContent,'1');assert.match(h.get('income-context').textContent,/再開時/);
   E.selectSession(s,'heavy');const armored=harness(s);
-  assert.notEqual(armored.get('income-rate').textContent,'0.5');assert.match(armored.get('income-context').textContent,/重装甲試験/);
+  assert.notEqual(armored.get('income-rate').textContent,'1');assert.match(armored.get('income-context').textContent,/重装甲試験/);
 });
 
-test('UI shows fractional rewards, balances and the total reward bonus consistently',()=>{
-  const s=E.createState(1000);s.levels.meta=1;s.factors=1234567.25;s.upgrades.reward=1;s.paused=true;
-  const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567.25');
-  assert.equal(h.get('reward').textContent,'◇ 2.2Rd');assert.equal(h.get('reward-bonus').textContent,'＋10%');
-  assert.match(h.get('income-formula').textContent,/2\.2Rd/);
+test('UI shows integer rewards, balances and the total reward bonus consistently',()=>{
+  const s=E.createState(1000);s.levels.meta=1;s.factors=1234567;s.upgrades.reward=1;s.paused=true;
+  const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567');
+  assert.equal(h.get('reward').textContent,'◇ 3Rd');assert.equal(h.get('reward-bonus').textContent,'＋10%');
+  assert.match(h.get('income-formula').textContent,/3Rd/);
   E.selectSession(s,'heavy');const armored=harness(s);
-  assert.equal(armored.get('reward').textContent,'◇ 49.5Rd');assert.match(armored.get('income-formula').textContent,/49\.5Rd/);
+  assert.equal(armored.get('reward').textContent,'◇ 49Rd');assert.match(armored.get('income-formula').textContent,/49Rd/);
 });

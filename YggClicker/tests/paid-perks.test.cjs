@@ -23,12 +23,12 @@ test('level and funds are both required; purchase deducts once and does not alte
   assert.equal(E.buyPerk(s,'unknown','z-bom'),false);assert.equal(E.buyPerk(s,'richter','unknown'),false);
 });
 test('levels alone grant no perk; each purchased flat bonus is cumulative and Z-BoM scales afterwards',()=>{
-  const s=prepared(60);assert.deepEqual(E.stats(s,richter),{dice:5,flat:0});assert.equal(E.hasOverflow(s,richter),false);
+  const s=prepared(100);assert.deepEqual(E.stats(s,richter),{dice:5,flat:0});assert.equal(E.hasOverflow(s,richter),false);
   assert.ok(E.buyPerk(s,'richter','vx-bom'));assert.deepEqual(E.stats(s,richter),{dice:5,flat:16});
-  assert.ok(E.buyPerk(s,'richter','z-bom'));assert.deepEqual(E.stats(s,richter),{dice:11,flat:16});
-  s.levels.richter=70;assert.deepEqual(E.stats(s,richter),{dice:12,flat:16});
+  assert.ok(E.buyPerk(s,'richter','z-bom'));assert.deepEqual(E.stats(s,richter),{dice:15,flat:16});
+  s.levels.richter=110;assert.deepEqual(E.stats(s,richter),{dice:16,flat:16});
   assert.ok(E.buyPerk(s,'richter','dx-bom'));assert.ok(E.buyPerk(s,'richter','ex-bom'));
-  assert.deepEqual(E.stats(s,richter),{dice:12,flat:48});
+  assert.deepEqual(E.stats(s,richter),{dice:16,flat:48});
 });
 test('BoM-BeR starts overflow only after purchase, on manual and automatic attacks',()=>{
   const s=prepared();const before=E.click(s,()=>0);assert.equal(before.filter(e=>e.type==='clear').length,1);

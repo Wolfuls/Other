@@ -28,7 +28,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     addEventListener(type,fn){this.listeners.set(type,fn);}click(){this.listeners.get('click')?.({target:this});}
     getAnimations(){return [];}
     cloneNode(deep=false){const copy=new Element(this.tagName);copy.className=this.className;copy.dataset={...this.dataset};copy.attrs=new Map(this.attrs);copy._text=this._text;for(const[k,v]of Object.entries(this.style))if(typeof v==='string')copy.style[k]=v;if(deep)copy.append(...this.children.map(n=>n.cloneNode(true)));return copy;}
-    showModal(){}close(){}select(){}
+    focus(){document.activeElement=this;}showModal(){}close(){}select(){}
   }
   const get=id=>{if(!ids.has(id))ids.set(id,new Element('div',id));return ids.get(id);};
   const document={hidden:false,getElementById:get,createElement:tag=>new Element(tag),body:new Element('body'),
@@ -40,7 +40,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     setTimeout:(fn,delay)=>schedule(fn,delay),clearTimeout:id=>timers.delete(id),setInterval:(fn,delay)=>schedule(fn,delay,delay),
     requestAnimationFrame:fn=>schedule(fn,16),cancelAnimationFrame:id=>timers.delete(id),Image:class{},ResizeObserver:class{observe(){}},
     addEventListener:(type,fn)=>windowEvents.set(type,fn),matchMedia:()=>media,localStorage:storage,
-    YggData:D,YggEngine:{...E,catchUp:s=>E.catchUp(s,now),click:(s,rng=()=>.999)=>E.click(s,rng),advance:(s,seconds,rng=()=>.999,collect=true)=>E.advance(s,seconds,rng,collect)},YggSave:S,YggDisplay:require('../js/display.js'),YggCombatEffects:{...FX,createPlayback:options=>FX.createPlayback({...options,schedule:(fn,ms)=>schedule(fn,ms),cancel:id=>timers.delete(id)})}};
+    YggData:D,YggNumbers:require('../js/numbers.js'),YggMaintenance:require('../js/maintenance.js'),YggEngine:{...E,catchUp:s=>E.catchUp(s,now),click:(s,rng=()=>.999)=>E.click(s,rng),advance:(s,seconds,rng=()=>.999,collect=true)=>E.advance(s,seconds,rng,collect)},YggSave:S,YggDisplay:require('../js/display.js'),YggCombatEffects:{...FX,createPlayback:options=>FX.createPlayback({...options,schedule:(fn,ms)=>schedule(fn,ms),cancel:id=>timers.delete(id)})}};
   context.window=context;vm.runInNewContext(source,context);
   function runTo(until,late=false){let budget=100000;while(timers.size){const [id,t]=[...timers].sort((a,b)=>a[1].at-b[1].at||a[0]-b[0])[0];if(t.at>until)break;if(!--budget)throw Error('Timer loop');now=late?until:t.at;timers.delete(id);t.fn();if(t.repeat)timers.set(id,{...t,at:now+t.repeat});}now=until;}
   const resetMetrics=()=>{for(const k in metrics)metrics[k]=0;};resetMetrics();

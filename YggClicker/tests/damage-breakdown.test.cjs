@@ -23,13 +23,13 @@ test('displayed additive terms equal actual damage with global concentration and
 });
 
 test('breakdown separates base replacement, dice perks, conditional perks and expiring SPE',()=>{
-  const s=E.createState();for(const c of D.characters){s.levels[c.id]=50;s.purchasedPerks[c.id]=c.perks.map(p=>p.id);}
+  const s=E.createState();for(const c of D.characters){s.levels[c.id]=100;s.purchasedPerks[c.id]=c.perks.map(p=>p.id);}
   const meta=D.characters[0],richter=D.characters[1];
   let b=E.attackBreakdown(s,meta,false,{defense:9,traits:['mohican']});
-  assert.deepEqual(b.base,{dice:4,flat:5,source:'メタルマン'});
+  assert.deepEqual(b.base,{dice:4,flat:5,source:'レアメタル・ブレード'});
   assert.deepEqual(b.perk,{dice:0,flat:12,conditional:15});assert.equal(b.defense,0);assert.ok(b.ignoreDefense);
   b=E.attackBreakdown(s,richter,false,{defense:9,traits:['mohican']});
-  assert.deepEqual(b.base,{dice:5,flat:0,source:''});assert.deepEqual(b.perk,{dice:5,flat:48,conditional:0});assert.equal(b.defense,9);
+  assert.deepEqual(b.base,{dice:5,flat:0,source:''});assert.deepEqual(b.perk,{dice:10,flat:48,conditional:0});assert.equal(b.defense,9);
   s.boostSeconds=.1;assert.equal(E.attackBreakdown(s,richter).spe.rate,1);
   E.advance(s,.1);assert.equal(E.attackBreakdown(s,richter).spe.rate,0);
 });

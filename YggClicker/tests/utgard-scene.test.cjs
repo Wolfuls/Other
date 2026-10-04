@@ -19,18 +19,18 @@ test('crystal density follows income monotonically, saturates at 24, and does no
  assert.equal(h.get('factor-rain').children.length,24);
 });
 
-test('the sole session uses Utgard, hides the individual enemy title and includes three women among ten variants',()=>{
+test('the gang quest uses Utgard, hides the individual enemy title and includes three women among ten variants',()=>{
  const mob=D.sessions.find(s=>s.id==='mohicans');assert.equal(mob.variants.length,10);assert.equal(mob.variants.filter(v=>v.name.startsWith('モヒカン女')).length,3);
  const s=E.createState(1000);s.sessionId='mohicans';s.hp=10;const h=harness(s);
  assert.ok(h.get('enemy-name').hidden);assert.ok(h.get('arena-viewport').classList.contains('has-scene'));
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--session-background'),'url("'+mob.background+'")');
- assert.deepEqual(D.sessions.map(s=>s.id),['mohicans']);
+ assert.deepEqual(D.sessions.map(s=>s.id),['mohicans','scarecrow','dementor']);
  assert.equal(E.selectSession(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 
 test('cumulative clears retain full grouped digits beyond exponential notation; save transfer remains unchanged',()=>{
  for(const[kills,label]of [[1234567,'1,234,567'],[1234567890123,'1,234,567,890,123'],[1e21,'1,000,000,000,000,000,000,000']]){
-  const s=E.createState(1000);s.kills=kills;s.paused=true;s.factors=123.25;s.upgrades.reward=7;s.upgrades.power=9;s.levels.meta=15;s.actionLevels.meta=35;
+  const s=E.createState(1000);s.kills=kills;s.paused=true;s.factors=123;s.upgrades.reward=7;s.upgrades.power=9;s.levels.meta=15;s.actionLevels.meta=35;
   const doc=JSON.parse(S.encode(s));doc.gameVersion='0.24.0';assert.deepEqual(S.decode(JSON.stringify(doc)),s);
   assert.equal(harness(s).get('kills').textContent,label);
  }

@@ -48,7 +48,7 @@ test('selected actor survives export/import; schema 5 defaults to the original m
   const state = E.createState(); state.factors=100; E.hire(state, 'meta'); E.selectCharacter(state, 'meta');
   state.actionPoints.meta = 37; state.actionClock = .25;
   assert.deepEqual(S.decode(S.encode(state)), state);
-  const old = JSON.parse(S.encode(state)); old.schemaVersion = 5; delete old.state.selectedCharacterId;
+  const old = JSON.parse(S.encode(state)); old.schemaVersion = 5; old.state.hp=10; delete old.state.selectedCharacterId;
   const migrated = S.decode(JSON.stringify(old));
   assert.deepEqual(migrated, { ...state, selectedCharacterId: null });
   for (const id of ['richter', 'unknown', '__proto__', {}, 1, undefined]) {
@@ -59,7 +59,7 @@ test('selected actor survives export/import; schema 5 defaults to the original m
 
 test('250 action power launches two then three saws, including kills between hits', () => {
   const state = E.createState(); state.factors=100; E.hire(state, 'meta');
-  state.actionLevels.meta = 35; state.hp = 1;
+  state.actionLevels.meta = 40; state.hp = 1;
   assert.equal(E.actionPower(state, D.characters[0]), 250);
   const two = E.advance(state, 1, () => 0), three = E.advance(state, 1, () => 0);
   assert.equal(FX.metaAttackCount(two), 2); assert.equal(FX.metaAttackCount(three), 3);
@@ -92,10 +92,10 @@ test('batched parties launch only Meta saws and preserve the count in bounded gr
 
 test('defeat events do not delay new rounds or change rewards for multi-hit bursts', () => {
   const state = E.createState(); state.factors=100; E.hire(state, 'meta'); state.levels.meta = 200;
-  state.actionLevels.meta = 35;
+  state.actionLevels.meta = 40;
   const events = E.advance(state, 2, () => 0);
   assert.equal(events.filter(e => e.type === 'clear').length, 5);
   assert.equal(FX.metaAttackCount(events), 5);
-  assert.equal(state.kills, 5); assert.equal(state.earned, 10); assert.equal(state.hp, 10);
+  assert.equal(state.kills, 5); assert.equal(state.earned, 10); assert.equal(state.hp, 20);
   assert.deepEqual(S.decode(S.encode(state)), state);
 });

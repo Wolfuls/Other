@@ -46,7 +46,7 @@ test('clear awards factors, repeats the same target, and drops excess damage', (
   const state = E.createState();
   state.hp = 1;
   const events = E.click(state, () => 0.999);
-  assert.equal(state.factors, 7);
+  assert.equal(state.factors, 2);
   assert.equal(state.kills, 1);
   assert.equal(state.sessionId, 'practice');
   assert.equal(state.hp, 10);
@@ -60,8 +60,8 @@ test('session stays selected across repeated clears and pays its own reward', ()
   E.selectSession(state, 'patrol');
   E.advance(state, 36, () => .999, false);
   assert.equal(state.sessionId, 'patrol');
-  assert.equal(state.kills, 5);
-  assert.equal(state.factors, 51);
+  assert.equal(state.kills, 4);
+  assert.equal(state.factors, 41);
 });
 test('changing targets resets HP without resetting action points', () => {
   const state = hiredState();
@@ -77,7 +77,7 @@ test('purchases cannot make factors negative or exceed level caps', () => {
   const state = E.createState();
   assert.equal(E.buyUpgrade(state, 'power'), false);
   assert.equal(E.buyBoost(state), false);
-  assert.equal(state.factors, 5);
+  assert.equal(state.factors, 0);
   E.buyUpgrade(state, 'click');
   assert.equal(state.factors, 0);
   state.factors = 1e30;
@@ -121,7 +121,7 @@ test('offline time is capped at eight hours and clock rollback does not produce 
 test('boost purchase doubles damage and cannot be stacked', () => {
   const state = hiredState(); state.factors = 100;
   assert.equal(E.buyBoost(state), true);
-  assert.equal(state.factors, 96);
+  assert.equal(state.factors, 97);
   assert.equal(E.multiplier(state), 2);
   assert.equal(E.buyBoost(state), false);
   E.advance(state, 31, fixedRoll);
@@ -157,7 +157,7 @@ test('invalid, alien, oversized, future-version and malicious save inputs are re
     doc => { doc.state.levels.unknown = 3; },
     doc => { doc.state.sessionId = '__proto__'; }
   ]) { const candidate = structuredClone(original); change(candidate); assert.throws(() => S.decode(JSON.stringify(candidate))); }
-  assert.throws(() => S.decode(S.encode(E.createState()).replace('"factors": 5', '"factors": 1e999')));
+  assert.throws(() => S.decode(S.encode(E.createState()).replace('"factors": 0', '"factors": 1e999')));
   assert.equal({}.polluted, undefined);
 });
 test('new content IDs may be absent from older saves and get initial values', () => {
@@ -214,15 +214,15 @@ test('unupgraded manual attack rolls exactly 1 through 6 and session 1 pays 2Rd'
   const state = E.createState();
   for (let i = 0; i < 10; i++) E.click(state, fixedRoll);
   assert.equal(state.kills, 1);
-  assert.equal(state.factors, 7);
+  assert.equal(state.factors, 2);
 });
 test('first concentration and reward upgrades have an immediate effect at small values', () => {
-  const state = E.createState();
+  const state = E.createState();state.factors=5;
   assert.equal(E.buyUpgrade(state, 'click'), true);
   assert.equal(E.click(state, fixedRoll)[0].damage, 2);
   state.factors = 100;
   assert.equal(E.buyUpgrade(state, 'reward'), true);
-  assert.equal(E.reward(state), 2.2);
+  assert.equal(E.reward(state), 3);
   assert.equal(E.reward(state, D.sessions[1]), 11);
 });
 test('schema 1 migration preserves progress and converts remaining HP proportion for every session', () => {
@@ -232,7 +232,7 @@ test('schema 1 migration preserves progress and converts remaining HP proportion
       state.upgrades.click = 2; state.sessionId = id; state.hp = oldHP * ratio;
       const document = { gameId: 'yggclicker', schemaVersion: 1, gameVersion: '0.1.0', state: legacyState(state) };
       const migrated = S.decode(JSON.stringify(document));
-      assert.equal(migrated.hp,10);assert.equal(migrated.sessionId,'mohicans');
+      assert.equal(migrated.hp,20);assert.equal(migrated.sessionId,'mohicans');
       assert.equal(migrated.factors, 123);
       assert.equal(migrated.kills, 7);
       assert.deepEqual(migrated.levels, state.levels);
@@ -253,7 +253,7 @@ test('loaded legacy save is upgraded and the original is kept in the rotating ba
   const legacy = JSON.stringify({ gameId: 'yggclicker', schemaVersion: 1, state: legacyState(state) });
   storage.setItem(S.KEY, legacy);
   const loaded = S.load(storage);
-  assert.equal(loaded.state.hp,10);
+  assert.equal(loaded.state.hp,20);
   assert.equal(S.persist(storage, loaded.state).ok, true);
   assert.equal(JSON.parse(storage.getItem(S.KEY)).schemaVersion, S.VERSION);
   assert.equal(storage.getItem(S.BACKUP_KEY), legacy);
@@ -262,7 +262,7 @@ test('schema 2 transfers the old first character level and charge to Meta', () =
   const state = hiredState(); state.levels.meta = 8; state.actionPoints.meta = 50;
   state.hp = 3; state.factors = 87;
   const old = { gameId: 'yggclicker', schemaVersion: 2, state: legacyState(state) };
-  const expected = {...state, sessionId:'mohicans', hp:10};
+  const expected = {...state, sessionId:'mohicans', hp:20};
   assert.deepEqual(S.decode(JSON.stringify(old)), expected);
   assert.deepEqual(S.decode(S.encode(S.decode(JSON.stringify(old)))), expected);
 });
@@ -304,11 +304,11 @@ test('character levels grow the damage multiplier without adding flat stats', ()
 
 test('level scaling uses rounded rolls for automatic attacks and DPS; manual training stays flat', () => {
   const state = hiredState(); state.levels.meta = 4;
-  assert.equal(E.advance(state,2,()=>0).find(e=>e.type==='attack').damage,2);
+  assert.equal(E.advance(state,2,()=>0).find(e=>e.type==='attack').damage,3);
   assert.equal(E.advance(state,2,()=>.999).find(e=>e.type==='attack').damage,15);
   const sums=[1,2,3,4,5,6].flatMap(a=>[1,2,3,4,5,6].map(b=>a+b));
-  const mean=sums.reduce((n,sum)=>n+Math.floor(sum*1.3+1e-9),0)/36;
-  assert.ok(Math.abs(E.dps(state)-mean/1.8)<1e-12);
+  const mean=sums.reduce((n,sum)=>n+Math.max(sum+1,Math.floor(sum*1.3+1e-9)),0)/36;
+  assert.ok(Math.abs(E.dps(state)-mean*.5)<1e-12);
   for (const [level,dice,flat] of [[2,1,2],[3,1,3],[4,1,4],[6,1,6],[25,1,25]]) {
     state.upgrades.click = level;
     assert.deepEqual(E.manualStats(state),{dice,flat});
@@ -364,7 +364,7 @@ test('action training preserves points and the next tick, and affects subsequent
   E.buyAction(state,'meta');
   assert.equal(state.actionPoints.meta,beforePoints);
   assert.equal(state.actionClock,beforeClock);
-  assert.ok(Math.abs(E.dps(state)-oldDPS*1.1)<1e-12);
+  assert.ok(Math.abs(E.dps(state)-oldDPS*55/50)<1e-12);
   assert.equal(E.advance(state,.499,fixedRoll).length,0);
   assert.equal(E.advance(state,.001,fixedRoll).filter(e=>e.type==='attack').length,1);
   assert.ok(Math.abs(state.actionPoints.meta-(beforePoints+E.actionPower(state,meta)-100))<1e-10);
@@ -387,7 +387,7 @@ test('schema 3 migration retains power, funds, and charge, and starts action tra
   const original=hiredState(); original.levels.meta=7;original.factors=200;original.actionPoints.meta=50;
   const old={gameId:D.gameId,schemaVersion:3,gameVersion:'0.4.0',state:version4State(original)};delete old.state.speedLevels;
   const migrated=S.decode(JSON.stringify(old));
-  assert.deepEqual(migrated,{...original,sessionId:'mohicans',hp:10});
+  assert.deepEqual(migrated,{...original,sessionId:'mohicans',hp:20});
   migrated.factors=1000;E.buyAction(migrated,'meta');
   assert.deepEqual(S.decode(S.encode(migrated)),migrated);
 });
@@ -452,7 +452,7 @@ test('huge multi-character offline progress handles boost expiry, paused games a
 });
 
 test('points only arrive on whole-second ticks, including several attacks and a remainder', () => {
-  const state=hiredState();state.actionLevels.meta=35; // 250 points / second.
+  const state=hiredState();state.actionLevels.meta=40; // 250 points / second.
   assert.equal(E.actionPower(state,D.characters[0]),250);
   assert.deepEqual(E.advance(state,.75,fixedRoll),[]);
   assert.equal(state.actionPoints.meta,0);
@@ -464,7 +464,7 @@ test('points only arrive on whole-second ticks, including several attacks and a 
 });
 
 test('partial points and tick phase survive pause, manual attacks, target changes, and save transfer', () => {
-  const state=hiredState();state.actionLevels.meta=35;
+  const state=hiredState();state.actionLevels.meta=40;
   E.advance(state,1.4,fixedRoll);
   assert.equal(state.actionPoints.meta,50);
   E.click(state,fixedRoll);E.selectSession(state,'heavy');
@@ -480,7 +480,7 @@ test('partial points and tick phase survive pause, manual attacks, target change
 test('schema 4 preserves action upgrades and maps old remaining time into charged points', () => {
   const state=hiredState();state.actionLevels.meta=7;state.actionPoints.meta=75;state.factors=400;
   const old={gameId:D.gameId,schemaVersion:4,gameVersion:'0.5.0',state:version4State(state)};
-  assert.deepEqual(S.decode(JSON.stringify(old)),{...state,sessionId:'mohicans',hp:10});
+  assert.deepEqual(S.decode(JSON.stringify(old)),{...state,sessionId:'mohicans',hp:20});
   old.state.timers.meta=0;
   assert.equal(S.decode(JSON.stringify(old)).actionPoints.meta,100);
   old.state.timers.meta=99;
@@ -502,7 +502,7 @@ test('extreme action power still waits for a tick and batches every complete thr
 
 test('boost expiry exactly at a charge tick does not boost that tick', () => {
   for(const [duration,damage] of [[1,2],[1.01,4]]) {
-    const state=hiredState();state.actionLevels.meta=35;state.boostSeconds=duration;
+    const state=hiredState();state.actionLevels.meta=40;state.boostSeconds=duration;
     const attacks=E.advance(state,1,fixedRoll).filter(e=>e.type==='attack');
     assert.equal(attacks.length,2);
     assert.ok(attacks.every(event=>event.damage===damage));

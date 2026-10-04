@@ -1,0 +1,71 @@
+{
+  "id": "gamer-throne",
+  "version": 1,
+  "status": "sprite-assets-only",
+  "format": "PNG RGBA",
+  "facing": "right",
+  "character": {
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "anchor": {
+      "x": 128,
+      "y": 242
+    },
+    "atlas": "gamer-throne-atlas-v1.png",
+    "atlasColumns": 4,
+    "atlasRows": 3,
+    "standing": "gamer-throne-standing-v1.png",
+    "states": {
+      "idle": {
+        "file": "gamer-throne-idle-v1.png",
+        "frames": 4,
+        "durationsMs": [
+          700,
+          350,
+          100,
+          450
+        ],
+        "loop": true
+      },
+      "attack": {
+        "file": "gamer-throne-attack-v1.png",
+        "frames": 4,
+        "durationsMs": [
+          240,
+          180,
+          180,
+          650
+        ],
+        "loop": false,
+        "releaseFrame": 2
+      },
+      "burst": {
+        "file": "gamer-throne-burst-v1.png",
+        "frames": 4,
+        "durationsMs": [
+          140,
+          140,
+          140,
+          140
+        ],
+        "loop": true,
+        "interruptible": true
+      }
+    }
+  },
+  "projectile": {
+    "frameWidth": 96,
+    "frameHeight": 96,
+    "spawn": "above-target",
+    "fall": "tarai-fall-v1.png",
+    "impact": "tarai-impact-v1.png",
+    "framesPerStrip": 4,
+    "fallFrameDurationMs": 70,
+    "impactFrameDurationMs": 65,
+    "anchor": {
+      "x": 48,
+      "y": 82
+    }
+  },
+  "note": "Animation timings are visual defaults; no damage, price or perk values are assigned. PNG paths are relative to this manifest."
+}

@@ -8,7 +8,7 @@
 .richter-standing{display:block;flex-shrink:0;width:192px;height:224px;background-image:var(--richter-sheet);background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;filter:drop-shadow(0 3px 0 #090d1499)}
 .richter-combatant.attacking .richter-standing{animation:richter-frames .62s steps(1,end) both}
 .richter-combatant.attacking .meta-body{animation:meta-lunge .62s steps(5,end) both}
-.richter-combatant.bursting .richter-standing{width:240px;background-image:var(--richter-burst-sheet);background-size:400% 100%;animation:richter-rapid .32s steps(1,end) infinite}
+.richter-combatant.bursting .richter-standing{width:384px;background-image:var(--richter-burst-sheet);background-size:400% 100%;animation:richter-rapid .32s steps(1,end) infinite}
 .richter-combatant.bursting .meta-body{animation:richter-burst-rock .32s steps(1,end) infinite}
 .richter-combatant.is-paused *{animation-play-state:paused!important}
 .richter-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #bade9055}
@@ -45,6 +45,7 @@
 #card-richter.owned{border-color:#9a785a}
 #card-richter .avatar.sprite-avatar img{width:68px;top:-2px}
 @keyframes richter-frames{0%{background-position:33.333333% 0}32%{background-position:66.666667% 0}64%{background-position:100% 0}95%,100%{background-position:0 0}}
+/* Four poses selected from the previous six-frame sheet: 2, 3, 5, 4. */
 @keyframes richter-rapid{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
 @keyframes richter-burst-rock{0%,50%,100%{transform:translate(2px,0)}25%,75%{transform:translate(6px,-2px)}}
 @keyframes richter-blast-frames{0%{background-position:0 0}16%{background-position:20% 0}32%{background-position:40% 0}48%{background-position:60% 0}64%{background-position:80% 0}80%,100%{background-position:100% 0}}
@@ -54,18 +55,22 @@
 @keyframes richter-bomb-flight{0%{transform:translate(0,0);opacity:0}1%{opacity:1}45%{transform:translate(calc(var(--travel) * .45),calc(var(--rise) * .45 - 28px));opacity:1}90%{opacity:1}100%{transform:translate(var(--travel),var(--rise));opacity:1}}
 @keyframes richter-bomb-spin{from{transform:rotate(-12deg)}to{transform:rotate(24deg)}}
 @media(min-width:601px) and (max-width:900px){#character-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:600px){.richter-standing{width:180px;height:210px}.richter-combatant{left:max(108px,32%);width:198px;height:210px}.richter-combatant.bursting .richter-standing{width:225px}.richter-orbits{width:204px;height:214px}.richter-projectile{width:36px;height:36px;margin:-18px 0 0 -18px}.richter-explosion{left:78%}}
+@media(max-width:600px){.richter-standing{width:180px;height:210px}.richter-combatant{left:max(108px,32%);width:198px;height:210px}.richter-combatant.bursting .richter-standing{width:360px}.richter-orbits{width:204px;height:214px}.richter-projectile{width:36px;height:36px;margin:-18px 0 0 -18px}.richter-explosion{left:78%}}
 @media(prefers-reduced-motion:reduce){.richter-standing{background-position:0 0!important}.richter-projectile,.richter-explosion{display:none}}
 
 /* Counter-rotation keeps every creature's face upright as the ring moves. */
 .richter-orbits{position:absolute;left:50%;top:50%;width:220px;height:230px;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
 .creature-ring{position:absolute;inset:0;animation:creature-orbit var(--orbit-duration) linear infinite;animation-direction:var(--orbit-direction)}
 .creature-slot{position:absolute;width:42px;height:42px;transform:translate(-50%,-50%)}
-.richter-creature{display:block;width:100%;height:100%;animation:creature-upright var(--orbit-duration) linear infinite;animation-direction:var(--orbit-direction)}
+.creature-facing{display:block;width:100%;height:100%;animation:creature-upright var(--orbit-duration) linear infinite;animation-direction:var(--orbit-direction)}
+.richter-creature{display:block;width:100%;height:100%;background-image:var(--creature-idle-sheet);background-size:400% 100%;background-repeat:no-repeat;animation:creature-idle-frames var(--creature-idle-duration,1.4s) var(--creature-idle-delay,0s) steps(1,end) infinite}
+.scene-paused .richter-orbits *{animation-play-state:paused!important}
 .richter-orbits.dense .creature-slot{width:24px;height:24px}
 .richter-growth span:first-child{color:#efa1cd}
 @keyframes creature-orbit{to{transform:rotate(360deg)}}
 @keyframes creature-upright{to{transform:rotate(-360deg)}}
+/* Pixel-drawn breathing and arm/tail movement; each actor has a different phase. */
+@keyframes creature-idle-frames{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
 @media(max-width:600px){.richter-orbits{width:204px;height:214px}.creature-slot{width:38px;height:38px}.richter-orbits.dense .creature-slot{width:22px;height:22px}}
 @media(max-width:600px){.richter-explosion{width:128px;height:128px}.richter-explosion.chain-explosion{width:154px;height:154px}}
 
@@ -307,3 +312,14 @@
 @media(min-width:761px){.single-session #character-list{display:block}}
 @media(max-width:760px){.workspace.single-session{display:flex;flex-direction:column}.single-session>.panel{width:100%}.single-session #character-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.single-session #character-list{display:block}}
+
+/* A registered night plate crossfades on the same fixed ground plane. */
+.arena-viewport.has-scene::after{content:"";position:absolute;top:0;bottom:0;left:50%;width:var(--scene-width);transform:translateX(-50%);z-index:0;pointer-events:none;background:linear-gradient(#10202724,#10202744),var(--session-night-background) center/cover no-repeat;image-rendering:pixelated;opacity:var(--night-opacity,0)}
+.scene-phase{position:absolute;left:8px;top:8px;z-index:5;color:#d4dfdc;background:#142126dc;border:1px solid #76948c55;padding:3px 8px;border-radius:4px;font-size:12px;pointer-events:none}
+
+/* Armor kneels in place; spectral cloth collapses without being hurled away. */
+.meta-arena .enemy-art.enemy-defeat.has-defeat-sheet[data-defeat-style=kneel],
+.meta-arena .enemy-art.enemy-defeat.has-defeat-sheet[data-defeat-style=dissolve]{animation-name:enemy-collapse-in-place}
+@keyframes enemy-collapse-in-place{0%,82%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(-50%,-50%);opacity:0}}
+.enemy-art[data-defeat-style=dissolve]:not(.enemy-defeat) .enemy-sprite{animation-duration:1.6s}
+.perk s{text-decoration-line:line-through;text-decoration-thickness:2px}
