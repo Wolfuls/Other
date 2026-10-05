@@ -4,6 +4,7 @@
   let cachedKey, cachedTable;
   let overflowKey, overflowTable;
   let largeKey, largeValue;
+  let poisonKey, poisonValue;
   const EXACT_HP_LIMIT=160;
   // One distribution supplies exact-hit rounding, displayed DPS and offline
   // rewards. Cache only damage-relevant fields, not changing action rates.
@@ -34,6 +35,70 @@
   const averageDamage = profile => damageDistribution(profile).reduce((n, [damage, chance]) => n + damage * chance, 0);
   const qualifies = (damage,hp,p) => p.overkillThreshold > 0 && damage-hp >= p.overkillThreshold;
   const bonusResult = (profiles,count,kills) => profiles.some(p=>p.overkillThreshold>0) ? {overkills:Math.max(0,Math.min(kills,Math.round(count)))} : {};
+  // Poison depends on who hit the CURRENT enemy. Keep this status in the
+  // bounded offline sample instead of adding free poison to every attack.
+  function poisonSampler(profiles,seed=0x27f15a91) {
+    const total=profiles.reduce((n,p)=>n+p.rate,0),hits=[];let cumulative=0;
+    for(const p of profiles)for(const [damage,chance]of damageDistribution(p)) {
+      cumulative+=p.rate/total*chance;hits.push({p,damage,cumulative});
+    }
+    const random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)/4294967296;};
+    return {random,pick(){const x=random()*cumulative;let a=0,b=hits.length-1;while(a<b){const m=(a+b)>>1;if(hits[m].cumulative<x)a=m+1;else b=m;}return hits[a];}};
+  }
+  function poisonHit(state,maxHP,p,damage,knockout,random) {
+    const clear=overkill=>{state.kills++;state.overkills+=overkill?1:0;state.hp=maxHP;state.poisonDamage=0;};
+    const hit=(amount,canOverkill)=>{
+      const before=state.hp;state.damage+=Math.min(before,amount);state.hp=Math.max(0,before-amount);
+      if(!state.hp){clear(canOverkill&&qualifies(amount,before,p));return true;}
+      if(state.hp<=knockout.threshold&&random()<knockout.chance){state.knockouts++;clear(false);return true;}
+      return false;
+    };
+    if(p.poisonDamage)state.poisonDamage=Math.max(state.poisonDamage,p.poisonDamage);
+    const before=state.hp,dead=hit(damage,true);
+    if(!dead&&state.poisonDamage)hit(state.poisonDamage,false);
+    if(!p.overflow||damage<before)return;
+    const excess=damage-before,armor=p.overflowDefense??p.defense??0,cost=maxHP+armor;
+    const full=Math.floor(excess/cost),tail=excess%cost;
+    state.kills+=full;state.damage+=full*maxHP;
+    if(p.overkillThreshold>0)state.overkills+=Math.max(0,Math.floor((excess-p.overkillThreshold)/cost));
+    if(tail>0)hit(N.mitigate(tail,armor),false);
+  }
+  function poisonModel(maxHP,profiles,knockout) {
+    const total=profiles.reduce((n,p)=>n+p.rate,0);
+    const normalized=profiles.filter(p=>p.rate>0).map(p=>({...p,rate:p.rate/total}));
+    const key=JSON.stringify([maxHP,normalized,knockout]);if(key===poisonKey)return poisonValue;
+    const sampler=poisonSampler(normalized),s={hp:maxHP,poisonDamage:0,kills:0,damage:0,overkills:0,knockouts:0};
+    const mean=normalized.reduce((n,p)=>n+p.rate*averageDamage(p),0);
+    const maxDamage=Math.max(...normalized.map(p=>N.mitigate(rolledDamage(p,p.dice*6+p.flat+(p.bonus||0)),p.defense||0)));
+    let attacks=0;
+    for(let i=0;i<16384&&s.kills<4096;i++) {
+      // Once inflicted, long high-HP stretches have one fixed poison tick per
+      // hit. Fast-forward only away from KO/death/overkill boundaries.
+      const tail=2*(maxDamage+s.poisonDamage)+knockout.threshold;
+      if(maxHP>EXACT_HP_LIMIT&&s.poisonDamage&&s.hp>tail){const bulk=s.hp-tail;attacks+=bulk/(mean+s.poisonDamage);s.damage+=bulk;s.hp=tail;}
+      const {p,damage}=sampler.pick();poisonHit(s,maxHP,p,damage,knockout,sampler.random);attacks++;
+    }
+    const progress=s.kills+1-s.hp/maxHP;
+    poisonKey=key;poisonValue={clears:progress/attacks,overkills:s.overkills/attacks,knockouts:s.knockouts/attacks,
+      damagePerClear:progress?s.damage/progress:maxHP};
+    return poisonValue;
+  }
+  function resolvePoison(hp,maxHP,attacks,profiles,knockout,poisonDamage) {
+    const sampler=poisonSampler(profiles),s={hp,poisonDamage,kills:0,damage:0,overkills:0,knockouts:0};
+    // The ending status comes from actual sampled hits, so a fresh untouched
+    // enemy is never marked poisoned just because the party owns this perk.
+    const tail=Math.min(Math.floor(attacks),256),bulk=attacks-tail;
+    if(bulk>0){
+      const model=poisonModel(maxHP,profiles,knockout);
+      const progress=1-hp/maxHP+bulk*model.clears,kills=Math.floor(progress);
+      s.hp=Math.max(Number.EPSILON,(1-(progress-kills))*maxHP);s.kills=kills;
+      s.damage=Math.max(0,(kills+(hp-s.hp)/maxHP)*model.damagePerClear);
+      s.overkills=Math.min(kills,Math.round(bulk*model.overkills));s.knockouts=Math.min(kills,Math.round(bulk*model.knockouts));
+      if(kills)s.poisonDamage=0;
+    }
+    for(let i=0;i<tail;i++){const {p,damage}=sampler.pick();poisonHit(s,maxHP,p,damage,knockout,sampler.random);}
+    return {...s,approximate:true};
+  }
   // Quest HP can grow without a game-level cap. Never allocate a matrix with
   // one row per HP at that scale. Estimate boundary effects with a bounded,
   // reproducible sample; long stretches far from a defeat use average damage.
@@ -220,9 +285,10 @@
     cachedKey = key; cachedTable = { expected, dealt, stuns, overkills };
     return cachedTable;
   }
-  function resolve(hp, maxHP, attacks, profiles, knockout = { threshold:4, chance:.5 }) {
+  function resolve(hp, maxHP, attacks, profiles, knockout = { threshold:4, chance:.5 },poisonDamage=0) {
     if (!attacks) return { hp, kills: 0, damage: 0, knockouts:0 };
     if (profiles.every(p => p.rate <= 0 || averageDamage(p) === 0)) return { hp, kills:0, damage:0, knockouts:0 };
+    if(poisonDamage||profiles.some(p=>p.poisonDamage))return resolvePoison(hp,maxHP,attacks,profiles,knockout,poisonDamage);
     if(maxHP>EXACT_HP_LIMIT)return resolveLargeHP(hp,maxHP,attacks,profiles,knockout);
     if (profiles.some(p => p.overflow)) return resolveOverflow(hp, maxHP, attacks, profiles, knockout);
     const { expected:table, dealt, stuns, overkills } = expectedHits(maxHP, profiles, knockout);
@@ -251,6 +317,7 @@
   function rewardRates(maxHP, profiles, knockout = { threshold:4, chance:.5 }) {
     const active=profiles.filter(p=>p.rate>0),totalRate=active.reduce((n,p)=>n+p.rate,0);
     if (!totalRate || active.every(p=>averageDamage(p)===0)) return {clears:0,overkills:0};
+    if(active.some(p=>p.poisonDamage)){const model=poisonModel(maxHP,active,knockout);return{clears:model.clears*totalRate,overkills:model.overkills*totalRate,approximate:true};}
     if(maxHP>EXACT_HP_LIMIT){const model=largeHPModel(maxHP,active,knockout);return{clears:model.clears*totalRate,overkills:model.overkills*totalRate,approximate:true};}
     // Relative attack frequency models the party's long-run mixture; the game
     // still resolves actual whole-second attacks in its usual character order.

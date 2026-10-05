@@ -14,7 +14,7 @@ test('selected character supplies manual damage and actor, without consuming act
     assert.deepEqual(E.manualStats(state), E.stats(state, c));
     const oldClock = state.actionClock, event = E.click(state, () => 0)[0];
     assert.equal(event.actorId, c.id); assert.equal(event.actor, c.name);
-    assert.equal(event.damage, {meta:3,richter:8,vishunal:16}[c.id], 'Lv7 multiplies the base roll by 1.6, then rounds down');
+    assert.equal(event.damage, {meta:3,richter:8,vishunal:16,tordeliese:6,max:11}[c.id], 'Lv7 multiplies the base roll by 1.6, then rounds down');
     assert.equal(state.actionPoints[c.id], 40); assert.equal(state.actionClock, oldClock);
   }
   E.selectCharacter(state, null);

@@ -1,0 +1,48 @@
+{
+  "character": "トルデリーゼ・トルンヴァルト",
+  "tool": "Built-in image_gen.imagegen",
+  "reference": "ユーザー提供 ba0bb9b3-a8ba-4c60-9528-891ac220bad8.png",
+  "atlas": {
+    "file": "tordeliese-poses-v1.png",
+    "width": 1664,
+    "height": 1248,
+    "columns": 4,
+    "rows": [
+      "idle",
+      "attack",
+      "burst"
+    ],
+    "frame": 416,
+    "footY": 390
+  },
+  "tendril": {
+    "file": "tordeliese-tendril-v1.png",
+    "width": 512,
+    "height": 512,
+    "columns": 2,
+    "rows": 2,
+    "frame": 256,
+    "attachment": [
+      16,
+      128
+    ]
+  },
+  "prompts": [
+    {
+      "step": "tordelieseSheetPrompt",
+      "prompt": "Use case: style-transfer. Create a production transparent pixel-art animation sprite sheet for a browser idle RPG. Input image 1 is the new character design reference ONLY; images 2 and 3 are the existing game's pixel-art style / head-to-body proportion references ONLY, do not depict those characters. Character: Tordeliese Thornwald, an adult woman with short silver/icy-blue bob hair with vivid red underlayers and a red streak, black thin eyeglasses, one cyan eye and one yellow-green eye, mischievous fanged smile, black choker with small black cross, white long-sleeve cable-knit sweater, black pleated skirt, black calf boots. Simplify into approximately 3.5 heads tall chibi pixel art matching the crisp outlined sprites in images 2 and 3, tasteful neutral game costume presentation. Her weapons are black/navy armored CENTIPEDE TENTACLES with red segments, tiny cyan highlights, and rows of sharp ivory/black legs growing continuously from behind her back/hips. They are attached limbs, never thrown objects. NO tentacle human-face creatures, no missiles. Layout EXACTLY 4 columns by 3 rows of equal 384x384 cells, total 1536x1152 canvas, transparent RGBA background, no grid, labels, text, borders, shadows outside sprites, or backgrounds. Every cell contains the same full character centered at x=192, boots aligned on y=344 within the cell, constant scale, face, clothing, body proportions and camera. Right-facing three-quarter view. Keep body approximately 230px tall with enough transparent space around it for attached tentacles; all tips inside their cell with 12px padding. Row1 frames1-4: looping idle, subtly breathing and hair tips shift 1-2 pixels, two tentacles curl behind her, exact position continuity (frame4 returns towards frame1). Row2 frames1-4: normal attack, one attached centipede tentacle coils, extends to right in an arc, strikes, then recoils. Body stays anchored, all changes between frames are purposeful. Row3 frames1-4: rapid continuous attack, SIX attached centipede tentacles lash right at staggered heights and phases, tips distinctly advance/retract between adjacent frames, confident smile. Body stays anchored, never redesign hair or clothing between frames. Clear hand-drawn PIXEL ART, consistent pixel density, dark one-pixel outlines, limited coherent palette, hard pixel clusters, no smooth airbrush, no anti-aliased illustration. Preserve actual transparent alpha. Overall dynamic but anatomically coherent two arms and two legs."
+    },
+    {
+      "step": "tordelieseWhipPrompt",
+      "prompt": "Use case: stylized-concept. Asset: four-frame attached centipede tentacle strike sprite sheet for the character in reference image1, use its black/navy carapace with red armor plates, tiny cyan highlights, and rows of sharp pale hooked legs. Pixel art matching reference image2 exactly. Draw ONLY one detached artwork of a CENTIPEDE TENTACLE in EACH cell (no woman, no body, no human arms). This artwork will be attached to her body in the game, never used as a projectile. Layout precisely 2x2 equal square cells, 1024x1024 full transparent canvas, each cell512x512. Each tentacle's open BASE must sit exactly at (32,256) in its cell. All point RIGHT. Frame1 top-left: tightly curled S near the base, tip x190. Frame2 top-right: extends to x340 in a rolling S arc. Frame3 bottom-left: extended whipping strike to x480, thick segmented tip curving downward. Frame4 bottom-right: retracting to x330, reverse curve. Visible tapered organic centipede structure with dozens of armored segments and tiny paired legs, not an eel, machine gun, rope or metal chain. Base diameter about48px throughout, taper to a pointed armored head/tip. Keep same scale, design, color and base position every frame; all shapes inside cell with16px safe padding, no cell overlaps, no frame border or grid or text or trails; no background, pure alpha. Hard pixel clusters, dark outlines, limited palette, no smooth gradient. Let the arc fill only y130..360 within its cell."
+    },
+    {
+      "step": "tordelieseAlignedPrompt",
+      "prompt": "Edit target: the first reference image is the 12-pose transparent pixel-art character sheet just created. Preserve EXACT character design, face, pixel art style, same silver and red bob, black glasses, cyan and lime eyes, white knit sweater, black skirt and boots, centipede tentacles. Reference2 is original costume reference only. Repair the sheet for an actual game animation: constant body size/proportions, even per-frame spacing, no pixels of one pose entering neighboring cells. Layout EXACTLY 4 columns x3 rows equal square cells across entire canvas, with transparent gutters. Each cell: SAME character height (hair top to boots) equals 65% of the cell, boots at90% of cell height, body/head center at50% of cell width. Every pose should fit INSIDE x10%..90% and y10%..92% of its cell, including every tentacle. Do NOT put empty margins around the full grid; the equal cell boundaries define placement. In particular the middle row's tentacles must NOT reach across into the next frame. All attached centipede tentacles should curve within the cell like curved spider limbs; their long reach will be drawn separately by the game. Top row four idle frames: soft breathing, tentacle tips sway, stable body anchor, eye blink in frame2 only. Middle row four normal attack frames: prepare with one tentacle curled, sweep its curved tip upward, snap the tip rightwards but still INSIDE the cell, recoil; subtle hand gesture, same body height and same glasses. Bottom row four rapid-attack frames: SIX black-red armored centipede limbs growing from behind the torso and repeatedly alternating their short curved strikes, tips change position each frame, do not spread beyond safe margins. Keep all human limbs anatomically intact and boots aligned exactly the same in all twelve cells. Crisp fine hand-drawn pixel art. Absolutely no text, dividers, colored background or drop shadow. Real transparent RGBA background."
+    },
+    {
+      "step": "tordelieseCleanPrompt",
+      "prompt": "Edit target: the supplied normalized 4x3 sprite atlas. Precision cleanup ONLY. Preserve the exact 4x3 square-cell grid, anchored characters, frame sequence, existing poses and all design/pixel artwork. The cells now have correct animation alignment: DO NOT move or rescale any character, change any face, pose, or tentacle. In the MIDDLE ROW SECOND COLUMN there is an accidental isolated sliced-off fragment of the NEXT character's centipede at the far right of this cell (approximately x750..778, y640..730 in this1664x1248 source). REMOVE that orphan fragment and tiny stray pixels below that cell's boot baseline; replace only them with transparency. In the MIDDLE ROW THIRD COLUMN, the far-left tentacle silhouette is abruptly cut vertically at approximatelyx895,y633..744. Repair this LOCAL outer contour into a natural curved continuous centipede contour, staying within that cell and preserving the attached main limb; no extra legs on the human. No other changes. Keep identical pixel resolution/density, all other pixels and all transparent gutters. Fully transparent background, no text."
+    }
+  ]
+}

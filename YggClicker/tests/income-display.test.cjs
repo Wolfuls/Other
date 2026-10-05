@@ -47,8 +47,8 @@ test('income is zero without allies; ignores balance, current HP and pause for i
 
 test('guaranteed one-hit kills cap income at attack frequency unless paid BoM-BeR enables spillover',()=>{
   const s=E.createState();s.levels.richter=50;
-  assert.equal(E.expectedIncome(s).factorsPerSecond,1);s.boostSeconds=30;
-  assert.equal(E.expectedIncome(s).factorsPerSecond,1,'extra damage is still discarded');
+  assert.equal(E.expectedIncome(s).factorsPerSecond,.7);s.boostSeconds=30;
+  assert.equal(E.expectedIncome(s).factorsPerSecond,.7,'extra damage is still discarded');
   s.boostSeconds=0;s.purchasedPerks.richter=['bom-ber'];const spill=E.expectedIncome(s).factorsPerSecond;assert.ok(spill>4);
   s.boostSeconds=30;const boost=E.expectedIncome(s);assert.ok(boost.factorsPerSecond>spill*1.8);s.boostSeconds=10;assert.strictEqual(E.expectedIncome(s),boost);
   s.boostSeconds=0;assert.ok(E.expectedIncome(s).factorsPerSecond<boost.factorsPerSecond);
@@ -90,7 +90,7 @@ test('mixed-party expected clears agree with independent sampled attacks includi
 test('UI reflects loaded target conditions and does not abbreviate the balance',()=>{
   const s=E.createState(1000);s.levels.richter=50;s.factors=1234567890123;s.paused=true;
   const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567,890,123');
-  assert.equal(h.get('income-rate').textContent,'1');assert.match(h.get('income-context').textContent,/再開時/);
+  assert.equal(h.get('income-rate').textContent,'0.7');assert.match(h.get('income-context').textContent,/再開時/);
   E.selectSession(s,'heavy');const armored=harness(s);
   assert.notEqual(armored.get('income-rate').textContent,'1');assert.match(armored.get('income-context').textContent,/重装甲試験/);
 });

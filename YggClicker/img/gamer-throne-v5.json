@@ -1,0 +1,162 @@
+{
+  "id": "gamer-throne",
+  "version": 5,
+  "status": "sprite-assets-only",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "anchor": {
+    "x": 128,
+    "y": 242
+  },
+  "standing": "gamer-throne-standing-v5.png",
+  "atlas": {
+    "file": "gamer-throne-atlas-v5.png",
+    "columns": 4,
+    "rows": 14
+  },
+  "states": {
+    "idle": {
+      "file": "gamer-throne-idle-v5.png",
+      "frames": 4,
+      "durationsMs": [
+        240,
+        240,
+        240,
+        240
+      ],
+      "loop": true
+    },
+    "attack": {
+      "file": "gamer-throne-attack-v5.png",
+      "frames": 8,
+      "durationsMs": [
+        300,
+        90,
+        110,
+        90,
+        80,
+        100,
+        110,
+        300
+      ],
+      "loop": false,
+      "throwFrame": 4,
+      "impactFrame": 6,
+      "nextState": "idle"
+    },
+    "burst": {
+      "file": "gamer-throne-burst-v5.png",
+      "frames": 16,
+      "durationsMs": [
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60
+      ],
+      "loop": true,
+      "interruptible": true
+    },
+    "burstTwoHands": {
+      "file": "gamer-throne-burst-two-hands-v2.png",
+      "frames": 16,
+      "durationsMs": [
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60
+      ],
+      "loop": true,
+      "interruptible": true
+    },
+    "burstTwoHandsEnter": {
+      "file": "gamer-throne-burst-two-hands-enter-v2.png",
+      "frames": 6,
+      "durationsMs": [
+        150,
+        90,
+        90,
+        90,
+        90,
+        60
+      ],
+      "loop": false,
+      "nextState": "burstTwoHands"
+    },
+    "burstTwoHandsExit": {
+      "file": "gamer-throne-burst-two-hands-exit-v2.png",
+      "frames": 6,
+      "durationsMs": [
+        60,
+        90,
+        90,
+        90,
+        90,
+        150
+      ],
+      "loop": false,
+      "nextState": "idle"
+    }
+  },
+  "notes": [
+    "Shoulder root is fixed; throwing forearm follows the original eight poses.",
+    "Burst: original eight hand phases repeat twice while three raster chessmen follow separate 16-frame paths.",
+    "Board positions are raster pixel anchors, not a legal chess game.",
+    "Old versions retained. No gameplay registration or stats changed."
+  ],
+  "atlasFrames": [
+    {
+      "state": "idle-v5",
+      "start": 0,
+      "count": 4
+    },
+    {
+      "state": "attack-v5",
+      "start": 4,
+      "count": 8
+    },
+    {
+      "state": "burst-v5",
+      "start": 12,
+      "count": 16
+    },
+    {
+      "state": "burst-two-hands-v2",
+      "start": 28,
+      "count": 16
+    },
+    {
+      "state": "burst-two-hands-enter-v2",
+      "start": 44,
+      "count": 6
+    },
+    {
+      "state": "burst-two-hands-exit-v2",
+      "start": 50,
+      "count": 6
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "source": "C:/Users/user/Downloads/6コマの触手ファイター・スプライトシート.png",
+  "sha256": "F776730A661ECEB8D4E94B89F7CEDA8934DBE275F59E9BCACB48AB5BAE89EEB3",
+  "frameSize": 384,
+  "order": "top-left to bottom-right",
+  "scale": 0.6063829787234043,
+  "footY": 360,
+  "centerX": 166.5,
+  "frames": [
+    {
+      "file": "tordeliese-burst-1-v7.png",
+      "sourceBounds": [
+        31,
+        70,
+        492,
+        497
+      ],
+      "placement": [
+        38,
+        99,
+        283,
+        262
+      ]
+    },
+    {
+      "file": "tordeliese-burst-2-v7.png",
+      "sourceBounds": [
+        530,
+        57,
+        1017,
+        497
+      ],
+      "placement": [
+        39,
+        91,
+        298,
+        270
+      ]
+    },
+    {
+      "file": "tordeliese-burst-3-v7.png",
+      "sourceBounds": [
+        1044,
+        83,
+        1523,
+        497
+      ],
+      "placement": [
+        47,
+        107,
+        293,
+        254
+      ]
+    },
+    {
+      "file": "tordeliese-burst-4-v7.png",
+      "sourceBounds": [
+        25,
+        541,
+        486,
+        965
+      ],
+      "placement": [
+        33,
+        101,
+        283,
+        260
+      ]
+    },
+    {
+      "file": "tordeliese-burst-5-v7.png",
+      "sourceBounds": [
+        541,
+        555,
+        997,
+        966
+      ],
+      "placement": [
+        45,
+        109,
+        280,
+        252
+      ]
+    },
+    {
+      "file": "tordeliese-burst-6-v7.png",
+      "sourceBounds": [
+        1042,
+        543,
+        1513,
+        965
+      ],
+      "placement": [
+        32,
+        102,
+        289,
+        259
+      ]
+    }
+  ]
+}

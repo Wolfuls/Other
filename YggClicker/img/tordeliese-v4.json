@@ -1,0 +1,445 @@
+{
+  "character": "トルデリーゼ・トルンヴァルト",
+  "version": "0.39.3",
+  "layout": {
+    "frameSize": 256,
+    "columns": 6,
+    "rows": 3,
+    "bodyCenterX": 111,
+    "footY": 240,
+    "displaySize": 256,
+    "bodyHeight": 171,
+    "richterBodyHeight": 187,
+    "scale": 0.7633928571428571,
+    "sourceDimensions": [
+      1774,
+      887
+    ],
+    "rowCuts": [
+      0,
+      314,
+      603,
+      887
+    ],
+    "frames": [
+      {
+        "motion": "idle",
+        "frame": 1,
+        "file": "tordeliese-idle-1-v4.png",
+        "sourceBounds": [
+          26,
+          70,
+          239,
+          292
+        ],
+        "sourceCenter": 135,
+        "sourceFeet": 293,
+        "placement": [
+          26,
+          68,
+          166,
+          173
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 2,
+        "file": "tordeliese-idle-2-v4.png",
+        "sourceBounds": [
+          325,
+          70,
+          539,
+          292
+        ],
+        "sourceCenter": 435,
+        "sourceFeet": 293,
+        "placement": [
+          26,
+          68,
+          167,
+          173
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 3,
+        "file": "tordeliese-idle-3-v4.png",
+        "sourceBounds": [
+          628,
+          70,
+          845,
+          292
+        ],
+        "sourceCenter": 737,
+        "sourceFeet": 293,
+        "placement": [
+          26,
+          68,
+          169,
+          173
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 4,
+        "file": "tordeliese-idle-4-v4.png",
+        "sourceBounds": [
+          928,
+          69,
+          1148,
+          292
+        ],
+        "sourceCenter": 1039.5,
+        "sourceFeet": 293,
+        "placement": [
+          24,
+          67,
+          172,
+          174
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 5,
+        "file": "tordeliese-idle-5-v4.png",
+        "sourceBounds": [
+          1226,
+          69,
+          1442,
+          292
+        ],
+        "sourceCenter": 1336.5,
+        "sourceFeet": 293,
+        "placement": [
+          25,
+          67,
+          169,
+          174
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 6,
+        "file": "tordeliese-idle-6-v4.png",
+        "sourceBounds": [
+          1530,
+          69,
+          1747,
+          292
+        ],
+        "sourceCenter": 1640,
+        "sourceFeet": 293,
+        "placement": [
+          26,
+          67,
+          169,
+          174
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 1,
+        "file": "tordeliese-attack-1-v4.png",
+        "sourceBounds": [
+          28,
+          356,
+          239,
+          574
+        ],
+        "sourceCenter": 134,
+        "sourceFeet": 575,
+        "placement": [
+          29,
+          71,
+          165,
+          170
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 2,
+        "file": "tordeliese-attack-2-v4.png",
+        "sourceBounds": [
+          324,
+          362,
+          537,
+          574
+        ],
+        "sourceCenter": 433,
+        "sourceFeet": 575,
+        "placement": [
+          26,
+          76,
+          166,
+          166
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 3,
+        "file": "tordeliese-attack-3-v4.png",
+        "sourceBounds": [
+          628,
+          335,
+          865,
+          574
+        ],
+        "sourceCenter": 730.5,
+        "sourceFeet": 575,
+        "placement": [
+          31,
+          55,
+          185,
+          186
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 4,
+        "file": "tordeliese-attack-4-v4.png",
+        "sourceBounds": [
+          928,
+          359,
+          1194,
+          573
+        ],
+        "sourceCenter": 1036,
+        "sourceFeet": 574,
+        "placement": [
+          27,
+          74,
+          207,
+          167
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 5,
+        "file": "tordeliese-attack-5-v4.png",
+        "sourceBounds": [
+          1231,
+          362,
+          1486,
+          574
+        ],
+        "sourceCenter": 1333.5,
+        "sourceFeet": 575,
+        "placement": [
+          31,
+          76,
+          198,
+          166
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 6,
+        "file": "tordeliese-attack-6-v4.png",
+        "sourceBounds": [
+          1534,
+          356,
+          1746,
+          574
+        ],
+        "sourceCenter": 1639.5,
+        "sourceFeet": 575,
+        "placement": [
+          29,
+          71,
+          166,
+          170
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 1,
+        "file": "tordeliese-burst-1-v4.png",
+        "sourceBounds": [
+          29,
+          645,
+          260,
+          850
+        ],
+        "sourceCenter": 135,
+        "sourceFeet": 851,
+        "placement": [
+          29,
+          81,
+          180,
+          160
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 2,
+        "file": "tordeliese-burst-2-v4.png",
+        "sourceBounds": [
+          323,
+          640,
+          558,
+          851
+        ],
+        "sourceCenter": 436,
+        "sourceFeet": 852,
+        "placement": [
+          23,
+          77,
+          183,
+          165
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 3,
+        "file": "tordeliese-burst-3-v4.png",
+        "sourceBounds": [
+          628,
+          656,
+          868,
+          851
+        ],
+        "sourceCenter": 736.5,
+        "sourceFeet": 852,
+        "placement": [
+          27,
+          89,
+          187,
+          153
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 4,
+        "file": "tordeliese-burst-4-v4.png",
+        "sourceBounds": [
+          927,
+          632,
+          1163,
+          851
+        ],
+        "sourceCenter": 1037,
+        "sourceFeet": 852,
+        "placement": [
+          26,
+          71,
+          184,
+          171
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 5,
+        "file": "tordeliese-burst-5-v4.png",
+        "sourceBounds": [
+          1211,
+          645,
+          1458,
+          850
+        ],
+        "sourceCenter": 1336.5,
+        "sourceFeet": 851,
+        "placement": [
+          14,
+          81,
+          192,
+          160
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 6,
+        "file": "tordeliese-burst-6-v4.png",
+        "sourceBounds": [
+          1532,
+          650,
+          1755,
+          850
+        ],
+        "sourceCenter": 1639.5,
+        "sourceFeet": 851,
+        "placement": [
+          27,
+          85,
+          174,
+          156
+        ]
+      }
+    ],
+    "bodySource": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-4bd64e4e-b25f-4270-9aba-4872d776869f.png",
+    "tendrilSource": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-f5a4ef91-40a3-42a7-9af9-e3185a19640b.png"
+  },
+  "motions": {
+    "idle": {
+      "duration": 2200,
+      "stops": [
+        0,
+        0.26,
+        0.46,
+        0.51,
+        0.7,
+        0.86
+      ]
+    },
+    "attack": {
+      "duration": 800,
+      "stops": [
+        0,
+        0.16,
+        0.33,
+        0.62,
+        0.75,
+        0.91
+      ]
+    },
+    "burst": {
+      "duration": 480,
+      "stops": [
+        0,
+        0.16666666666666666,
+        0.3333333333333333,
+        0.5,
+        0.6666666666666666,
+        0.8333333333333334
+      ]
+    },
+    "tendril": {
+      "duration": 820,
+      "stops": [
+        0,
+        0.12,
+        0.3,
+        0.6,
+        0.76,
+        0.89
+      ]
+    }
+  },
+  "generation": {
+    "tool": "Built-in image_gen.imagegen",
+    "prompts": [
+      {
+        "step": "crisp-character-sprites",
+        "prompt": "Use case: precise-object-edit.\nEdit target: the attached 6-column by 3-row pixel-art animation sheet of Tordeliese.\nThe user likes this design and animation, but the lines look BLURRY. Make a cleaner CRISP PIXEL-ART pass over ALL 18 frames.\n\nOnly edit edge clarity and pixel rendering. Preserve exact frame order, six frames per row, every pose, motion, body/head proportions, friendly expression, cyan/yellow eyes, glasses, silver/red bob, white sweater, black skirt/boots, red-black centipede limbs and their many small side legs. Preserve same relative body placement, feet baseline and size in each cell. Do not change her anatomy, costume, expression, pose or motion. Do not add frames.\nSPECIFIC REPAIR:\n- Strong, solid near-black 1-2-game-pixel outline, especially face/glasses, hair silhouette, sweater outline, skirt hem, fingers, knees and boots.\n- Every line is made of crisp opaque square pixels with intentional stair-step diagonals. NO grey fuzzy antialias fringe, NO semitransparent haze or scattered halo pixels around the figure.\n- Internal color boundaries must be clean flat pixel clusters. Remove blurry near-duplicate shade speckles and gradients. Restrained palette about 32 colors across the sheet. Hair uses 3 flat tones plus red, skin uses 2 or 3, sweater white plus two grey-lavender shadows. Keep eyes/glasses legible.\n- Do NOT apply a photographic sharpening filter, noise/dither, glow, bloom, blur or painterly texture. It should look actually hand-pixeled, not a smooth anime drawing with a pixel filter. Clean solid dark edges, flat colors.\n- Centipede limbs retain joint plates and short pale legs, do not turn them into striped snakes.\nKeep precisely SIX columns and THREE rows with empty transparent gutters. The provided frame boxes are 256px square, prefer returning the same 1536x768 canvas. Each whole pose stays inside its own cell. No labels, floor, text, background, crop, overlapping cells. Real transparent background with sharply defined sprite alpha."
+      },
+      {
+        "step": "crisp-attached-limbs",
+        "prompt": "Use case: precise-object-edit. Edit the attached transparent 3-column x 2-row centipede-limb animation sprite sheet.\nKeep EXACTLY these six poses, same frame order, root position, lengths, curls, armor shapes, many short pointed legs and red/black/cyan design. Change only pixel/edge clarity: use SOLID dark 1-2 pixel outlines, clear flat color clusters with hard boundaries and square stair-step contours. Eliminate fuzzy gray antialias halos and blurry speckles. No gradients, blur, photographic sharpening, bloom or dithering. Limited shared palette about 24 colors. Opaque crisp sprite interiors and edges on completely transparent alpha background. The requested result is genuinely crisp pixel art, not a smooth drawing with a pixel filter. Keep each limb in its own square cell with transparent gutters and NO overlap. Prefer same 768x512 sheet with 256x256 cells, 3 columns and 2 rows. No characters, backgrounds, labels, new particles, additional limbs or pose changes."
+      }
+    ],
+    "references": [
+      "tordeliese-poses-v3.png",
+      "tordeliese-tendril-v3.png"
+    ],
+    "packing": "Technical transparent-frame separation and shared nearest-neighbour resampling to native 256px cells. No sharpening/blur filter or painted script edits. Preview uses integer pixel scales."
+  },
+  "tendril": {
+    "frameSize": 256,
+    "frames": 6,
+    "root": [
+      16,
+      128
+    ],
+    "strikeFrame": 4,
+    "impactMs": 520
+  }
+}

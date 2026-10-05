@@ -2,8 +2,14 @@
   'use strict';
   // IDs are save-data identifiers. Keep them stable when names or folders change.
   const data = {
-    gameId: 'yggclicker', version: '0.37.0', maxOfflineSeconds: 8 * 60 * 60,
-    questGrowth: { cost:100, costGrowth:1.25, hpGrowth:1.2, rewardGrowth:1.25 },
+    gameId: 'yggclicker', version: '0.41.1', maxOfflineSeconds: 8 * 60 * 60,
+    tordelieseVisual: {
+      frames:Object.fromEntries(['idle','attack','burst'].map(motion=>[motion,Array.from({length:6},(_,i)=>`./img/tordeliese-${motion}-${i+1}-${motion==='burst'?'v7':'v6'}.png`)])),
+      tendrilFrames:Array.from({length:6},(_,i)=>`./img/tordeliese-tendril-${i+1}-v5.png`)
+    },
+    questGrowth: { cost:100, costGrowth:1.25, hpGrowth:1.15, rewardGrowth:1.25 },
+    displayDefaults: { showOrbits:true, hitEffects:'normal', showFactorRain:true, showRewardDice:true, showDamageNumbers:true, showOverflowLabels:true, showDefeatLabels:true },
+    hitEffectModes: ['normal','translucent','simple','off'],
     sceneCycle: { seconds:600, transitionSeconds:20 },
     vishunalVisual: { sheet:'./img/vishunal-poses-v2.png', missile:'./img/vishunal-missile-v1.png',
       // Pixel centers in each 224px frame: back 2x2, side 2x2.
@@ -19,28 +25,36 @@
       ] },
     richterVisual: { standing: './img/richter-standing-v11.png', sheet: './img/richter-poses-v11.png', burstSheet: './img/richter-burst-v23.png', bomb: './img/richter-creature-v3.png', idleSheet: './img/richter-creature-idle-v1.png', explosionSheet: './img/richter-explosion-v1.png', maxVisibleBombs: 60 },
     metaVisual: { standing: './img/meta-standing-v5.png', sheet: './img/meta-poses-v5.png', burstSheet: './img/meta-burst-v8.png', saw: './img/meta-saw.png', maxVisibleSaws: 60 },
-    balance: { initialFactors: 0, manualDice: 1, manualFlat: 0, concentrationPerLevel: 1, characterDamagePerLevel: .1, weaponSizePerDoubling: .15, speedPerLevel: .01, boostDamageBonus: 1, knockoutHP: 4, actionThreshold: 100, actionPerLevel: .1, purchaseCostGrowth: 1.15, upgradeCostGrowth: 1.25, rewardPerLevel: .1, boostCostDpsRatio: 1, boostDuration: 30 },
+    balance: { initialFactors: 0, manualDice: 1, manualFlat: 0, concentrationPerLevel: 1, characterDamagePerLevel: .1, weaponSizePerDoubling: .15, speedPerLevel: 1, boostDamageBonus: 1, knockoutHP: 4, actionThreshold: 100, actionPerLevel: 5, purchaseCostGrowth: 1.15, upgradeCostGrowth: 1.25, rewardPerLevel: .1, boostCostDpsRatio: 1, boostDuration: 30 },
     enemyTraits: { mohican: 'モヒカン', swarm:'群れ', penetrationImmune:'貫通無効' },
     characters: [
       { id: 'meta', name: '鋼音メタ', initials: 'MT', title: '丸鋸使い', role: '防御無視・モヒカン特効', cost: 10, powerCost: 5, actionCost: 6, dice: 2, flat: 0, action: 50, color: '#ee929e', portrait: './img/meta-standing-v5.png', description: '赤髪の丸鋸使い。行動力で丸鋸の数、攻撃力Lvで丸鋸の大きさが増す。', source: 'ユーザー提供のキャラクター設定・参考画像', perks: [
         {"id":"attack-plus","level":10,"cost":50,"name":"アタックプラス","flat":4,"description":"攻撃力の固定値＋4。"},
-        {"id":"mohican-slayer","level":25,"cost":100,"name":"モヒカン死すべし、慈悲はない","targetTrait":"mohican","damageBonus":15,"description":"[モヒカン]属性の敵へのダメージ判定＋15。倍率を掛ける前に加算。"},
-        {"id":"metal-blade","level":50,"cost":800,"name":"レアメタル・ブレード","ignoreDefense":true,"description":"基礎攻撃力を4D6＋5に変更し、巻き込み先も含めて防御を無視する。他のパーク補正は加算。[貫通無効]には防御無視が無効。","baseAttack":{"dice":4,"flat":5}},
-        {"id":"metal-storm","level":75,"cost":1600,"name":"メタル・ストーム","overflow":true,"overflowTrait":"swarm","description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。通常は巻き込み先ごとに防御を適用。レアメタル・ブレード解放後は巻き込み分も防御無視（[貫通無効]を除く）。"},
-        {"id":"full-metal-burst","level":100,"cost":250,"name":"フルメタルバースト","flat":8,"description":"攻撃力の固定値＋8。"}
+        {"id":"mohican-slayer","level":25,"cost":1000,"name":"モヒカン死すべし、慈悲はない","targetTrait":"mohican","damageBonus":15,"description":"[モヒカン]属性の敵へのダメージ判定＋15。倍率を掛ける前に加算。"},
+        {"id":"metal-blade","level":50,"cost":50000,"name":"レアメタル・ブレード","ignoreDefense":true,"description":"基礎攻撃力を4D6＋5に変更し、巻き込み先も含めて防御を無視する。他のパーク補正は加算。[貫通無効]には防御無視が無効。","baseAttack":{"dice":4,"flat":5}},
+        {"id":"metal-storm","level":75,"cost":30000,"name":"メタル・ストーム","overflow":true,"overflowTrait":"swarm","description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。通常は巻き込み先ごとに防御を適用。レアメタル・ブレード解放後は巻き込み分も防御無視（[貫通無効]を除く）。"},
+        {"id":"full-metal-burst","level":100,"cost":30000000,"name":"フルメタルバースト","flat":8,"description":"攻撃力の固定値＋8。"}
       ] },
-      { id: 'richter', name: 'ゲルハムト・リヒター', initials: 'GR', title: 'BoM-BeR', role: '爆弾投球・後続への巻き込み', cost: 100, powerCost: 12, actionCost: 15, dice: 5, flat: 0, action: 50, color: '#e5ae83', portrait: './img/richter-standing-v11.png', description: '行動力で数、攻撃力Lvで大きさが増す爆弾クリーチャーを投げる。攻撃力の節目で特性を購入でき、BoM-BeRで後続の敵を巻き込む。', source: 'ユーザー提供のキャラクター設定・参考画像', perks: [
-        {"id":"z-bom","level":10,"cost":40,"name":"Z-BoM.","diceEvery":10,"description":"攻撃力Lv.10につき＋1D6。購入後は10Lvごとに増加。"},
-        {"id":"dx-bom","level":25,"cost":150,"name":"DX-BoM.","flat":8,"description":"攻撃力の固定値＋8。"},
-        {"id":"bom-ber","level":50,"cost":1600,"name":"BoM-BeR","overflow":true,"description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。巻き込み先ごとに防御を適用。","overflowTrait":"swarm"},
-        {"id":"vx-bom","level":75,"cost":350,"name":"VX-BoM.","flat":16,"description":"攻撃力の固定値＋16。"},
-        {"id":"ex-bom","level":100,"cost":700,"name":"EX-BoM.","flat":24,"description":"攻撃力の固定値＋24。"}
+      { id: 'richter', name: 'ゲルハムト・リヒター', initials: 'GR', title: 'BoM-BeR', role: '爆弾投球・後続への巻き込み', cost: 100, powerCost: 12, actionCost: 15, dice: 5, flat: 0, action: 35, color: '#e5ae83', portrait: './img/richter-standing-v11.png', description: '行動力で数、攻撃力Lvで大きさが増す爆弾クリーチャーを投げる。攻撃力の節目で特性を購入でき、BoM-BeRで後続の敵を巻き込む。', source: 'ユーザー提供のキャラクター設定・参考画像', perks: [
+        {"id":"z-bom","level":10,"cost":100,"name":"Z-BoM.","diceEvery":10,"description":"攻撃力Lv.10につき＋1D6。購入後は10Lvごとに増加。"},
+        {"id":"dx-bom","level":25,"cost":1000,"name":"DX-BoM.","flat":8,"description":"攻撃力の固定値＋8。"},
+        {"id":"bom-ber","level":50,"cost":10000,"name":"BoM-BeR","overflow":true,"description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。巻き込み先ごとに防御を適用。","overflowTrait":"swarm"},
+        {"id":"vx-bom","level":75,"cost":3000000,"name":"VX-BoM.","flat":16,"description":"攻撃力の固定値＋16。"},
+        {"id":"ex-bom","level":100,"cost":100000000,"name":"EX-BoM.","flat":24,"description":"攻撃力の固定値＋24。"}
       ] },
-      { id:'vishunal', name:'右藤ビシュナル', initials:'UV', title:'合法ランチャー', role:'ミサイル・群れへの巻き込み', cost:1000, powerCost:120, actionCost:150, dice:10, flat:0, action:50, color:'#a6b8ef', portrait:'./img/vishunal-poses-v2.png', portraitSheet:true, description:'ミサイルランチャーを背負った犬。かわいらしく、表情は読めない。', source:'ユーザー提供のキャラクター設定・参考画像', perks: [
-        {"id":"legal-launcher","level":10,"cost":400,"name":"合法ランチャー","struckPrefix":"違","diceBonus":10,"description":"基礎攻撃力に＋10D6。"},
-        {"id":"mad-dog","level":25,"cost":1500,"name":"狂犬","description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。巻き込み先ごとに防御を適用。","overflow":true,"overflowTrait":"swarm"},
-        {"id":"missile-missile","level":50,"cost":16000,"name":"ミサイルミサイルミサイルミサ……","description":"攻撃力に＋10D6。","diceBonus":10}
-      ] }
+      { id:'vishunal', name:'右藤ビシュナル', initials:'UV', title:'合法ランチャー', role:'ミサイル・群れへの巻き込み', cost:1000, powerCost:120, actionCost:150, dice:10, flat:0, action:60, color:'#a6b8ef', portrait:'./img/vishunal-poses-v2.png', portraitSheet:true, description:'ミサイルランチャーを背負った犬。かわいらしく、表情は読めない。', source:'ユーザー提供のキャラクター設定・参考画像', perks: [
+        {"id":"legal-launcher","level":10,"cost":15000,"name":"合法ランチャー","struckPrefix":"違","diceBonus":10,"description":"基礎攻撃力に＋10D6。"},
+        {"id":"mad-dog","level":25,"cost":150000,"name":"狂犬","description":"[群れ]の敵と戦闘する際、余剰ダメージで後続の敵を巻き込む。巻き込み先ごとに防御を適用。","overflow":true,"overflowTrait":"swarm"},
+        {"id":"missile-missile","level":50,"cost":3000000,"name":"ミサイルミサイルミサイルミサ……","description":"攻撃力に＋10D6。","diceBonus":10}
+      ] },
+      {id:'tordeliese',name:'トルデリーゼ・トルンヴァルト',initials:'TT',title:'ムカデの触手',role:'猛毒・連鎖する追加攻撃',cost:2500,powerCost:500,actionCost:625,dice:3,flat:1,action:80,color:'#e59bab',portrait:'./img/tordeliese-standing-v6.png',description:'ムカデ型の触手で攻撃し、猛毒で仲間の攻撃にも持続ダメージを添える。',source:'ユーザー提供のキャラクター設定・参考画像',perks:[
+        {id:'greedy-gale',level:10,cost:30000,name:'貪戻の凩',inflictPoison:true,poisonDamage:4,description:'標的に猛毒を付与。この一撃から全員の被弾ごとに、防御・倍率に影響されない4点の持続ダメージ。持続ダメージは再発動せず、次の敵には引き継がない。'},
+        {id:'retreating-wind',level:25,cost:300000,name:'退嬰の風',extraAttackChance:.3,description:'攻撃時、30%で追加攻撃。追加攻撃からも同じ確率で再抽選する。'},
+        {id:'severing-storm',level:50,cost:3000000,name:'断ち切る颶',flat:12,poisonDamage:8,description:'攻撃力の固定値＋12。貪戻の凩の猛毒を8点に強化。'},
+        {id:'demonic-hammer',level:100,cost:100000000,name:'天魔の鉄槌',ignoreDefense:true,poisonDamage:12,description:'攻撃に防御貫通を付与（[貫通無効]には無効）。貪戻の凩の猛毒を12点に強化。'},
+        {id:'annihilation',level:150,cost:1000000000,name:'染滅',flat:20,poisonDamage:16,description:'攻撃力の固定値＋20。貪戻の凩の猛毒を16点に強化。'}
+      ]}
+      ,{"id":"max","name":"マックス","initials":"MX","title":"GM","role":"味方の行動支援・運命操作","cost":12000,"powerCost":2400,"actionCost":3000,"dice":1,"flat":6,"action":0,"color":"#cbd0f4","portrait":"./img/gamer-throne-standing-v6.png","description":"玉座型の飛行ヴィークルに座る少年。ゲームを操り、敵へタライを落とす。","source":"ユーザー提供の設定・既存スプライト","perks":[{"id":"gm","level":10,"levelType":"action","cost":100000,"name":"GM","allyAction":10,"description":"自身以外の味方全体の行動力＋10。"},{"id":"handout","level":25,"levelType":"action","cost":1000000,"name":"ハンドアウト","selectedActionRate":0.2,"description":"手動攻撃に選択中のキャラクターの行動力＋20%。"},{"id":"golden-rule","level":50,"levelType":"action","cost":10000000,"name":"ゴールデンルール","allyAction":15,"description":"自身以外の味方全体の行動力をさらに＋15。"},{"id":"named-npc","level":100,"levelType":"action","cost":1000000000,"name":"ネームドNPC","freeActionChance":0.5,"description":"手動攻撃に選択中のキャラクターは、自動攻撃時50%で行動点を消費しない。元々無料の手動クリックは対象外。"}]}
     ],
     sessions: [
       { id: 'mohicans', code: '04', name: '今日も今日とてモヒカン日和', area: '中層 / ウトガルド工業地帯', enemy: 'モヒカン', hp: 20, defense: 0, defensePerLevel: 1, traits: ['mohican','swarm'], reward: 2, description: '倒しても次々に現れる、世紀末ファッションの雑魚たち。', background: './img/utgard-industrial-v1.png', nightBackground: './img/utgard-industrial-night-v1.png', variants: [
@@ -55,13 +69,13 @@
         {name:'モヒカン女（バット）',sheet:'./img/enemy-mohican-female-cyan-idle-v1.png',defeatSheet:'./img/enemy-mohican-female-cyan-defeat-v1.png'},
         {name:'モヒカン（鉄斧）',sheet:'./img/enemy-mohican-male-orange-idle-v1.png',defeatSheet:'./img/enemy-mohican-male-orange-defeat-v1.png'}
       ] },
-      {id:'scarecrow',code:'05',name:'バスターライラック内模擬戦闘訓練',area:'バスターライラック',enemy:'D・S・スケアクロウ',hp:40,defense:35,defenseGrowth:1.01,traits:['penetrationImmune'],reward:8,description:'貫通無効の甲冑型ロボとの模擬戦闘訓練。',background:'./img/buster-training-v1.png',sheet:'./img/enemy-scarecrow-idle-v1.png',defeatSheet:'./img/enemy-scarecrow-defeat-v1.png',enemyScale:1.09,defeatStyle:'kneel'},
-      {id:'dementor',code:'06',name:'古き看守',area:'下層 / ヘルヘイム・緊急封鎖区画（屋外）',enemy:'ディメンター',hp:100,defense:3,defenseGrowth:1.01,formationCount:3,formationLayout:'staggered',traits:['swarm'],reward:4,description:'非常事態宣言下のヘルヘイム、その封鎖された屋外を漂う幽鬼の群れ。',background:'./img/lower-lockdown-v2.png',sheet:'./img/enemy-dementor-idle-v1.png',defeatSheet:'./img/enemy-dementor-defeat-v1.png',enemyScale:1.68,defeatStyle:'dissolve'}
+      {id:'scarecrow',code:'05',name:'バスターライラック内模擬戦闘訓練',area:'バスターライラック',enemy:'D・S・スケアクロウ',hp:40,defense:35,defenseGrowth:1.1,traits:['penetrationImmune'],reward:8,description:'貫通無効の甲冑型ロボとの模擬戦闘訓練。',background:'./img/buster-training-v1.png',sheet:'./img/enemy-scarecrow-idle-v1.png',defeatSheet:'./img/enemy-scarecrow-defeat-v1.png',enemyScale:1.09,defeatStyle:'kneel'},
+      {id:'dementor',code:'06',name:'旧き看守',area:'下層 / ヘルヘイム・緊急封鎖区画（屋外）',enemy:'ディメンター',hp:100,defense:3,defenseGrowth:1.1,formationCount:3,formationLayout:'staggered',traits:['swarm'],reward:10,description:'非常事態宣言下のヘルヘイム、その封鎖された屋外を漂う幽鬼の群れ。',background:'./img/lower-lockdown-v2.png',sheet:'./img/enemy-dementor-idle-v1.png',defeatSheet:'./img/enemy-dementor-defeat-v1.png',enemyScale:1.68,defeatStyle:'dissolve'}
     ],
     // The click/power save IDs retain purchased levels from the previous lineup.
     upgrades: [
       { id: 'click', name: 'コンセントレイション', label: 'ダメージ固定値＋1 / Lv', description: '全キャラと手動攻撃のダメージ固定値を1Lvごとに＋1。倍率を掛ける前に加算。', cost: 5, max: null, icon: '↗' },
-      { id: 'power', name: 'スピードアップ', label: '行動力＋1% / Lv', description: 'キャラ固有の強化後の行動力に、1Lvごとに基礎比＋1%の全体倍率を掛ける。', cost: 30, max: null, icon: '⌘' },
+      { id: 'power', name: 'スピードアップ', label: '行動力＋1 / Lv', description: '味方全員の行動力に、1Lvごとに固定値＋1。', cost: 30, max: null, icon: '⌘' },
       { id: 'reward', name: 'クリア報酬増加', label: '基礎クリア報酬＋10% / Lv', description: '基礎クリア報酬に1Lvごとに10%加算。', cost: 100, max: null, icon: '◇' },
       { id: 'overkill', name: 'オーバーキルボーナス', label: '撃破時のHPが−20以下なら報酬＋25%', description: '1回購入で解放。防御適用後、残りHPを20点以上超える攻撃で撃破すると、クリア報酬増加を適用した報酬に25%上乗せ。', cost: 200, max: 1, icon: '✦', threshold: 20, bonusRate: .25 }
     ]

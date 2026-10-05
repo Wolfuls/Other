@@ -28,7 +28,7 @@ test('compact cards show current independent levels/multipliers and purchases st
  assert.doesNotMatch(html,/action-charge|damage-growth|selection-label|damage-breakdown|meta-growth/);
  assert.ok(html.indexOf('perk-list')<html.indexOf('current-attack'));
  assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.20）');assert.equal(h.get('damage-bonus-meta').textContent,'×2.9');
- assert.equal(h.get('action-label-meta').textContent,'行動力を強化（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'×2');
+ assert.equal(h.get('action-label-meta').textContent,'行動力＋5（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'×2');
  assert.match(h.get('stats-meta').textContent,/2D6 \+ 4.*×2\.9/);
  const buy=dataset=>h.get('character-list').listeners.get('click')({target:{closest:selector=>selector==='[data-hire], [data-action]'?{dataset,disabled:false}:null}});
  buy({hire:'meta'});assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.21）');assert.equal(h.get('damage-bonus-meta').textContent,'×3');

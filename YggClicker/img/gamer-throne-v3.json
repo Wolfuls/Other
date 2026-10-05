@@ -1,0 +1,88 @@
+{
+  "id": "gamer-throne",
+  "version": 3,
+  "status": "sprite-assets-only",
+  "format": "PNG RGBA",
+  "facing": "right",
+  "character": {
+    "frameWidth": 256,
+    "frameHeight": 256,
+    "anchor": {
+      "x": 128,
+      "y": 242
+    },
+    "atlas": "gamer-throne-atlas-v3.png",
+    "atlasColumns": 4,
+    "atlasRows": 5,
+    "standing": "gamer-throne-standing-v3.png",
+    "states": {
+      "idle": {
+        "file": "gamer-throne-idle-v3.png",
+        "frames": 4,
+        "durationsMs": [
+          240,
+          240,
+          240,
+          240
+        ],
+        "loop": true
+      },
+      "attack": {
+        "file": "gamer-throne-attack-v3.png",
+        "frames": 8,
+        "durationsMs": [
+          120,
+          80,
+          100,
+          90,
+          80,
+          90,
+          130,
+          180
+        ],
+        "loop": false,
+        "throwFrame": 4,
+        "impactFrame": 6,
+        "nextState": "idle"
+      },
+      "burst": {
+        "file": "gamer-throne-burst-v3.png",
+        "frames": 8,
+        "durationsMs": [
+          60,
+          60,
+          60,
+          60,
+          60,
+          60,
+          60,
+          60
+        ],
+        "loop": true,
+        "interruptible": true,
+        "action": "move-chess-pieces"
+      }
+    },
+    "continuity": {
+      "restFrameShared": true,
+      "diceRestsOnLeftTray": true,
+      "diceTrailsOnlyDuringFlight": true,
+      "stationaryBodyPreserved": true
+    }
+  },
+  "projectile": {
+    "frameWidth": 96,
+    "frameHeight": 96,
+    "spawn": "above-target",
+    "fall": "tarai-fall-v1.png",
+    "impact": "tarai-impact-v1.png",
+    "framesPerStrip": 4,
+    "fallFrameDurationMs": 70,
+    "impactFrameDurationMs": 65,
+    "anchor": {
+      "x": 48,
+      "y": 82
+    }
+  },
+  "note": "Sprites only; no combat stats are assigned. Normal attack picks up and throws the die back into the tray. Burst moves chess pieces while the die stays on the tray."
+}

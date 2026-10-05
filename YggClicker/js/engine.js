@@ -17,7 +17,7 @@
   }
   function createState(now = Date.now()) {
     return { factors: D.balance.initialFactors, earned: 0, kills: 0, clicks: 0, totalDamage: 0,
-      sessionId: D.sessions[0].id, hp: D.sessions[0].hp, paused: false, boostSeconds: 0, options: {showOrbits:true},
+      sessionId: D.sessions[0].id, hp: D.sessions[0].hp, poisonDamage:0, paused: false, boostSeconds: 0, options: {...D.displayDefaults},
       questLevels: Object.fromEntries(D.sessions.map(s=>[s.id,1])), sceneSeconds:0, batchHpFraction:0,batchDamageFraction:0,
       levels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
       actionLevels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
@@ -26,10 +26,11 @@
       upgrades: Object.fromEntries(D.upgrades.map(u => [u.id, 0])), savedAt: now };
   }
   function perks(state, character) {
-    const level = state.levels[character.id] || 0;
     return (character.perks || []).map(perk => {
-      const unlocked = level >= perk.level && (state.purchasedPerks[character.id] || []).includes(perk.id);
-      return { ...perk, unlocked, eligible: level >= perk.level,
+      const level = (perk.levelType === 'action' ? state.actionLevels[character.id] : state.levels[character.id]) || 0;
+      const owned=(state.purchasedPerks[character.id] || []).includes(perk.id);
+      const unlocked = state.levels[character.id] > 0 && level >= perk.level && owned;
+      return { ...perk, owned, unlocked, eligible: state.levels[character.id] > 0 && level >= perk.level,
         dice: unlocked ? (perk.diceBonus || 0) + (perk.diceEvery ? Math.floor(level / perk.diceEvery) : 0) : 0 };
     });
   }
@@ -51,7 +52,8 @@
       levelMultiplier:characterMultiplier(state, character),
       defense:ignoreDefense ? 0 : enemyDefense(session), ignoreDefense, penetrationBlocked,
       overflow:active.some(p => overflowApplies(p,session)), overflowDefense:ignoreDefense?0:enemyDefense(session),
-      extraAttackChance:Math.max(0,...active.map(p=>p.extraAttackChance||0))
+      extraAttackChance:Math.max(0,...active.map(p=>p.extraAttackChance||0)),
+      poisonDamage:active.some(p=>p.inflictPoison)?Math.max(0,...active.map(p=>p.poisonDamage||0)):0
     };
   }
   function stats(state, character) {
@@ -91,7 +93,7 @@
     const breakdown = attackBreakdown(state, character, manual, session), b = breakdown;
     return { dice:b.base.dice + b.perk.dice, flat:b.base.flat + b.perk.flat + b.upgrade.flat + b.item.flat,
       bonus:b.perk.conditional, multiplier:(1 + b.upgrade.rate) * (1 + b.spe.rate) * b.levelMultiplier,
-      defense:b.defense, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, overflow:b.overflow, overflowDefense:b.overflowDefense, extraAttackChance:b.extraAttackChance,
+      defense:b.defense, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, overflow:b.overflow, overflowDefense:b.overflowDefense, extraAttackChance:b.extraAttackChance,poisonDamage:b.poisonDamage,
       minimumLevelBonus:character&&state.levels[character.id]>1?1:0,preLevelMultiplier:(1+b.upgrade.rate)*(1+b.spe.rate),
       overkillThreshold:state.upgrades.overkill ? D.upgrades.find(u=>u.id==='overkill').threshold : 0, breakdown };
   }
@@ -121,10 +123,21 @@
   }
   const hireCost = (state, c) => state.levels[c.id] === 0 ? c.cost
     : geometricCost(c.powerCost, state.levels[c.id] - 1);
-  const actionPower = (state, c) => N.linear(N.linear(N.floor(c.action),D.balance.actionPerLevel,state.actionLevels[c.id]),D.balance.speedPerLevel,state.upgrades.power);
-  const actionMultiplier = (state, c) => actionPower(state,c)/N.floor(c.action);
+  function supportPerks(state) {
+    const max = D.characters.find(c=>c.id==='max');
+    return state.levels.max>0 ? perks(state,max).filter(p=>p.unlocked) : [];
+  }
+  function actionPower(state,c) {
+    const active=supportPerks(state);
+    const base=N.floor(c.action)+D.balance.actionPerLevel*state.actionLevels[c.id]+D.balance.speedPerLevel*state.upgrades.power;
+    const withAllies=base+(c.id==='max'?0:active.reduce((n,p)=>n+(p.allyAction||0),0));
+    return state.selectedCharacterId===c.id ? N.linear(withAllies,active.reduce((n,p)=>n+(p.selectedActionRate||0),0),1) : withAllies;
+  }
+  const freeActionChance = (state,c) => state.selectedCharacterId===c.id ? Math.max(0,...supportPerks(state).map(p=>p.freeActionChance||0)) : 0;
+  // A zero base has no meaningful relative multiplier; the UI shows absolute action power.
+  const actionMultiplier = (state, c) => N.floor(c.action)>0 ? actionPower(state,c)/N.floor(c.action) : null;
   const attackRate = (state, c) => actionPower(state, c) / D.balance.actionThreshold;
-  const effectiveAttackRate = (state, c) => attackRate(state,c) / (1-attackProfile(state,c).extraAttackChance);
+  const effectiveAttackRate = (state, c) => attackRate(state,c) / (1-attackProfile(state,c).extraAttackChance) / (1-freeActionChance(state,c));
   const actionCost = (state, c) => geometricCost(c.actionCost, state.actionLevels[c.id]);
   const upgradeCost = (state, u) => geometricCost(u.cost, state.upgrades[u.id], D.balance.upgradeCostGrowth);
   function roll(dice, flat, random = Math.random) {
@@ -132,11 +145,12 @@
     for (let i = 0; i < dice; i++) amount += 1 + Math.floor(random() * 6);
     return amount;
   }
-  function applyDamage(state, amount, events, actor, actorId, random, profile, extraAttack = false) {
+  function applyDamage(state, amount, events, actor, actorId, random, profile, extraAttack = false, poisonTick = false) {
     state.batchHpFraction=0;
     const { overflow, defense } = profile, overflowDefense=profile.overflowDefense??defense;
     let remaining = amount, continuation = false;
     do {
+      if(!poisonTick && profile.poisonDamage)state.poisonDamage=Math.max(state.poisonDamage||0,profile.poisonDamage);
       const afterDefense = N.mitigate(remaining,continuation?overflowDefense:defense);
       const overkill = profile.overkillThreshold > 0 && afterDefense - state.hp >= profile.overkillThreshold;
       const damage = overflow ? Math.min(state.hp, afterDefense) : afterDefense;
@@ -147,14 +161,20 @@
       // 1-4 HP requires another roll; zero HP is an unconditional defeat.
       const knockoutRoll = damage > 0 && state.hp > 0 && state.hp <= D.balance.knockoutHP ? roll(1, 0, random) : null;
       const knockedOut = knockoutRoll !== null && knockoutRoll % 2 === 1;
-      if (events) events.push({ type: 'attack', actor, actorId, damage, hpBefore, hpAfter:state.hp, knockoutRoll, knockedOut, continuation, ...(extraAttack ? {extraAttack:true} : {}) });
+      if (events) events.push({ type: 'attack', actor, actorId, damage, hpBefore, hpAfter:state.hp, knockoutRoll, knockedOut, continuation, ...(extraAttack ? {extraAttack:true} : {}), ...(poisonTick?{poisonTick:true}:{}) });
       if (state.hp <= 0 || knockedOut) {
         const bonus=overkill ? overkillBonus(state) : 0, gain = reward(state) + bonus;
         state.factors += gain;
         state.earned += gain;
         state.kills++;
         state.hp = getSession(state).hp;
+        state.poisonDamage=0;
         if (events) events.push({ type: 'clear', reward: gain, overkillBonus:bonus, overkills:overkill?1:0, reason:knockedOut ? 'knockout' : 'hp', hpAfter:state.hp });
+      } else if(!poisonTick && state.poisonDamage) {
+        // Damage-over-time is its own fixed hit, never an attack/re-attack trigger.
+        // Direct kills and KOs have already cleared the status and skip this branch.
+        applyDamage(state,state.poisonDamage,events,'猛毒',null,random,
+          {defense:0,overflow:false,overkillThreshold:0},false,true);
       }
       remaining = overflow ? Math.max(0, afterDefense - damage) : 0;
       continuation = true;
@@ -166,6 +186,7 @@
         const overkills = profile.overkillThreshold > 0 ? Math.max(0,Math.floor((remaining-profile.overkillThreshold)/fullKillCost)) : 0;
         const bonus=overkills*overkillBonus(state),dealt = fullKills * getSession(state).hp, gain = fullKills * reward(state) + bonus;
         state.kills += fullKills; state.totalDamage += dealt; state.factors += gain; state.earned += gain;
+        state.poisonDamage=0;
         if (events) {
           events.push({ type:'attack', actor, actorId, damage:dealt, count:fullKills, hpBefore:state.hp, hpAfter:0, continuation:true, approximate:true, ...(extraAttack ? {extraAttack:true} : {}) });
           events.push({ type:'clear', count:fullKills, reward:gain, overkillBonus:bonus, overkills, reason:'hp', hpAfter:state.hp });
@@ -208,20 +229,23 @@
   }
   function advanceBatch(state, ticks, active, events) {
     const profiles = [];
-    let attacks = 0, metaAttacks = 0, richterAttacks = 0, vishunalAttacks = 0;
+    let attacks = 0, metaAttacks = 0, richterAttacks = 0, vishunalAttacks = 0, tordelieseAttacks = 0, maxAttacks = 0;
     for (const c of active) {
-      const profile=attackProfile(state,c),count=chargeActions(state,c,ticks)/(1-profile.extraAttackChance);
+      const profile=attackProfile(state,c),count=chargeActions(state,c,ticks)/(1-profile.extraAttackChance)/(1-freeActionChance(state,c));
       attacks += count;
       if (count) profiles.push({ ...profile, rate:count });
       if (c.id === 'meta') metaAttacks = count;
       if (c.id === 'richter') richterAttacks = count;
       if (c.id === 'vishunal') vishunalAttacks = count;
+      if (c.id === 'tordeliese') tordelieseAttacks = count;
+      if (c.id === 'max') maxAttacks = count;
     }
     // A short boost segment can charge points without producing any attacks.
     // Leave the previous batch's fractional damage/HP remainder untouched.
     if (!attacks) return;
     const hpBefore = state.hp;
-    const result = B.resolve(state.hp+(state.batchHpFraction||0), getSession(state).hp, attacks, profiles, { threshold:D.balance.knockoutHP, chance:.5 });
+    const result = B.resolve(state.hp+(state.batchHpFraction||0), getSession(state).hp, attacks, profiles, { threshold:D.balance.knockoutHP, chance:.5 },state.poisonDamage||0);
+    state.poisonDamage=result.poisonDamage??(result.kills?0:state.poisonDamage||0);
     const bonus=(result.overkills || 0)*overkillBonus(state),gain = result.kills * reward(state) + bonus;
     // Fractional predictions stay internal so splitting a long offline interval
     // cannot repeatedly grant rounding damage. Actual HP/counters are integers.
@@ -230,7 +254,7 @@
     state.batchDamageFraction=predictedDamage-creditedDamage;
     state.kills += result.kills; state.totalDamage += creditedDamage;
     state.factors += gain; state.earned += gain;
-    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks), count:metaAttacks+richterAttacks+Math.round(vishunalAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
+    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks),tordelieseAttacks:Math.round(tordelieseAttacks),maxAttacks:Math.round(maxAttacks), count:Math.round(maxAttacks)+metaAttacks+richterAttacks+Math.round(vishunalAttacks)+Math.round(tordelieseAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
     if (events && result.kills) events.push({ type:'clear', count:result.kills, knockouts:result.knockouts, overkills:result.overkills||0, overkillBonus:bonus, reward:gain, reason:'average', hpAfter:state.hp });
   }
   // All hired characters gain action points on each whole-second game tick.
@@ -248,7 +272,7 @@
       state.boostSeconds = Math.max(0, oldBoost - duration);
       return [];
     }
-    const estimated = active.reduce((sum, c) => sum + Math.ceil((state.actionPoints[c.id] + actionPower(state, c) * ticks) / D.balance.actionThreshold)/(1-attackProfile(state,c).extraAttackChance), 0);
+    const estimated = active.reduce((sum, c) => sum + Math.ceil((state.actionPoints[c.id] + actionPower(state, c) * ticks) / D.balance.actionThreshold)/(1-attackProfile(state,c).extraAttackChance)/(1-freeActionChance(state,c)), 0);
     if (estimated > EXACT_ATTACK_BUDGET) {
       // A boost ending exactly on a tick has already expired for that tick.
       const boostedTicks = Math.min(ticks, Math.max(0, Math.ceil(oldBoost + oldClock) - 1));
@@ -262,7 +286,10 @@
       for (const c of active) {
         const count = chargeActions(state, c, 1), attack = attackProfile(state, c);
         for (let action = 0; action < count; action++) {
-          performAttack(state,c,attack,random,events);
+          // Each paid action includes the geometrically distributed free attempts
+          // before the first consumed action. Manual clicks remain free as before.
+          const attempts=chainAttackCount(freeActionChance(state,c),random);
+          for(let attempt=0;attempt<attempts;attempt++)performAttack(state,c,attack,random,events);
         }
       }
     }
@@ -290,7 +317,7 @@
     const character = D.characters.find(c => c.id === characterId);
     if (!character) return false;
     const perk = perks(state, character).find(p => p.id === perkId);
-    if (!perk || !perk.eligible || perk.unlocked || state.factors < perk.cost) return false;
+    if (!perk || !perk.eligible || perk.owned || state.factors < perk.cost) return false;
     state.factors -= perk.cost;
     state.purchasedPerks[characterId].push(perkId);
     return true;
@@ -314,6 +341,51 @@
     state.actionLevels[id]++;
     return true;
   }
+  // All quotes are calculated from the same independently rounded prices as
+  // single purchases. A bulk purchase commits only if every step is affordable.
+  function tradeTrack(state,kind,id) {
+    const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id);
+    if(kind==='power'&&c)return {field:'levels',minimum:1,buy:hire,cost:s=>hireCost(s,c)};
+    if(kind==='action'&&c)return {field:'actionLevels',minimum:0,buy:buyAction,cost:s=>actionCost(s,c)};
+    if(kind==='upgrade'&&u)return {field:'upgrades',minimum:0,buy:buyUpgrade,cost:s=>upgradeCost(s,u)};
+    if(kind==='quest'&&D.sessions.some(q=>q.id===id))return {field:'questLevels',minimum:1,buy:buyQuest,cost:s=>questCost(s,id)};
+    return null;
+  }
+  function tradeDraft(state) { return {...state,levels:{...state.levels},actionLevels:{...state.actionLevels},upgrades:{...state.upgrades},questLevels:{...state.questLevels}}; }
+  function purchaseQuote(state,kind,id,count=10) {
+    const track=tradeTrack(state,kind,id),draft=tradeDraft(state);let cost=0;
+    if(!track||![1,10].includes(count))return {valid:false,cost:Infinity,count};
+    draft.factors=Infinity;
+    for(let i=0;i<count;i++){
+      const next=track.cost(draft);
+      if(!Number.isFinite(next)||!track.buy(draft,id)||!Number.isFinite(cost+next)||cost+next>1e100)return {valid:false,cost:Infinity,count};
+      cost+=next;
+    }
+    return {valid:true,cost,count,from:state[track.field][id],to:draft[track.field][id]};
+  }
+  function buyMany(state,kind,id,count=10) {
+    const quote=purchaseQuote(state,kind,id,count);
+    if(!quote.valid||state.factors<quote.cost)return false;
+    const track=tradeTrack(state,kind,id),draft=tradeDraft(state);
+    // Avoid repeated subtraction rounding changing the final affordable step.
+    draft.factors=Infinity;
+    for(let i=0;i<count;i++)if(!track.buy(draft,id))return false;
+    draft.factors=state.factors-quote.cost;Object.assign(state,draft);return true;
+  }
+  function saleQuote(state,kind,id) {
+    const track=tradeTrack(state,kind,id);
+    if(!track||state[track.field][id]<=track.minimum)return {valid:false,refund:0};
+    const draft=tradeDraft(state);draft[track.field][id]--;
+    const price=track.cost(draft),refund=Math.max(1,N.floor(price*.5));
+    return {valid:Number.isFinite(price)&&state.factors+refund<=1e100,refund,from:state[track.field][id],to:draft[track.field][id]};
+  }
+  function sell(state,kind,id) {
+    const quote=saleQuote(state,kind,id);if(!quote.valid)return false;
+    const track=tradeTrack(state,kind,id),oldHP=kind==='quest'&&id===state.sessionId?getSession(state).hp:0;
+    state[track.field][id]--;state.factors+=quote.refund;
+    if(oldHP){state.hp=Math.max(1,Math.min(getSession(state).hp,N.floor(state.hp/oldHP*getSession(state).hp)));state.batchHpFraction=0;}
+    return true;
+  }
   function buyBoost(state) {
     const cost = boostCost(state);
     if (!Number.isFinite(cost) || cost <= 0 || state.factors < cost || state.boostSeconds > 0) return false;
@@ -326,6 +398,7 @@
     if (!session || state.sessionId === id) return false;
     state.sessionId = id;
     state.batchHpFraction=0;
+    state.poisonDamage=0;
     state.hp = getSession(state).hp;
     return true;
   }
@@ -338,7 +411,7 @@
   function expectedIncome(state) {
     const session=getSession(state),boosted=state.boostSeconds>0;
     const key=JSON.stringify([session.id,session.hp,session.reward,session.defense,session.traits,state.levels,state.actionLevels,
-      state.purchasedPerks,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
+      state.purchasedPerks,supportPerks(state).some(p=>p.selectedActionRate||p.freeActionChance)?state.selectedCharacterId:null,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
     if (key===incomeKey) return incomeValue;
     const profiles=D.characters.filter(c=>state.levels[c.id]>0).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
     const rates=B.rewardRates(session.hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}),clearsPerSecond=rates.clears,perClear=reward(state);
@@ -346,7 +419,7 @@
     incomeKey=key;incomeValue=Object.freeze({clearsPerSecond,reward:perClear,bonusPerSecond,factorsPerSecond:clearsPerSecond*perClear+bonusPerSecond,boosted,approximate:!!rates.approximate});
     return incomeValue;
   }
-  const api = { MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
+  const api = { MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

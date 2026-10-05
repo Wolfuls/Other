@@ -1,0 +1,20 @@
+/* Separate transparent images per frame prevent neighbouring-pose bleed. */
+.tordeliese-combatant{position:absolute;width:var(--tordeliese-size,230px);height:var(--tordeliese-size,230px);transform:translate(-50%,-50%);z-index:3}
+.tordeliese-standing{display:block;width:100%;height:100%;background-image:var(--tordeliese-idle-0);background-size:100% 100%;background-position:center;background-repeat:no-repeat;animation:tordeliese-idle 2.2s steps(1,end) infinite}
+.tordeliese-combatant.attacking .tordeliese-standing{animation:tordeliese-strike .8s steps(1,end) both}
+.tordeliese-combatant.bursting .tordeliese-standing{animation:tordeliese-rapid .48s steps(1,end) infinite}
+.tordeliese-combatant.is-paused *{animation-play-state:paused!important}
+.tordeliese-combatant .meta-select{inset:25% 27% 5%}
+.tordeliese-combatant .meta-ground{width:90px;height:12px;left:calc(43.359375% - 45px);top:calc(50% + var(--body-foot) - 5px);bottom:auto;background:radial-gradient(ellipse,#071311bb,transparent 75%)}
+.tordeliese-combatant.manual-selected .meta-ground{box-shadow:0 0 14px #bade9055;border-color:var(--accent)}
+#card-tordeliese{background:linear-gradient(125deg,#34242d,#1b282d 70%)}
+#card-tordeliese.owned{border-color:#a87993}
+.dashboard .character-picker{grid-template-columns:repeat(2,minmax(0,1fr))}
+#tordeliese-tendrils{position:absolute;inset:0;pointer-events:none;z-index:2}
+.poison-damage{color:#cf98ff!important}.hit-spark.poison-hit{filter:hue-rotate(210deg);opacity:.55}
+.tordeliese-tendril{position:absolute;width:calc(var(--tendril-length) * 1.202);height:160px;margin-top:-80px;background-image:var(--tendril-0);background-position:center;background-size:100% 100%;background-repeat:no-repeat;transform-origin:6.25% 50%;transform:translateX(-6.25%) rotate(var(--tendril-angle)) scaleY(var(--tendril-mirror));animation:tordeliese-lash .82s steps(1,end) var(--tendril-delay) both}
+@keyframes tordeliese-idle{0%{background-image:var(--tordeliese-idle-0)}26%{background-image:var(--tordeliese-idle-1)}46%{background-image:var(--tordeliese-idle-2)}51%{background-image:var(--tordeliese-idle-3)}70%{background-image:var(--tordeliese-idle-4)}86%{background-image:var(--tordeliese-idle-5)}100%{background-image:var(--tordeliese-idle-0)}}
+@keyframes tordeliese-strike{0%{background-image:var(--tordeliese-attack-0)}16%{background-image:var(--tordeliese-attack-1)}33%{background-image:var(--tordeliese-attack-2)}62%{background-image:var(--tordeliese-attack-3)}75%{background-image:var(--tordeliese-attack-4)}91%{background-image:var(--tordeliese-attack-5)}100%{background-image:var(--tordeliese-attack-5)}}
+@keyframes tordeliese-rapid{0%{background-image:var(--tordeliese-burst-0)}16.6667%{background-image:var(--tordeliese-burst-1)}33.3333%{background-image:var(--tordeliese-burst-2)}50%{background-image:var(--tordeliese-burst-3)}66.6667%{background-image:var(--tordeliese-burst-4)}83.3333%{background-image:var(--tordeliese-burst-5)}100%{background-image:var(--tordeliese-burst-0)}}
+@keyframes tordeliese-lash{0%{background-image:var(--tendril-0);opacity:0}12%{background-image:var(--tendril-1);opacity:1}30%{background-image:var(--tendril-2);opacity:1}60%{background-image:var(--tendril-3);opacity:1}76%{background-image:var(--tendril-4);opacity:1}89%{background-image:var(--tendril-5);opacity:1}6%{opacity:1}100%{background-image:var(--tendril-5);opacity:0}}
+@media(prefers-reduced-motion:reduce){.tordeliese-standing{animation:none!important}#tordeliese-tendrils{display:none}}

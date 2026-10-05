@@ -7,7 +7,7 @@ function seeded(seed=781){return()=>{seed=(Math.imul(seed,1664525)+1013904223)>>
 
 test('Vishunal costs1000, starts at10D6, and all three perks require level and a separate factor purchase',()=>{
  const s=E.createState(1000);s.factors=999;assert.equal(E.hire(s,'vishunal'),false);s.factors=1000;assert.equal(E.hire(s,'vishunal'),true);
- assert.equal(s.factors,0);assert.deepEqual(E.stats(s,dog),{dice:10,flat:0});assert.equal(E.actionPower(s,dog),50);
+ assert.equal(s.factors,0);assert.deepEqual(E.stats(s,dog),{dice:10,flat:0});assert.equal(E.actionPower(s,dog),60);
  assert.equal(E.hireCost(s,dog),120);assert.equal(E.actionCost(s,dog),150);
  for(const perk of dog.perks){s.levels.vishunal=perk.level-1;s.factors=1e6;assert.equal(E.buyPerk(s,dog.id,perk.id),false);
   s.levels.vishunal=perk.level;s.factors=perk.cost-.01;assert.equal(E.buyPerk(s,dog.id,perk.id),false);
@@ -18,7 +18,7 @@ test('Vishunal costs1000, starts at10D6, and all three perks require level and a
 test('Vishunal parks no longer proc extra attacks and leave action power unchanged',()=>{
  for(const owned of [[],['mad-dog'],['missile-missile'],dog.perks.map(p=>p.id)]){
   const s=prepared();s.purchasedPerks.vishunal=owned;
-  assert.equal(E.attackProfile(s,dog).extraAttackChance,0);assert.equal(E.actionPower(s,dog),50);assert.equal(E.effectiveAttackRate(s,dog),.5);
+  assert.equal(E.attackProfile(s,dog).extraAttackChance,0);assert.equal(E.actionPower(s,dog),60);assert.equal(E.effectiveAttackRate(s,dog),.6);
  }
 });
 
@@ -43,7 +43,7 @@ test('automatic missile consumes one scheduled action in both collected and sile
  for(const collect of [true,false]){
   const s=prepared(25);s.purchasedPerks.vishunal=['mad-dog'];s.actionPoints.vishunal=75;s.upgrades.click=100;let calls=0;
   const events=E.advance(s,1,()=>{calls++;return 0;},collect);
-  assert.equal(s.kills,18);assert.equal(s.hp,6);assert.equal(calls,10);assert.equal(s.actionPoints.vishunal,25);assert.equal(s.clicks,0);
+  assert.equal(s.kills,18);assert.equal(s.hp,6);assert.equal(calls,10);assert.equal(s.actionPoints.vishunal,35);assert.equal(s.clicks,0);
   if(collect)assert.equal(events.filter(e=>e.type==='attack'&&!e.continuation).length,1);else assert.deepEqual(events,[]);
  }
 });
@@ -60,9 +60,9 @@ test('overflow does not create additional proc rolls or missiles, and pays defen
 
 test('dice parks increase damage while Mad Dog increases swarm income through overflow',()=>{
  const s=prepared(),damage=B.averageDamage(E.attackProfile(s,dog)),before=E.expectedIncome(s).factorsPerSecond;
- s.purchasedPerks.vishunal=['mad-dog'];assert.equal(B.averageDamage(E.attackProfile(s,dog)),damage);assert.equal(E.effectiveAttackRate(s,dog),.5);
+ s.purchasedPerks.vishunal=['mad-dog'];assert.equal(B.averageDamage(E.attackProfile(s,dog)),damage);assert.equal(E.effectiveAttackRate(s,dog),.6);
  assert.ok(E.expectedIncome(s).factorsPerSecond>before*5);
- s.purchasedPerks.vishunal.push('missile-missile');assert.equal(E.stats(s,dog).dice,20);assert.ok(E.dps(s)>damage*.5);
+ s.purchasedPerks.vishunal.push('missile-missile');assert.equal(E.stats(s,dog).dice,20);assert.ok(E.dps(s)>damage*.6);
  s.purchasedPerks.vishunal.push('legal-launcher');assert.equal(E.stats(s,dog).dice,30);
 });
 
@@ -81,7 +81,7 @@ test('schema10 saves gain an unowned dog without progress loss and the new selec
  assert.deepEqual(S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:10,state:old})),{...s,hp:6});
  const trained=prepared();trained.purchasedPerks.vishunal=dog.perks.map(p=>p.id);assert.deepEqual(S.decode(S.encode(trained)),trained);
  assert.equal(JSON.parse(S.encode(trained)).schemaVersion,S.VERSION);
- const invalid=structuredClone(trained);invalid.levels.vishunal=49;assert.throws(()=>S.encode(invalid));
+ const invalid=structuredClone(trained);invalid.levels.vishunal=49;assert.deepEqual(S.decode(S.encode(invalid)),invalid);
 });
 
 test('third-character geometry fits all three allies and the enemy queue without overlapping footprints',()=>{
@@ -96,7 +96,7 @@ test('third-character geometry fits all three allies and the enemy queue without
 
 test('dog can be selected, missiles launch for every repeated attack and all combat effects reset on pause',()=>{
  const s=prepared(25);s.purchasedPerks.vishunal=['mad-dog'];const h=harness(s);
- assert.equal(h.get('vishunal-combatant').hidden,false);assert.equal(h.get('party-capacity').textContent,'/ 3');
+ assert.equal(h.get('vishunal-combatant').hidden,false);assert.equal(h.get('party-capacity').textContent,'/ 5');
  h.click('vishunal-select');h.click('attack');h.advance(200);
  assert.ok(!h.get('vishunal-combatant').classList.contains('bursting'));assert.equal(h.get('vishunal-projectiles').children.length,1);
  h.advance(640);assert.ok(h.get('hit-effects').children.length>0);assert.ok(h.get('explosions').children.length>0);

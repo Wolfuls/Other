@@ -5,11 +5,12 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 16;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 19;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const migrations = {
+    18(document) { return {...document,schemaVersion:19}; },
     1(document) {
       const oldState = record(document.state, '旧セーブ');
       const oldMaxHP = { practice: 80, patrol: 400, heavy: 2000 };
@@ -43,7 +44,8 @@
       const speedLevels = record(oldState.speedLevels, '旧速度レベル');
       const timers = record(oldState.timers, '旧攻撃待ち時間');
       const levels = record(oldState.levels, '旧威力レベル');
-      const oldIntervals = { meta: 1.8, richter:4, vishunal:4, hollow: 2.4, jamie: 3.5 };
+      // Freeze historical intervals: current base action may now be zero.
+      const oldIntervals = { meta: 1.8, richter:4, vishunal:4, tordeliese:1.25, max:2, hollow: 2.4, jamie: 3.5 };
       for (const values of [speedLevels, timers]) {
         if (Object.keys(values).some(id => !D.characters.some(c => c.id === id) && !RETIRED.includes(id))) throw new Error('未対応のキャラクターが含まれています。');
       }
@@ -106,7 +108,7 @@
       const base=D.sessions.find(s=>s.id===old.sessionId),level=number(old.questLevels?.[old.sessionId]??1,'クエストレベル',1,Number.MAX_SAFE_INTEGER,true);
       if(!base)throw new Error('未対応のクエストです。');
       const historicalBase=base.id==='mohicans'?10:base.hp;
-      const oldHP=Math.ceil(historicalBase*D.questGrowth.hpGrowth**(level-1)),targetHP=N.geometric(historicalBase,D.questGrowth.hpGrowth,level-1);
+      const oldHP=Math.ceil(historicalBase*1.2**(level-1)),targetHP=N.geometric(historicalBase,1.2,level-1);
       number(old.hp,'旧残りHP',Number.MIN_VALUE,oldHP);
       state.hp=Math.max(1,Math.min(targetHP,Math.floor(old.hp/oldHP*targetHP)));
       state.batchHpFraction=0;state.batchDamageFraction=0;
@@ -117,9 +119,9 @@
       for(const q of D.sessions)state.questLevels[q.id]??=1;
       if(old.sessionId==='mohicans'){
         const level=number(state.questLevels.mohicans,'クエストレベル',1,Number.MAX_SAFE_INTEGER,true);
-        const previousMax=N.geometric(10,D.questGrowth.hpGrowth,level-1);
+        const previousMax=N.geometric(10,1.2,level-1);
         number(old.hp,'旧残りHP',1,previousMax);
-        state.hp=Math.max(1,N.floor(old.hp/previousMax*E.getSession(state).hp));
+        state.hp=Math.max(1,N.floor(old.hp/previousMax*N.geometric(20,1.2,level-1)));
         state.batchHpFraction=0;
       }
       return {...document,schemaVersion:15,state};
@@ -133,14 +135,14 @@
         richter:{'z-bom':[10,40],'dx-bom':[20,150],'vx-bom':[30,350],'ex-bom':[40,700],'bom-ber':[50,1600]},
         vishunal:{'legal-launcher':[10,400],'mad-dog':[20,1500],'eel-delivery':[30,3500],'trigger-happy':[40,7000],'missile-missile':[50,16000]}
       };
-      if(Object.keys(owned).some(id=>!Object.hasOwn(legacy,id)))throw new Error('未対応の購入済みパークです。');
+      if(Object.keys(owned).some(id=>!Object.hasOwn(legacy,id)&&(!D.characters.some(c=>c.id===id)||!Array.isArray(owned[id])||owned[id].length)))throw new Error('未対応の購入済みパークです。');
       const purchasedPerks={};let refund=0;
       for(const c of D.characters){
         const level=number(old.levels?.[c.id]??0,'旧威力レベル',0,E.MAX_LEVEL,true),ids=owned[c.id]??[];
         if(!Array.isArray(ids)||new Set(ids).size!==ids.length)throw new Error('旧パークの形式が正しくありません。');
         purchasedPerks[c.id]=[];
         for(const id of ids){
-          const previous=typeof id==='string'&&Object.hasOwn(legacy[c.id],id)?legacy[c.id][id]:null;
+          const previous=typeof id==='string'&&Object.hasOwn(legacy[c.id]||{},id)?legacy[c.id][id]:null;
           if(!previous||level<previous[0])throw new Error('旧パークの購入条件が正しくありません。');
           // Metal Man and Metal Blade are now one Lv50 purchase. Preserve
           // either ownership, and refund the old 10Rd Blade if both were paid.
@@ -152,6 +154,26 @@
         }
       }
       return {...document,schemaVersion:16,state:{...old,factors:number(old.factors,'所持因子')+refund,purchasedPerks}};
+    },
+    16(document) {
+      const old=record(document.state,'旧セーブ');
+      const hpBases={mohicans:20,scarecrow:40,dementor:100};
+      if(typeof old.sessionId!=='string'||!Object.hasOwn(hpBases,old.sessionId))throw new Error('未対応のクエストです。');
+      const level=number(old.questLevels?.[old.sessionId]??1,'クエストレベル',1,Number.MAX_SAFE_INTEGER,true);
+      // Freeze both curves so a future balance update cannot change this migration.
+      const oldMax=number(N.geometric(hpBases[old.sessionId],1.2,level-1),'旧最大HP',1);
+      const newMax=number(N.geometric(hpBases[old.sessionId],1.15,level-1),'最大HP',1);
+      const hp=number(old.hp,'旧残りHP',1,oldMax);
+      if(!Number.isInteger(hp))throw new Error('旧残りHPは整数で指定してください。');
+      const fraction=number(old.batchHpFraction===undefined?0:old.batchHpFraction,'放置計算の端数',-1,1);
+      if(Math.abs(fraction)>=1||hp+fraction<=0||hp+fraction>oldMax)throw new Error('放置計算のHPが正しくありません。');
+      const unchanged=oldMax===newMax;
+      return {...document,schemaVersion:17,state:{...old,
+        hp:unchanged?hp:Math.max(1,Math.min(newMax,N.floor((hp+fraction)/oldMax*newMax))),
+        batchHpFraction:unchanged?fraction:0}};
+    },
+    17(document) {
+      return {...document,schemaVersion:18,state:{...document.state,poisonDamage:0}};
     }
   };
   function record(value, label) {
@@ -186,6 +208,8 @@
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
     result.hp = number(raw.hp, '残りHP', 1, E.getSession(result).hp);
+    result.poisonDamage=raw.poisonDamage===undefined?0:raw.poisonDamage;
+    if(![0,4,8,12,16].includes(result.poisonDamage))throw new Error('猛毒の値が正しくありません。');
     if(!Number.isInteger(result.hp))throw new Error('残りHPは整数で指定してください。');
     for(const field of ['batchHpFraction','batchDamageFraction']){
       result[field]=number(raw[field]??0,'放置計算の端数',-1,1);
@@ -194,9 +218,12 @@
     if(result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>E.getSession(result).hp)throw new Error('放置計算のHPが正しくありません。');
     if (typeof raw.paused !== 'boolean') throw new Error('一時停止状態が正しくありません。');
     result.paused = raw.paused;
-    const options = raw.options === undefined ? {showOrbits:true} : record(raw.options, '表示設定');
-    if (typeof options.showOrbits !== 'boolean') throw new Error('浮遊シンボルの表示設定が正しくありません。');
-    result.options = {showOrbits:options.showOrbits};
+    const options = raw.options === undefined ? {} : record(raw.options, '表示設定');
+    for(const [key,defaultValue] of Object.entries(D.displayDefaults)){
+      const value=options[key]===undefined?defaultValue:options[key];
+      if(key==='hitEffects'?!D.hitEffectModes.includes(value):typeof value!=='boolean')throw new Error('表示設定が正しくありません。');
+      result.options[key]=value;
+    }
     result.boostSeconds = number(raw.boostSeconds, 'ブースト時間', 0, 30);
     result.actionClock = number(raw.actionClock, '行動点の加算周期', 0, 1);
     if (result.actionClock >= 1) throw new Error('行動点の加算周期が正しくありません。');
@@ -215,7 +242,7 @@
       const purchased = raw.purchasedPerks[c.id] ?? [];
       if (!Array.isArray(purchased) || new Set(purchased).size !== purchased.length || purchased.some(id => {
         const perk = (c.perks || []).find(p => p.id === id);
-        return !perk || result.levels[c.id] < perk.level;
+        return !perk || !result.levels[c.id];
       })) throw new Error('購入済みパークの値が正しくありません。');
       result.purchasedPerks[c.id] = [...purchased];
     }

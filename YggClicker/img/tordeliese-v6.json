@@ -1,0 +1,448 @@
+{
+  "character": "トルデリーゼ・トルンヴァルト",
+  "version": "0.39.5",
+  "layout": {
+    "frameSize": 384,
+    "bodyCenterX": 166.5,
+    "footY": 360,
+    "displaySize": 256,
+    "bodyHeight": 256.5,
+    "displayBodyHeight": 171,
+    "scale": 0.6063829787234043,
+    "reusedTendrilVersion": 5,
+    "sources": {
+      "idle": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-1ac7e49c-82be-4ca8-82f8-47c745adc6af.png",
+      "attack": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-3cda740a-efa8-4042-b19d-b1268c7fd133.png",
+      "burst": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-cdedd72c-5832-4c89-8378-e0c6d3aea190.png",
+      "tendril": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-90675c5f-8d19-425b-9c63-53b3be79c22f.png"
+    },
+    "frames": [
+      {
+        "motion": "idle",
+        "frame": 1,
+        "file": "tordeliese-idle-1-v6.png",
+        "sourceBounds": [
+          52,
+          73,
+          462,
+          495
+        ],
+        "sourceFeet": 496,
+        "sourceCenter": 258.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 2,
+        "file": "tordeliese-idle-2-v6.png",
+        "sourceBounds": [
+          564,
+          73,
+          974,
+          495
+        ],
+        "sourceFeet": 496,
+        "sourceCenter": 770.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 3,
+        "file": "tordeliese-idle-3-v6.png",
+        "sourceBounds": [
+          1076,
+          73,
+          1486,
+          495
+        ],
+        "sourceFeet": 496,
+        "sourceCenter": 1282.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 4,
+        "file": "tordeliese-idle-4-v6.png",
+        "sourceBounds": [
+          52,
+          553,
+          462,
+          975
+        ],
+        "sourceFeet": 976,
+        "sourceCenter": 258.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 5,
+        "file": "tordeliese-idle-5-v6.png",
+        "sourceBounds": [
+          564,
+          553,
+          975,
+          975
+        ],
+        "sourceFeet": 976,
+        "sourceCenter": 770.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 6,
+        "file": "tordeliese-idle-6-v6.png",
+        "sourceBounds": [
+          1076,
+          553,
+          1486,
+          975
+        ],
+        "sourceFeet": 976,
+        "sourceCenter": 1282.5,
+        "placement": [
+          40,
+          102,
+          252,
+          259
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 1,
+        "file": "tordeliese-attack-1-v6.png",
+        "sourceBounds": [
+          54,
+          75,
+          463,
+          491
+        ],
+        "sourceFeet": 492,
+        "sourceCenter": 256.5,
+        "placement": [
+          42,
+          106,
+          251,
+          255
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 2,
+        "file": "tordeliese-attack-2-v6.png",
+        "sourceBounds": [
+          567,
+          98,
+          975,
+          491
+        ],
+        "sourceFeet": 492,
+        "sourceCenter": 766.5,
+        "placement": [
+          44,
+          120,
+          250,
+          241
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 3,
+        "file": "tordeliese-attack-3-v6.png",
+        "sourceBounds": [
+          1075,
+          42,
+          1510,
+          491
+        ],
+        "sourceFeet": 492,
+        "sourceCenter": 1262.5,
+        "placement": [
+          52,
+          86,
+          267,
+          275
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 4,
+        "file": "tordeliese-attack-4-v6.png",
+        "sourceBounds": [
+          50,
+          555,
+          531,
+          971
+        ],
+        "sourceFeet": 972,
+        "sourceCenter": 252.5,
+        "placement": [
+          42,
+          106,
+          295,
+          255
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 5,
+        "file": "tordeliese-attack-5-v6.png",
+        "sourceBounds": [
+          567,
+          557,
+          1045,
+          971
+        ],
+        "sourceFeet": 972,
+        "sourceCenter": 761,
+        "placement": [
+          48,
+          107,
+          293,
+          254
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 6,
+        "file": "tordeliese-attack-6-v6.png",
+        "sourceBounds": [
+          1077,
+          554,
+          1488,
+          971
+        ],
+        "sourceFeet": 972,
+        "sourceCenter": 1278.5,
+        "placement": [
+          43,
+          105,
+          252,
+          256
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 1,
+        "file": "tordeliese-burst-1-v6.png",
+        "sourceBounds": [
+          45,
+          89,
+          468,
+          469
+        ],
+        "sourceFeet": 470,
+        "sourceCenter": 233,
+        "placement": [
+          51,
+          128,
+          260,
+          233
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 2,
+        "file": "tordeliese-burst-2-v6.png",
+        "sourceBounds": [
+          546,
+          75,
+          999,
+          469
+        ],
+        "sourceFeet": 470,
+        "sourceCenter": 734,
+        "placement": [
+          51,
+          119,
+          278,
+          242
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 3,
+        "file": "tordeliese-burst-3-v6.png",
+        "sourceBounds": [
+          1049,
+          121,
+          1523,
+          469
+        ],
+        "sourceFeet": 470,
+        "sourceCenter": 1224.5,
+        "placement": [
+          59,
+          147,
+          290,
+          214
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 4,
+        "file": "tordeliese-burst-4-v6.png",
+        "sourceBounds": [
+          54,
+          572,
+          487,
+          951
+        ],
+        "sourceFeet": 952,
+        "sourceCenter": 249,
+        "placement": [
+          47,
+          128,
+          266,
+          233
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 5,
+        "file": "tordeliese-burst-5-v6.png",
+        "sourceBounds": [
+          571,
+          621,
+          1040,
+          951
+        ],
+        "sourceFeet": 952,
+        "sourceCenter": 793,
+        "placement": [
+          31,
+          158,
+          287,
+          203
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 6,
+        "file": "tordeliese-burst-6-v6.png",
+        "sourceBounds": [
+          1079,
+          593,
+          1496,
+          951
+        ],
+        "sourceFeet": 952,
+        "sourceCenter": 1268.5,
+        "placement": [
+          50,
+          141,
+          256,
+          220
+        ]
+      }
+    ]
+  },
+  "motions": {
+    "idle": {
+      "duration": 2200,
+      "stops": [
+        0,
+        0.26,
+        0.46,
+        0.51,
+        0.7,
+        0.86
+      ]
+    },
+    "attack": {
+      "duration": 800,
+      "stops": [
+        0,
+        0.16,
+        0.33,
+        0.62,
+        0.75,
+        0.91
+      ]
+    },
+    "burst": {
+      "duration": 480,
+      "stops": [
+        0,
+        0.16666666666666666,
+        0.3333333333333333,
+        0.5,
+        0.6666666666666666,
+        0.8333333333333334
+      ]
+    },
+    "tendril": {
+      "duration": 820,
+      "stops": [
+        0,
+        0.12,
+        0.3,
+        0.6,
+        0.76,
+        0.89
+      ]
+    }
+  },
+  "generation": {
+    "tool": "Built-in image_gen.imagegen",
+    "prompts": [
+      {
+        "step": "idle",
+        "prompt": "Use case: precise-object-edit. Asset: transparent pixel-art animation for Tordeliese in a browser RPG.\nThe attached image is the exact edit target. Preserve the currently approved MEDIUM-FINE pixel style, crisp thin dark outlines, clear cel shadows, pixel density, the character's head/body proportions, anatomy, clothing and palette. Do not revert to chunky pixel blocks or soft painted shading.\nSame adult woman: silver bob with red streak and underlayer, round black glasses, cyan eye on viewer left/yellow on viewer right, black cross choker, white knit sweater, black pleated skirt, black ankle boots. Black/dark navy and red segmented CENTIPEDE appendages with many small pale legs and sparse cyan highlights remain attached behind her back/hips. Two human arms and two legs only.\nOutput exactly 3 columns x 2 rows with six distinct consecutive animation frames in reading order. Prefer 1536x1024, equal 512x512 cells. Every whole pose and ALL appendages within its own cell with transparent margin on all sides, no overlapping/cropping. Same character scale and foot baseline in every cell. No labels, text, floor, background, cast shadows or aura. Genuine alpha transparency.\nChange ONLY the face/expression and subtle head/shoulder acting in these IDLE frames. She is lively, outgoing and cheerful most of the time, not quiet or blank-faced. Keep the current relaxed stance, boots, body proportions and gently waving centipedes. Express a natural short idle loop: (1) bright open-eyed confident smile, lips slightly parted with small upper teeth; (2) eyes sparkle, smile widens, cheeks lift slightly; (3) brief delighted eye-squeeze/blink and a small open laugh; (4) eyes reopen, warm playful grin; (5) enthusiastic toothy smile with a slight jaunty head tilt, not a different head size; (6) settles toward frame1's lively smile. Keep glasses and heterochromia readable in all open-eye frames. Teeth/mouth distinctly drawn, no giant gag mouth, no speaking text, no crazy face. Smooth expression transitions rather than unrelated expression portraits. Mouth and eyebrows visibly change at game sprite size."
+      },
+      {
+        "step": "attack",
+        "prompt": "Use case: precise-object-edit. Asset: transparent pixel-art animation for Tordeliese in a browser RPG.\nThe attached image is the exact edit target. Preserve the currently approved MEDIUM-FINE pixel style, crisp thin dark outlines, clear cel shadows, pixel density, the character's head/body proportions, anatomy, clothing and palette. Do not revert to chunky pixel blocks or soft painted shading.\nSame adult woman: silver bob with red streak and underlayer, round black glasses, cyan eye on viewer left/yellow on viewer right, black cross choker, white knit sweater, black pleated skirt, black ankle boots. Black/dark navy and red segmented CENTIPEDE appendages with many small pale legs and sparse cyan highlights remain attached behind her back/hips. Two human arms and two legs only.\nOutput exactly 3 columns x 2 rows with six distinct consecutive animation frames in reading order. Prefer 1536x1024, equal 512x512 cells. Every whole pose and ALL appendages within its own cell with transparent margin on all sides, no overlapping/cropping. Same character scale and foot baseline in every cell. No labels, text, floor, background, cast shadows or aura. Genuine alpha transparency.\nImage1 is the NORMAL ATTACK pose sheet to edit. Image2 is the NEW cheerful IDLE sheet; use it to match face, head size, line quality and expressiveness.\nKeep the existing six attack poses and centipede motion: ready, crouched wind-up, upward swing, forward lash, follow-through, recovery. Make her face express a lively, bold personality: frame1 bright confident open smile; frame2 eager grin and lowered brows while winding up; frame3 spirited open-mouth smile as she attacks; frame4 determined spirited battle cry with visible upper teeth, eyes looking right toward her target; frame5 satisfied toothy grin; frame6 returns to her bright smile. Head, glasses, eye colors and mouth shapes must stay consistent with image2, expression changes should flow naturally. Preserve body poses, foot positions and guiding-hand gesture for this normal-attack sheet. Same anatomy/scale as new idle sheet; don't enlarge the head or change costume. No completely static face across all frames."
+      },
+      {
+        "step": "burst",
+        "prompt": "Use case: precise-object-edit. Asset: transparent pixel-art animation for Tordeliese in a browser RPG.\nThe attached image is the exact edit target. Preserve the currently approved MEDIUM-FINE pixel style, crisp thin dark outlines, clear cel shadows, pixel density, the character's head/body proportions, anatomy, clothing and palette. Do not revert to chunky pixel blocks or soft painted shading.\nSame adult woman: silver bob with red streak and underlayer, round black glasses, cyan eye on viewer left/yellow on viewer right, black cross choker, white knit sweater, black pleated skirt, black ankle boots. Black/dark navy and red segmented CENTIPEDE appendages with many small pale legs and sparse cyan highlights remain attached behind her back/hips. Two human arms and two legs only.\nOutput exactly 3 columns x 2 rows with six distinct consecutive animation frames in reading order. Prefer 1536x1024, equal 512x512 cells. Every whole pose and ALL appendages within its own cell with transparent margin on all sides, no overlapping/cropping. Same character scale and foot baseline in every cell. No labels, text, floor, background, cast shadows or aura. Genuine alpha transparency.\nIMPORTANT: Redesign the RAPID ATTACK stance and facial expressions. Image1 is the old burst sheet: keep character identity and centipede wave concept, but REMOVE THE POINTING POSE IN EVERY FRAME. Image2 is the new idle sheet for exact face/hair/costume/pixel style and anatomical scale.\nShe fights with attached centipedes, not her fingers. In ALL SIX frames keep a LOW grounded battle stance: feet planted wide, knees deeply bent, hips dropped, torso inclined forward toward the enemy on the RIGHT. Her head is physically 15-20% LOWER than the idle reference due to crouching, NOT because the character is scaled down. Keep the same head size and limb lengths as idle, simply articulate the joints. Both elbows bent near the waist/ribs, hands low in front of her body or at her sides with fingers naturally curled/spread as if exerting power, never a straight pointing index finger. No stretched pointing arm, no fists punching, no hands touching the enemy.\nFacial expression: distinctly aggressive and intensely focused on the enemy to the RIGHT, eyebrows lowered, eyes narrowed but cyan/yellow pupils and glasses still clear; a compact fierce teeth-baring grin or gritted teeth, occasionally a short forceful open-mouth exhale. Not a relaxed cute smile, not closed joyful eyes, not a berserk grotesque face. She is directing her concentration into the centipedes.\nAnimate a coherent SIX-FRAME LOOP: 1 low brace, left shoulder forward, centipedes coil; 2 torso rotates slightly right as upper limbs lash; 3 sinks a few pixels and lower centipedes whip forward; 4 opposite shoulder forward, upper limbs recoil; 5 torso torque opposite, lower limbs lash; 6 returns smoothly toward pose1. All six remain low, not standing up in the final pose. Feet don't slide. Hands/shoulders vary a little in time with the strikes, but action comes from four centipedes with alternating traveling waves. Keep four clear connected roots, clean arc-shaped limbs and every tip inside each cell. Allow ample padding by curving the tips inward at the edge. No motion effect clouds, no additional arms."
+      }
+    ],
+    "references": [
+      "tordeliese-idle-{1..6}-v5.png",
+      "tordeliese-attack-{1..6}-v5.png",
+      "tordeliese-burst-{1..6}-v5.png"
+    ],
+    "packing": "Technical transparent-frame separation into 384px PNGs, common nearest-neighbour scale and planted foot baseline. Standing display height remains 171px; crouching is preserved, not scaled back to standing height. Attached limb PNGs reuse v5."
+  },
+  "tendril": {
+    "assetVersion": 5,
+    "frameSize": 384,
+    "frames": 6,
+    "root": [
+      24,
+      192
+    ],
+    "actorRootOffsetY": {
+      "normal": 48,
+      "burst": 64
+    },
+    "strikeFrame": 4,
+    "impactMs": 520
+  }
+}

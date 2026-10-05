@@ -4,7 +4,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js');
 
 test('v0.16 saves preserve purchases; manual and automatic attacks roll only their stated dice',()=>{
-  for(const [id,dice,flat,damage,manualDamage,seconds] of [['meta',4,17,261,261,2],['richter',15,48,715,715,2]]){
+  for(const [id,dice,flat,damage,manualDamage,seconds] of [['meta',4,17,261,261,2],['richter',15,48,715,715,3]]){
     const character=D.characters.find(c=>c.id===id),state=E.createState(1000);
     state.levels[id]=100;state.selectedCharacterId=id;state.upgrades.click=3;
     state.purchasedPerks[id]=character.perks.filter(p=>!p.overflow).map(p=>p.id);E.selectSession(state,'heavy');

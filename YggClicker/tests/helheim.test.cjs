@@ -6,24 +6,24 @@ test('armor compounds from base without accumulating rounded per-level bonuses',
  for(const id of ['scarecrow','dementor']){
   const q=D.sessions.find(q=>q.id===id);
   for(let level=1;level<=200;level++){
-   const n=BigInt(level-1),expected=Math.max(q.defense+(level>1?1:0),Number(BigInt(q.defense)*101n**n/100n**n));
+   const n=BigInt(level-1),expected=Math.max(q.defense+(level>1?1:0),Number(BigInt(q.defense)*11n**n/10n**n));
    assert.equal(E.sessionAtLevel(q,level).defense,expected,`${id} Lv${level}`);
   }
  }
  const levels=[1,2,3,10,50,100],armor=id=>levels.map(l=>E.sessionAtLevel(D.sessions.find(q=>q.id===id),l).defense);
- assert.deepEqual(armor('scarecrow'),[35,36,36,38,56,93]);
- assert.deepEqual(armor('dementor'),[3,4,4,4,4,8]);
+ assert.deepEqual(armor('scarecrow'),[35,38,42,82,3735,438474]);
+ assert.deepEqual(armor('dementor'),[3,4,4,7,320,37583]);
  assert.deepEqual(armor('mohicans'),[0,1,2,9,49,99]);
 });
 
 test('quest defense preview, saved levels, combat and forecasts use the same compounded armor',()=>{
  const s=E.createState(1000);s.factors=1000;s.paused=true;s.levels.meta=50;s.purchasedPerks.meta=['metal-blade'];s.selectedCharacterId='meta';E.selectSession(s,'scarecrow');
- const h=harness(s);assert.equal(h.get('quest-defense-scarecrow').textContent,'35 → 36');assert.equal(h.get('quest-defense-dementor').textContent,'3 → 4');
- assert.ok(E.buyQuest(s,'scarecrow'));assert.equal(E.attackProfile(s,D.characters[0]).defense,36);const before=s.hp;s.paused=false;E.click(s,()=>0);assert.equal(before-s.hp,17);
+ const h=harness(s);assert.equal(h.get('quest-defense-scarecrow').textContent,'35 → 38');assert.equal(h.get('quest-defense-dementor').textContent,'3 → 4');
+ assert.ok(E.buyQuest(s,'scarecrow'));assert.equal(E.attackProfile(s,D.characters[0]).defense,38);const before=s.hp;s.paused=false;E.click(s,()=>0);assert.equal(before-s.hp,15);
  const profile=E.attackProfile(s,D.characters[0]);assert.equal(E.dps(s),B.averageDamage(profile)*.5);assert.equal(profile.penetrationBlocked,true);
  E.selectSession(s,'dementor');s.questLevels.dementor=100;s.hp=100;s.levels.richter=50;s.purchasedPerks.richter=['bom-ber'];
- const restored=S.decode(S.encode(s));assert.equal(E.getSession(restored).defense,8);assert.equal(restored.hp,s.hp);assert.deepEqual(restored,s);
- assert.equal(E.attackProfile(restored,D.characters[1]).overflowDefense,8);assert.equal(E.attackProfile(restored,D.characters[0]).defense,0);
+ const restored=S.decode(S.encode(s));assert.equal(E.getSession(restored).defense,37583);assert.equal(restored.hp,s.hp);assert.deepEqual(restored,s);
+ assert.equal(E.attackProfile(restored,D.characters[1]).overflowDefense,37583);assert.equal(E.attackProfile(restored,D.characters[0]).defense,0);
 });
 
 test('identical wraith sprites form three visible slots without multiplying HP or rewards',()=>{
@@ -33,7 +33,7 @@ test('identical wraith sprites form three visible slots without multiplying HP o
  assert.match(h.get('enemy-next-2').getAttribute('aria-label'),/後続2：ディメンター/);
  h.click('attack');h.advance(900);
  assert.ok(h.get('enemy-defeats').children.some(n=>n.dataset.defeatStyle==='dissolve'));assert.ok(h.get('arena').classList.contains('mohican-line'));
- h.click('pause');assert.equal(h.get('enemy-defeats').children.length,0);const result=h.saved();assert.equal(result.kills,1);assert.equal(result.factors,4);assert.equal(result.hp,100);
+ h.click('pause');assert.equal(h.get('enemy-defeats').children.length,0);const result=h.saved();assert.equal(result.kills,1);assert.equal(result.factors,10);assert.equal(result.hp,100);
  const choose=id=>h.get('quest-list').listeners.get('click')({target:{closest:selector=>selector==='[data-session]'?{dataset:{session:id}}:null}});
  choose('scarecrow');assert.ok(h.get('enemy-next-1').hidden&&h.get('enemy-next-2').hidden);
  choose('mohicans');assert.ok(!h.get('enemy-next-1').hidden);assert.equal(new Set(ids.map(id=>h.get(id).dataset.appearance)).size,3);

@@ -19,9 +19,9 @@ test('Meta rolls two dice, keeps floor rounding and benefits from the first powe
 });
 test('reward levels apply the same additive percentage to every session with integer total corrections',()=>{
   const s=E.createState(1000);s.upgrades.reward=1;
-  D.sessions.forEach((session,i)=>assert.ok(Math.abs(E.reward(s,session)-[3,11,49,3,9,5][i])<1e-10));
-  s.upgrades.reward=2;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[3,12,54,3,9,5]);
-  s.upgrades.reward=25;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[7,35,157,7,28,14]);
+  D.sessions.forEach((session,i)=>assert.ok(Math.abs(E.reward(s,session)-[3,11,49,3,9,11][i])<1e-10));
+  s.upgrades.reward=2;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[3,12,54,3,9,12]);
+  s.upgrades.reward=25;assert.deepEqual(D.sessions.map(session=>E.reward(s,session)),[7,35,157,7,28,35]);
 });
 test('manual clears, auto clears, spillover and offline batches award the same integer reward',()=>{
   for(const mode of ['manual','auto','offline']){

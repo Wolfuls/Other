@@ -3,19 +3,19 @@ require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js');
 const richter=D.characters.find(c=>c.id==='richter');
-function prepared(level=50){const s=E.createState(1000);s.levels.richter=level;s.selectedCharacterId='richter';s.factors=100000;return s;}
+function prepared(level=50){const s=E.createState(1000);s.levels.richter=level;s.selectedCharacterId='richter';s.factors=1e9;return s;}
 test('Meta, Richter and Vishunal are available while retired characters stay unavailable',()=>{
-  assert.deepEqual(D.characters.map(c=>c.id),['meta','richter','vishunal']);
+  assert.deepEqual(D.characters.map(c=>c.id),['meta','richter','vishunal','tordeliese','max']);
   const s=prepared();
   for(const id of ['hollow','jamie']){assert.equal(E.hire(s,id),false);assert.equal(E.buyAction(s,id),false);assert.equal(E.selectCharacter(s,id),false);}
-  assert.deepEqual(Object.keys(s.levels),['meta','richter','vishunal']);
+  assert.deepEqual(Object.keys(s.levels),['meta','richter','vishunal','tordeliese','max']);
 });
 test('level and funds are both required; purchase deducts once and does not alter action charge or earned total',()=>{
   const s=prepared(9),before=structuredClone(s);
   assert.equal(E.buyPerk(s,'richter','z-bom'),false);assert.deepEqual(s,before);
-  s.levels.richter=10;s.factors=39;const unfunded=structuredClone(s);
+  s.levels.richter=10;s.factors=99;const unfunded=structuredClone(s);
   assert.equal(E.buyPerk(s,'richter','z-bom'),false);assert.deepEqual(s,unfunded);
-  s.factors=40;s.actionPoints.richter=77;s.actionClock=.25;
+  s.factors=100;s.actionPoints.richter=77;s.actionClock=.25;
   const prior=E.stats(s,richter);assert.equal(prior.dice,5);
   assert.equal(E.buyPerk(s,'richter','z-bom'),true);assert.equal(s.factors,0);assert.equal(s.earned,0);
   assert.deepEqual(E.stats(s,richter),{dice:6,flat:0});assert.equal(s.actionPoints.richter,77);assert.equal(s.actionClock,.25);
@@ -41,10 +41,10 @@ test('schema6 removes retired characters, clears their selection, retains active
   for(const field of ['levels','actionLevels','actionPoints']){s[field].hollow=field==='levels'?20:4;s[field].jamie=field==='levels'?30:5;}
   s.selectedCharacterId='hollow';delete s.purchasedPerks;
   const restored=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:6,state:s}));
-  assert.deepEqual(restored.levels,{meta:7,richter:50,vishunal:0});assert.equal(restored.selectedCharacterId,null);
+  assert.deepEqual(restored.levels,{meta:7,richter:50,vishunal:0,tordeliese:0,max:0});assert.equal(restored.selectedCharacterId,null);
   assert.equal(restored.actionPoints.meta,39);assert.equal(restored.actionClock,.3);
   for(const key of ['factors','earned','kills'])assert.equal(restored[key],s[key]);
-  assert.deepEqual(restored.purchasedPerks,{meta:[],richter:[],vishunal:[]});assert.equal(E.hasOverflow(restored,richter),false);
+  assert.deepEqual(restored.purchasedPerks,{meta:[],richter:[],vishunal:[],tordeliese:[],max:[]});assert.equal(E.hasOverflow(restored,richter),false);
   assert.equal(JSON.parse(S.encode(restored)).schemaVersion,S.VERSION);
 });
 test('schema1 and schema4 with retired IDs still migrate through the whole chain',()=>{
@@ -54,15 +54,15 @@ test('schema1 and schema4 with retired IDs still migrate through the whole chain
     for(const key of ['actionLevels','actionPoints','actionClock','selectedCharacterId','purchasedPerks'])delete s[key];
     if(version===1){s.hp=80;s.levels.hikari=s.levels.meta;delete s.levels.meta;s.timers.hikari=s.timers.meta;delete s.timers.meta;delete s.speedLevels;}
     const restored=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:version,state:s}));
-    assert.deepEqual(restored.levels,{meta:3,richter:1,vishunal:0});assert.equal(restored.actionPoints.meta,50);assert.equal(restored.selectedCharacterId,null);
+    assert.deepEqual(restored.levels,{meta:3,richter:1,vishunal:0,tordeliese:0,max:0});assert.equal(restored.actionPoints.meta,50);assert.equal(restored.selectedCharacterId,null);
     assert.deepEqual(restored.purchasedPerks.richter,[]);
   }
 });
-test('purchased perks round-trip without another charge; malformed, duplicate and premature purchases are rejected',()=>{
+test('purchased perks round-trip without another charge; malformed and duplicate purchases are rejected',()=>{
   const s=prepared();E.buyPerk(s,'richter','z-bom');E.buyPerk(s,'richter','bom-ber');
   const restored=S.decode(S.encode(s));assert.deepEqual(restored,s);assert.equal(E.hasOverflow(restored,richter),true);
   assert.equal(E.buyPerk(restored,'richter','bom-ber'),false);assert.equal(restored.factors,s.factors);
-  for(const change of [p=>{p.purchasedPerks.richter=['z-bom','z-bom'];},p=>{p.purchasedPerks.richter=['fake'];},p=>{p.purchasedPerks.meta=['z-bom'];},p=>{p.levels.richter=9;},p=>{p.purchasedPerks.richter='z-bom';},p=>{p.purchasedPerks.hollow=[];},p=>{delete p.purchasedPerks;}]){
+  for(const change of [p=>{p.purchasedPerks.richter=['z-bom','z-bom'];},p=>{p.purchasedPerks.richter=['fake'];},p=>{p.purchasedPerks.meta=['z-bom'];},p=>{p.purchasedPerks.richter='z-bom';},p=>{p.purchasedPerks.hollow=[];},p=>{delete p.purchasedPerks;}]){
     const malformed=structuredClone(s);change(malformed);assert.throws(()=>S.encode(malformed));
   }
 });

@@ -3,7 +3,7 @@ require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js');
 const meta=D.characters.find(c=>c.id==='meta'),richter=D.characters.find(c=>c.id==='richter');
-function prepared(level=50){const s=E.createState(1000);s.levels.meta=level;s.selectedCharacterId='meta';s.factors=100000;return s;}
+function prepared(level=50){const s=E.createState(1000);s.levels.meta=level;s.selectedCharacterId='meta';s.factors=1e9;return s;}
 function withEnemy(defense,traits,run){
   const enemy=D.sessions[0],before={defense:enemy.defense,traits:enemy.traits};
   Object.assign(enemy,{defense,traits});try{return run();}finally{Object.assign(enemy,before);}
@@ -95,7 +95,7 @@ test('schema7 saves retain levels, factors and Richter purchases; Meta perks rou
   for(const p of meta.perks)E.buyPerk(restored,'meta',p.id);
   const doc=JSON.parse(S.encode(restored));assert.equal(doc.schemaVersion,S.VERSION);assert.deepEqual(S.decode(JSON.stringify(doc)),restored);
   for(const bad of ['z-bom','missing']){const corrupt=structuredClone(restored);corrupt.purchasedPerks.meta=[bad];assert.throws(()=>S.encode(corrupt));}
-  const tooEarly=structuredClone(restored);tooEarly.levels.meta=49;assert.throws(()=>S.encode(tooEarly));
+  const tooEarly=structuredClone(restored);tooEarly.levels.meta=49;assert.deepEqual(S.decode(S.encode(tooEarly)),tooEarly);
 });
 test('target modifiers reach large and split offline batches with the same profiles as live damage',()=>withEnemy(2,['mohican'],()=>{
   const s=prepared(30);E.buyPerk(s,'meta','mohican-slayer');s.actionLevels.meta=1e7;

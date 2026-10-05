@@ -6,16 +6,16 @@ test('quest purchase previews and charges scaling price, preserves health ratio 
  const s=E.createState(1000);s.hp=5;s.factors=225;
  assert.equal(E.questCost(s),100);assert.equal(E.getSession(s).hp,20);assert.equal(E.getSession(s).reward,2);
  assert.equal(E.buyQuest(s,'mohicans'),true);assert.equal(s.factors,125);assert.equal(s.hp,6);
- assert.equal(E.getSession(s).hp,24);assert.equal(E.getSession(s).reward,3);assert.equal(E.questCost(s),125);
+ assert.equal(E.getSession(s).hp,23);assert.equal(E.getSession(s).reward,3);assert.equal(E.questCost(s),125);
  assert.equal(E.buyQuest(s,'mohicans'),true);assert.equal(s.factors,0);assert.equal(s.hp,7);
- assert.equal(E.getSession(s).hp,28);assert.equal(E.getSession(s).reward,3);assert.equal(E.questCost(s),156);
+ assert.equal(E.getSession(s).hp,26);assert.equal(E.getSession(s).reward,3);assert.equal(E.questCost(s),156);
  const before=structuredClone(s);assert.equal(E.buyQuest(s,'mohicans'),false);assert.equal(E.buyQuest(s,'unknown'),false);assert.deepEqual(s,before);
  assert.equal(D.sessions[0].hp,20);assert.equal(D.sessions[0].reward,2);
 });
 test('leveled HP and rewards apply to real attacks, global reward and overkill',()=>{
- const s=E.createState(1000);s.questLevels.mohicans=2;s.hp=24;s.levels.richter=50;s.selectedCharacterId='richter';s.upgrades.reward=3;s.upgrades.overkill=1;
+ const s=E.createState(1000);s.questLevels.mohicans=2;s.hp=23;s.levels.richter=50;s.selectedCharacterId='richter';s.upgrades.reward=3;s.upgrades.overkill=1;
  const before=s.factors;E.click(s,()=>.999);
- assert.equal(s.kills,1);assert.equal(s.hp,24);near(E.reward(s),4);near(s.factors-before,5);
+ assert.equal(s.kills,1);assert.equal(s.hp,23);near(E.reward(s),4);near(s.factors-before,5);
  s.paused=false;const income=E.expectedIncome(s);s.questLevels.mohicans=3;s.hp=15;assert.equal(E.expectedIncome(s).reward,income.reward);
 });
 test('schema 12 migration preserves existing progress and new quest/time data round trips',()=>{
@@ -50,10 +50,10 @@ test('very high quest HP uses a bounded deterministic estimate, supports spillov
 test('quest tab, preview, purchase and saved level work; character picker says Geruhamto',()=>{
  const s=E.createState(1000);s.paused=true;s.factors=500;s.hp=5;const h=harness(s);
  assert.equal(h.get('picker-name-richter').textContent,'ゲルハムト');h.click('tab-quests');assert.equal(h.get('panel-quests').hidden,false);assert.equal(h.get('panel-characters').hidden,true);
- assert.equal(h.get('quest-hp-mohicans').textContent,'20 → 24');assert.equal(h.get('quest-reward-mohicans').textContent,'2 → 3 Rd');
+ assert.equal(h.get('quest-hp-mohicans').textContent,'20 → 23');assert.equal(h.get('quest-reward-mohicans').textContent,'2 → 3 Rd');
  h.get('quest-list').listeners.get('click')({target:{closest:()=>({dataset:{quest:'mohicans'},disabled:false})}});
  assert.equal(h.saved().questLevels.mohicans,2);assert.equal(h.saved().factors,400);assert.equal(h.saved().hp,6);
- assert.equal(h.get('quest-hp-mohicans').textContent,'24 → 28');assert.match(h.get('quest-cost-mohicans').textContent,/125/);assert.equal(h.get('hp-progress').getAttribute('aria-valuemax'),'24');
+ assert.equal(h.get('quest-hp-mohicans').textContent,'23 → 26');assert.match(h.get('quest-cost-mohicans').textContent,/125/);assert.equal(h.get('hp-progress').getAttribute('aria-valuemax'),'23');
  h.get('tab-quests').listeners.get('keydown')({key:'ArrowRight',preventDefault(){}});assert.equal(h.document.activeElement.id,'tab-upgrades');
 });
 test('bounded high-HP model tracks independent sampled armor, KO, overkill and spillover outcomes',()=>{

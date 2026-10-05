@@ -711,3 +711,47 @@ Make only these surgical edits throughout all eight frames:
 3. Remove all yellow/orange missile muzzle flashes from the sprite sheet, restore clean purple muzzle openings behind them; the game will overlay dynamic flashes at every individual port. Keep each of the eight existing body/recoil poses, including the four lower-row rapid-fire poses. Visible large back launcher has FOUR ports in a 2x2 arrangement, small side launcher has FOUR ports in a 2x2 arrangement. Preserve the hardware and ports consistently.
 Strict invariants: keep ONLY this same small four-legged brown/tan dog with blue collar, grey-blue/purple launchers, same eight silhouettes, same frame placement/padding/foot baseline, same pixel resolution and clean pixel edges, same palette/shading everywhere except edited eyes and pendant. Do NOT adopt the old black-fur portrait, do not redesign anything, no new background/text/items. Output transparent PNG, exact 4x2 equally spaced atlas preferably 896x448, no cropped paws or overlapping cells.
 
+
+## v0.39.0：トルデリーゼ・トルンヴァルト
+
+ユーザー提供の立ち絵を参照し、内蔵 image_gen.imagegen で制作。待機・通常攻撃・連続攻撃を各4コマにし、技術的な切り出しと最近傍拡縮で足元と倍率を統一。
+
+- tordeliese-poses-v1.png：1664×1248、4列×3行、各416×416。
+- tordeliese-standing-v1.png：待機の先頭1コマ。
+- tordeliese-tendril-v1.png：512×512、2列×2行、各256×256。根元をキャラに固定する別レイヤーの伸縮モーション。
+- tordeliese-v1.json：コマ定義、生成プロンプト、参照情報。
+
+すべて外部の透過PNG。既存キャラの画像は変更していません。
+
+
+## v0.39.1：トルデリーゼの頭身・表情・コマ分離
+
+内蔵 image_gen.imagegen で全12コマを描き直し、ユーザーの追加参考画像に合わせて親しみのある顔へ調整。頭身を高め、165cm対180cmの身長比でゲルハムトと表示を統一。
+
+- tordeliese-{idle,attack,burst}-{1..4}-v2.png：各416×416、実際の再生に使う独立した透過PNG。
+- tordeliese-standing-v2.png：新しい待機先頭コマ。
+- tordeliese-poses-v2.png：1664×1248の閲覧用一覧。
+- tordeliese-tendril-{1..4}-v2.png：各256×256、旧触手シートを独立画像に分離。
+- tordeliese-v2.json：生成ツール・全プロンプト・参考画像・切り出し位置・表示寸法の記録。
+
+透明領域の境界から切り出し、共通倍率と足元で配置。各フレームを別画像として切り替えるため隣のコマが映り込まない。旧画像は保持。
+
+
+## v0.39.2：トルデリーゼ v3
+
+内蔵 image_gen.imagegen で描き直し。メタ・ゲルハムトを画風の参照にし、待機・通常攻撃・連続攻撃と伸縮触手を各6コマ化。すべて256×256の外部透過PNG。tordeliese-poses-v3.png は6列×3行の確認用一覧、tordeliese-tendril-v3.png は3列×2行。実際の再生は各コマの独立PNG。旧画像は保持。全プロンプト・切り出し・倍率・再生時間は tordeliese-v3.json に記録。
+
+
+## v0.39.3：トルデリーゼ v4
+
+内蔵 image_gen.imagegen による輪郭と色境界の明瞭化。待機・攻撃・連続攻撃・触手を各6コマ、256×256の独立透過PNGで保存。v3の動き、頭身、再生時間を継続。tordeliese-poses-v4.png は6列×3行、tordeliese-tendril-v4.png は3列×2行の閲覧用一覧。全プロンプトと切り出し情報は tordeliese-v4.json に記録。
+
+
+## v0.39.4：トルデリーゼ v5
+
+内蔵 image_gen.imagegen で中密度の細かいドットへ調整。輪郭の明瞭さを維持しつつ、眼鏡・顔・髪・指先と触手の細部を整理。各モーション6コマ、各384×384の外部透過PNG。身体の表示高約171pxと、足元・触手の根元・再生速度は維持。確認用一覧は tordeliese-poses-v5.png（2304×1152）、tordeliese-tendril-v5.png（1152×768）。実際は各コマを独立PNGで再生。旧版は保持。プロンプト、切り出しと倍率は tordeliese-v5.json に記録。
+
+
+## v0.39.5：トルデリーゼ v6
+
+内蔵 image_gen.imagegen による表情・連続攻撃姿勢の更新。待機・通常攻撃は快活で表情豊かに。連続攻撃は指差しをやめ、膝を曲げて低く踏ん張る姿勢と集中した攻撃的な顔へ。各6コマ、384×384の独立透過PNG。通常立ち絵の身長比と共通倍率を維持し、しゃがみを縮尺で引き伸ばさない。tordeliese-poses-v6.png は2304×1152の確認用一覧。伸びる触手はv5画像を再利用。全プロンプトと配置は tordeliese-v6.json に記録。

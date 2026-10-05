@@ -1,0 +1,143 @@
+{
+  "id": "gamer-throne",
+  "version": 4,
+  "status": "sprite-assets-only",
+  "frameWidth": 256,
+  "frameHeight": 256,
+  "anchor": {
+    "x": 128,
+    "y": 242
+  },
+  "standing": "gamer-throne-standing-v4.png",
+  "atlas": {
+    "file": "gamer-throne-atlas-v4.png",
+    "columns": 4,
+    "rows": 8
+  },
+  "states": {
+    "idle": {
+      "file": "gamer-throne-idle-v4.png",
+      "frames": 4,
+      "durationsMs": [
+        240,
+        240,
+        240,
+        240
+      ],
+      "loop": true
+    },
+    "attack": {
+      "file": "gamer-throne-attack-v4.png",
+      "frames": 8,
+      "durationsMs": [
+        300,
+        90,
+        110,
+        90,
+        80,
+        100,
+        110,
+        300
+      ],
+      "loop": false,
+      "throwFrame": 4,
+      "impactFrame": 6,
+      "nextState": "idle"
+    },
+    "burst": {
+      "file": "gamer-throne-burst-v3.png",
+      "frames": 8,
+      "durationsMs": [
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60
+      ],
+      "loop": true,
+      "unchanged": true
+    },
+    "burstTwoHandsEnter": {
+      "file": "gamer-throne-burst-two-hands-enter-v1.png",
+      "frames": 6,
+      "durationsMs": [
+        150,
+        90,
+        90,
+        90,
+        90,
+        60
+      ],
+      "loop": false,
+      "nextState": "burstTwoHands"
+    },
+    "burstTwoHands": {
+      "file": "gamer-throne-burst-two-hands-v1.png",
+      "frames": 8,
+      "durationsMs": [
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60
+      ],
+      "loop": true,
+      "interruptible": true,
+      "nextState": "burstTwoHandsExit"
+    },
+    "burstTwoHandsExit": {
+      "file": "gamer-throne-burst-two-hands-exit-v1.png",
+      "frames": 6,
+      "durationsMs": [
+        60,
+        90,
+        90,
+        90,
+        90,
+        150
+      ],
+      "loop": false,
+      "nextState": "idle"
+    }
+  },
+  "notes": [
+    "Normal: viewer-right cheek support, viewer-left die throwing arm; exactly two arms.",
+    "Two-hand burst is an optional new variant; existing v3 one-hand burst remains unchanged.",
+    "During two-hand burst, legs are uncrossed and the board is deployed frontally.",
+    "No gameplay registration or combat stats changed.",
+    "The v3 one-hand variant retains its original resting pose; it is a separate preserved asset."
+  ],
+  "atlasFrames": [
+    {
+      "state": "idle-v4",
+      "start": 0,
+      "count": 4
+    },
+    {
+      "state": "attack-v4",
+      "start": 4,
+      "count": 8
+    },
+    {
+      "state": "burst-two-hands-enter-v1",
+      "start": 12,
+      "count": 6
+    },
+    {
+      "state": "burst-two-hands-v1",
+      "start": 18,
+      "count": 8
+    },
+    {
+      "state": "burst-two-hands-exit-v1",
+      "start": 26,
+      "count": 6
+    }
+  ]
+}

@@ -1,0 +1,572 @@
+{
+  "character": "トルデリーゼ・トルンヴァルト",
+  "version": "0.39.4",
+  "layout": {
+    "frameSize": 384,
+    "bodyCenterX": 166.5,
+    "footY": 360,
+    "displaySize": 256,
+    "bodyHeight": 256.5,
+    "displayBodyHeight": 171,
+    "scale": 0.6317733990147784,
+    "limbScale": 0.7131696428571429,
+    "sources": {
+      "idle": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-ed8ec477-673a-4d42-9abf-487a3d74145b.png",
+      "attack": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-b8e170e6-03d3-4f45-9213-54fba0b57905.png",
+      "burst": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-93cd48a3-1259-4884-980c-d38fa4b96be1.png",
+      "tendril": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-90675c5f-8d19-425b-9c63-53b3be79c22f.png"
+    },
+    "frames": [
+      {
+        "motion": "idle",
+        "frame": 1,
+        "file": "tordeliese-idle-1-v5.png",
+        "sourceBounds": [
+          53,
+          79,
+          431,
+          484
+        ],
+        "sourceFeet": 485,
+        "sourceCenter": 243,
+        "placement": [
+          45,
+          102,
+          242,
+          259
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 2,
+        "file": "tordeliese-idle-2-v5.png",
+        "sourceBounds": [
+          573,
+          81,
+          955,
+          485
+        ],
+        "sourceFeet": 486,
+        "sourceCenter": 765.5,
+        "placement": [
+          44,
+          103,
+          244,
+          258
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 3,
+        "file": "tordeliese-idle-3-v5.png",
+        "sourceBounds": [
+          1095,
+          81,
+          1474,
+          484
+        ],
+        "sourceFeet": 485,
+        "sourceCenter": 1285,
+        "placement": [
+          45,
+          104,
+          243,
+          258
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 4,
+        "file": "tordeliese-idle-4-v5.png",
+        "sourceBounds": [
+          52,
+          569,
+          431,
+          973
+        ],
+        "sourceFeet": 974,
+        "sourceCenter": 244.5,
+        "placement": [
+          44,
+          103,
+          243,
+          258
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 5,
+        "file": "tordeliese-idle-5-v5.png",
+        "sourceBounds": [
+          574,
+          569,
+          956,
+          973
+        ],
+        "sourceFeet": 974,
+        "sourceCenter": 764.5,
+        "placement": [
+          45,
+          103,
+          244,
+          258
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 6,
+        "file": "tordeliese-idle-6-v5.png",
+        "sourceBounds": [
+          1095,
+          570,
+          1480,
+          973
+        ],
+        "sourceFeet": 974,
+        "sourceCenter": 1287,
+        "placement": [
+          44,
+          104,
+          246,
+          258
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 1,
+        "file": "tordeliese-attack-1-v5.png",
+        "sourceBounds": [
+          53,
+          77,
+          431,
+          478
+        ],
+        "sourceFeet": 479,
+        "sourceCenter": 238.5,
+        "placement": [
+          48,
+          105,
+          242,
+          257
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 2,
+        "file": "tordeliese-attack-2-v5.png",
+        "sourceBounds": [
+          572,
+          92,
+          955,
+          478
+        ],
+        "sourceFeet": 479,
+        "sourceCenter": 762.5,
+        "placement": [
+          45,
+          114,
+          245,
+          247
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 3,
+        "file": "tordeliese-attack-3-v5.png",
+        "sourceBounds": [
+          1096,
+          40,
+          1519,
+          478
+        ],
+        "sourceFeet": 479,
+        "sourceCenter": 1274.5,
+        "placement": [
+          52,
+          81,
+          270,
+          280
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 4,
+        "file": "tordeliese-attack-4-v5.png",
+        "sourceBounds": [
+          48,
+          567,
+          500,
+          966
+        ],
+        "sourceFeet": 967,
+        "sourceCenter": 241.5,
+        "placement": [
+          43,
+          106,
+          289,
+          255
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 5,
+        "file": "tordeliese-attack-5-v5.png",
+        "sourceBounds": [
+          572,
+          567,
+          1018,
+          966
+        ],
+        "sourceFeet": 967,
+        "sourceCenter": 755.5,
+        "placement": [
+          49,
+          106,
+          285,
+          255
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 6,
+        "file": "tordeliese-attack-6-v5.png",
+        "sourceBounds": [
+          1095,
+          564,
+          1482,
+          966
+        ],
+        "sourceFeet": 967,
+        "sourceCenter": 1284,
+        "placement": [
+          46,
+          104,
+          248,
+          257
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 1,
+        "file": "tordeliese-burst-1-v5.png",
+        "sourceBounds": [
+          43,
+          90,
+          457,
+          473
+        ],
+        "sourceFeet": 474,
+        "sourceCenter": 225,
+        "placement": [
+          50,
+          116,
+          265,
+          245
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 2,
+        "file": "tordeliese-burst-2-v5.png",
+        "sourceBounds": [
+          540,
+          80,
+          956,
+          473
+        ],
+        "sourceFeet": 474,
+        "sourceCenter": 740,
+        "placement": [
+          39,
+          110,
+          266,
+          251
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 3,
+        "file": "tordeliese-burst-3-v5.png",
+        "sourceBounds": [
+          1086,
+          100,
+          1504,
+          473
+        ],
+        "sourceFeet": 474,
+        "sourceCenter": 1277.5,
+        "placement": [
+          44,
+          122,
+          267,
+          239
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 4,
+        "file": "tordeliese-burst-4-v5.png",
+        "sourceBounds": [
+          50,
+          564,
+          458,
+          959
+        ],
+        "sourceFeet": 960,
+        "sourceCenter": 228.5,
+        "placement": [
+          52,
+          109,
+          261,
+          253
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 5,
+        "file": "tordeliese-burst-5-v5.png",
+        "sourceBounds": [
+          545,
+          573,
+          975,
+          959
+        ],
+        "sourceFeet": 960,
+        "sourceCenter": 757,
+        "placement": [
+          31,
+          114,
+          275,
+          247
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 6,
+        "file": "tordeliese-burst-6-v5.png",
+        "sourceBounds": [
+          1094,
+          579,
+          1499,
+          959
+        ],
+        "sourceFeet": 960,
+        "sourceCenter": 1280.5,
+        "placement": [
+          47,
+          118,
+          259,
+          243
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 1,
+        "file": "tordeliese-tendril-1-v5.png",
+        "sourceBounds": [
+          52,
+          169,
+          309,
+          407
+        ],
+        "sourceRoot": [
+          70,
+          305.5
+        ],
+        "placement": [
+          10,
+          93,
+          187,
+          173
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 2,
+        "file": "tordeliese-tendril-2-v5.png",
+        "sourceBounds": [
+          545,
+          101,
+          885,
+          378
+        ],
+        "sourceRoot": [
+          563,
+          305.5
+        ],
+        "placement": [
+          10,
+          45,
+          246,
+          201
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 3,
+        "file": "tordeliese-tendril-3-v5.png",
+        "sourceBounds": [
+          1025,
+          170,
+          1502,
+          398
+        ],
+        "sourceRoot": [
+          1043,
+          305
+        ],
+        "placement": [
+          10,
+          94,
+          344,
+          166
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 4,
+        "file": "tordeliese-tendril-4-v5.png",
+        "sourceBounds": [
+          53,
+          695,
+          519,
+          848
+        ],
+        "sourceRoot": [
+          71,
+          780
+        ],
+        "placement": [
+          10,
+          130,
+          336,
+          113
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 5,
+        "file": "tordeliese-tendril-5-v5.png",
+        "sourceBounds": [
+          574,
+          687,
+          998,
+          941
+        ],
+        "sourceRoot": [
+          592,
+          778.5
+        ],
+        "placement": [
+          10,
+          125,
+          306,
+          185
+        ]
+      },
+      {
+        "motion": "tendril",
+        "frame": 6,
+        "file": "tordeliese-tendril-6-v5.png",
+        "sourceBounds": [
+          1089,
+          645,
+          1399,
+          887
+        ],
+        "sourceRoot": [
+          1107,
+          779.5
+        ],
+        "placement": [
+          10,
+          95,
+          225,
+          176
+        ]
+      }
+    ]
+  },
+  "motions": {
+    "idle": {
+      "duration": 2200,
+      "stops": [
+        0,
+        0.26,
+        0.46,
+        0.51,
+        0.7,
+        0.86
+      ]
+    },
+    "attack": {
+      "duration": 800,
+      "stops": [
+        0,
+        0.16,
+        0.33,
+        0.62,
+        0.75,
+        0.91
+      ]
+    },
+    "burst": {
+      "duration": 480,
+      "stops": [
+        0,
+        0.16666666666666666,
+        0.3333333333333333,
+        0.5,
+        0.6666666666666666,
+        0.8333333333333334
+      ]
+    },
+    "tendril": {
+      "duration": 820,
+      "stops": [
+        0,
+        0.12,
+        0.3,
+        0.6,
+        0.76,
+        0.89
+      ]
+    }
+  },
+  "generation": {
+    "tool": "Built-in image_gen.imagegen",
+    "prompts": [
+      {
+        "step": "idle",
+        "prompt": "Use case: precise-object-edit.\nThe user says the pixel blocks are now TOO COARSE. Refine to a medium-fine pixel-art density: roughly 1.5 times as many meaningful pixels across the SAME character silhouette. This is NOT blur or smoothing and NOT an enlargement of existing square blocks. Redraw with smaller, deliberate pixel steps and thin confident dark contour lines. Use a restrained 48-64 color palette with clear flat cel shadows. Preserve strong clean boundaries, but less chunky blockiness, especially the glasses rims, eyes, mouth, bangs, fingers, skirt hem and arthropod legs. No antialiased haze, noisy stipple, airbrush gradients, photographic or glossy 3D shading. Fine late-1990s/early-2000s hand-pixeled RPG sprites, not 8-bit chunky pixel art.\nPreserve exactly the approved character design, proportions, face, clothing and all six poses. Adult woman, silver bob with red streak/underlayer, black glasses, cyan eye on viewer left and yellow eye on viewer right, small friendly smile, black cross choker, white knit sweater (few simple stitch marks), black pleated skirt, black boots. The attached black/red centipede limbs have segmented armor and many small pale legs, sparse cyan glints, not snakes. Two human arms and legs only.\nExactly 3 columns by 2 rows, six equally spaced square cells, the same six frames in reading order. Please output 1536x1024 with 512x512 cells, full body roughly 330-340 pixels tall, feet at y=468 in every cell, body center x=222. Entire pose including centipedes fits its own cell with at least 28px empty transparent margin. Identical rendering/palette/head size across frames. No text, labels, background, floor, crop, overlap or added objects. Genuine transparent PNG.\nEDIT TARGET: the attached six-frame IDLE sheet. Preserve its subtle breathing, weight shifts and middle blink. Do not invent new gestures or change the stance. The six poses remain subtly different as in reference."
+      },
+      {
+        "step": "attack",
+        "prompt": "Use case: precise-object-edit.\nThe user says the pixel blocks are now TOO COARSE. Refine to a medium-fine pixel-art density: roughly 1.5 times as many meaningful pixels across the SAME character silhouette. This is NOT blur or smoothing and NOT an enlargement of existing square blocks. Redraw with smaller, deliberate pixel steps and thin confident dark contour lines. Use a restrained 48-64 color palette with clear flat cel shadows. Preserve strong clean boundaries, but less chunky blockiness, especially the glasses rims, eyes, mouth, bangs, fingers, skirt hem and arthropod legs. No antialiased haze, noisy stipple, airbrush gradients, photographic or glossy 3D shading. Fine late-1990s/early-2000s hand-pixeled RPG sprites, not 8-bit chunky pixel art.\nPreserve exactly the approved character design, proportions, face, clothing and all six poses. Adult woman, silver bob with red streak/underlayer, black glasses, cyan eye on viewer left and yellow eye on viewer right, small friendly smile, black cross choker, white knit sweater (few simple stitch marks), black pleated skirt, black boots. The attached black/red centipede limbs have segmented armor and many small pale legs, sparse cyan glints, not snakes. Two human arms and legs only.\nExactly 3 columns by 2 rows, six equally spaced square cells, the same six frames in reading order. Please output 1536x1024 with 512x512 cells, full body roughly 330-340 pixels tall, feet at y=468 in every cell, body center x=222. Entire pose including centipedes fits its own cell with at least 28px empty transparent margin. Identical rendering/palette/head size across frames. No text, labels, background, floor, crop, overlap or added objects. Genuine transparent PNG.\nImage1 is the EDIT TARGET: six NORMAL ATTACK frames. Preserve the exact poses, stance, rightward facing, centipede arcs, and sequence: ready, crouched wind-up, upward swing, forward lash, follow-through, recovery. Image2 is the just-approved fine-pixel rendering reference of the SAME character. Match image2's head size, thinner glasses/contours, facial features, colors, sweater and boots exactly, without adopting its idle poses. Draw each attack pose on the same fine pixel grid. Use the SAME full body height as image2's standing figure (about 400px within a 512px cell), lowered naturally for crouching, no anatomy drift. Keep every tentacle fully inside its own cell."
+      },
+      {
+        "step": "burst",
+        "prompt": "Use case: precise-object-edit.\nThe user says the pixel blocks are now TOO COARSE. Refine to a medium-fine pixel-art density: roughly 1.5 times as many meaningful pixels across the SAME character silhouette. This is NOT blur or smoothing and NOT an enlargement of existing square blocks. Redraw with smaller, deliberate pixel steps and thin confident dark contour lines. Use a restrained 48-64 color palette with clear flat cel shadows. Preserve strong clean boundaries, but less chunky blockiness, especially the glasses rims, eyes, mouth, bangs, fingers, skirt hem and arthropod legs. No antialiased haze, noisy stipple, airbrush gradients, photographic or glossy 3D shading. Fine late-1990s/early-2000s hand-pixeled RPG sprites, not 8-bit chunky pixel art.\nPreserve exactly the approved character design, proportions, face, clothing and all six poses. Adult woman, silver bob with red streak/underlayer, black glasses, cyan eye on viewer left and yellow eye on viewer right, small friendly smile, black cross choker, white knit sweater (few simple stitch marks), black pleated skirt, black boots. The attached black/red centipede limbs have segmented armor and many small pale legs, sparse cyan glints, not snakes. Two human arms and legs only.\nExactly 3 columns by 2 rows, six equally spaced square cells, the same six frames in reading order. Please output 1536x1024 with 512x512 cells, full body roughly 330-340 pixels tall, feet at y=468 in every cell, body center x=222. Entire pose including centipedes fits its own cell with at least 28px empty transparent margin. Identical rendering/palette/head size across frames. No text, labels, background, floor, crop, overlap or added objects. Genuine transparent PNG.\nImage1 is the EDIT TARGET: six BURST/RAPID ATTACK poses in reading order. Preserve exactly its distinct alternating elbows, torso twists, knees and four lashing centipedes. Image2 is the generated finer-rendering reference of the SAME character: match those thinner outlines, head size, glasses, face, colors and clothing detail, without copying its idle poses. Full upright body size is about 400px per 512px cell, a little lower in crouched poses, same anatomy scale in all poses. Keep the six-pose loop continuous and ensure all centipede tips fit their own cell."
+      },
+      {
+        "step": "tendril",
+        "prompt": "Use case: precise-object-edit. Refine the attached six-frame centipede limb sprite sheet to MEDIUM-FINE pixel art, less chunky than this version. Keep all six poses, arcs, lengths and the fixed left-side root exactly as shown. Same segmented dark armor, dark red bands, sparse cyan highlights and many pale claw-like legs. Thinner deliberate dark outlines, small clean stair-step pixels, a moderately richer 48-color palette with controlled flat shadows. Preserve clear edges; no blur, photographic smoothing, gradients, glow, haze or stipple. Not ultra-coarse retro pixels and not a smooth vector or 3D illustration. Output 1536x1024, 3 columns by 2 rows, each 512x512 square cell. About twice the current pixel resolution, actually drawing finer contour/detail rather than enlarging pixel blocks. Leave transparent padding around every limb, never overlap cells or clip. Preserve pose order reading left to right, top row then bottom. Real transparent alpha, no backdrop/shadows/labels/characters."
+      }
+    ],
+    "references": [
+      "tordeliese-poses-v4.png",
+      "tordeliese-tendril-v4.png"
+    ],
+    "packing": "Technical crop at transparent separators and nearest-neighbour resampling into 384px independent PNG frames. Display remains 256px; no blur or sharpening filter. Reference rows rearranged into 3x2 grids for generation."
+  },
+  "tendril": {
+    "frameSize": 384,
+    "frames": 6,
+    "root": [
+      24,
+      192
+    ],
+    "strikeFrame": 4,
+    "impactMs": 520
+  }
+}

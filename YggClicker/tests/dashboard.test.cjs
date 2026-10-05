@@ -36,7 +36,7 @@ test('orbit option removes the decorative nodes, persists and restores without c
  assert.ok(h.get('meta-orbits').children.length>0);assert.ok(h.get('richter-orbits').children.length>0);
  toggle(h,false);
  for(const id of ['meta-orbits','richter-orbits']){assert.equal(h.get(id).hidden,true);assert.equal(h.get(id).children.length,0);}
- assert.deepEqual(h.saved(),{...state,options:{showOrbits:false}});
+ assert.deepEqual(h.saved(),{...state,options:{...state.options,showOrbits:false}});
  assert.equal(h.get('dps').textContent,dps);assert.equal(h.get('stats-meta').textContent,stats);
  const reloaded=harness(h.saved());assert.equal(reloaded.get('option-orbits').checked,false);assert.equal(reloaded.get('meta-orbits').children.length,0);
  toggle(h,true);assert.deepEqual(h.saved(),state);assert.ok(h.get('meta-orbits').children.length>0);assert.ok(h.get('richter-orbits').children.length>0);
@@ -44,7 +44,7 @@ test('orbit option removes the decorative nodes, persists and restores without c
 
 test('hidden floating symbols retain attack projectiles, impacts and identical earned currency',()=>{
  const state=prepared();state.paused=false;state.selectedCharacterId='meta';
- const on=harness(state),off=harness({...state,options:{showOrbits:false}});
+ const on=harness(state),off=harness({...state,options:{...state.options,showOrbits:false}});
  for(const h of [on,off]){h.click('attack');h.advance(120);assert.ok(h.get('saw-projectiles').children.length>0);h.advance(1600);h.click('pause');}
  const a=on.saved(),b=off.saved();delete a.options;delete b.options;assert.deepEqual(a,b);
  assert.ok(a.kills>state.kills);assert.ok(a.factors>state.factors);

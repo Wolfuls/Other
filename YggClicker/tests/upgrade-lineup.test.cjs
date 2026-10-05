@@ -12,30 +12,30 @@ test('new lineup inherits purchased levels and prices while applying the four ne
  near(E.reward(s),3);near(E.overkillBonus(s),1);assert.equal(E.buyUpgrade(s,'overkill'),false);
 });
 
-test('speed multiplies individually trained action power and exact one-second charges, without changing per-hit damage',()=>{
+test('speed adds to individually trained action power and exact one-second charges, without changing per-hit damage',()=>{
  const s=E.createState(1000),c=D.characters[1];s.levels.richter=1;s.actionLevels.richter=10;
  const profile=E.attackProfile(s,c);s.upgrades.power=20;
- assert.deepEqual(E.attackProfile(s,c),profile);assert.equal(E.actionPower(s,c),120);assert.equal(E.attackRate(s,c),1.2);
- E.advance(s,1,()=>.999);assert.equal(s.actionPoints.richter,20);assert.equal(s.kills,1);
- E.advance(s,1,()=>.999);assert.equal(s.actionPoints.richter,40);assert.equal(s.kills,2);
- s.upgrades.power=100;near(E.actionPower(s,c),200);
+ assert.deepEqual(E.attackProfile(s,c),profile);assert.equal(E.actionPower(s,c),105);assert.equal(E.attackRate(s,c),1.05);
+ E.advance(s,1,()=>.999);assert.equal(s.actionPoints.richter,5);assert.equal(s.kills,1);
+ E.advance(s,1,()=>.999);assert.equal(s.actionPoints.richter,10);assert.equal(s.kills,2);
+ s.upgrades.power=100;near(E.actionPower(s,c),185);
 });
 
 test('character DPS sums to party DPS, includes all corrections, and action rate excludes free reattacks',()=>{
  const s=E.createState(1000),meta=D.characters[0],dog=D.characters[2];s.levels.meta=11;s.actionLevels.meta=2;s.upgrades.click=2;s.upgrades.power=10;
- near(E.actionMultiplier(s,meta),66/50);near(E.attackRate(s,meta),.66);near(E.characterDps(s,meta),11.88);
- s.boostSeconds=30;near(E.characterDps(s,meta),23.76);assert.equal(E.characterDps(s,dog),0);
+ near(E.actionMultiplier(s,meta),70/50);near(E.attackRate(s,meta),.7);near(E.characterDps(s,meta),12.6);
+ s.boostSeconds=30;near(E.characterDps(s,meta),25.2);assert.equal(E.characterDps(s,dog),0);
  s.levels.vishunal=50;const before=E.characterDps(s,dog),rate=E.attackRate(s,dog);s.purchasedPerks.vishunal=['missile-missile'];
  near(E.characterDps(s,dog),require('../js/battle-batch.js').averageDamage(E.attackProfile(s,dog))*rate);assert.equal(E.attackRate(s,dog),rate);
  near(E.dps(s),D.characters.reduce((sum,c)=>sum+E.characterDps(s,c),0));
- const h=harness({...s,paused:true});assert.equal(h.get('character-dps-meta').textContent,'（23.76 DPS）');assert.equal(h.get('character-rate-meta').textContent,'（0.66 回/秒）');
- assert.equal(h.get('action-bonus-meta').textContent,'×1.32');
+ const h=harness({...s,paused:true});assert.equal(h.get('character-dps-meta').textContent,'（25.2 DPS）');assert.equal(h.get('character-rate-meta').textContent,'（0.7 回/秒）');
+ assert.equal(h.get('action-bonus-meta').textContent,'×1.4');
 });
 
 test('concentration invalidates expected income and improves automatic clears rather than only manual damage',()=>{
  const s=E.createState();s.levels.meta=1;const before=E.expectedIncome(s);s.upgrades.click=20;
  const after=E.expectedIncome(s);assert.ok(after.factorsPerSecond>before.factorsPerSecond);
- near(after.factorsPerSecond,1);s.upgrades.power=25;near(E.expectedIncome(s).factorsPerSecond,after.factorsPerSecond*62/50);
+ near(after.factorsPerSecond,1);s.upgrades.power=25;near(E.expectedIncome(s).factorsPerSecond,after.factorsPerSecond*75/50);
 });
 
 test('percentage overkill pays upgraded reward in exact, collapsed and offline paths and preserves visual bonus totals',()=>{

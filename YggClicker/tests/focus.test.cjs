@@ -49,7 +49,7 @@ test('Lv25 upgrade controls remain usable and persist the newly purchased level'
   h.get('upgrade-list').listeners.get('click')({target:{closest:()=>({dataset:{upgrade:id}})}});
   assert.equal(h.get('upgrade-level-'+id).textContent,'Lv.26');assert.equal(h.saved().upgrades[id],26);
  }
- assert.equal(h.get('power-bonus').textContent,'＋26%');assert.equal(h.get('reward-bonus').textContent,'＋260%');
+ assert.equal(h.get('power-bonus').textContent,'＋26');assert.equal(h.get('reward-bonus').textContent,'＋260%');
 });
 
 test('zoom uses visible occupancy: missing or sparse symbols stay full size, crowded orbits shrink',()=>{

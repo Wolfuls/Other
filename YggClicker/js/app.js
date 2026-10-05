@@ -8,6 +8,9 @@
   let controlsKey = '', battleRender = null, combatGeometry = null;
   let managerTab = 'characters', inspectedCharacter = 'meta', noticeTimer;
   const managerTabs = ['characters','quests','upgrades','stats','options'];
+  const displayControls = {'option-orbits':'showOrbits','option-hit-effects':'hitEffects',
+    'option-factor-rain':'showFactorRain','option-reward-dice':'showRewardDice',
+    'option-damage-numbers':'showDamageNumbers','option-overflow-labels':'showOverflowLabels','option-defeat-labels':'showDefeatLabels'};
   let enemyVariantSession = '', enemyQueue = [], lastEnemyAdvance = -Infinity;
   let orbitLayoutKey = '', arenaViewportWidth = 0;
   let shownCrystals = -1;
@@ -20,6 +23,8 @@
   let shownSaws = -1, metaAttackTimer, lastMetaAttack = -Infinity, lastMetaShot = -Infinity;
   let displayedHP = null, visualHitId = 0, spawnTimer, hitTimer;
   let shownBombs = -1, richterAttackTimer, lastRichterShot = -Infinity;
+  let maxAttackTimer,lastMaxShot=-Infinity;
+  let lastTordelieseShot=-Infinity,tordelieseAttackTimer,tordelieseLashIndex=0,tordelieseSpriteScale=1;
   let vishunalAttackTimer, lastVishunalShot = -Infinity, vishunalMotionStarted = 0, muzzleOrder = [], vishunalSpriteScale=.5;
   const visualTimers = new Set();
   const playback = FX.createPlayback({ onLaunch:showLaunch, onImpact:showImpact, onActorIdle:finishBurst, onIdle:() => {
@@ -39,6 +44,7 @@
     if (profile.ignoreDefense) text += ' / 防御無視';
     else if (profile.defense) text += ` − ${profile.defense}（防御）`;
     if(profile.extraAttackChance) text += ` / 追加攻撃${rateFormat(profile.extraAttackChance*100)}%（再抽選）`;
+    if(profile.poisonDamage) text += ` / 猛毒：被弾ごとに固定${profile.poisonDamage}（防御・倍率の影響なし）`;
     if(profile.penetrationBlocked) text += ' / 貫通無効';
     if(profile.overflow) text += profile.ignoreDefense?' / 群れに巻き込み（後続も防御無視）':' / 群れに巻き込み（後続は防御適用）';
     return text;
@@ -117,25 +123,48 @@
     $('richter-standing').style.setProperty('--richter-sheet', `url("${D.richterVisual.sheet}")`);
     $('richter-standing').style.setProperty('--richter-burst-sheet', `url("${D.richterVisual.burstSheet}")`);
     $('vishunal-standing').style.setProperty('--vishunal-sheet', `url("${D.vishunalVisual.sheet}")`);
+    for(const [motion,frames]of Object.entries(D.tordelieseVisual.frames))frames.forEach((src,i)=>$('tordeliese-standing').style.setProperty(`--tordeliese-${motion}-${i}`,`url("${src}")`));
+    D.tordelieseVisual.tendrilFrames.forEach((src,i)=>$('tordeliese-tendrils').style.setProperty(`--tendril-${i}`,`url("${src}")`));
     $('explosions').style.setProperty('--explosion-sheet', `url("${D.richterVisual.explosionSheet}")`);
     $('explosions').style.setProperty('--blast-duration', `${RICHTER_EXPLOSION_MS}ms`);
     $('party-capacity').textContent = `/ ${D.characters.length}`;
     $('manual-formula').innerHTML = formulaPanel('manual', true);
-    $('character-picker').innerHTML = D.characters.map(c=>`<button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="vishunal-avatar pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-name" id="picker-name-${c.id}"></span></button>`).join('');
-    for (const src of [...D.sessions.flatMap(s=>[s.background,s.nightBackground,s.sheet,s.defeatSheet].filter(Boolean)),D.vishunalVisual.sheet,D.vishunalVisual.missile,D.metaVisual.burstSheet, D.richterVisual.burstSheet, D.richterVisual.bomb,D.richterVisual.idleSheet, D.richterVisual.explosionSheet,...D.sessions.flatMap(s=>(s.variants||[]).flatMap(v=>[v.sheet||v.image,v.defeatSheet].filter(Boolean)))]) { const preload = new Image(); preload.src = src; }
+    $('character-picker').innerHTML = D.characters.map(c=>`<button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-name" id="picker-name-${c.id}"></span></button>`).join('');
+    for (const src of ['./img/gamer-throne-standing-v6.png','./img/gamer-throne-attack-v6.png','./img/gamer-throne-burst-v5.png','./img/tarai-v1.png',...D.sessions.flatMap(s=>[s.background,s.nightBackground,s.sheet,s.defeatSheet].filter(Boolean)),...Object.values(D.tordelieseVisual.frames).flat(),...D.tordelieseVisual.tendrilFrames,D.vishunalVisual.sheet,D.vishunalVisual.missile,D.metaVisual.burstSheet, D.richterVisual.burstSheet, D.richterVisual.bomb,D.richterVisual.idleSheet, D.richterVisual.explosionSheet,...D.sessions.flatMap(s=>(s.variants||[]).flatMap(v=>[v.sheet||v.image,v.defeatSheet].filter(Boolean)))]) { const preload = new Image(); preload.src = src; }
     $('character-list').innerHTML = D.characters.map(c => `<article class="character-card compact-character" id="card-${c.id}" role="tabpanel" aria-labelledby="inspect-${c.id}" style="--char-color:${c.color}">
-      <button class="character-select" data-select-character="${c.id}" aria-label="${c.name}を手動攻撃に選択" aria-pressed="false" title="クリックで手動攻撃の担当に選択"><span class="avatar ${c.portrait ? 'sprite-avatar' : ''}" aria-hidden="true">${c.portraitSheet ? `<span class="vishunal-avatar pixel-art" style="background-image:url('${c.portrait}')"></span>` : c.portrait ? `<img class="pixel-art" src="${c.portrait}" alt="">` : c.initials}</span><strong class="character-identity" id="identity-${c.id}">${c.name}</strong></button>
+      <button class="character-select" data-select-character="${c.id}" aria-label="${c.name}を手動攻撃に選択" aria-pressed="false" title="クリックで手動攻撃の担当に選択"><span class="avatar ${c.portrait ? 'sprite-avatar' : ''}" aria-hidden="true">${c.portraitSheet ? `<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>` : c.portrait ? `<img class="pixel-art" src="${c.portrait}" alt="">` : c.initials}</span><strong class="character-identity" id="identity-${c.id}">${c.name}</strong></button>
       <div class="character-controls">
         <div class="enhancement-row"><button class="button secondary hire-button" data-hire="${c.id}"><span id="hire-label-${c.id}"></span><span id="hire-cost-${c.id}"></span></button><div class="current-multiplier" title="攻撃力Lvの倍率と、このキャラ単体のDPS（防御・パーク・全体強化・SPEを反映）"><strong id="damage-bonus-${c.id}"></strong><span id="character-dps-${c.id}"></span></div></div>
-        <div class="enhancement-row"><button class="button secondary hire-button action-button" data-action="${c.id}"><span id="action-label-${c.id}"></span><span id="action-cost-${c.id}"></span></button><div class="current-multiplier action-multiplier" title="個別強化とスピードアップを含む行動力倍率・1秒当たりの行動回数（追加攻撃は除く）"><strong id="action-bonus-${c.id}"></strong><span id="character-rate-${c.id}"></span></div></div>
+        ${tradeControls('power',c.id)}<div class="enhancement-row"><button class="button secondary hire-button action-button" data-action="${c.id}"><span id="action-label-${c.id}"></span><span id="action-cost-${c.id}"></span></button><div class="current-multiplier action-multiplier" title="基礎行動力＋個別Lv×5＋スピードアップLv×1＋パーク支援。倍率と追加攻撃・消費免除を含む秒間回数"><strong id="action-bonus-${c.id}"></strong><span id="character-rate-${c.id}"></span></div></div>${tradeControls('action',c.id)}
       </div>
-      ${c.perks ? `<details class="perk-list"><summary>パーク<span id="perk-summary-${c.id}"></span></summary>${c.perks.map(p => `<div class="perk" id="perk-${c.id}-${p.id}"><div><span>Lv.${p.level}</span><strong>${p.struckPrefix ? `<s>${p.struckPrefix}</s>` : ''}${p.name}</strong><span class="perk-status"></span></div><p>${p.description}</p><button class="button secondary perk-buy" data-perk-character="${c.id}" data-perk="${p.id}"></button></div>`).join('')}</details>` : ''}
+      ${c.perks ? `<details class="perk-list"><summary>パーク<span id="perk-summary-${c.id}"></span></summary>${c.perks.map(p => `<div class="perk" id="perk-${c.id}-${p.id}"><div><span>${p.levelType==='action'?'行動力':'攻撃力'}Lv.${p.level}</span><strong>${p.struckPrefix ? `<s>${p.struckPrefix}</s>` : ''}${p.name}</strong><span class="perk-status"></span></div><p>${p.description}</p><button class="button secondary perk-buy" data-perk-character="${c.id}" data-perk="${p.id}"></button></div>`).join('')}</details>` : ''}
       <p class="current-attack"><span>攻撃力の現在式</span><strong id="stats-${c.id}"></strong><small class="level-correction-note" id="stats-note-${c.id}" hidden></small></p></article>`).join('');
 
-    $('quest-list').innerHTML = D.sessions.map(s=>`<article class="quest-card" id="quest-card-${s.id}"><div class="quest-title"><h3>${s.name}</h3><strong id="quest-level-${s.id}"></strong></div><p class="quest-area">${s.enemy}${s.area?` / ${s.area}`:''}</p><button type="button" class="button secondary quest-select" id="quest-select-${s.id}" data-session="${s.id}"></button><div class="quest-columns"><span>強化による変化</span><span>現在 → 次のLv</span></div><dl class="quest-values"><div><dt>エネミーHP</dt><dd id="quest-hp-${s.id}"></dd></div><div><dt>防御</dt><dd id="quest-defense-${s.id}"></dd></div><div><dt>クリア報酬</dt><dd id="quest-reward-${s.id}"></dd></div></dl><p class="quest-note" id="quest-base-${s.id}"></p><p class="quest-note">報酬はオーバーキル加算前の値です。</p><button type="button" class="button quest-buy" id="quest-buy-${s.id}" data-quest="${s.id}"><span>クエストを強化</span><strong id="quest-cost-${s.id}"></strong></button></article>`).join('');
-    $('upgrade-list').innerHTML = D.upgrades.map(u => `<article class="upgrade-card"><span class="upgrade-icon" aria-hidden="true">${u.icon}</span><span class="upgrade-level" id="upgrade-level-${u.id}">Lv.0</span><h3>${u.name}</h3><p>${u.label}</p><div class="upgrade-purchase"><button class="button secondary" data-upgrade="${u.id}" aria-label="${u.name}を購入"><span id="upgrade-cost-${u.id}"></span></button>${u.id !== 'overkill' ? `<span class="enhancement-bonus"><small>${u.id === 'click' ? '固定値補正' : u.id === 'power' ? '行動力補正' : '報酬補正'}</small><strong id="${u.id}-bonus"></strong></span>` : ''}</div></article>`).join('');
+    $('quest-list').innerHTML = D.sessions.map(s=>`<article class="quest-card" id="quest-card-${s.id}"><div class="quest-title"><h3>${s.name}</h3><strong id="quest-level-${s.id}"></strong></div><p class="quest-area">${s.enemy}${s.area?` / ${s.area}`:''}</p><button type="button" class="button secondary quest-select" id="quest-select-${s.id}" data-session="${s.id}"></button><div class="quest-columns"><span>強化による変化</span><span>現在 → 次のLv</span></div><dl class="quest-values"><div><dt>エネミーHP</dt><dd id="quest-hp-${s.id}"></dd></div><div><dt>防御</dt><dd id="quest-defense-${s.id}"></dd></div><div><dt>クリア報酬</dt><dd id="quest-reward-${s.id}"></dd></div></dl><p class="quest-note" id="quest-base-${s.id}"></p><p class="quest-note">報酬はオーバーキル加算前の値です。</p><button type="button" class="button quest-buy" id="quest-buy-${s.id}" data-quest="${s.id}"><span>クエストを強化</span><strong id="quest-cost-${s.id}"></strong></button>${tradeControls('quest',s.id)}</article>`).join('');
+    $('upgrade-list').innerHTML = D.upgrades.map(u => `<article class="upgrade-card"><span class="upgrade-icon" aria-hidden="true">${u.icon}</span><span class="upgrade-level" id="upgrade-level-${u.id}">Lv.0</span><h3>${u.name}</h3><p>${u.label}</p><div class="upgrade-purchase"><button class="button secondary" data-upgrade="${u.id}" aria-label="${u.name}を購入"><span id="upgrade-cost-${u.id}"></span></button>${u.id !== 'overkill' ? `<span class="enhancement-bonus"><small>${u.id === 'click' ? '固定値補正' : u.id === 'power' ? '行動力補正' : '報酬補正'}</small><strong id="${u.id}-bonus"></strong></span>` : ''}</div>${tradeControls('upgrade',u.id,u.max!==1)}</article>`).join('');
+  }
+  function tradeControls(kind,id,ten=true) {
+    return `<div class="trade-controls" id="trade-controls-${kind}-${id}">${ten?`<button type="button" class="trade-button" id="buy10-${kind}-${id}" data-trade="buy" data-kind="${kind}" data-id="${id}"><span>10回購入</span><small></small></button>`:''}<button type="button" class="trade-button sell-button" id="sell-${kind}-${id}" data-trade="sell" data-kind="${kind}" data-id="${id}"><span>1Lv売却</span><small></small></button></div>`;
+  }
+  function renderTrades(kind,id,ten=true,hide=false) {
+    $('trade-controls-'+kind+'-'+id).hidden=hide;
+    if(ten){const b=$('buy10-'+kind+'-'+id),q=E.purchaseQuote(state,kind,id,10);b.disabled=blocked()||!q.valid||state.factors<q.cost;b.querySelector('small').textContent=q.valid?'◇ '+money(q.cost)+'Rd':'購入不可';}
+    const b=$('sell-'+kind+'-'+id),q=E.saleQuote(state,kind,id);b.disabled=blocked()||!q.valid;b.querySelector('small').textContent=q.valid?'＋'+money(q.refund)+'Rd':'売却不可';
+  }
+  function handleTrade(event) {
+    const button=event.target.closest('[data-trade]');if(!button?.dataset.trade)return false;
+    if(button.disabled||blocked())return true;sync();
+    const {kind,id,trade}=button.dataset;
+    const ok=trade==='sell'?E.sell(state,kind,id):E.buyMany(state,kind,id,10);
+    if(ok){resetCombatVisuals();const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id),q=D.sessions.find(q=>q.id===id);
+      log(`${c?.name||u?.name||q?.name}：${trade==='sell'?'1段階売却しました。':'10段階購入しました。'}`);save();render();}
+    return true;
   }
   function renderBattleHUD() {
+    const boosted=state.boostSeconds>0;
+    $('limit-break-overlay').hidden=!boosted;
+    $('boost-status').hidden=!boosted;
+    if(boosted)setText('boost-status',`限界突破 ×${1+D.balance.boostDamageBonus} · 残り${Math.ceil(state.boostSeconds)}秒${state.paused?' / 一時停止':''}`);
     const session = E.getSession(state), hp = displayedHP === null ? state.hp : displayedHP;
     const factors = money(state.factors);
     for (const id of ['factors', 'factors-pinned', 'factors-save', 'factors-help']) setText(id, factors);
@@ -157,7 +186,7 @@
     // Action-clock fractions and visual HP do not change cards, formulas or prices.
     const key = JSON.stringify([state.factors, state.sessionId, state.selectedCharacterId,
       state.levels, state.actionLevels, state.upgrades, state.purchasedPerks, state.questLevels,
-      Math.ceil(state.boostSeconds), state.paused, state.options.showOrbits, blocked()]);
+      Math.ceil(state.boostSeconds), state.paused, state.options, blocked()]);
     if (key === controlsKey) return;
     controlsKey = key;
     const session = E.getSession(state);
@@ -167,7 +196,7 @@
     setText('income-rate', UI.incomeNumber(income.factorsPerSecond));
     setText('income-context', `${session.name} / ${state.paused ? '再開時の見込み' : '自動周回'}`);
     setText('income-formula', `${session.name}：約${UI.incomeNumber(income.clearsPerSecond)}周 / 秒 × ${money(income.reward)}Rd / 周${state.upgrades.overkill ? ` ＋ 約${UI.incomeNumber(income.bonusPerSecond)}Rd / 秒（オーバーキル）` : ''} ＝ 約${UI.incomeNumber(income.factorsPerSecond)}Rd / 秒（表示は丸め、計算は丸め前の値を使用）。`);
-    setText('income-condition', (income.approximate ? '高HPのため、気絶・巻き込み・オーバーキルを含む撃破付近の挙動は抽出計算による概算です。' : '') + (income.boosted ? 'SPE：限界突破有効中の性能で算出。効果が切れると見込みを更新します。' : '現在の攻撃性能で自動周回を続けた場合の見込みです。一時停止中も再開時の性能を表示します。'));
+    setText('income-condition', (income.approximate ? '猛毒や高HPの戦闘は、付与・撃破時の状態解除、気絶・巻き込み・オーバーキルを含む抽出計算による概算です。' : '') + (income.boosted ? 'SPE：限界突破有効中の性能で算出。効果が切れると見込みを更新します。' : '現在の攻撃性能で自動周回を続けた場合の見込みです。一時停止中も再開時の性能を表示します。'));
     $('party-count').textContent = D.characters.filter(c => state.levels[c.id] > 0).length;
     renderEnemy(session);
     $('battle-area').textContent = session.area;
@@ -201,7 +230,7 @@
       card.classList.toggle('obscured', obscured);
       card.classList.toggle('manual-selected', state.selectedCharacterId === c.id);
       setText('identity-'+c.id,obscured?'？？？':c.name);
-      setText('picker-name-'+c.id,obscured?'？？？':c.id==='meta'?'メタ':c.id==='richter'?'ゲルハムト':'ビシュナル');
+      setText('picker-name-'+c.id,obscured?'？？？':c.id==='meta'?'メタ':c.id==='richter'?'ゲルハムト':c.id==='vishunal'?'ビシュナル':c.id==='tordeliese'?'トルデリーゼ':c.name);
       $('inspect-'+c.id).classList.toggle('obscured',obscured);
       $('inspect-'+c.id).setAttribute('aria-label',obscured?`未公開の仲間・${money(cost)}Rdの詳細`:`${c.name}の詳細`);
       const selectButton = document.querySelector(`[data-select-character="${c.id}"]`);
@@ -220,21 +249,24 @@
       renderLevelNote('stats-note-'+c.id,profile);
       $('damage-bonus-' + c.id).textContent = `×${rateFormat(profile.breakdown.levelMultiplier)}`;
       $('character-dps-' + c.id).textContent = `（${rateFormat(E.characterDps(state,c))} DPS）`;
-      $('action-bonus-' + c.id).textContent = `×${rateFormat(E.actionMultiplier(state,c))}`;
-      $('character-rate-' + c.id).textContent = `（${UI.incomeNumber(level ? E.attackRate(state,c) : 0)} 回/秒）`;
+      $('character-dps-'+c.id).title='直接ダメージのDPS（追加攻撃を含む）。猛毒は別判定で、因子獲得見込みに反映します。';
+      const actionMultiplier=E.actionMultiplier(state,c);
+      $('action-bonus-' + c.id).textContent = actionMultiplier===null ? `行動力 ${rateFormat(E.actionPower(state,c))}` : `×${rateFormat(actionMultiplier)}`;
+      $('character-rate-' + c.id).textContent = `（${UI.incomeNumber(level ? E.effectiveAttackRate(state,c) : 0)} 回/秒）`;
       $('hire-label-' + c.id).textContent = obscured ? '因子不足' : `${level >= E.MAX_LEVEL ? '攻撃力最大' : level ? '攻撃力を強化' : '雇用する'}（Lv.${UI.fullNumber(level)}）`;
       $('hire-cost-' + c.id).textContent = level >= E.MAX_LEVEL ? 'MAX' : `◇ ${money(cost)}Rd`;
       const button = document.querySelector(`[data-hire="${c.id}"]`);
       button.disabled = blocked() || state.factors < cost || level >= E.MAX_LEVEL;
       button.setAttribute('aria-label', obscured ? `未公開の仲間 · 因子${money(cost)}Rd` : `${c.name}${level ? 'の攻撃力を強化' : 'を雇用'}（現在Lv.${UI.fullNumber(level)}） · 因子${money(cost)}Rd`);
       const actionCost = E.actionCost(state, c), actionButton = document.querySelector(`[data-action="${c.id}"]`);
-      $('action-label-' + c.id).textContent = `行動力を強化（Lv.${UI.fullNumber(state.actionLevels[c.id])}）`;
+      $('action-label-' + c.id).textContent = `行動力＋5（Lv.${UI.fullNumber(state.actionLevels[c.id])}）`;
       $('action-cost-' + c.id).textContent = `◇ ${Number.isFinite(actionCost)?money(actionCost)+'Rd':'計算範囲外'}`;
       actionButton.disabled = blocked() || !level || state.factors < actionCost || !Number.isSafeInteger(state.actionLevels[c.id] + 1);
       actionButton.setAttribute('aria-label', `${c.name}の行動力を強化（現在Lv.${UI.fullNumber(state.actionLevels[c.id])}） · 因子${Number.isFinite(actionCost)?money(actionCost)+'Rd':'計算範囲外'}`);
+      renderTrades('power',c.id,true,!level);renderTrades('action',c.id,true,!level);
       if (c.perks) {
-        const perks = E.perks(state, c), active = perks.filter(p => p.unlocked), next = perks.find(p => !p.unlocked);
-        const ready = perks.filter(p => p.eligible && !p.unlocked).length;
+        const perks = E.perks(state, c), active = perks.filter(p => p.unlocked), next = perks.find(p => !p.owned);
+        const ready = perks.filter(p => p.eligible && !p.owned).length;
         $('perk-summary-' + c.id).textContent = `${active.length}/${perks.length} 解放${ready ? `・${ready}件購入待ち` : next ? `・次 Lv.${next.level}` : '・全解放'}`;
         for (const p of perks) {
           const row = $(`perk-${c.id}-${p.id}`);
@@ -242,11 +274,11 @@
           const requiredTrait = p.targetTrait || p.overflowTrait;
           const targetAbsent = requiredTrait && !(session.traits || []).includes(requiredTrait);
           const ignoreBlocked = p.ignoreDefense && (session.traits || []).includes('penetrationImmune');
-          row.querySelector('.perk-status').textContent = p.unlocked ? (targetAbsent ? '解放済・対象外' : ignoreBlocked ? (p.baseAttack ? '基礎変更のみ有効' : '解放済・貫通無効') : p.diceEvery ? `有効 ＋${p.dice}D6` : '有効') : p.eligible ? '購入待ち' : 'Lv未達成';
+          row.querySelector('.perk-status').textContent = p.unlocked ? (targetAbsent ? '解放済・対象外' : ignoreBlocked ? (p.baseAttack ? '基礎変更のみ有効' : '解放済・貫通無効') : p.diceEvery ? `有効 ＋${p.dice}D6` : '有効') : p.owned ? '保有・Lv不足で休止中' : p.eligible ? '購入待ち' : 'Lv未達成';
           const buy = row.querySelector('[data-perk]');
-          buy.disabled = blocked() || p.unlocked || !p.eligible || state.factors < p.cost;
-          buy.hidden = p.unlocked;
-          buy.textContent = `${!p.eligible ? `Lv.${p.level}で購入可能` : state.factors < p.cost ? '因子不足' : '解放する'} · ◇ ${money(p.cost)}Rd`;
+          buy.disabled = blocked() || p.owned || !p.eligible || state.factors < p.cost;
+          buy.hidden = p.owned;
+          buy.textContent = `${!p.eligible ? `${p.levelType==='action'?'行動力':'攻撃力'}Lv.${p.level}で購入可能` : state.factors < p.cost ? '因子不足' : '解放する'} · ◇ ${money(p.cost)}Rd`;
           buy.setAttribute('aria-label', `${c.name}の${p.struckPrefix?'違（取り消し）':''}${p.name}を解放 · 因子${money(p.cost)}Rd`);
         }
       }
@@ -255,11 +287,12 @@
     for (const u of D.upgrades) {
       const maxed = u.max != null && state.upgrades[u.id] >= u.max, cost=E.upgradeCost(state,u);
       $('upgrade-level-' + u.id).textContent = u.max === 1 ? (maxed ? '解放済' : '未解放') : `Lv.${state.upgrades[u.id]}`;
+      renderTrades('upgrade',u.id,u.max!==1);
       $('upgrade-cost-' + u.id).textContent = maxed ? (u.max === 1 ? '解放済' : 'MAX') : Number.isFinite(cost)?`購入 · ◇ ${money(cost)}Rd`:'計算範囲外';
       document.querySelector(`[data-upgrade="${u.id}"]`).disabled = blocked() || maxed || !Number.isFinite(cost) || !Number.isSafeInteger(state.upgrades[u.id]+1) || state.factors < cost;
     }
     $('click-bonus').textContent = `＋${rateFormat(state.upgrades.click * D.balance.concentrationPerLevel)}`;
-    $('power-bonus').textContent = `＋${rateFormat(state.upgrades.power * D.balance.speedPerLevel * 100)}%`;
+    $('power-bonus').textContent = `＋${rateFormat(state.upgrades.power * D.balance.speedPerLevel)}`;
     $('reward-bonus').textContent = `＋${rateFormat(state.upgrades.reward * D.balance.rewardPerLevel * 100)}%`;
     const boostCost = E.boostCost(state);
     $('boost').textContent = state.boostSeconds > 0 ? `効果中 · 残り${Math.ceil(state.boostSeconds)}秒` : `使用 · ◇ ${money(boostCost)}Rd`;
@@ -276,9 +309,15 @@
     $('richter-select').setAttribute('aria-pressed', state.selectedCharacterId === 'richter');
     renderRichterOrbits();
     renderVishunal();
+    renderTordeliese();renderMax();
     renderOrbitSpacing();
-    $('option-orbits').checked = state.options.showOrbits;
-    $('option-orbits').disabled = blocked();
+    for(const [id,key] of Object.entries(displayControls)){
+      const control=$(id);
+      if(key==='hitEffects')control.value=state.options[key];
+      else control.checked=state.options[key];
+      control.disabled=blocked();
+    }
+    $('arena-viewport').dataset.hitEffects=state.options.hitEffects;
   }
   function enemyMotionState() {
     const paused=state.paused || blocked() || document.hidden || reducedMotion.matches;
@@ -286,13 +325,13 @@
     $('arena-viewport').classList.toggle('scene-paused', paused);
   }
   function renderFactorRain(income) {
-    const count=UI.factorRainCount(income);
+    const count=state.options.showFactorRain?UI.factorRainCount(income):0;
     if(count===shownCrystals)return;
     shownCrystals=count;
     for(const [i,crystal] of Array.from($('factor-rain').children).entries())crystal.hidden=i>=count;
   }
   function showRewardRain(frame) {
-    if(document.hidden || reducedMotion.matches || state.paused) return;
+    if(!state.options.showRewardDice || document.hidden || reducedMotion.matches || state.paused) return;
     let remaining=UI.rewardDiceCount(frame.clears),launched=0;
     const pool=$('reward-rain').children;
     // Reuse idle particles; an ongoing fall is never cut short to make room.
@@ -304,8 +343,9 @@
       node.style.setProperty('--reward-duration',duration+'ms');
       node.style.setProperty('--reward-delay',delay+'ms');
       node.style.setProperty('--rain-drift',((Math.random()-.5)*60)+'px');
-      node.hidden=false;node.dataset.impactId=visualHitId;
-      deferVisual(()=>{node.hidden=true;},duration+delay+30);
+      const impactId=String(visualHitId);
+      node.hidden=false;node.dataset.impactId=impactId;
+      deferVisual(()=>{if(node.dataset.impactId===impactId)node.hidden=true;},duration+delay+30);
       remaining--;launched++;
     }
   }
@@ -336,9 +376,10 @@
       setText('quest-level-'+base.id,`Lv.${UI.fullNumber(quest.level)}`);
       setText('quest-hp-'+base.id,`${UI.fullNumber(quest.hp)} → ${next?UI.fullNumber(next.hp):'—'}`);
       setText('quest-reward-'+base.id,`${money(E.reward(state,quest))} → ${next?money(E.reward(state,next)):'—'} Rd`);
-      setText('quest-base-'+base.id,`基礎報酬 ${money(quest.reward)}Rd ＋ クリア報酬増加 ${money(E.reward(state,quest)-quest.reward)}Rd（補正合計が1未満なら＋1）${base.defenseGrowth?' ／ 防御はLvごとに×1.01（累積増分を切り捨て・最低＋1）':''}`);
+      setText('quest-base-'+base.id,`基礎報酬 ${money(quest.reward)}Rd ＋ クリア報酬増加 ${money(E.reward(state,quest)-quest.reward)}Rd（補正合計が1未満なら＋1） ／ HPはLvごとに×${D.questGrowth.hpGrowth}${base.defenseGrowth?` ／ 防御はLvごとに×${base.defenseGrowth}（累積増分を切り捨て・最低＋1）`:''}`);
       const button=$('quest-buy-'+base.id);
       button.disabled=blocked()||!available||state.factors<cost;
+      renderTrades('quest',base.id);
       setText('quest-cost-'+base.id,available?`◇ ${money(cost)}Rd`:'計算範囲外');
       button.setAttribute('aria-label',`${base.name}のクエストを強化（現在Lv.${UI.fullNumber(quest.level)}） · 因子${available?money(cost)+'Rd':'計算範囲外'}`);
     }
@@ -381,7 +422,7 @@
     arenaViewportWidth = width || $('arena-viewport').clientWidth || 300;
     const options = {metaScale:E.weaponScale(state,'meta'),richterScale:E.weaponScale(state,'richter'),metaCount:state.options.showOrbits?E.sawCount(state).visible:0,richterCount:state.options.showOrbits?E.bombCount(state).visible:0,
       availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
-      metaHired:state.levels.meta>0,richterHired:state.levels.richter>0,vishunalHired:state.levels.vishunal>0,enemyCount:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
+      metaHired:state.levels.meta>0,richterHired:state.levels.richter>0,vishunalHired:state.levels.vishunal>0,tordelieseHired:state.levels.tordeliese>0,maxHired:state.levels.max>0,enemyCount:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
     const key = JSON.stringify(options);
     if (key === orbitLayoutKey) return;
     orbitLayoutKey = key;
@@ -407,9 +448,32 @@
     }
     $('arena-zoom').hidden = layout.zoom >= .999;
     setText('arena-zoom', `自動ズーム ${Math.round(layout.zoom * 100)}%`);
+    const m=layout.max;if(m&&state.levels.max){const a=$('max-combatant');a.style.left=m.x+'px';a.style.top=m.y+'px';a.style.setProperty('--body-foot',(m.footOffset+m.hoverHeight)+'px');a.style.setProperty('--max-size',m.spriteSize+'px');}
+    const t=layout.tordeliese;if(t&&state.levels.tordeliese){const actor=$('tordeliese-combatant');actor.style.left=t.x+'px';actor.style.top=t.y+'px';actor.style.setProperty('--body-foot',t.footOffset+'px');actor.style.setProperty('--tordeliese-size',t.spriteSize+'px');tordelieseSpriteScale=t.spriteSize/256;}
     const dog=layout.vishunal;
     if(dog && state.levels.vishunal){const actor=$('vishunal-combatant');actor.style.left=dog.x+'px';actor.style.top=dog.y+'px';actor.style.setProperty('--body-foot',dog.footOffset+'px');vishunalSpriteScale=dog.spriteScale;actor.style.setProperty('--vishunal-scale',vishunalSpriteScale);}
     combatGeometry = null;
+  }
+  function renderMax() {
+    const hired=state.levels.max>0,actor=$('max-combatant');actor.hidden=!hired;
+    actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='max');
+    $('max-select').disabled=blocked()||!hired;$('max-select').setAttribute('aria-pressed',state.selectedCharacterId==='max');
+  }
+  function animateMaxAttack(count,volleyCount=count,summarized=false) {
+    if(!state.levels.max||reducedMotion.matches||document.hidden)return 0;
+    const actor=$('max-combatant'),now=performance.now(),burst=count>1||volleyCount>1||now-lastMaxShot<280;
+    lastMaxShot=now;cancelVisual(maxAttackTimer);
+    if(burst){actor.classList.remove('attacking');actor.classList.add('bursting');}
+    else{actor.classList.add('attacking');restartAnimation($('max-standing'),'max-throw');maxAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),1180);}
+    const layer=$('max-tubs'),g=readCombatGeometry(),groups=FX.projectileGroups(count,24-layer.children.length,summarized),windup=burst?80:670;
+    groups.forEach((amount,i)=>{const delay=windup+i*45,tub=document.createElement('span');tub.className='max-tub pixel-art';tub.dataset.attackCount=amount;
+      tub.style.left=(g.enemyX-28+(i%3-1)*12)+'px';tub.style.top=(g.enemyY-120)+'px';tub.style.animationDelay=delay+'ms';layer.append(tub);deferVisual(()=>tub.remove(),delay+360);
+    });return windup+Math.max(0,groups.length-1)*45;
+  }
+  function renderTordeliese() {
+    const hired=state.levels.tordeliese>0,actor=$('tordeliese-combatant');
+    actor.hidden=!hired;actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='tordeliese');
+    $('tordeliese-select').disabled=blocked()||!hired;$('tordeliese-select').setAttribute('aria-pressed',state.selectedCharacterId==='tordeliese');
   }
   function renderVishunal() {
     const hired=state.levels.vishunal>0,actor=$('vishunal-combatant');
@@ -510,6 +574,7 @@
       combatGeometry = {enemyX:enemy.offsetLeft, enemyY:enemy.offsetTop,
         metaX:meta.offsetLeft, metaY:meta.offsetTop, richterX:richter.offsetLeft, richterY:richter.offsetTop,
         vishunalX:state.levels.vishunal?$('vishunal-combatant').offsetLeft:0,vishunalY:state.levels.vishunal?$('vishunal-combatant').offsetTop:0,
+        tordelieseX:state.levels.tordeliese?$('tordeliese-combatant').offsetLeft:0,tordelieseY:state.levels.tordeliese?$('tordeliese-combatant').offsetTop:0,
         richterScale:$('richter-standing').offsetHeight / 224};
     }
     return combatGeometry;
@@ -639,11 +704,36 @@
     });
     return delay;
   }
+  function animateTordelieseAttack(count,volleyCount=count,summarized=false){
+    if(!state.levels.tordeliese||reducedMotion.matches||document.hidden)return 0;
+    const actor=$('tordeliese-combatant'),now=performance.now(),burst=volleyCount>1||count>1||now-lastTordelieseShot<280;
+    lastTordelieseShot=now;cancelVisual(tordelieseAttackTimer);
+    if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');}
+    else{actor.classList.add('attacking');restartAnimation($('tordeliese-standing'),'tordeliese-strike');tordelieseAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),800);}
+    const layer=$('tordeliese-tendrils'),groups=FX.projectileGroups(count,24-layer.children.length,summarized),g=readCombatGeometry();
+    let last=0;
+    groups.forEach((amount,index)=>{
+      const limbIndex=tordelieseLashIndex++,delay=index*45,rootX=g.tordelieseX-12*tordelieseSpriteScale;
+      // Crouching lowers the attached limb root with her torso.
+      const rootY=g.tordelieseY+(actor.classList.contains('bursting')?48:32)*tordelieseSpriteScale;
+      const dx=g.enemyX-rootX,dy=g.enemyY-rootY+(limbIndex%5-2)*13;
+      const lash=document.createElement('span');lash.className='tordeliese-tendril pixel-art';lash.dataset.attackCount=amount;lash.dataset.attached='true';
+      lash.style.left=rootX+'px';lash.style.top=rootY+'px';
+      lash.style.setProperty('--tendril-length',Math.max(80,Math.hypot(dx,dy))+'px');
+      lash.style.setProperty('--tendril-angle',Math.atan2(dy,dx)*180/Math.PI+'deg');
+      lash.style.setProperty('--tendril-delay',delay+'ms');lash.style.setProperty('--tendril-mirror',limbIndex%2?-1:1);
+      layer.append(lash);deferVisual(()=>lash.remove(),delay+820);last=delay;
+    });
+    // The attached limb reaches its strike pose at 520ms, then retracts.
+    return last+520;
+  }
   function resetCombatVisuals(resetRoll = false) {
     playback.reset();
     if (battleRender !== null) cancelAnimationFrame(battleRender); battleRender = null;
     for (const id of visualTimers) clearTimeout(id); visualTimers.clear();
     clearTimeout(metaAttackTimer);
+    $('max-combatant').classList.remove('attacking','bursting');$('max-tubs').replaceChildren();lastMaxShot=-Infinity;
+    $('tordeliese-combatant').classList.remove('attacking','bursting');$('tordeliese-tendrils').replaceChildren();lastTordelieseShot=-Infinity;tordelieseLashIndex=0;
     displayedHP = null; lastRichterShot = -Infinity; visualHitId++;
     lastMetaAttack = -Infinity; lastMetaShot = -Infinity;
     $('arena').classList.remove('enemy-down', 'enemy-spawning', 'clear', 'hit', 'combat-playing');
@@ -681,17 +771,21 @@
     ghost.style.setProperty('--fall-scale', motion.fallScale);
     ghost.style.setProperty('--fall-duration', `${fallMs}ms`);
     ghost.style.marginLeft = `${groundedDefeat?0:motion.x * .25}px`;
-    const label = document.createElement('span'); label.className = 'enemy-down-label defeat-label';
-    label.textContent = frame.knockouts === frame.clears ? '気絶！' : 'DOWN';
-    if (frame.overkills) label.textContent += ` / OVERKILL ＋${money(frame.overkillBonus)}Rd`;
-    if (frame.clears > 1) label.textContent += ` ×${format(frame.clears)}`;
-    label.style.marginLeft = `${motion.x}px`;
-    label.style.marginTop = `${motion.y}px`;
-    label.style.setProperty('--label-drift', `${motion.fallX * .25}px`);
-    label.style.setProperty('--fall-duration', `${fallMs}ms`);
-    layer.append(ghost, label);
+    let label=null;
+    layer.append(ghost);
+    if(state.options.showDefeatLabels){
+      label = document.createElement('span'); label.className = 'enemy-down-label defeat-label';
+      label.textContent = frame.knockouts === frame.clears ? '気絶！' : 'DOWN';
+      if (frame.overkills) label.textContent += ` / OVERKILL ＋${money(frame.overkillBonus)}Rd`;
+      if (frame.clears > 1) label.textContent += ` ×${format(frame.clears)}`;
+      label.style.marginLeft = `${motion.x}px`;
+      label.style.marginTop = `${motion.y}px`;
+      label.style.setProperty('--label-drift', `${motion.fallX * .25}px`);
+      label.style.setProperty('--fall-duration', `${fallMs}ms`);
+      layer.append(label);
+    }
     renderEnemy(E.getSession(state), frame.clears);
-    deferVisual(() => { ghost.remove(); label.remove(); }, fallMs + 20);
+    deferVisual(() => { ghost.remove(); label?.remove(); }, fallMs + 20);
     const formation=$('arena').classList.contains('mohican-line');
     const now=performance.now();
     // At rapid clear rates, let the current step finish instead of constantly
@@ -711,19 +805,24 @@
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate) : 0;
     const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate) : 0;
     const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate):0;
+    const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate):0;
+    const max=frame.maxAttacks?animateMaxAttack(frame.maxAttacks,frame.volleyMaxCount,frame.approximate):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
-    return {meta,richter,vishunal,impact:Math.max(meta||0,richter||0,vishunal||0,continuation)+FX.PROJECTILE_FLIGHT_MS};
+    return {meta,richter,vishunal,tordeliese,max,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
   }
   function showImpact(frame) {
     visualHitId++;
     const motion = FX.impactMotion();
-    const sparks=$('hit-effects');
-    while(sparks.children.length>=32)sparks.firstElementChild.remove();
-    const spark=document.createElement('span');spark.className='hit-spark';spark.dataset.impactId=visualHitId;
-    spark.style.marginLeft=motion.x+'px';spark.style.marginTop=motion.y+'px';
-    spark.style.setProperty('--spark-angle',motion.recoilAngle*3+'deg');
-    sparks.append(spark);deferVisual(()=>spark.remove(),320);
-    if (frame.actorId === 'richter' || frame.richterAttacks || frame.actorId === 'vishunal' || frame.vishunalAttacks) {
+    const hitMode=state.options.hitEffects;
+    if(hitMode!=='off'){
+      const sparks=$('hit-effects');
+      while(sparks.children.length>=32)sparks.firstElementChild.remove();
+      const spark=document.createElement('span');spark.className=`hit-spark${hitMode==='simple'?' simple-hit':''}${frame.poisonTick?' poison-hit':''}`;spark.dataset.impactId=visualHitId;
+      spark.style.marginLeft=motion.x+'px';spark.style.marginTop=motion.y+'px';
+      spark.style.setProperty('--spark-angle',motion.recoilAngle*3+'deg');
+      sparks.append(spark);deferVisual(()=>spark.remove(),320);
+    }
+    if ((hitMode==='normal'||hitMode==='translucent') && (frame.actorId === 'richter' || frame.richterAttacks || frame.actorId === 'vishunal' || frame.vishunalAttacks)) {
       const layer = $('explosions');
       // Keep each ordinary impact independent, including overflow targets.
       // At extreme rates bound the number of lingering smoke animations.
@@ -737,21 +836,28 @@
       layer.append(blast); deferVisual(() => blast.remove(), RICHTER_EXPLOSION_MS);
     }
     if (Number.isFinite(frame.hpAfter)) displayedHP = frame.hpAfter;
-    const floating = document.createElement('span'); floating.className = 'damage-float';
-    floating.dataset.attackCount = frame.count;
-    floating.dataset.impactId = visualHitId;
-    floating.textContent = `${frame.approximate ? '合計 ' : ''}${format(frame.damage)}`;
-    floating.style.marginLeft = `${motion.x}px`; floating.style.marginTop = `${motion.y}px`;
-    floating.style.setProperty('--float-drift', `${motion.driftX}px`);
-    floating.style.setProperty('--float-rise', `${-motion.floatRise}px`);
-    if (frame.count > 1 || frame.knockoutRoll || frame.continuation) {
-      const detail = document.createElement('small');
-      detail.textContent = `${frame.continuation ? '巻き込み ' : ''}${frame.knockoutRoll ? `気絶判定 ${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : frame.count > 1 ? `${format(frame.count)}${frame.continuation ? '体' : '回'}` : ''}`;
-      floating.append(detail);
+    const details=[];
+    if(frame.continuation&&state.options.showOverflowLabels)details.push('巻き込み');
+    if(frame.knockoutRoll&&state.options.showDefeatLabels)details.push(`気絶判定 ${frame.knockoutRoll}：${frame.knockedOut?'気絶':'回避'}`);
+    else if(frame.count>1&&state.options.showDamageNumbers)details.push(`${format(frame.count)}${frame.continuation?'体':'回'}`);
+    if(state.options.showDamageNumbers||details.length){
+      const floating = document.createElement('span'); floating.className = 'damage-float';
+      if(frame.poisonTick)floating.classList.add('poison-damage');
+      floating.dataset.attackCount = frame.count;
+      floating.dataset.impactId = visualHitId;
+      if(state.options.showDamageNumbers)floating.textContent = `${frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}`;
+      floating.style.marginLeft = `${motion.x}px`; floating.style.marginTop = `${motion.y}px`;
+      floating.style.setProperty('--float-drift', `${motion.driftX}px`);
+      floating.style.setProperty('--float-rise', `${-motion.floatRise}px`);
+      if (details.length) {
+        const detail = document.createElement('small');
+        detail.textContent = details.join(' ');
+        floating.append(detail);
+      }
+      while ($('damage-floats').children.length >= FX.MAX_STEPS) $('damage-floats').firstElementChild.remove();
+      $('damage-floats').append(floating);
+      deferVisual(() => floating.remove(), 850);
     }
-    while ($('damage-floats').children.length >= FX.MAX_STEPS) $('damage-floats').firstElementChild.remove();
-    $('damage-floats').append(floating);
-    deferVisual(() => floating.remove(), 850);
     $('last-roll').textContent = `${frame.actor} / ${format(frame.damage)} DMG${frame.continuation ? '・巻き込み' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
     cancelVisual(hitTimer); $('arena').classList.remove('hit');
     if (!frame.clears) {
@@ -773,7 +879,7 @@
   }
   function showEvents(events, automatic = false) {
     const attacks = events.filter(e => e.type === 'attack'), clears = events.filter(e => e.type === 'clear');
-    if (attacks.length && !document.hidden && !reducedMotion.matches) playback.enqueue(events,{sustainedActors:automatic ? ['meta','richter','vishunal'].filter(continuousBurst) : []});
+    if (attacks.length && !document.hidden && !reducedMotion.matches) playback.enqueue(events,{sustainedActors:automatic ? ['meta','richter','vishunal','tordeliese','max'].filter(continuousBurst) : []});
     else if (attacks.length) {
       const last = attacks[attacks.length - 1];
       const totalAttacks = attacks.reduce((sum, e) => sum + (e.count || 1), 0);
@@ -856,9 +962,17 @@
     switchManager(managerTab);inspectCharacter(inspectedCharacter);
     bindTabs(managerTabs,'tab-',switchManager);
     bindTabs(D.characters.map(c=>c.id),'inspect-',id=>inspectCharacter(id,true));
-    $('option-orbits').addEventListener('change',()=>{
+    for(const [id,key] of Object.entries(displayControls))$(id).addEventListener('change',()=>{
       if(blocked())return;
-      sync();state.options.showOrbits=$('option-orbits').checked;save();render();
+      const value=key==='hitEffects'?$(id).value:$(id).checked;
+      if(key==='hitEffects'&&!D.hitEffectModes.includes(value))return;
+      sync();state.options[key]=value;
+      // Apply immediately to existing visuals, without interrupting attack playback.
+      if(key==='hitEffects'){$('hit-effects').replaceChildren();$('explosions').replaceChildren();}
+      if(key==='showRewardDice'&&!value)for(const die of $('reward-rain').children)die.hidden=true;
+      if(['showDamageNumbers','showOverflowLabels','showDefeatLabels'].includes(key))$('damage-floats').replaceChildren();
+      if(key==='showDefeatLabels'&&!value)for(const node of Array.from($('enemy-defeats').children))if(node.classList.contains('defeat-label'))node.remove();
+      save();render();
     });
     $('option-save').addEventListener('click',()=>$('save-dialog').showModal());
     $('option-help').addEventListener('click',()=>$('help-dialog').showModal());
@@ -876,8 +990,11 @@
     $('meta-select').addEventListener('click', () => chooseCharacter('meta'));
     $('richter-select').addEventListener('click', () => chooseCharacter('richter'));
     $('vishunal-select').addEventListener('click', () => chooseCharacter('vishunal'));
+    $('max-select').addEventListener('click',()=>chooseCharacter('max'));
+    $('tordeliese-select').addEventListener('click', () => chooseCharacter('tordeliese'));
     $('select-self').addEventListener('click', () => chooseCharacter(null));
     $('character-list').addEventListener('click', event => {
+      if(handleTrade(event))return;
       const perkButton = event.target.closest('[data-perk]');
       if (perkButton) {
         if (blocked() || perkButton.disabled) return;
@@ -903,13 +1020,13 @@
       sync();
       if (button.dataset.action) {
         const c = D.characters.find(c => c.id === button.dataset.action);
-        if (E.buyAction(state, c.id)) { log(`${c.name}の行動力を${rateFormat(E.actionPower(state, c))}に強化。`); save(); render(); }
+        if (E.buyAction(state, c.id)) { for(const p of E.perks(state,c))if(p.levelType==='action'&&p.level===state.actionLevels[c.id])notice(`${c.name}：特性【${p.name}】が購入可能になりました。`); log(`${c.name}の行動力を${rateFormat(E.actionPower(state, c))}に強化。`); save(); render(); }
         return;
       }
       if (E.hire(state, button.dataset.hire)) {
         const c = D.characters.find(c => c.id === button.dataset.hire);
         log(`${c.name} ${state.levels[c.id] === 1 ? 'が参加しました。' : `の威力をLv.${state.levels[c.id]}に強化。`}`);
-        for (const p of c.perks || []) if (p.level === state.levels[c.id]) {
+        for (const p of c.perks || []) if (p.levelType!=='action' && p.level === state.levels[c.id]) {
           const text = `${c.name}：特性【${p.name}】が購入可能になりました。因子${money(p.cost)}Rdで解放できます。`;
           log(text); notice(text);
         }
@@ -917,12 +1034,14 @@
       }
     });
     $('upgrade-list').addEventListener('click', event => {
+      if(handleTrade(event))return;
       const button = event.target.closest('[data-upgrade]');
       if (!button || blocked()) return;
       sync();
       if (E.buyUpgrade(state, button.dataset.upgrade)) { log(`${D.upgrades.find(u => u.id === button.dataset.upgrade).name}を強化。`); save(); render(); }
     });
     $('quest-list').addEventListener('click',event=>{
+      if(handleTrade(event))return;
       const choose=event.target.closest('[data-session]');
       if(choose&&choose.dataset.session){
         if(choose.disabled||blocked())return;

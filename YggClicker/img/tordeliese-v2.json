@@ -1,0 +1,277 @@
+{
+  "character": "トルデリーゼ・トルンヴァルト",
+  "version": "0.39.1",
+  "layout": {
+    "frameSize": 416,
+    "bodyCenterX": 180,
+    "footY": 390,
+    "bodyHeight": 278,
+    "displaySize": 256,
+    "displayBodyHeight": 171.07692307692307,
+    "richterBodyHeight": 187,
+    "heightRatio": 0.9148498560263265,
+    "scale": 0.9455782312925171,
+    "sourceDimensions": [
+      1448,
+      1086
+    ],
+    "rowCuts": [
+      0,
+      374,
+      723,
+      1086
+    ],
+    "frames": [
+      {
+        "motion": "idle",
+        "frame": 1,
+        "file": "tordeliese-idle-1-v2.png",
+        "sourceBounds": [
+          52,
+          67,
+          320,
+          360
+        ],
+        "sourceFeet": 361,
+        "sourceCenter": 187,
+        "placement": [
+          50,
+          110,
+          258,
+          282
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 2,
+        "file": "tordeliese-idle-2-v2.png",
+        "sourceBounds": [
+          420,
+          67,
+          690,
+          360
+        ],
+        "sourceFeet": 361,
+        "sourceCenter": 552,
+        "placement": [
+          53,
+          110,
+          260,
+          282
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 3,
+        "file": "tordeliese-idle-3-v2.png",
+        "sourceBounds": [
+          767,
+          67,
+          1039,
+          360
+        ],
+        "sourceFeet": 361,
+        "sourceCenter": 901,
+        "placement": [
+          51,
+          110,
+          262,
+          282
+        ]
+      },
+      {
+        "motion": "idle",
+        "frame": 4,
+        "file": "tordeliese-idle-4-v2.png",
+        "sourceBounds": [
+          1120,
+          67,
+          1393,
+          360
+        ],
+        "sourceFeet": 361,
+        "sourceCenter": 1256,
+        "placement": [
+          50,
+          110,
+          263,
+          282
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 1,
+        "file": "tordeliese-attack-1-v2.png",
+        "sourceBounds": [
+          53,
+          425,
+          309,
+          706
+        ],
+        "sourceFeet": 707,
+        "sourceCenter": 192.5,
+        "placement": [
+          46,
+          121,
+          247,
+          270
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 2,
+        "file": "tordeliese-attack-2-v2.png",
+        "sourceBounds": [
+          406,
+          389,
+          714,
+          705
+        ],
+        "sourceFeet": 706,
+        "sourceCenter": 542.5,
+        "placement": [
+          49,
+          88,
+          296,
+          304
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 3,
+        "file": "tordeliese-attack-3-v2.png",
+        "sourceBounds": [
+          746,
+          439,
+          1107,
+          706
+        ],
+        "sourceFeet": 707,
+        "sourceCenter": 885.5,
+        "placement": [
+          46,
+          135,
+          346,
+          257
+        ]
+      },
+      {
+        "motion": "attack",
+        "frame": 4,
+        "file": "tordeliese-attack-4-v2.png",
+        "sourceBounds": [
+          1131,
+          439,
+          1414,
+          706
+        ],
+        "sourceFeet": 707,
+        "sourceCenter": 1263.5,
+        "placement": [
+          53,
+          135,
+          272,
+          257
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 1,
+        "file": "tordeliese-burst-1-v2.png",
+        "sourceBounds": [
+          40,
+          745,
+          345,
+          1049
+        ],
+        "sourceFeet": 1050,
+        "sourceCenter": 177,
+        "placement": [
+          49,
+          100,
+          293,
+          292
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 2,
+        "file": "tordeliese-burst-2-v2.png",
+        "sourceBounds": [
+          413,
+          740,
+          717,
+          1049
+        ],
+        "sourceFeet": 1050,
+        "sourceCenter": 550,
+        "placement": [
+          49,
+          95,
+          292,
+          297
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 3,
+        "file": "tordeliese-burst-3-v2.png",
+        "sourceBounds": [
+          770,
+          745,
+          1078,
+          1049
+        ],
+        "sourceFeet": 1050,
+        "sourceCenter": 903.5,
+        "placement": [
+          52,
+          100,
+          296,
+          292
+        ]
+      },
+      {
+        "motion": "burst",
+        "frame": 4,
+        "file": "tordeliese-burst-4-v2.png",
+        "sourceBounds": [
+          1138,
+          746,
+          1435,
+          1049
+        ],
+        "sourceFeet": 1050,
+        "sourceCenter": 1277,
+        "placement": [
+          47,
+          101,
+          286,
+          291
+        ]
+      }
+    ]
+  },
+  "generation": {
+    "tool": "Built-in image_gen.imagegen",
+    "editTarget": "tordeliese-poses-v1.png",
+    "references": [
+      "9220174c05aeaeb0.png",
+      "55737b512a1864b8.jpg",
+      "richter-standing-v11.png"
+    ],
+    "prompt": "Use case: style-transfer / identity-preserve.\nAsset type: transparent pixel-art animation sprite sheet for the existing YggClicker browser game.\nInputs: image1 is the EDIT TARGET, the current Tordeliese 4-column x 3-row sheet. Image2 and image3 are character and FACE REFERENCES ONLY. Image4 is an existing Richter sprite, a rendering-style reference ONLY; do not draw Richter.\nRedraw Tordeliese consistently across ALL TWELVE frames, retaining the poses/animation sequence while improving these exact issues:\n(1) Taller proportions: an adult woman, approximately 3.5 to 4 heads tall including her bob hair, a visibly smaller head relative to torso and longer legs than the old tiny 2-head mascot. She is 165 cm, slightly shorter than Richter at 180 cm. Keep a coherent classic 2D RPG pixel-sprite style matching the reference, not a realistic anime illustration.\n(2) Friendly, endearing face from the two new refs: soft round expressive eyes through thin rounded black glasses, a small warm mischievous smile, gently lifted cheeks. No angry sharp eyebrows, no sneering tiny pinched face, no exaggerated toothy grin. Left on-screen eye blue/cyan, right on-screen eye bright yellow. Silver short bob, red underlayer and one red side streak. Black cross choker. White cable-knit long-sleeve sweater, black pleated miniskirt, black ankle boots, bare legs. Ordinary neutral battle poses, not pin-up posing.\n(3) NOTHING crosses from a frame into another. The canvas is a precise FOUR COLUMN by THREE ROW equal-cell grid. Each cell MUST contain the ENTIRE character AND ALL local centipede tentacles with at least 10% fully transparent empty padding on all four sides. Body crown-to-soles is the same size in every cell, feet share the same relative baseline, torso center shares the same relative x. No clipped appendages, no orphan fragments from neighboring frames. Absolutely no grid lines, labels, text, background.\nRow1 idle 4 poses left-to-right: gentle stance, breath, small blink, return. Centipede tentacles coil and softly undulate behind her, maintaining continuity.\nRow2 normal attack 4 poses: prepare, wind up one centipede tentacle overhead, lash it toward the right but KEEP IT CURVED AND ENTIRELY INSIDE THE CELL, retract. The game supplies the long attached strike separately, so these poses must remain compact.\nRow3 rapid attack 4 poses: same body with 4 centipede-shaped tentacles fanning around her, moving in alternate waves. The tentacles have black/dark navy segmented armor, red plates, small cyan glints, pale sharp joint legs/hooks, clearly centipedes rather than smooth snakes. Keep all appendages in the cell. Friendly confident smile through the sequence.\nAnimation continuity is critical: fixed clothing details, fixed palette, glasses/eyes/choker consistent, body mass and height consistent, grounded soles, arms are anatomically connected and never duplicated. Crisp deliberately clustered square pixels, flat stepped shadow clusters; no painterly blur, no soft gradients, no antialiased vector look. Real alpha transparency. Prefer 2048x1536 overall so 512x512 cells. Leave substantial blank space around EVERY frame.",
+    "packing": "Sharp: extract at transparent gaps, one common nearest-neighbour scale, feet-aligned individual PNGs. No drawing or face modification by scripts."
+  },
+  "runtime": "Individual transparent PNGs; no atlas sampling during animation.",
+  "tendril": {
+    "source": "tordeliese-tendril-v1.png",
+    "frames": 4,
+    "frameSize": 256,
+    "attachment": [
+      16,
+      128
+    ]
+  },
+  "notes": "165:180 height ratio against Geruhamto. One common nearest-neighbour scale and shared foot baseline; existing combat rules and save schema unchanged."
+}
