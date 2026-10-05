@@ -142,3 +142,25 @@
 @media(max-width:600px){.boost-status{top:10px;left:10px;font-size:11px;padding:4px 14px 4px 8px;letter-spacing:.03em}.limit-break-overlay::before,.limit-break-overlay::after{height:28px}}
 
 .trade-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:5px 0 8px}.trade-button{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:6px 8px;min-height:34px;border:1px solid #608578;background:#263c35;color:#e0f3df;font:inherit;font-size:12px;text-align:left;cursor:pointer}.trade-button small{font-size:11px;overflow-wrap:anywhere;line-height:1.25}.trade-button:disabled{opacity:.42;cursor:default}.trade-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.sell-button{border-color:#66545a;background:#302a2c;color:#d9bfc3}.trade-controls:has(:only-child){grid-template-columns:1fr}.upgrade-card .trade-controls{grid-column:1/-1}.compact-character .trade-controls{margin-top:-2px}.compact-character:not(.owned) .trade-controls{display:none}.trade-controls[hidden]{display:none}
+
+/* Explicit combat estimates and per-quest squads. */
+.dashboard .current-multiplier small{display:block;color:var(--muted);font-size:12px;line-height:1.4;font-weight:400}
+.dashboard .current-multiplier strong{font-variant-numeric:tabular-nums}
+.character-performance{margin:12px 0;border:1px solid #425b59;background:#112025;border-radius:6px;padding:10px}
+.character-performance dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+.character-performance dl>div{min-width:0}.character-performance dt{font-size:12px;color:var(--muted);margin-bottom:6px}.character-performance dd{margin:0;font-size:16px;color:var(--accent);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.combat-metric-note{font-size:12px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+.formation-open{width:100%;margin:0 0 14px;border-color:#607963;color:var(--accent)}
+#formation-dialog{width:min(680px,calc(100vw - 32px))}.formation-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0}.formation-heading strong{font-size:22px;color:var(--accent)}.formation-heading span{font-size:14px;color:var(--muted)}
+.formation-members{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}.formation-member{display:flex;flex-direction:column;gap:8px;align-items:flex-start;text-align:left;min-height:86px;border:1px solid var(--line);border-radius:6px;background:#15242a;color:var(--text);padding:14px;cursor:pointer;font:inherit}.formation-member[aria-pressed=true]{background:#2b3b31;border-color:var(--accent)}.formation-member small{color:var(--muted);font-size:13px}.formation-member[aria-pressed=true] small{color:var(--accent)}.formation-member:disabled{opacity:.5;cursor:default}.formation-member:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.formation-preview{font-size:15px;border-top:1px solid var(--line);padding-top:14px;font-variant-numeric:tabular-nums}
+@media(max-width:440px){.formation-members{grid-template-columns:1fr}.character-performance dd{font-size:14px}}
+
+/* Concurrent sessions share currency but keep separate targets. */
+.quest-live-status{color:var(--accent,#cceba0);font-size:14px;line-height:1.5;margin:12px 0 4px;}
+.quest-live-income{font-size:13px;color:var(--muted,#9aafab);margin:0 0 16px;}
+.is-respawning #enemy-art{visibility:hidden;}
+.respawn-notice{position:absolute;z-index:30;left:50%;top:14px;transform:translateX(-50%);padding:10px 18px;border:1px solid #99bac4;background:#13262eed;color:#d7edf2;font-size:16px;font-variant-numeric:tabular-nums;border-radius:6px;white-space:nowrap;pointer-events:none;}
+.formation-member small{overflow-wrap:anywhere;line-height:1.5;}
+#formation-dialog .save-actions{position:sticky;bottom:calc(-1 * var(--dialog-inset));z-index:3;background:#19262b;padding:12px 0;margin-bottom:calc(-1 * var(--dialog-inset));border-top:1px solid var(--line);}
+.formation-member:disabled{opacity:.75;}

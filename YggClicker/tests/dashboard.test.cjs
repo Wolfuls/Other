@@ -59,11 +59,11 @@ test('manager tabs and keyboard navigation switch panels without touching the ru
  for(const h of [a,b]){h.advance(2300);h.click('pause');}assert.deepEqual(a.saved(),b.saved());
 });
 
-test('character picker inspects unowned allies but selects only hired allies for manual attacks',()=>{
+test('character picker inspects allies without selecting a manual attacker',()=>{
  const s=prepared();s.levels.vishunal=0;s.factors=0;const h=harness(s);
- h.click('inspect-richter');assert.equal(h.get('card-meta').hidden,true);assert.equal(h.get('card-richter').hidden,false);assert.equal(h.saved().selectedCharacterId,'richter');
- h.click('inspect-vishunal');assert.equal(h.get('card-vishunal').hidden,false);assert.equal(h.saved().selectedCharacterId,'richter');assert.equal(h.get('picker-name-vishunal').textContent,'？？？');
- h.get('inspect-vishunal').listeners.get('keydown')({key:'Home',preventDefault(){}});assert.equal(h.document.activeElement.id,'inspect-meta');assert.equal(h.get('card-meta').hidden,false);assert.equal(h.saved().selectedCharacterId,'meta');
+ h.click('inspect-richter');assert.equal(h.get('card-meta').hidden,true);assert.equal(h.get('card-richter').hidden,false);assert.equal(h.saved().selectedCharacterId,null);
+ h.click('inspect-vishunal');assert.equal(h.get('card-vishunal').hidden,false);assert.equal(h.saved().selectedCharacterId,null);assert.equal(h.get('picker-name-vishunal').textContent,'？？？');
+ h.get('inspect-vishunal').listeners.get('keydown')({key:'Home',preventDefault(){}});assert.equal(h.document.activeElement.id,'inspect-meta');assert.equal(h.get('card-meta').hidden,false);assert.equal(h.saved().selectedCharacterId,null);
 });
 
 test('desktop arena fits the actual available height and ignoring hidden orbits reduces zoom-out',()=>{

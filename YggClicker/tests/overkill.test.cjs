@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js');
@@ -12,15 +13,15 @@ test('overkill unlock costs 200 once; HP -19 fails, -20 and below gain 25% of th
  s.upgrades.overkill=0;s.hp=10;s.upgrades.click=19;assert.equal(E.click(s,()=>.999).find(e=>e.type==='clear').reward,3);
 });
 test('overkill uses current HP after armor and never pays for a knockout',()=>{
- const s=E.createState(1000);s.levels.meta=1;s.selectedCharacterId='meta';s.upgrades.overkill=1;s.upgrades.reward=1;E.selectSession(s,'patrol');
+ const s=E.createState(1000);s.levels.meta=1;s.selectedCharacterId='meta';s.upgrades.overkill=1;s.upgrades.reward=1;moveTestParty(s,'patrol');
  for(const [flat,bonus]of [[19,0],[20,1]]){s.hp=10;s.upgrades.click=flat;const event=E.click(s,()=>.999).find(e=>e.type==='clear');assert.equal(event.reward,11+bonus*2);}
- s.upgrades.click=0;E.selectSession(s,'practice');s.hp=6;const event=E.click(s,()=>0).find(e=>e.type==='clear');assert.equal(event.reason,'knockout');assert.equal(event.reward,3);assert.equal(event.overkills,0);
+ s.upgrades.click=0;moveTestParty(s,'practice');s.hp=6;const event=E.click(s,()=>0).find(e=>e.type==='clear');assert.equal(event.reason,'knockout');assert.equal(event.reward,3);assert.equal(event.overkills,0);
 });
 test('spillover pays overkill for each eligible enemy including compacted kills',()=>{
  const s=E.createState(1000);s.levels.richter=50;s.selectedCharacterId='richter';s.purchasedPerks.richter=['bom-ber'];s.upgrades.overkill=1;
  const events=E.click(s,()=>.999),clears=events.filter(e=>e.type==='clear');
  assert.equal(s.kills,17);assert.equal(clears.reduce((n,e)=>n+e.overkills,0),15);assert.equal(s.earned,17*2+15);assert.ok(clears.some(e=>e.count>12));
- E.selectSession(s,'heavy');s.hp=150;const old=s.earned;E.click(s,()=>.999);assert.equal(s.earned-old,56,'177 damage pays defense4, overkills HP150 by23');
+ moveTestParty(s,'heavy');s.hp=150;const old=s.earned;E.click(s,()=>.999);assert.equal(s.earned-old,56,'177 damage pays defense4, overkills HP150 by23');
 });
 test('offline overkill expectations match independent seeded rolls with armor and mixed spillover',()=>{
  for(const overflow of [false,true]){
@@ -46,6 +47,6 @@ test('mohican variants share training stats and activate Meta special damage',()
  const mob=D.sessions.find(s=>s.id==='mohicans'),practice=D.sessions[0];assert.equal(mob.hp,20);for(const key of ['defense','reward'])assert.equal(mob[key],practice[key]);
  assert.deepEqual(mob.traits,['mohican','swarm']);assert.equal(new Set(mob.variants.map(v=>v.sheet)).size,10);
  const s=E.createState();s.levels.meta=30;s.purchasedPerks.meta=['mohican-slayer'];const base=E.expectedIncome(s).factorsPerSecond;
- E.selectSession(s,'mohicans');assert.equal(E.attackProfile(s,D.characters[0]).bonus,15);assert.ok(E.expectedIncome(s).factorsPerSecond>=base);
+ moveTestParty(s,'mohicans');assert.equal(E.attackProfile(s,D.characters[0]).bonus,15);assert.ok(E.expectedIncome(s).factorsPerSecond>=base);
  s.upgrades.overkill=1;const income=E.expectedIncome(s);assert.ok(income.bonusPerSecond>0);assert.equal(income.factorsPerSecond,income.clearsPerSecond*2+income.bonusPerSecond);
 });

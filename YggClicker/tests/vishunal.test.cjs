@@ -96,7 +96,7 @@ test('third-character geometry fits all three allies and the enemy queue without
 
 test('dog can be selected, missiles launch for every repeated attack and all combat effects reset on pause',()=>{
  const s=prepared(25);s.purchasedPerks.vishunal=['mad-dog'];const h=harness(s);
- assert.equal(h.get('vishunal-combatant').hidden,false);assert.equal(h.get('party-capacity').textContent,'/ 5');
+ assert.equal(h.get('vishunal-combatant').hidden,false);assert.equal(h.get('party-capacity').textContent,'人 / 1セッション');
  h.click('vishunal-select');h.click('attack');h.advance(200);
  assert.ok(!h.get('vishunal-combatant').classList.contains('bursting'));assert.equal(h.get('vishunal-projectiles').children.length,1);
  h.advance(640);assert.ok(h.get('hit-effects').children.length>0);assert.ok(h.get('explosions').children.length>0);

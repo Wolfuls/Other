@@ -24,7 +24,7 @@ test('selling levels suspends owned power and action perks; save/load and re-pur
  const s=funded();s.levels.meta=10;s.purchasedPerks.meta=['attack-plus'];assert.ok(E.sell(s,'power','meta'));
  const meta=D.characters.find(c=>c.id==='meta');assert.equal(E.stats(s,meta).flat,0);assert.ok(E.perks(s,meta)[0].owned);assert.equal(E.perks(s,meta)[0].unlocked,false);assert.equal(E.buyPerk(s,'meta','attack-plus'),false);assert.deepEqual(S.decode(S.encode(s)),s);
  assert.ok(E.hire(s,'meta'));assert.equal(E.stats(s,meta).flat,4);assert.equal(E.buyPerk(s,'meta','attack-plus'),false);assert.deepEqual(s.purchasedPerks.meta,['attack-plus']);
- s.levels.max=1;s.actionLevels.max=10;s.purchasedPerks.max=['gm'];assert.equal(E.actionPower(s,meta),60);E.sell(s,'action','max');assert.equal(E.actionPower(s,meta),50);assert.deepEqual(S.decode(S.encode(s)),s);E.buyAction(s,'max');assert.equal(E.actionPower(s,meta),60);
+ s.levels.max=1;s.actionLevels.max=50;s.purchasedPerks.max=['golden-rule'];assert.equal(E.actionPower(s,meta),65);E.sell(s,'action','max');assert.equal(E.actionPower(s,meta),50);assert.deepEqual(S.decode(S.encode(s)),s);E.buyAction(s,'max');assert.equal(E.actionPower(s,meta),65);
 });
 test('quest sale preserves remaining HP proportion and never grants a clear; other quest sale leaves combat unchanged',()=>{
  const s=funded();E.buyQuest(s,'mohicans');s.hp=10;s.batchHpFraction=.4;s.poisonDamage=4;const kills=s.kills;assert.ok(E.sell(s,'quest','mohicans'));assert.equal(s.hp,8);assert.equal(s.batchHpFraction,0);assert.equal(s.kills,kills);assert.equal(s.poisonDamage,4);

@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),FX=require('../js/combat-effects.js');
@@ -7,7 +8,7 @@ test('displayed additive terms equal actual damage with global concentration and
   for(const actor of [null,...D.characters])for(const face of [1,4,6]){
     const s=E.createState();s.upgrades.click=3;s.upgrades.power=1;s.boostSeconds=30;
     if(actor){s.levels[actor.id]=50;s.selectedCharacterId=actor.id;s.purchasedPerks[actor.id]=actor.perks.map(p=>p.id);}
-    E.selectSession(s,'practice');
+    moveTestParty(s,'practice');
     const p=E.attackProfile(s,actor,true),b=p.breakdown;
     const base=b.base.dice*face+b.base.flat,perk=b.perk.dice*face+b.perk.flat+b.perk.conditional;
     const subtotalA=base+perk+b.upgrade.flat;

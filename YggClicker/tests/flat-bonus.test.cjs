@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js');
@@ -7,7 +8,7 @@ test('v0.16 saves preserve purchases; manual and automatic attacks roll only the
   for(const [id,dice,flat,damage,manualDamage,seconds] of [['meta',4,17,261,261,2],['richter',15,48,715,715,3]]){
     const character=D.characters.find(c=>c.id===id),state=E.createState(1000);
     state.levels[id]=100;state.selectedCharacterId=id;state.upgrades.click=3;
-    state.purchasedPerks[id]=character.perks.filter(p=>!p.overflow).map(p=>p.id);E.selectSession(state,'heavy');
+    state.purchasedPerks[id]=character.perks.filter(p=>!p.overflow).map(p=>p.id);moveTestParty(state,'heavy');
     const legacy=JSON.parse(S.encode(state));legacy.gameVersion='0.16.0';
     const restored=S.decode(JSON.stringify(legacy));assert.deepEqual(restored,state);
     assert.deepEqual(E.stats(restored,character),{dice,flat});
@@ -22,7 +23,7 @@ test('v0.16 saves preserve purchases; manual and automatic attacks roll only the
 test('flat perk damage reaches DPS and long offline progress including the global concentration bonus',()=>{
   const state=E.createState(1000),meta=D.characters.find(c=>c.id==='meta');
   state.levels.meta=100;state.purchasedPerks.meta=['attack-plus','full-metal-burst'];
-  state.upgrades.click=25;E.selectSession(state,'patrol');
+  state.upgrades.click=25;moveTestParty(state,'patrol');
   const sums=[1,2,3,4,5,6].flatMap(a=>[1,2,3,4,5,6].map(b=>a+b));
   const mean=sums.reduce((n,sum)=>n+(Math.floor((sum+12+25)*10.9+1e-9)-2),0)/36;
   assert.ok(Math.abs(E.dps(state)-mean*E.attackRate(state,meta))<1e-10);

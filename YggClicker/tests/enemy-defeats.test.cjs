@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const E=require('../js/engine.js'),D=require('../js/data.js'),{harness}=require('./app-harness.cjs');
 
@@ -37,7 +38,7 @@ test('each defeated variant keeps its own four-pose sheet while the next enemy a
   assert.ok(parseFloat(ghost.style.getPropertyValue('--fall-duration'))>=660);
   assert.equal(h.get('enemy-art').dataset.appearance,next);
   h.click('pause');assert.equal(h.get('enemy-defeats').children.length,0);
-  assert.equal(E.selectSession(s,'practice'),false,'retired sessions cannot be selected');
+  assert.equal(moveTestParty(s,'practice'),false,'retired sessions cannot be selected');
  }
 });
 

@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),S=require('../js/save.js'),UI=require('../js/display.js');
@@ -22,7 +23,7 @@ test('limit break charges 100% unboosted target-aware party DPS, rounds down and
  assert.equal(E.boostCost(s),3);assert.ok(E.dps(s)>E.unboostedDps(s));s.factors=100;assert.equal(E.buyBoost(s),false);assert.equal(s.factors,100);
  const before=structuredClone(s);E.boostCost(s);assert.deepEqual(s,before);
  s.boostSeconds=0;s.levels.meta=30;s.purchasedPerks.meta=['mohican-slayer'];s.sessionId='mohicans';s.hp=10;
- const special=E.boostCost(s);E.selectSession(s,'practice');assert.ok(E.boostCost(s)<special);
+ const special=E.boostCost(s);moveTestParty(s,'practice');assert.ok(E.boostCost(s)<special);
  s.levels.richter=1;const withAlly=E.boostCost(s);s.levels.richter=0;assert.ok(E.boostCost(s)<withAlly);
  s.actionLevels.meta=20;assert.ok(E.boostCost(s)>withAlly);
 });

@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),B=require('../js/battle-batch.js'),UI=require('../js/display.js'),{harness}=require('./app-harness.cjs');
 
@@ -17,17 +18,17 @@ test('armor compounds from base without accumulating rounded per-level bonuses',
 });
 
 test('quest defense preview, saved levels, combat and forecasts use the same compounded armor',()=>{
- const s=E.createState(1000);s.factors=1000;s.paused=true;s.levels.meta=50;s.purchasedPerks.meta=['metal-blade'];s.selectedCharacterId='meta';E.selectSession(s,'scarecrow');
+ const s=E.createState(1000);s.factors=1000;s.paused=true;s.levels.meta=50;s.purchasedPerks.meta=['metal-blade'];s.selectedCharacterId='meta';moveTestParty(s,'scarecrow');
  const h=harness(s);assert.equal(h.get('quest-defense-scarecrow').textContent,'35 → 38');assert.equal(h.get('quest-defense-dementor').textContent,'3 → 4');
  assert.ok(E.buyQuest(s,'scarecrow'));assert.equal(E.attackProfile(s,D.characters[0]).defense,38);const before=s.hp;s.paused=false;E.click(s,()=>0);assert.equal(before-s.hp,15);
- const profile=E.attackProfile(s,D.characters[0]);assert.equal(E.dps(s),B.averageDamage(profile)*.5);assert.equal(profile.penetrationBlocked,true);
- E.selectSession(s,'dementor');s.questLevels.dementor=100;s.hp=100;s.levels.richter=50;s.purchasedPerks.richter=['bom-ber'];
+ const profile=E.attackProfile(s,D.characters[0]);assert.equal(E.dps(s),B.averageDamage(profile)*.5*E.combatUptime(s));assert.equal(profile.penetrationBlocked,true);
+ moveTestParty(s,'dementor');s.questLevels.dementor=100;s.hp=100;s.levels.richter=50;s.purchasedPerks.richter=['bom-ber'];
  const restored=S.decode(S.encode(s));assert.equal(E.getSession(restored).defense,37583);assert.equal(restored.hp,s.hp);assert.deepEqual(restored,s);
  assert.equal(E.attackProfile(restored,D.characters[1]).overflowDefense,37583);assert.equal(E.attackProfile(restored,D.characters[0]).defense,0);
 });
 
 test('identical wraith sprites form three visible slots without multiplying HP or rewards',()=>{
- const s=E.createState(1000);E.selectSession(s,'dementor');s.hp=1;const h=harness(s),ids=['enemy-art','enemy-next-1','enemy-next-2'];
+ const s=E.createState(1000);moveTestParty(s,'dementor');s.hp=1;const h=harness(s),ids=['enemy-art','enemy-next-1','enemy-next-2'];
  assert.ok(ids.every(id=>!h.get(id).hidden));assert.equal(new Set(ids.map(id=>h.get(id).dataset.appearance)).size,1);
  assert.ok(ids.every(id=>h.get(id).dataset.defeatStyle==='dissolve'));assert.equal(h.get('hp-progress').getAttribute('aria-valuemax'),'100');
  assert.match(h.get('enemy-next-2').getAttribute('aria-label'),/後続2：ディメンター/);

@@ -1,8 +1,9 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const D=require('../js/data.js'),E=require('../js/engine.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js'),UI=require('../js/display.js'),FX=require('../js/combat-effects.js');
 const {harness}=require('./app-harness.cjs'),c=D.characters.find(c=>c.id==='tordeliese');
-function setup(level=10,quest='scarecrow'){const s=E.createState(1000);s.levels[c.id]=level;s.selectedCharacterId=c.id;E.selectSession(s,quest);return s;}
+function setup(level=10,quest='scarecrow'){const s=E.createState(1000);s.levels[c.id]=level;s.selectedCharacterId=c.id;moveTestParty(s,quest);return s;}
 function poisoned(level=10,quest='scarecrow'){const s=setup(level,quest);s.purchasedPerks[c.id]=['greedy-gale'];return s;}
 function rng(seed=731){return()=>{seed=(Math.imul(1664525,seed)+1013904223)>>>0;return seed/4294967296;};}
 
@@ -25,11 +26,11 @@ test('poison is paid, applies on the first hit, ignores armor and triggers from 
 });
 
 test('direct kills, knockouts and poison kills each clear the status without hitting a fresh enemy',()=>{
- const direct=poisoned();direct.hp=1;const a=E.click(direct,()=>.999);assert.deepEqual(a.map(e=>e.type),['attack','clear']);assert.equal(direct.hp,40);assert.equal(direct.poisonDamage,0);
+ const direct=poisoned();direct.hp=1;const a=E.click(direct,()=>.999);assert.deepEqual(a.map(e=>e.type),['attack','clear']);assert.equal(direct.hp,0);assert.equal(direct.respawnSeconds,5);assert.equal(direct.poisonDamage,0);
  const ko=poisoned();ko.hp=5;const b=E.click(ko,()=>0);assert.deepEqual(b.map(e=>e.type),['attack','clear']);assert.equal(b[1].reason,'knockout');assert.equal(ko.poisonDamage,0);
- const dot=poisoned();dot.hp=5;const z=E.click(dot,()=>.999);assert.deepEqual(z.map(e=>e.type),['attack','attack','clear']);assert.equal(z[1].damage,4);assert.equal(z[2].reason,'hp');assert.equal(dot.poisonDamage,0);assert.equal(dot.hp,40);assert.equal(dot.factors,8);
- E.selectCharacter(dot,null);assert.equal(E.click(dot,()=>.999).length,1,'no leftover poison on the replacement');
- const switcher=poisoned();E.click(switcher,()=>.999);E.selectSession(switcher,'dementor');assert.equal(switcher.poisonDamage,0);
+ const dot=poisoned();dot.hp=5;const z=E.click(dot,()=>.999);assert.deepEqual(z.map(e=>e.type),['attack','attack','clear']);assert.equal(z[1].damage,4);assert.equal(z[2].reason,'hp');assert.equal(dot.poisonDamage,0);assert.equal(dot.hp,0);assert.equal(dot.respawnSeconds,5);assert.equal(dot.factors,8);
+ E.advance(dot,5,()=>.999);E.selectCharacter(dot,null);assert.equal(E.click(dot,()=>.999).length,1,'no leftover poison on the replacement');
+ const switcher=poisoned();E.click(switcher,()=>.999);moveTestParty(switcher,'dementor');assert.equal(switcher.poisonDamage,0);
 });
 
 test('poison never recursively triggers itself, bonus attacks, or damage multipliers',()=>{
@@ -40,7 +41,7 @@ test('poison never recursively triggers itself, bonus attacks, or damage multipl
  const boosted=poisoned(150);boosted.purchasedPerks[c.id]=c.perks.filter(p=>p.id!=='retreating-wind').map(p=>p.id);boosted.questLevels.scarecrow=30;boosted.hp=E.getSession(boosted).hp;boosted.boostSeconds=30;boosted.upgrades.click=2;
  const poison=E.click(boosted,()=>0).find(e=>e.poisonTick);assert.equal(poison.damage,16,'no boost, level or flat upgrade applied to DOT');
  assert.equal(E.attackProfile(boosted,c).ignoreDefense,false);assert.equal(E.attackProfile(boosted,c).penetrationBlocked,true);
- E.selectSession(boosted,'dementor');assert.equal(E.attackProfile(boosted,c).ignoreDefense,true);
+ moveTestParty(boosted,'dementor');assert.equal(E.attackProfile(boosted,c).ignoreDefense,true);
 });
 
 test('poison upgrades require the infliction perk and higher values override rather than add',()=>{
@@ -65,11 +66,11 @@ test('poison follows only the surviving poisoned victim when another character s
 });
 
 test('poison reward forecast agrees with exact repeated combat and respects target resets',()=>{
- const s=poisoned(),income=E.expectedIncome(s);assert.ok(income.approximate);assert.ok(Math.abs(income.factorsPerSecond-.8)<.002,'40 HP, min 1+4 damage = 8 hits, .8 actions/s, 8 Rd');
+ const s=poisoned(),income=E.expectedIncome(s);assert.ok(income.approximate);assert.ok(Math.abs(income.factorsPerSecond-(8/15))<.002,'8 hits at .8 actions/s plus a 5-second respawn, 8 Rd');
  const plain=setup();assert.ok(E.expectedIncome(plain).factorsPerSecond<income.factorsPerSecond/3);
- s.levels.meta=1;const predicted=E.expectedIncome(s).factorsPerSecond,random=rng();const n=50000;
- for(let i=0;i<n;i++){E.selectCharacter(s,random()<.8/1.3?c.id:'meta');E.click(s,random);}
- const observed=s.earned/(n/1.3);assert.ok(Math.abs(observed-predicted)/observed<.025,`${predicted} vs ${observed}`);
+ s.levels.meta=1;const predicted=E.expectedIncome(s).factorsPerSecond,random=rng();const n=50000;let waitSeconds=0;
+ for(let i=0;i<n;i++){E.selectCharacter(s,random()<.8/1.3?c.id:'meta');E.click(s,random);if(E.isWaiting(s)){waitSeconds+=5;E.advance(s,5,random,false);}}
+ const observed=s.earned/(n/1.3+waitSeconds);assert.ok(Math.abs(observed-predicted)/observed<.025,`${predicted} vs ${observed}`);
 });
 
 test('large poison batches are bounded, integer/save-safe, and retain real ending status',()=>{
@@ -103,7 +104,9 @@ test('attached tentacles vary direction during bursts, clear on pause, and DOT a
  assert.equal(h.get('tordeliese-tendrils').children.length,1);const limb=h.get('tordeliese-tendrils').children[0];assert.equal(limb.dataset.attached,'true');const x=limb.style.left,y=limb.style.top;
  h.advance(500);assert.equal(limb.style.left,x);assert.equal(limb.style.top,y);assert.equal(h.get('tordeliese-tendrils').children.length,1);
  h.advance(1400);const limbs=h.get('tordeliese-tendrils').children;assert.ok(limbs.length>1);assert.ok(limbs.length<=24);assert.ok(new Set(limbs.map(n=>n.style.getPropertyValue('--tendril-mirror'))).size>1);assert.ok(h.get('tordeliese-combatant').classList.contains('bursting'));
- assert.ok(h.get('damage-floats').children.some(n=>n.textContent.startsWith('猛毒')));h.click('pause');assert.equal(h.get('tordeliese-tendrils').children.length,0);assert.equal(h.get('tordeliese-combatant').classList.contains('bursting'),false);
+ const poisonFloats=h.get('damage-floats').children.filter(n=>n.textContent.startsWith('猛毒'));assert.ok(poisonFloats.length);
+ assert.ok(poisonFloats.every(n=>parseFloat(n.style.marginTop)<=-70),'DOT stays above the normal randomized damage lane');
+ h.click('pause');assert.equal(h.get('tordeliese-tendrils').children.length,0);assert.equal(h.get('tordeliese-combatant').classList.contains('bursting'),false);
 });
 
 test('poison playback cannot impact before a slow direct hit, and DOT is not another attack pose',()=>{

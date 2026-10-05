@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),B=require('../js/battle-batch.js');
@@ -25,7 +26,7 @@ test('the configured armor applies to every manual and automatic spillover targe
     for(const manual of [true,false]){
       const s=E.createState();s.levels.richter=50;s.selectedCharacterId='richter';
       s.purchasedPerks.richter=D.characters.find(c=>c.id==='richter').perks.filter(p=>p.level<=50).map(p=>p.id);
-      E.selectSession(s,session);
+      moveTestParty(s,session);
       // Minimum (10D6+8) ×5.9 =106. Each full target costs HP + its defense.
       const events=manual?E.click(s,()=>0):E.advance(s,3,()=>0);
       assert.equal(s.kills,kills);assert.equal(s.hp,hp);assert.equal(s.totalDamage,damage);

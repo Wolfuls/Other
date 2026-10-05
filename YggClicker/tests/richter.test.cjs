@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js'),FX=require('../js/combat-effects.js');
@@ -23,16 +24,16 @@ test('attack levels enable purchases; action purchases do not, and all allies ac
 });
 test('Lv49 still discards overkill; Lv50 sends exactly the remaining damage through later targets',()=>{
   const before=stateAt(49);E.click(before,()=>0);assert.equal(before.kills,1);assert.equal(before.totalDamage,10);
-  const after=stateAt(50);E.selectSession(after,'patrol');const events=E.click(after,()=>0);
+  const after=stateAt(50);moveTestParty(after,'patrol');const events=E.click(after,()=>0);
   assert.equal(after.kills,2);assert.equal(after.hp,20);assert.equal(after.totalDamage,100);assert.equal(after.factors,20);
   const hits=events.filter(e=>e.type==='attack');assert.deepEqual(hits.map(e=>e.damage),[40,40,20]);
   assert.deepEqual(hits.map(e=>e.continuation),[false,true,true]);
-  const exact=stateAt(50);E.selectSession(exact,'patrol');exact.hp=4;E.click(exact,()=>0);assert.equal(exact.kills,3);assert.equal(exact.hp,26);assert.equal(exact.totalDamage,98);
+  const exact=stateAt(50);moveTestParty(exact,'patrol');exact.hp=4;E.click(exact,()=>0);assert.equal(exact.kills,3);assert.equal(exact.hp,26);assert.equal(exact.totalDamage,98);
   const meta=stateAt(50);meta.levels.meta=200;meta.selectedCharacterId='meta';E.click(meta,()=>0);assert.equal(meta.kills,1);
 });
 test('the last spillover target checks KO; its unused HP creates neither damage nor another hit',()=>{
   for(const face of [1,2]){
-    const s=stateAt(50);s.upgrades.reward=2;E.selectSession(s,'patrol');
+    const s=stateAt(50);s.upgrades.reward=2;moveTestParty(s,'patrol');
     const events=E.click(s,rolls(.999,.999,.999,.4,...Array(6).fill(0),(face-.5)/6));
     assert.equal(s.totalDamage,196);assert.equal(s.kills,face===1?5:4);assert.equal(s.hp,face===1?40:4);
     assert.equal(s.factors,s.kills*12);assert.equal(events.filter(e=>e.type==='attack').length,5);
@@ -40,13 +41,13 @@ test('the last spillover target checks KO; its unused HP creates neither damage 
   }
 });
 test('manual training and boosts increase spillover, while eventless progress is identical',()=>{
-  const s=stateAt(50);s.upgrades.click=3;s.boostSeconds=30;E.selectSession(s,'patrol');
+  const s=stateAt(50);s.upgrades.click=3;s.boostSeconds=30;moveTestParty(s,'patrol');
   E.click(s,rolls(...Array(10).fill(0)));assert.equal(s.totalDamage,235);assert.equal(s.kills,5);assert.equal(s.hp,5);
   s.actionLevels.richter=30;const without=structuredClone(s);
   E.advance(s,1,()=>0);E.advance(without,1,()=>0,false);assert.deepEqual(s,without);
 });
 test('chain impacts retain each clear but launch only one Richter projectile per actual attack',()=>{
-  const s=stateAt(50);E.selectSession(s,'patrol');const frames=FX.plan(E.click(s,()=>0));
+  const s=stateAt(50);moveTestParty(s,'patrol');const frames=FX.plan(E.click(s,()=>0));
   assert.equal(frames.length,3);assert.equal(frames.reduce((n,f)=>n+f.clears,0),2);
   assert.equal(frames.reduce((n,f)=>n+f.richterAttacks,0),1);assert.equal(frames.reduce((n,f)=>n+f.metaAttacks,0),0);
   s.levels.richter=200;s.boostSeconds=30;s.upgrades.power=25;

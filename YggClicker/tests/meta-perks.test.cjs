@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),B=require('../js/battle-batch.js'),S=require('../js/save.js');
@@ -6,7 +7,7 @@ const meta=D.characters.find(c=>c.id==='meta'),richter=D.characters.find(c=>c.id
 function prepared(level=50){const s=E.createState(1000);s.levels.meta=level;s.selectedCharacterId='meta';s.factors=1e9;return s;}
 function withEnemy(defense,traits,run){
   const enemy=D.sessions[0],before={defense:enemy.defense,traits:enemy.traits};
-  Object.assign(enemy,{defense,traits});try{return run();}finally{Object.assign(enemy,before);}
+  Object.assign(enemy,{defense,traits:[...new Set([...traits,'swarm'])]});try{return run();}finally{Object.assign(enemy,before);}
 }
 function rolls(...values){return()=>{assert.ok(values.length,'unexpected roll');return values.shift();};}
 test('all five Meta perks require both their own attack level and factors, and are paid once',()=>{
@@ -33,7 +34,7 @@ test('Meta perk boundaries preserve flat bonuses and Metal Man replaces only the
 });
 test('level growth applies after perks, then global boosts, with one final rounding',()=>{
   const s=prepared(100);for(const p of meta.perks.filter(p=>!p.overflow))assert.ok(E.buyPerk(s,'meta',p.id));
-  E.selectSession(s,'heavy');
+  moveTestParty(s,'heavy');
   const plain=E.click(s,()=>0)[0];assert.equal(plain.damage,228,'(4+17) ×10.9 floors to 123');
   s.upgrades.power=1;s.boostSeconds=30;s.hp=150;
   assert.equal(E.click(s,()=>0)[0].damage,457,'21 ×10.9 ×2 is rounded only once; speed does not change damage');
@@ -58,7 +59,7 @@ test('Mohican bonus is a fixed judgment bonus before multiplication and is targe
   assert.equal(E.advance(s,1,rolls(0,0)).find(e=>e.type==='attack').damage,66);
   assert.equal(E.attackProfile(s,meta).bonus,15);
   s.levels.richter=1;E.selectCharacter(s,'richter');assert.equal(E.click(s,rolls(0,0,0,0,0))[0].damage,5);
-  E.selectCharacter(s,'meta');E.selectSession(s,'patrol');assert.equal(E.attackProfile(s,meta).bonus,0);
+  E.selectCharacter(s,'meta');moveTestParty(s,'patrol');assert.equal(E.attackProfile(s,meta).bonus,0);
   assert.equal(E.click(s,rolls(0,0))[0].damage,5);
 }));
 test('fully absorbed attacks still deal one, roll knockout, and earn finite offline rewards',()=>withEnemy(1000,[],()=>{

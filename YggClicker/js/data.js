@@ -2,7 +2,7 @@
   'use strict';
   // IDs are save-data identifiers. Keep them stable when names or folders change.
   const data = {
-    gameId: 'yggclicker', version: '0.41.1', maxOfflineSeconds: 8 * 60 * 60,
+    gameId: 'yggclicker', version: '0.44.0', maxOfflineSeconds: 8 * 60 * 60,
     tordelieseVisual: {
       frames:Object.fromEntries(['idle','attack','burst'].map(motion=>[motion,Array.from({length:6},(_,i)=>`./img/tordeliese-${motion}-${i+1}-${motion==='burst'?'v7':'v6'}.png`)])),
       tendrilFrames:Array.from({length:6},(_,i)=>`./img/tordeliese-tendril-${i+1}-v5.png`)
@@ -54,7 +54,7 @@
         {id:'demonic-hammer',level:100,cost:100000000,name:'天魔の鉄槌',ignoreDefense:true,poisonDamage:12,description:'攻撃に防御貫通を付与（[貫通無効]には無効）。貪戻の凩の猛毒を12点に強化。'},
         {id:'annihilation',level:150,cost:1000000000,name:'染滅',flat:20,poisonDamage:16,description:'攻撃力の固定値＋20。貪戻の凩の猛毒を16点に強化。'}
       ]}
-      ,{"id":"max","name":"マックス","initials":"MX","title":"GM","role":"味方の行動支援・運命操作","cost":12000,"powerCost":2400,"actionCost":3000,"dice":1,"flat":6,"action":0,"color":"#cbd0f4","portrait":"./img/gamer-throne-standing-v6.png","description":"玉座型の飛行ヴィークルに座る少年。ゲームを操り、敵へタライを落とす。","source":"ユーザー提供の設定・既存スプライト","perks":[{"id":"gm","level":10,"levelType":"action","cost":100000,"name":"GM","allyAction":10,"description":"自身以外の味方全体の行動力＋10。"},{"id":"handout","level":25,"levelType":"action","cost":1000000,"name":"ハンドアウト","selectedActionRate":0.2,"description":"手動攻撃に選択中のキャラクターの行動力＋20%。"},{"id":"golden-rule","level":50,"levelType":"action","cost":10000000,"name":"ゴールデンルール","allyAction":15,"description":"自身以外の味方全体の行動力をさらに＋15。"},{"id":"named-npc","level":100,"levelType":"action","cost":1000000000,"name":"ネームドNPC","freeActionChance":0.5,"description":"手動攻撃に選択中のキャラクターは、自動攻撃時50%で行動点を消費しない。元々無料の手動クリックは対象外。"}]}
+      ,{"id":"max","name":"マックス","initials":"MX","title":"GM","role":"味方の行動支援・運命操作","cost":12000,"powerCost":2400,"actionCost":3000,"dice":1,"flat":6,"action":5,"color":"#cbd0f4","portrait":"./img/gamer-throne-standing-v6.png","description":"玉座型の飛行ヴィークルに座る少年。ゲームを操り、敵へタライを落とす。","source":"ユーザー提供の設定・既存スプライト","perks":[{"id":"gm","level":0,"initial":true,"levelType":"action","cost":0,"name":"GM","transferAction":true,"description":"初期パーク。自動行動を他の雇用済みキャラへ譲渡する。手動攻撃の選択対象を優先し、マックス選択中・未選択ならランダム。譲渡先は行動点を消費せず攻撃する。マックスは動作のみ行い、タライは出さない。他の味方がいなければ譲渡なし。"},{"id":"handout","level":25,"levelType":"action","cost":1000000,"name":"ハンドアウト","selectedActionRate":0.2,"description":"手動攻撃に選択中のキャラクターの行動力＋20%。"},{"id":"golden-rule","level":50,"levelType":"action","cost":10000000,"name":"ゴールデンルール","allyAction":15,"description":"自身以外の味方全体の行動力＋15。"},{"id":"named-npc","level":100,"levelType":"action","cost":1000000000,"name":"ネームドNPC","freeActionChance":0.5,"description":"手動攻撃に選択中のキャラクターは、自動攻撃時50%で行動点を消費しない。元々無料の手動クリックは対象外。"}]}
     ],
     sessions: [
       { id: 'mohicans', code: '04', name: '今日も今日とてモヒカン日和', area: '中層 / ウトガルド工業地帯', enemy: 'モヒカン', hp: 20, defense: 0, defensePerLevel: 1, traits: ['mohican','swarm'], reward: 2, description: '倒しても次々に現れる、世紀末ファッションの雑魚たち。', background: './img/utgard-industrial-v1.png', nightBackground: './img/utgard-industrial-night-v1.png', variants: [

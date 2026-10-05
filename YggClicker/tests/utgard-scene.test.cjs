@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const{test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),UI=require('../js/display.js'),S=require('../js/save.js'),{harness}=require('./app-harness.cjs');
 
@@ -25,7 +26,7 @@ test('the gang quest uses Utgard, hides the individual enemy title and includes 
  assert.ok(h.get('enemy-name').hidden);assert.ok(h.get('arena-viewport').classList.contains('has-scene'));
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--session-background'),'url("'+mob.background+'")');
  assert.deepEqual(D.sessions.map(s=>s.id),['mohicans','scarecrow','dementor']);
- assert.equal(E.selectSession(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
+ assert.equal(moveTestParty(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 
 test('cumulative clears retain full grouped digits beyond exponential notation; save transfer remains unchanged',()=>{

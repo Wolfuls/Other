@@ -3,7 +3,7 @@
   const D = typeof module !== 'undefined' && module.exports ? require('./data.js') : root.YggData;
   const B = typeof module !== 'undefined' && module.exports ? require('./battle-batch.js') : root.YggBatch;
   const N = typeof module !== 'undefined' && module.exports ? require('./numbers.js') : root.YggNumbers;
-  const MAX_LEVEL = 200;
+  const MAX_LEVEL = 200, MAX_PARTY_SIZE = 5;
   const EXACT_ATTACK_BUDGET = 1200;
   let incomeKey, incomeValue;
   const questLevel = (state,id=state.sessionId) => state.questLevels?.[id] ?? 1;
@@ -18,6 +18,8 @@
   function createState(now = Date.now()) {
     return { factors: D.balance.initialFactors, earned: 0, kills: 0, clicks: 0, totalDamage: 0,
       sessionId: D.sessions[0].id, hp: D.sessions[0].hp, poisonDamage:0, paused: false, boostSeconds: 0, options: {...D.displayDefaults},
+      respawnSeconds:0, sessionStates:{},
+      formations: Object.fromEntries(D.sessions.map(s=>[s.id,null])),
       questLevels: Object.fromEntries(D.sessions.map(s=>[s.id,1])), sceneSeconds:0, batchHpFraction:0,batchDamageFraction:0,
       levels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
       actionLevels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
@@ -25,10 +27,40 @@
       purchasedPerks: Object.fromEntries(D.characters.map(c => [c.id, []])),
       upgrades: Object.fromEntries(D.upgrades.map(u => [u.id, 0])), savedAt: now };
   }
+  const BATTLE_FIELDS=['hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId'];
+  const respawnDelay=state=>(getSession(state).traits||[]).includes('swarm')?0:5;
+  const isWaiting=state=>(state.respawnSeconds||0)>0;
+  function battleSnapshot(state){return Object.fromEntries(BATTLE_FIELDS.map(k=>[k,state[k]??(k==='selectedCharacterId'?null:0)]));}
+  function battleContext(state,id=state.sessionId){
+    if(id===state.sessionId)return state;
+    return {...state,hp:getSession(state,id).hp,poisonDamage:0,batchHpFraction:0,batchDamageFraction:0,respawnSeconds:0,selectedCharacterId:null,
+      ...state.sessionStates?.[id],sessionId:id,formations:Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]))};
+  }
+  // Only the initially viewed, untouched quest auto-fills unassigned recruits.
+  // Explicit parties own their members even while another quest is on screen.
+  function formationIds(state,id=state.sessionId){
+    const chosen=state.formations?.[id];
+    if(Array.isArray(chosen))return chosen.filter(x=>state.levels[x]>0).slice(0,MAX_PARTY_SIZE);
+    if(id!==state.sessionId)return [];
+    const assigned=new Set(D.sessions.filter(q=>q.id!==id).flatMap(q=>state.formations?.[q.id]||[]));
+    return D.characters.filter(c=>state.levels[c.id]>0&&!assigned.has(c.id)).map(c=>c.id).slice(0,MAX_PARTY_SIZE);
+  }
+  const formationOwner=(state,id)=>D.sessions.find(q=>formationIds(state,q.id).includes(id))?.id||null;
+  const isDeployed=(state,id)=>formationIds(state).includes(id);
+  const activeCharacters=state=>D.characters.filter(c=>isDeployed(state,c.id));
+  function setFormation(state,questId,ids){
+    if(!D.sessions.some(q=>q.id===questId)||!Array.isArray(ids)||ids.length>MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!state.levels[id]||(formationOwner(state,id)&&formationOwner(state,id)!==questId)))return false;
+    // Freeze implicit rosters before modifying ownership or changing the view.
+    state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id===questId?[...ids]:formationIds(state,q.id)]));
+    const ctx=battleContext(state,questId);
+    if(ctx.selectedCharacterId&&!ids.includes(ctx.selectedCharacterId))ctx.selectedCharacterId=null;
+    if(questId!==state.sessionId)state.sessionStates={...state.sessionStates,[questId]:battleSnapshot(ctx)};
+    return true;
+  }
   function perks(state, character) {
     return (character.perks || []).map(perk => {
       const level = (perk.levelType === 'action' ? state.actionLevels[character.id] : state.levels[character.id]) || 0;
-      const owned=(state.purchasedPerks[character.id] || []).includes(perk.id);
+      const owned=!!perk.initial || (state.purchasedPerks[character.id] || []).includes(perk.id);
       const unlocked = state.levels[character.id] > 0 && level >= perk.level && owned;
       return { ...perk, owned, unlocked, eligible: state.levels[character.id] > 0 && level >= perk.level,
         dice: unlocked ? (perk.diceBonus || 0) + (perk.diceEvery ? Math.floor(level / perk.diceEvery) : 0) : 0 };
@@ -60,14 +92,14 @@
     const {base, perk} = attackBreakdown(state, character);
     return { dice:base.dice + perk.dice, flat:base.flat + perk.flat };
   }
-  const selectedCharacter = state => D.characters.find(c => c.id === state.selectedCharacterId && state.levels[c.id] > 0) || null;
+  const selectedCharacter = state => D.characters.find(c => c.id === state.selectedCharacterId && isDeployed(state,c.id)) || null;
   function manualStats(state) {
     const character = selectedCharacter(state);
     const base = character ? stats(state, character) : { dice: D.balance.manualDice, flat: D.balance.manualFlat };
     return { dice:base.dice, flat:base.flat + state.upgrades.click * D.balance.concentrationPerLevel };
   }
   function selectCharacter(state, id) {
-    if (id !== null && !D.characters.some(c => c.id === id && state.levels[id] > 0)) return false;
+    if (id !== null && !D.characters.some(c => c.id === id && isDeployed(state,id))) return false;
     state.selectedCharacterId = id;
     return true;
   }
@@ -80,7 +112,7 @@
     return { total, visible: Math.min(total, D.richterVisual.maxVisibleBombs) };
   }
   function orbitCount(state, id) {
-    return state.levels[id] > 0 ? Math.min(Number.MAX_SAFE_INTEGER, 1 + (state.actionLevels[id] || 0)) : 0;
+    return isDeployed(state,id) ? Math.min(Number.MAX_SAFE_INTEGER, 1 + (state.actionLevels[id] || 0)) : 0;
   }
   function weaponScale(state, id) {
     const level = Math.max(1, Math.min(MAX_LEVEL, state.levels[id] || 0));
@@ -115,29 +147,56 @@
     state.questLevels ||= Object.fromEntries(D.sessions.map(s=>[s.id,1]));
     state.questLevels[id]=previous.level+1;
     // Preserve the current enemy's remaining-health proportion when investing.
-    if(state.sessionId===id){
-      state.batchHpFraction=0;
-      state.hp=Math.min(getSession(state,id).hp,state.hp+N.delta(state.hp/previous.hp*(getSession(state,id).hp-previous.hp)));
-    }
+    const ctx=battleContext(state,id);ctx.batchHpFraction=0;
+    if(!isWaiting(ctx))ctx.hp=Math.min(getSession(state,id).hp,ctx.hp+N.delta(ctx.hp/previous.hp*(getSession(state,id).hp-previous.hp)));
+    if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};
     return true;
   }
   const hireCost = (state, c) => state.levels[c.id] === 0 ? c.cost
     : geometricCost(c.powerCost, state.levels[c.id] - 1);
   function supportPerks(state) {
     const max = D.characters.find(c=>c.id==='max');
-    return state.levels.max>0 ? perks(state,max).filter(p=>p.unlocked) : [];
+    return isDeployed(state,'max') ? perks(state,max).filter(p=>p.unlocked) : [];
   }
   function actionPower(state,c) {
-    const active=supportPerks(state);
+    const active=isDeployed(state,c.id)?supportPerks(state):[];
     const base=N.floor(c.action)+D.balance.actionPerLevel*state.actionLevels[c.id]+D.balance.speedPerLevel*state.upgrades.power;
     const withAllies=base+(c.id==='max'?0:active.reduce((n,p)=>n+(p.allyAction||0),0));
     return state.selectedCharacterId===c.id ? N.linear(withAllies,active.reduce((n,p)=>n+(p.selectedActionRate||0),0),1) : withAllies;
   }
-  const freeActionChance = (state,c) => state.selectedCharacterId===c.id ? Math.max(0,...supportPerks(state).map(p=>p.freeActionChance||0)) : 0;
+  const freeActionChance = (state,c) => isDeployed(state,c.id)&&state.selectedCharacterId===c.id ? Math.max(0,...supportPerks(state).map(p=>p.freeActionChance||0)) : 0;
   // A zero base has no meaningful relative multiplier; the UI shows absolute action power.
   const actionMultiplier = (state, c) => N.floor(c.action)>0 ? actionPower(state,c)/N.floor(c.action) : null;
   const attackRate = (state, c) => actionPower(state, c) / D.balance.actionThreshold;
-  const effectiveAttackRate = (state, c) => attackRate(state,c) / (1-attackProfile(state,c).extraAttackChance) / (1-freeActionChance(state,c));
+  const isActionDonor = (state,c) => isDeployed(state,c.id) && perks(state,c).some(p=>p.unlocked&&p.transferAction);
+  const automaticActionRate = (state,c) => isDeployed(state,c.id) ? attackRate(state,c)/(1-freeActionChance(state,c)) : 0;
+  function transferTargets(state,donor) {
+    const others=D.characters.filter(c=>c.id!==donor.id&&isDeployed(state,c.id));
+    const selected=others.find(c=>c.id===state.selectedCharacterId);
+    return selected ? [selected] : others;
+  }
+  function donatedActionRate(state,c) {
+    return D.characters.filter(d=>isActionDonor(state,d)).reduce((sum,d)=>{
+      const targets=transferTargets(state,d);
+      return sum+(targets.some(t=>t.id===c.id)?automaticActionRate(state,d)/targets.length:0);
+    },0);
+  }
+  const effectiveAttackRate = (state,c) => !isDeployed(state,c.id)||isActionDonor(state,c) ? 0 :
+    (automaticActionRate(state,c)+donatedActionRate(state,c))/(1-attackProfile(state,c).extraAttackChance);
+  function performAutomaticAction(state,c,random,events) {
+    if(!isActionDonor(state,c)){performAttack(state,c,attackProfile(state,c),random,events);return;}
+    const targets=transferTargets(state,c);
+    if(!targets.length){
+      if(events)events.push({type:'support',actor:c.name,actorId:c.id,maxTransfers:1,hpBefore:state.hp,hpAfter:state.hp});
+      return;
+    }
+    const target=targets.length===1?targets[0]:targets[Math.min(targets.length-1,Math.floor(random()*targets.length))];
+    const first=events?.length;
+    // A donated action costs the recipient no points. Its reattack and poison
+    // perks still apply; free-point rolls belong only to the donor's paid action.
+    performAttack(state,target,attackProfile(state,target),random,events);
+    if(events){events[first].maxTransfers=1;events[first].delegatedBy=c.id;}
+  }
   const actionCost = (state, c) => geometricCost(c.actionCost, state.actionLevels[c.id]);
   const upgradeCost = (state, u) => geometricCost(u.cost, state.upgrades[u.id], D.balance.upgradeCostGrowth);
   function roll(dice, flat, random = Math.random) {
@@ -146,6 +205,7 @@
     return amount;
   }
   function applyDamage(state, amount, events, actor, actorId, random, profile, extraAttack = false, poisonTick = false) {
+    if(isWaiting(state))return;
     state.batchHpFraction=0;
     const { overflow, defense } = profile, overflowDefense=profile.overflowDefense??defense;
     let remaining = amount, continuation = false;
@@ -167,7 +227,8 @@
         state.factors += gain;
         state.earned += gain;
         state.kills++;
-        state.hp = getSession(state).hp;
+        state.respawnSeconds=respawnDelay(state);
+        state.hp = isWaiting(state)?0:getSession(state).hp;
         state.poisonDamage=0;
         if (events) events.push({ type: 'clear', reward: gain, overkillBonus:bonus, overkills:overkill?1:0, reason:knockedOut ? 'knockout' : 'hp', hpAfter:state.hp });
       } else if(!poisonTick && state.poisonDamage) {
@@ -176,6 +237,7 @@
         applyDamage(state,state.poisonDamage,events,'猛毒',null,random,
           {defense:0,overflow:false,overkillThreshold:0},false,true);
       }
+      if(isWaiting(state))break;
       remaining = overflow ? Math.max(0, afterDefense - damage) : 0;
       continuation = true;
       // Collapse only long runs of guaranteed full-HP kills; the final partial
@@ -204,13 +266,13 @@
   }
   function performAttack(state, character, profile, random, events) {
     const count=chainAttackCount(profile.extraAttackChance,random);
-    for(let i=0;i<count;i++) {
+    for(let i=0;i<count&&!isWaiting(state);i++) {
       const amount=B.rolledDamage(profile,roll(profile.dice,profile.flat,random)+profile.bonus);
       applyDamage(state,amount,events,character?character.name:'あなた',character?character.id:null,random,profile,i>0);
     }
   }
   function click(state, random = Math.random) {
-    if (state.paused) return [];
+    if (state.paused||isWaiting(state)) return [];
     state.clicks++;
     const events = [];
     const character = selectedCharacter(state);
@@ -228,46 +290,79 @@
     return count;
   }
   function advanceBatch(state, ticks, active, events) {
-    const profiles = [];
-    let attacks = 0, metaAttacks = 0, richterAttacks = 0, vishunalAttacks = 0, tordelieseAttacks = 0, maxAttacks = 0;
-    for (const c of active) {
-      const profile=attackProfile(state,c),count=chargeActions(state,c,ticks)/(1-profile.extraAttackChance)/(1-freeActionChance(state,c));
-      attacks += count;
-      if (count) profiles.push({ ...profile, rate:count });
-      if (c.id === 'meta') metaAttacks = count;
-      if (c.id === 'richter') richterAttacks = count;
-      if (c.id === 'vishunal') vishunalAttacks = count;
-      if (c.id === 'tordeliese') tordelieseAttacks = count;
-      if (c.id === 'max') maxAttacks = count;
+    const profiles=[],actions=Object.fromEntries(active.map(c=>[c.id,chargeActions(state,c,ticks)/(1-freeActionChance(state,c))]));
+    let maxTransfers=0;
+    for(const donor of active.filter(c=>isActionDonor(state,c))){
+      const count=actions[donor.id],targets=transferTargets(state,donor);
+      maxTransfers+=count;actions[donor.id]=0;
+      for(const target of targets)actions[target.id]+=count/targets.length;
     }
-    // A short boost segment can charge points without producing any attacks.
-    // Leave the previous batch's fractional damage/HP remainder untouched.
-    if (!attacks) return;
+    const counts={meta:0,richter:0,vishunal:0,tordeliese:0,max:0};let attacks=0;
+    for(const c of active){
+      const profile=attackProfile(state,c),count=actions[c.id]/(1-profile.extraAttackChance);
+      counts[c.id]=count;attacks+=count;if(count)profiles.push({...profile,rate:count});
+    }
+    let {meta:metaAttacks,richter:richterAttacks,vishunal:vishunalAttacks,tordeliese:tordelieseAttacks,max:maxAttacks}=counts;
+    if(!attacks){
+      if(events&&maxTransfers)events.push({type:'support',actor:'マックス',actorId:'max',maxTransfers:Math.round(maxTransfers),count:Math.round(maxTransfers),hpBefore:state.hp,hpAfter:state.hp,approximate:true});
+      return;
+    }
     const hpBefore = state.hp;
     const result = B.resolve(state.hp+(state.batchHpFraction||0), getSession(state).hp, attacks, profiles, { threshold:D.balance.knockoutHP, chance:.5 },state.poisonDamage||0);
     state.poisonDamage=result.poisonDamage??(result.kills?0:state.poisonDamage||0);
+    if(respawnDelay(state)&&result.kills){
+      // No following target exists during a single-enemy respawn. A bounded
+      // average tick may therefore clear at most one target, whatever its DPS.
+      const used=Math.min(1,Math.max(1,attacks/result.kills)/attacks);
+      metaAttacks*=used;richterAttacks*=used;vishunalAttacks*=used;tordelieseAttacks*=used;maxAttacks*=used;maxTransfers*=used;attacks*=used;
+      result.kills=1;result.overkills=Math.min(1,result.overkills||0);result.knockouts=Math.min(1,result.knockouts||0);
+      result.hp=0;result.damage=hpBefore;state.poisonDamage=0;state.respawnSeconds=respawnDelay(state);
+    }
     const bonus=(result.overkills || 0)*overkillBonus(state),gain = result.kills * reward(state) + bonus;
     // Fractional predictions stay internal so splitting a long offline interval
     // cannot repeatedly grant rounding damage. Actual HP/counters are integers.
-    state.hp = Math.max(1,N.floor(result.hp));state.batchHpFraction=result.hp-state.hp;
+    state.hp = isWaiting(state)?0:Math.max(1,N.floor(result.hp));state.batchHpFraction=result.hp-state.hp;
     const predictedDamage=result.damage+(state.batchDamageFraction||0),creditedDamage=N.delta(predictedDamage);
     state.batchDamageFraction=predictedDamage-creditedDamage;
     state.kills += result.kills; state.totalDamage += creditedDamage;
     state.factors += gain; state.earned += gain;
-    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks),tordelieseAttacks:Math.round(tordelieseAttacks),maxAttacks:Math.round(maxAttacks), count:Math.round(maxAttacks)+metaAttacks+richterAttacks+Math.round(vishunalAttacks)+Math.round(tordelieseAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
+    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, maxTransfers:Math.round(maxTransfers), metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks),tordelieseAttacks:Math.round(tordelieseAttacks),maxAttacks:Math.round(maxAttacks), count:Math.round(maxAttacks)+metaAttacks+richterAttacks+Math.round(vishunalAttacks)+Math.round(tordelieseAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
     if (events && result.kills) events.push({ type:'clear', count:result.kills, knockouts:result.knockouts, overkills:result.overkills||0, overkillBonus:bonus, reward:gain, reason:'average', hpAfter:state.hp });
   }
   // All hired characters gain action points on each whole-second game tick.
   // Unspent points and the fractional second both survive saves and pauses.
-  function advance(state, seconds, random = Math.random, collectEvents = true) {
+  function advanceBattle(state, seconds, random = Math.random, collectEvents = true) {
     if (state.paused || seconds <= 0) return [];
     const duration = Math.min(seconds, D.maxOfflineSeconds);
     state.sceneSeconds=((state.sceneSeconds||0)+duration)%D.sceneCycle.seconds;
     const oldClock = state.actionClock, oldBoost = state.boostSeconds;
     const elapsed = oldClock + duration, ticks = Math.floor(elapsed + 1e-10);
     state.actionClock = Math.max(0, elapsed - ticks);
-    const active = D.characters.filter(c => state.levels[c.id] > 0);
+    const active = activeCharacters(state);
     const events = collectEvents ? [] : null;
+    if(respawnDelay(state)){
+      let previous=0;
+      const approximate=active.reduce((n,c)=>n+(state.actionPoints[c.id]+actionPower(state,c)*ticks)/D.balance.actionThreshold/(1-freeActionChance(state,c))/(1-attackProfile(state,c).extraAttackChance),0)>EXACT_ATTACK_BUDGET;
+      const wait=dt=>{if(!isWaiting(state))return;state.respawnSeconds=Math.max(0,state.respawnSeconds-dt);if(state.respawnSeconds<1e-9){state.respawnSeconds=0;state.hp=getSession(state).hp;state.batchHpFraction=0;}};
+      for(let tick=1;tick<=ticks;tick++){
+        const waitingAtTickStart=isWaiting(state),at=tick-oldClock;wait(at-previous);previous=at;
+        state.boostSeconds=Math.max(0,oldBoost-at);
+        if(waitingAtTickStart||isWaiting(state)||!active.length)continue;
+        const estimate=active.reduce((n,c)=>n+(state.actionPoints[c.id]+actionPower(state,c))/D.balance.actionThreshold/(1-freeActionChance(state,c))/(1-attackProfile(state,c).extraAttackChance),0);
+        if(approximate||estimate>EXACT_ATTACK_BUDGET){advanceBatch(state,1,active,events);continue;}
+        const charged=active.map(c=>[c,chargeActions(state,c,1)]);
+        for(const [c,count] of charged){
+          if(isWaiting(state))break;
+          for(let action=0;action<count&&!isWaiting(state);action++){
+            const attempts=chainAttackCount(freeActionChance(state,c),random);
+            for(let attempt=0;attempt<attempts&&!isWaiting(state);attempt++)performAutomaticAction(state,c,random,events);
+          }
+        }
+      }
+      wait(duration-previous);
+      state.boostSeconds=Math.max(0,oldBoost-duration);
+      return events||[];
+    }
     if (!active.length || !ticks) {
       state.boostSeconds = Math.max(0, oldBoost - duration);
       return [];
@@ -284,17 +379,34 @@
     for (let tick = 1; tick <= ticks; tick++) {
       state.boostSeconds = Math.max(0, oldBoost - (tick - oldClock));
       for (const c of active) {
-        const count = chargeActions(state, c, 1), attack = attackProfile(state, c);
+        const count = chargeActions(state, c, 1);
         for (let action = 0; action < count; action++) {
           // Each paid action includes the geometrically distributed free attempts
           // before the first consumed action. Manual clicks remain free as before.
           const attempts=chainAttackCount(freeActionChance(state,c),random);
-          for(let attempt=0;attempt<attempts;attempt++)performAttack(state,c,attack,random,events);
+          for(let attempt=0;attempt<attempts;attempt++)performAutomaticAction(state,c,random,events);
         }
       }
     }
     state.boostSeconds = Math.max(0, oldBoost - duration);
     return events || [];
+  }
+  function advance(state,seconds,random=Math.random,collectEvents=true){
+    if(state.paused||seconds<=0)return [];
+    // Each quest receives the same time interval and shared upgrades. Only its
+    // assigned allies act; counters are merged once and only visible FX render.
+    const clock=state.actionClock,boost=state.boostSeconds,scene=state.sceneSeconds;
+    const background=D.sessions.filter(q=>q.id!==state.sessionId&&(formationIds(state,q.id).length||isWaiting(battleContext(state,q.id))));
+    const all=advanceBattle(state,seconds,random,collectEvents).map(e=>({...e,sessionId:state.sessionId}));
+    for(const q of background){
+      const ctx={...battleContext(state,q.id),actionClock:clock,boostSeconds:boost,sceneSeconds:scene};
+      const before={factors:ctx.factors,earned:ctx.earned,kills:ctx.kills,totalDamage:ctx.totalDamage};
+      const events=advanceBattle(ctx,seconds,random,collectEvents);
+      for(const key of Object.keys(before))state[key]+=ctx[key]-before[key];
+      state.sessionStates={...state.sessionStates,[q.id]:battleSnapshot(ctx)};
+      if(collectEvents)all.push(...events.map(e=>({...e,sessionId:q.id})));
+    }
+    return all;
   }
   function catchUp(state, now = Date.now()) {
     const seconds = Math.max(0, Math.min(D.maxOfflineSeconds, (now - state.savedAt) / 1000));
@@ -351,7 +463,7 @@
     if(kind==='quest'&&D.sessions.some(q=>q.id===id))return {field:'questLevels',minimum:1,buy:buyQuest,cost:s=>questCost(s,id)};
     return null;
   }
-  function tradeDraft(state) { return {...state,levels:{...state.levels},actionLevels:{...state.actionLevels},upgrades:{...state.upgrades},questLevels:{...state.questLevels}}; }
+  function tradeDraft(state) { return {...state,levels:{...state.levels},actionLevels:{...state.actionLevels},upgrades:{...state.upgrades},questLevels:{...state.questLevels},sessionStates:{...state.sessionStates}}; }
   function purchaseQuote(state,kind,id,count=10) {
     const track=tradeTrack(state,kind,id),draft=tradeDraft(state);let cost=0;
     if(!track||![1,10].includes(count))return {valid:false,cost:Infinity,count};
@@ -381,9 +493,10 @@
   }
   function sell(state,kind,id) {
     const quote=saleQuote(state,kind,id);if(!quote.valid)return false;
-    const track=tradeTrack(state,kind,id),oldHP=kind==='quest'&&id===state.sessionId?getSession(state).hp:0;
+    const track=tradeTrack(state,kind,id),oldHP=kind==='quest'?getSession(state,id).hp:0,ctx=oldHP?battleContext(state,id):null;
     state[track.field][id]--;state.factors+=quote.refund;
-    if(oldHP){state.hp=Math.max(1,Math.min(getSession(state).hp,N.floor(state.hp/oldHP*getSession(state).hp)));state.batchHpFraction=0;}
+    if(oldHP){if(!isWaiting(ctx))ctx.hp=Math.max(1,Math.min(getSession(state,id).hp,N.floor(ctx.hp/oldHP*getSession(state,id).hp)));ctx.batchHpFraction=0;
+      if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};}
     return true;
   }
   function buyBoost(state) {
@@ -393,33 +506,55 @@
     state.boostSeconds = D.balance.boostDuration;
     return true;
   }
-  function selectSession(state, id) {
-    const session = D.sessions.find(s => s.id === id);
-    if (!session || state.sessionId === id) return false;
-    state.sessionId = id;
-    state.batchHpFraction=0;
-    state.poisonDamage=0;
-    state.hp = getSession(state).hp;
+  function selectSession(state,id){
+    if(!D.sessions.some(q=>q.id===id)||state.sessionId===id)return false;
+    const next=battleContext(state,id),previous=state.sessionId;
+    state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]));
+    state.sessionStates={...state.sessionStates,[previous]:battleSnapshot(state)};
+    delete state.sessionStates[id];
+    Object.assign(state,battleSnapshot(next));state.sessionId=id;
+    if(state.selectedCharacterId&&!isDeployed(state,state.selectedCharacterId))state.selectedCharacterId=null;
     return true;
   }
-  const characterDps = (state, c) => state.levels[c.id] ? B.averageDamage(attackProfile(state,c)) * effectiveAttackRate(state,c) : 0;
+  const averageAttackDamage=(state,c)=>B.averageDamage(attackProfile(state,c));
+  function characterMetrics(state,c){
+    const damage=averageAttackDamage(state,c),uptime=combatUptime(state),attacksPerSecond=effectiveAttackRate(state,c)*uptime;
+    return {damage,attacksPerSecond,dps:damage*attacksPerSecond,action:actionPower(state,c),transfersPerSecond:isActionDonor(state,c)?automaticActionRate(state,c)*uptime:0};
+  }
+  const characterDps = (state,c) => characterMetrics(state,c).dps;
   const dps = state => D.characters.reduce((sum,c)=>sum+characterDps(state,c),0);
+  function respawnUptime(rate,delay){
+    // Automatic actions are issued on whole-second ticks. A single target can
+    // occupy at least one combat tick, then five full recharge-free wait ticks.
+    return delay&&rate>0?Math.min(1,1/rate)/(1+Math.min(1,rate)*delay):1;
+  }
+  function combatUptime(state){
+    if(!respawnDelay(state))return 1;
+    const profiles=activeCharacters(state).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
+    const rate=B.rewardRates(getSession(state).hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}).clears;
+    return respawnUptime(rate,respawnDelay(state));
+  }
+  const totalDps=state=>D.sessions.reduce((sum,q)=>sum+dps(battleContext(state,q.id)),0);
+  function totalIncome(state){
+    const sessions=D.sessions.filter(q=>formationIds(state,q.id).length).map(q=>({id:q.id,name:q.name,...expectedIncome(battleContext(state,q.id))}));
+    return {sessions,factorsPerSecond:sessions.reduce((n,q)=>n+q.factorsPerSecond,0),boosted:state.boostSeconds>0,approximate:sessions.some(q=>q.approximate)};
+  }
   // The active boost never inflates its own next price. Defense and paid
   // target-specific perks use the same unboosted DPS shown by the game.
-  const unboostedDps = state => dps(state.boostSeconds > 0 ? {...state, boostSeconds:0} : state);
+  const unboostedDps = state => totalDps(state.boostSeconds > 0 ? {...state, boostSeconds:0} : state);
   const boostCost = state => N.delta(unboostedDps(state) * D.balance.boostCostDpsRatio);
   function expectedIncome(state) {
     const session=getSession(state),boosted=state.boostSeconds>0;
-    const key=JSON.stringify([session.id,session.hp,session.reward,session.defense,session.traits,state.levels,state.actionLevels,
-      state.purchasedPerks,supportPerks(state).some(p=>p.selectedActionRate||p.freeActionChance)?state.selectedCharacterId:null,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
+    const key=JSON.stringify([session.id,session.hp,session.reward,session.defense,session.traits,formationIds(state),state.levels,state.actionLevels,
+      state.purchasedPerks,supportPerks(state).some(p=>p.selectedActionRate||p.freeActionChance||p.transferAction)?state.selectedCharacterId:null,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
     if (key===incomeKey) return incomeValue;
-    const profiles=D.characters.filter(c=>state.levels[c.id]>0).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
-    const rates=B.rewardRates(session.hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}),clearsPerSecond=rates.clears,perClear=reward(state);
-    const bonusPerSecond=rates.overkills*overkillBonus(state);
+    const profiles=activeCharacters(state).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
+    const rates=B.rewardRates(session.hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}),uptime=respawnUptime(rates.clears,respawnDelay(state)),clearsPerSecond=rates.clears*uptime,perClear=reward(state);
+    const bonusPerSecond=rates.overkills*overkillBonus(state)*uptime;
     incomeKey=key;incomeValue=Object.freeze({clearsPerSecond,reward:perClear,bonusPerSecond,factorsPerSecond:clearsPerSecond*perClear+bonusPerSecond,boosted,approximate:!!rates.approximate});
     return incomeValue;
   }
-  const api = { MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
+  const api = { battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, totalIncome, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),B=require('../js/battle-batch.js'),UI=require('../js/display.js');
@@ -59,11 +60,11 @@ test('defense, defense bypass, target perks and knockout are included in expecte
   assert.equal(B.clearRate(10,[p],{threshold:4,chance:0}),.5);
   assert.ok(Math.abs(B.clearRate(10,[p])-2/3)<1e-12,'half the first hits clear by knockout');
   assert.ok(Math.abs(B.clearRate(10,[{...p,defense:6}])-16/111)<1e-12);
-  const s=E.createState();s.levels.meta=50;E.selectSession(s,'heavy');
+  const s=E.createState();s.levels.meta=50;moveTestParty(s,'heavy');
   const armored=E.expectedIncome(s).factorsPerSecond;s.purchasedPerks.meta=['metal-blade'];
   assert.ok(E.expectedIncome(s).factorsPerSecond>armored);
   s.purchasedPerks.meta.push('mohican-slayer');const neutral=E.expectedIncome(s).factorsPerSecond;
-  const enemy=D.sessions.find(enemy=>enemy.id===s.sessionId),traits=enemy.traits;try{enemy.traits=['mohican'];assert.ok(E.expectedIncome(s).factorsPerSecond>neutral);}finally{enemy.traits=traits;}
+  const enemy=D.sessions.find(enemy=>enemy.id===s.sessionId),traits=enemy.traits;try{enemy.traits=['mohican','swarm'];assert.ok(E.expectedIncome(s).factorsPerSecond>neutral);}finally{enemy.traits=traits;}
 });
 
 test('spillover pays armor on every subsequent target in the income model',()=>{
@@ -91,8 +92,8 @@ test('UI reflects loaded target conditions and does not abbreviate the balance',
   const s=E.createState(1000);s.levels.richter=50;s.factors=1234567890123;s.paused=true;
   const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567,890,123');
   assert.equal(h.get('income-rate').textContent,'0.7');assert.match(h.get('income-context').textContent,/再開時/);
-  E.selectSession(s,'heavy');const armored=harness(s);
-  assert.notEqual(armored.get('income-rate').textContent,'1');assert.match(armored.get('income-context').textContent,/重装甲試験/);
+  moveTestParty(s,'heavy');const armored=harness(s);
+  assert.notEqual(armored.get('income-rate').textContent,'1');assert.match(armored.get('income-context').textContent,/1セッション合計/);
 });
 
 test('UI shows integer rewards, balances and the total reward bonus consistently',()=>{
@@ -100,6 +101,6 @@ test('UI shows integer rewards, balances and the total reward bonus consistently
   const h=harness(s);assert.equal(h.get('factors').textContent,'1,234,567');
   assert.equal(h.get('reward').textContent,'◇ 3Rd');assert.equal(h.get('reward-bonus').textContent,'＋10%');
   assert.match(h.get('income-formula').textContent,/3Rd/);
-  E.selectSession(s,'heavy');const armored=harness(s);
+  moveTestParty(s,'heavy');const armored=harness(s);
   assert.equal(armored.get('reward').textContent,'◇ 49Rd');assert.match(armored.get('income-formula').textContent,/49Rd/);
 });

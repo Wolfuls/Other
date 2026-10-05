@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -57,7 +58,7 @@ test('clear awards factors, repeats the same target, and drops excess damage', (
 });
 test('session stays selected across repeated clears and pays its own reward', () => {
   const state = hiredState();
-  E.selectSession(state, 'patrol');
+  moveTestParty(state, 'patrol');
   E.advance(state, 36, () => .999, false);
   assert.equal(state.sessionId, 'patrol');
   assert.equal(state.kills, 4);
@@ -68,10 +69,10 @@ test('changing targets resets HP without resetting action points', () => {
   E.advance(state, 1, fixedRoll);
   E.click(state, fixedRoll);
   const timers = structuredClone(state.actionPoints);
-  assert.equal(E.selectSession(state, 'patrol'), true);
+  assert.equal(moveTestParty(state, 'patrol'), true);
   assert.equal(state.hp, 40);
   assert.deepEqual(state.actionPoints, timers);
-  assert.equal(E.selectSession(state, 'unknown'), false);
+  assert.equal(moveTestParty(state, 'unknown'), false);
 });
 test('purchases cannot make factors negative or exceed level caps', () => {
   const state = E.createState();
@@ -129,7 +130,7 @@ test('boost purchase doubles damage and cannot be stacked', () => {
 });
 test('JSON round trip carries full progress between unrelated storage origins', () => {
   const state = hiredState(); state.factors = 900;
-  E.hire(state, 'richter'); E.selectSession(state, 'heavy'); E.buyUpgrade(state, 'power');
+  E.hire(state, 'richter'); moveTestParty(state, 'heavy'); E.buyUpgrade(state, 'power');
   E.advance(state, 17, fixedRoll);
   const source = memoryStorage(), destination = memoryStorage();
   S.persist(source, state);
@@ -467,7 +468,7 @@ test('partial points and tick phase survive pause, manual attacks, target change
   const state=hiredState();state.actionLevels.meta=40;
   E.advance(state,1.4,fixedRoll);
   assert.equal(state.actionPoints.meta,50);
-  E.click(state,fixedRoll);E.selectSession(state,'heavy');
+  E.click(state,fixedRoll);moveTestParty(state,'heavy');
   const originalPoints=state.actionPoints.meta,clock=state.actionClock;
   state.paused=true;E.advance(state,50,fixedRoll);
   assert.equal(state.actionPoints.meta,originalPoints);assert.equal(state.actionClock,clock);

@@ -1,9 +1,10 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),S=require('../js/save.js'),UI=require('../js/display.js');
 test('Meta rolls two dice, keeps floor rounding and benefits from the first power purchase',()=>{
-  const s=E.createState(1000);s.factors=D.characters[0].cost;E.hire(s,'meta');E.selectCharacter(s,'meta');E.selectSession(s,'patrol');
+  const s=E.createState(1000);s.factors=D.characters[0].cost;E.hire(s,'meta');E.selectCharacter(s,'meta');moveTestParty(s,'patrol');
   let base=0,raised=0;
   for(let a=1;a<=6;a++)for(let b=1;b<=6;b++){
     for(const level of [1,2]){
@@ -26,7 +27,7 @@ test('reward levels apply the same additive percentage to every session with int
 test('manual clears, auto clears, spillover and offline batches award the same integer reward',()=>{
   for(const mode of ['manual','auto','offline']){
     const s=E.createState(1000);s.levels.richter=50;s.selectedCharacterId='richter';s.purchasedPerks.richter=['bom-ber'];
-    s.upgrades.reward=1;s.factors=0;E.selectSession(s,'heavy');s.hp=1;
+    s.upgrades.reward=1;s.factors=0;moveTestParty(s,'heavy');s.hp=1;
     if(mode==='manual')E.click(s,()=>.999);
     else if(mode==='auto')E.advance(s,4,()=>.999);
     else E.catchUp(s,1000+8*3600*1000);

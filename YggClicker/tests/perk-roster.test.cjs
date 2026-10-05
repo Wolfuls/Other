@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),B=require('../js/battle-batch.js'),UI=require('../js/display.js'),{harness}=require('./app-harness.cjs');
 const [meta,richter,dog]=D.characters;
@@ -14,15 +15,15 @@ test('revised park levels and effects match the unified Rare Metal Blade and thr
 
 test('every ally spills over only on swarm quests and every damage path respects penetration immunity',()=>{
  const s=trained();
- for(const q of D.sessions){E.selectSession(s,q.id);for(const c of [meta,richter,dog]){
+ for(const q of D.sessions){moveTestParty(s,q.id);for(const c of [meta,richter,dog]){
   const p=E.attackProfile(s,c);assert.equal(p.overflow,q.traits.includes('swarm'));assert.equal(E.hasOverflow(s,c),p.overflow);
   assert.equal(p.extraAttackChance,0);
   if(q.id==='scarecrow'){assert.equal(p.defense,35);assert.equal(p.ignoreDefense,false);assert.equal(p.overflow,false);}
  }}
- s.levels={meta:50,richter:0,vishunal:0,tordeliese:0,max:0};s.purchasedPerks={meta:['metal-blade'],richter:[],vishunal:[],tordeliese:[],max:[]};s.selectedCharacterId='meta';E.selectSession(s,'scarecrow');
+ s.levels={meta:50,richter:0,vishunal:0,tordeliese:0,max:0};s.purchasedPerks={meta:['metal-blade'],richter:[],vishunal:[],tordeliese:[],max:[]};s.selectedCharacterId='meta';moveTestParty(s,'scarecrow');
  const p=E.attackProfile(s,meta);assert.equal(p.penetrationBlocked,true);assert.equal(p.overflowDefense,35);
  const before=s.hp;E.click(s,()=>0);assert.equal(before-s.hp,18); // (4+5)*5.9=53, armor35.
- assert.equal(E.characterDps(s,meta),B.averageDamage(p)*.5);
+ assert.equal(E.characterDps(s,meta),B.averageDamage(p)*.5*E.combatUptime(s));
  const s2=structuredClone(s);s2.actionLevels.meta=100000;E.advance(s2,120,()=>{throw Error('expected aggregate combat');});assert.ok(s2.kills>0);assert.deepEqual(S.decode(S.encode(s2)),s2);
 });
 
@@ -33,7 +34,7 @@ test('Rare Metal Blade bypasses armor for every spillover victim, including comp
  const actor={dice:0,flat:606,multiplier:1,defense:0,overflowDefense:0,overflow:true,rate:1};
  assert.ok(Math.abs(B.clearRate(26,[actor],{threshold:4,chance:0})-606/26)<1e-6);
  assert.ok(B.clearRate(26,[{...actor,overflowDefense:2}],{threshold:4,chance:0})<B.clearRate(26,[actor],{threshold:4,chance:0}));
- E.selectSession(s,'dementor');assert.equal(E.attackProfile(s,meta).overflowDefense,0);
+ moveTestParty(s,'dementor');assert.equal(E.attackProfile(s,meta).overflowDefense,0);
  for(const c of [richter,dog]){s.levels[c.id]=100;s.purchasedPerks[c.id]=c.perks.map(p=>p.id);assert.equal(E.attackProfile(s,c).overflowDefense,3);}
 });
 
@@ -60,7 +61,7 @@ test('new enemy art has four idle and four defeat frames and all sprites stay ab
 });
 
 test('armor kneeling keeps its dedicated sheet and position through defeat, then gets cleaned up',()=>{
- const s=trained();E.selectSession(s,'scarecrow');s.selectedCharacterId='richter';s.hp=1;s.paused=false;const h=harness(s);h.click('attack');h.advance(900);
+ const s=trained();moveTestParty(s,'scarecrow');s.selectedCharacterId='richter';s.hp=1;s.paused=false;const h=harness(s);h.click('attack');h.advance(900);
  const ghost=h.get('enemy-defeats').children.find(n=>n.classList.contains('enemy-defeat'));assert.ok(ghost);assert.equal(ghost.dataset.defeatStyle,'kneel');assert.equal(ghost.style.marginLeft,'0px');assert.equal(ghost.style.getPropertyValue('--fall-duration'),'1100ms');
  assert.ok(ghost.firstElementChild.style.getPropertyValue('--enemy-image').includes('enemy-scarecrow-defeat-v1.png'));h.click('pause');assert.equal(h.get('enemy-defeats').children.length,0);
 });

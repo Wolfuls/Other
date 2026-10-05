@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const UI=require('../js/display.js'),E=require('../js/engine.js'),D=require('../js/data.js'),{harness}=require('./app-harness.cjs');
 
@@ -33,7 +34,7 @@ test('resize refreshes background bounds and combat coordinates without altering
  assert.equal(arena.style.getPropertyValue('--enemy-y'),l.enemyY+'px');
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--scene-width'),l.viewWidth+'px');
  h.get('arena-viewport').clientWidth=950;h.resize();assert.notEqual(h.get('arena-viewport').style.getPropertyValue('--scene-width'),l.viewWidth+'px');
- assert.ok(arena.classList.contains('grounded'));assert.equal(E.selectSession(s,'practice'),false);
+ assert.ok(arena.classList.contains('grounded'));assert.equal(moveTestParty(s,'practice'),false);
  h.advance(11000);const saved=h.saved();assert.deepEqual(saved.levels,s.levels);assert.equal(saved.factors,s.factors);
 });
 

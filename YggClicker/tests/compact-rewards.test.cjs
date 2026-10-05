@@ -22,17 +22,17 @@ test('high-rate overflow uses a bounded reward pool, never interrupts active fal
  h.advance(2000);h.visible(true);h.media.matches=true;h.media.change();h.advance(2200);assert.equal(active(h).length,0);
 });
 
-test('compact cards show current independent levels/multipliers and purchases still update prices and formulas',()=>{
+test('compact cards show current independent levels and absolute values and purchases still update prices and formulas',()=>{
  const s=E.createState(1000);s.paused=true;s.factors=100000;s.levels.meta=20;s.actionLevels.meta=10;s.purchasedPerks.meta=['attack-plus'];
  const h=harness(s),html=h.get('character-list').innerHTML;
  assert.doesNotMatch(html,/action-charge|damage-growth|selection-label|damage-breakdown|meta-growth/);
  assert.ok(html.indexOf('perk-list')<html.indexOf('current-attack'));
- assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.20）');assert.equal(h.get('damage-bonus-meta').textContent,'×2.9');
- assert.equal(h.get('action-label-meta').textContent,'行動力＋5（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'×2');
+ assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.20）');assert.equal(h.get('damage-bonus-meta').textContent,'31.42');
+ assert.equal(h.get('action-label-meta').textContent,'行動力＋5（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'100');
  assert.match(h.get('stats-meta').textContent,/2D6 \+ 4.*×2\.9/);
  const buy=dataset=>h.get('character-list').listeners.get('click')({target:{closest:selector=>selector==='[data-hire], [data-action]'?{dataset,disabled:false}:null}});
- buy({hire:'meta'});assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.21）');assert.equal(h.get('damage-bonus-meta').textContent,'×3');
- const formula=h.get('stats-meta').textContent;buy({action:'meta'});assert.equal(h.get('action-bonus-meta').textContent,'×2.1');assert.equal(h.get('stats-meta').textContent,formula);
+ buy({hire:'meta'});assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.21）');assert.equal(h.get('damage-bonus-meta').textContent,'33');
+ const formula=h.get('stats-meta').textContent;buy({action:'meta'});assert.equal(h.get('action-bonus-meta').textContent,'105');assert.equal(h.get('stats-meta').textContent,formula);
  assert.equal(h.saved().levels.meta,21);assert.equal(h.saved().actionLevels.meta,11);
 });
 

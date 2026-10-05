@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),S=require('../js/save.js'),UI=require('../js/display.js');
 const {harness}=require('./app-harness.cjs');
@@ -13,7 +14,7 @@ test('the three quests are playable; all schema9 targets migrate without losing 
   assert.deepEqual(migrated,{...s,sessionId:'mohicans',hp:sessionId==='mohicans'?6:20});
   assert.deepEqual(S.decode(S.encode(migrated)),migrated);
  }
- for(const sessionId of ['practice','patrol','heavy'])assert.equal(E.selectSession(E.createState(),sessionId),false);
+ for(const sessionId of ['practice','patrol','heavy'])assert.equal(moveTestParty(E.createState(),sessionId),false);
 });
 
 test('migration still rejects unknown targets and invalid old HP or upgrade values',()=>{

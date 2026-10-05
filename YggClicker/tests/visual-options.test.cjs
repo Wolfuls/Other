@@ -1,4 +1,5 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),{harness}=require('./app-harness.cjs');
 const change=(h,id,value)=>{const el=h.get('option-'+id);if(typeof value==='boolean')el.checked=value;else el.value=value;el.listeners.get('change')();};
@@ -15,7 +16,7 @@ test('all display preferences persist, missing fields default safely, and malfor
 test('hit modes retain the same single-target combat but change only their visual layers',()=>{
  let expected;
  for(const mode of D.hitEffectModes){
-  const s=fighter();s.options.hitEffects=mode;E.selectSession(s,'scarecrow');const h=harness(s);
+  const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');const h=harness(s);
   h.click('attack');h.advance(780);
   assert.equal(h.get('arena-viewport').dataset.hitEffects,mode);
   assert.equal(h.get('hit-effects').children.length,mode==='off'?0:1);

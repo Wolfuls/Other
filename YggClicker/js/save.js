@@ -5,11 +5,33 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 19;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 22;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const migrations = {
+    21(document){
+      const old=record(document.state,'旧セーブ'),forms=old.formations===undefined?{}:record(old.formations,'旧部隊編成'),used=new Set(),formations={};
+      if(Object.keys(forms).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('旧部隊編成のクエストが正しくありません。');
+      if(D.sessions.every(q=>forms[q.id]==null))return {...document,schemaVersion:22,state:{...old,formations:Object.fromEntries(D.sessions.map(q=>[q.id,null])),respawnSeconds:0,sessionStates:{}}};
+      const quests=[...D.sessions].sort((a,b)=>(b.id===old.sessionId)-(a.id===old.sessionId));
+      for(const q of quests){
+        const ids=Array.isArray(forms[q.id])?forms[q.id]:(q.id===old.sessionId?D.characters.filter(c=>old.levels?.[c.id]>0).map(c=>c.id):[]);
+        if(new Set(ids).size!==ids.length||ids.length>E.MAX_PARTY_SIZE||ids.some(id=>!D.characters.some(c=>c.id===id)||!old.levels?.[id]))throw new Error('旧部隊編成が正しくありません。');
+        formations[q.id]=ids.filter(id=>{if(used.has(id))return false;used.add(id);return true;});
+      }
+      return {...document,schemaVersion:22,state:{...old,formations,respawnSeconds:0,sessionStates:{}}};
+    },
+    20(document) { return {...document,schemaVersion:21,state:{...document.state,formations:Object.fromEntries(D.sessions.map(q=>[q.id,null]))}}; },
+    19(document) {
+      const old=record(document.state,'旧セーブ'),owned=record(old.purchasedPerks,'購入済みパーク');
+      const max=owned.max??[];
+      if(!Array.isArray(max)||new Set(max).size!==max.length)throw new Error('購入済みパークの値が正しくありません。');
+      const refund=max.includes('gm')?100000:0;
+      if(refund)number(record(old.levels,'旧威力レベル').max,'マックスの威力レベル',1,E.MAX_LEVEL,true);
+      return {...document,schemaVersion:20,state:{...old,factors:number(old.factors,'所持因子')+refund,
+        purchasedPerks:{...owned,max:max.filter(id=>id!=='gm')}}};
+    },
     18(document) { return {...document,schemaVersion:19}; },
     1(document) {
       const oldState = record(document.state, '旧セーブ');
@@ -207,7 +229,9 @@
     }
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
-    result.hp = number(raw.hp, '残りHP', 1, E.getSession(result).hp);
+    result.respawnSeconds=number(raw.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(result));
+    result.hp = number(raw.hp, '残りHP', result.respawnSeconds>0?0:1, E.getSession(result).hp);
+    if(result.respawnSeconds>0&&result.hp!==0)throw new Error('再出現待ちのHPが正しくありません。');
     result.poisonDamage=raw.poisonDamage===undefined?0:raw.poisonDamage;
     if(![0,4,8,12,16].includes(result.poisonDamage))throw new Error('猛毒の値が正しくありません。');
     if(!Number.isInteger(result.hp))throw new Error('残りHPは整数で指定してください。');
@@ -215,7 +239,7 @@
       result[field]=number(raw[field]??0,'放置計算の端数',-1,1);
       if(Math.abs(result[field])>=1)throw new Error('放置計算の端数が正しくありません。');
     }
-    if(result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>E.getSession(result).hp)throw new Error('放置計算のHPが正しくありません。');
+    if(result.respawnSeconds>0?result.batchHpFraction!==0||result.poisonDamage!==0:result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>E.getSession(result).hp)throw new Error('放置計算のHPが正しくありません。');
     if (typeof raw.paused !== 'boolean') throw new Error('一時停止状態が正しくありません。');
     result.paused = raw.paused;
     const options = raw.options === undefined ? {} : record(raw.options, '表示設定');
@@ -246,7 +270,32 @@
       })) throw new Error('購入済みパークの値が正しくありません。');
       result.purchasedPerks[c.id] = [...purchased];
     }
-    if (raw.selectedCharacterId !== null && !D.characters.some(c => c.id === raw.selectedCharacterId && result.levels[c.id] > 0)) throw new Error('手動攻撃の担当キャラクターが正しくありません。');
+    const formations=raw.formations===undefined?{}:record(raw.formations,'部隊編成');
+    if(Object.keys(formations).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト編成です。');
+    for(const q of D.sessions){
+      const ids=formations[q.id]??null;
+      if(ids!==null&&(!Array.isArray(ids)||ids.length>E.MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!result.levels[id])))throw new Error('部隊編成は雇用済みの仲間を重複なく最大5人で指定してください。');
+      result.formations[q.id]=ids===null?null:[...ids];
+    }
+    const assigned=new Set();
+    for(const q of D.sessions)for(const id of E.formationIds(result,q.id)){
+      if(assigned.has(id))throw new Error('同じ仲間を複数のクエストに編成できません。');assigned.add(id);
+    }
+    const battles=raw.sessionStates===undefined?{}:record(raw.sessionStates,'クエスト別の戦況');
+    result.sessionStates={};
+    for(const [id,data] of Object.entries(battles)){
+      if(!D.sessions.some(q=>q.id===id)||id===result.sessionId)throw new Error('クエスト別の戦況が重複しています。');
+      const value=record(data,'戦況'),ctx=E.battleContext(result,id),maxHP=E.getSession(ctx).hp;
+      const respawnSeconds=number(value.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(ctx));
+      const hp=number(value.hp,'残りHP',respawnSeconds?0:1,maxHP);
+      if(!Number.isInteger(hp)||respawnSeconds&&hp!==0)throw new Error('クエスト別HPが正しくありません。');
+      const poisonDamage=value.poisonDamage??0,batchHpFraction=number(value.batchHpFraction??0,'HP端数',-1,1),batchDamageFraction=number(value.batchDamageFraction??0,'ダメージ端数',-1,1);
+      if(![0,4,8,12,16].includes(poisonDamage)||Math.abs(batchHpFraction)>=1||Math.abs(batchDamageFraction)>=1||(respawnSeconds?poisonDamage!==0||batchHpFraction!==0:hp+batchHpFraction<=0||hp+batchHpFraction>maxHP))throw new Error('クエスト別の戦闘状態が正しくありません。');
+      const selectedCharacterId=value.selectedCharacterId??null;
+      if(selectedCharacterId!==null&&!E.formationIds(result,id).includes(selectedCharacterId))throw new Error('クエスト別の手動攻撃対象が正しくありません。');
+      result.sessionStates[id]={hp,poisonDamage,batchHpFraction,batchDamageFraction,respawnSeconds,selectedCharacterId};
+    }
+    if (raw.selectedCharacterId !== null && !D.characters.some(c => c.id === raw.selectedCharacterId && E.isDeployed(result,c.id))) throw new Error('手動攻撃の担当キャラクターが正しくありません。');
     result.selectedCharacterId = raw.selectedCharacterId;
     for (const u of D.upgrades) result.upgrades[u.id] = number(raw.upgrades[u.id] ?? 0, u.name, 0, u.max ?? Number.MAX_SAFE_INTEGER, true);
     return result;

@@ -1,8 +1,9 @@
 'use strict';
+const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),{harness}=require('./app-harness.cjs');
-function fixture(action=190){const s=E.createState(1000);s.levels.richter=50;s.actionLevels.richter=action;s.selectedCharacterId='richter';E.selectSession(s,'heavy');return s;}
+function fixture(action=190){const s=E.createState(1000);s.levels.richter=50;s.actionLevels.richter=action;s.selectedCharacterId='richter';moveTestParty(s,'heavy');return s;}
 
 test('continuous auto volleys stay in the same burst through tick gaps and delayed callbacks',()=>{
   const h=harness(fixture());h.advance(1100);

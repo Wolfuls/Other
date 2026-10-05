@@ -28,8 +28,8 @@ test('character DPS sums to party DPS, includes all corrections, and action rate
  s.levels.vishunal=50;const before=E.characterDps(s,dog),rate=E.attackRate(s,dog);s.purchasedPerks.vishunal=['missile-missile'];
  near(E.characterDps(s,dog),require('../js/battle-batch.js').averageDamage(E.attackProfile(s,dog))*rate);assert.equal(E.attackRate(s,dog),rate);
  near(E.dps(s),D.characters.reduce((sum,c)=>sum+E.characterDps(s,c),0));
- const h=harness({...s,paused:true});assert.equal(h.get('character-dps-meta').textContent,'（25.2 DPS）');assert.equal(h.get('character-rate-meta').textContent,'（0.7 回/秒）');
- assert.equal(h.get('action-bonus-meta').textContent,'×1.4');
+ const h=harness({...s,paused:true});assert.equal(h.get('character-dps-meta').textContent,'25.2 DPS');assert.equal(h.get('character-rate-meta').textContent,'0.7 回/秒');
+ assert.equal(h.get('action-bonus-meta').textContent,'70');
 });
 
 test('concentration invalidates expected income and improves automatic clears rather than only manual damage',()=>{
