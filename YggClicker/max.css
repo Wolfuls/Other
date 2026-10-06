@@ -9,3 +9,6 @@
 .max-combatant.is-paused *{animation-play-state:paused!important}.max-combatant .meta-select{inset:12% 10% 4%}.max-combatant .meta-ground{top:calc(50% + var(--body-foot) - 5px);bottom:auto}.max-combatant.manual-selected .meta-ground{box-shadow:0 0 14px #bade9055}
 #max-tubs{position:absolute;inset:0;pointer-events:none;z-index:5}.max-tub{position:absolute;width:76px;height:76px;background:url('./img/tarai-v1.png') center/contain no-repeat;animation:max-tub-fall .32s linear both}@keyframes max-tub-fall{0%{transform:translateY(-140px) rotate(-15deg);opacity:0}10%{opacity:1}100%{transform:translateY(100px) rotate(8deg);opacity:1}}
 @media(prefers-reduced-motion:reduce){.max-standing,.max-float{animation:none!important}.max-tub{display:none}}
+
+/* The revival target stays outside the hidden hover layer. */
+.max-combatant.downed .meta-select{inset:auto;left:50%;top:calc(50% + var(--down-foot,70px) - 90px);width:var(--down-width,166px);height:100px;transform:translateX(-50%)}

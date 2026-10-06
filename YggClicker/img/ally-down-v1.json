@@ -1,0 +1,30 @@
+{
+  "mode": "built-in image_gen",
+  "sprites": [
+    {
+      "id": "meta",
+      "prompt": "Use case: stylized-concept. Asset type: single downed/incapacitated sprite for a Japanese pixel-art RPG. Input image is design and pixel-art reference, not a sprite layout to replicate. Draw ONE full-body Red bob-haired girl in black uniform, red tie, yellow shoes, small bandage on upper left thigh. Collapsed sitting on ground, legs to one side, eyes closed, arms relaxed. Match reference identity, clothing, compact game proportions, strong dark pixel outlines and crisp stepped pixel clusters; no smooth illustration, no blur. Non-graphic knocked-out pose, no wounds. Orthographic 3/4 view facing right, centered in a square canvas, whole figure fits with transparent margin, baseline near bottom. True transparent background. No text, no extra sprites, no scenery, no cast shadow.",
+      "path": "C:\\Users\\user\\.codex\\generated_images\\01a10130-349c-7870-a623-2dc6018f4d46\\exec-2444bd2d-1ef7-4f05-b6ea-387c086d771b.png"
+    },
+    {
+      "id": "richter",
+      "prompt": "Use case: stylized-concept. Asset type: single downed/incapacitated sprite for a Japanese pixel-art RPG. Input image is design and pixel-art reference, not a sprite layout to replicate. Draw ONE full-body Tall slim man with wavy unruly black hair, narrow sunglasses and thick full lips, long brown coat marked with white square 5, pink scarf, brown boots. Down on one knee with torso slumped forward and one hand resting on ground, eyes closed behind glasses. No bomb creature. Match reference identity, clothing, compact game proportions, strong dark pixel outlines and crisp stepped pixel clusters; no smooth illustration, no blur. Non-graphic knocked-out pose, no wounds. Orthographic 3/4 view facing right, centered in a square canvas, whole figure fits with transparent margin, baseline near bottom. True transparent background. No text, no extra sprites, no scenery, no cast shadow.",
+      "path": "C:\\Users\\user\\.codex\\generated_images\\01a10130-349c-7870-a623-2dc6018f4d46\\exec-a7e5958b-ce3c-4b93-aefb-87384bed992f.png"
+    },
+    {
+      "id": "vishunal",
+      "prompt": "Use case: stylized-concept. Asset type: single downed/incapacitated sprite for a Japanese pixel-art RPG. Input image is design and pixel-art reference, not a sprite layout to replicate. Draw ONE full-body Small cute brown dog with purple multiport missile launcher on its back, blue collar and yellow star pendant with blue center. Lying flat on its belly with head resting on forepaws and eyes closed, launcher tilted but intact. One dog only. Match reference identity, clothing, compact game proportions, strong dark pixel outlines and crisp stepped pixel clusters; no smooth illustration, no blur. Non-graphic knocked-out pose, no wounds. Orthographic 3/4 view facing right, centered in a square canvas, whole figure fits with transparent margin, baseline near bottom. True transparent background. No text, no extra sprites, no scenery, no cast shadow.",
+      "path": "C:\\Users\\user\\.codex\\generated_images\\01a10130-349c-7870-a623-2dc6018f4d46\\exec-b5b581f5-5f03-46e9-aff1-ef8e2c91d3bc.png"
+    },
+    {
+      "id": "tordeliese",
+      "prompt": "Use case: stylized-concept. Asset type: single downed/incapacitated sprite for a Japanese pixel-art RPG. Input image is design and pixel-art reference, not a sprite layout to replicate. Draw ONE full-body White bob-haired adult woman with red hair streak, black glasses, white long-sleeve knitted sweater, black pleated skirt and black boots. Slumped kneeling on ground with eyes closed, head drooped and arms relaxed. Four black-and-red centipede tentacles with gold legs and cyan tips curled limp close behind her. Keep skirt modestly covering lap. Match reference identity, clothing, compact game proportions, strong dark pixel outlines and crisp stepped pixel clusters; no smooth illustration, no blur. Non-graphic knocked-out pose, no wounds. Orthographic 3/4 view facing right, centered in a square canvas, whole figure fits with transparent margin, baseline near bottom. True transparent background. No text, no extra sprites, no scenery, no cast shadow.",
+      "path": "C:\\Users\\user\\.codex\\generated_images\\01a10130-349c-7870-a623-2dc6018f4d46\\exec-93911016-13dc-4ba0-b528-f062da922617.png"
+    },
+    {
+      "id": "max",
+      "prompt": "Use case: stylized-concept. Asset type: single downed/incapacitated sprite for a Japanese pixel-art RPG. Input image is design and pixel-art reference, not a sprite layout to replicate. Draw ONE full-body Silver-haired boy in white suit, black shirt, white tie and black gloves seated on ornate red upholstered golden hovering throne with game boards on armrests. Head drooped to one side, eyes closed, arms limp on armrests, feet and throne intact. Throne stays upright but no glow. Match reference identity, clothing, compact game proportions, strong dark pixel outlines and crisp stepped pixel clusters; no smooth illustration, no blur. Non-graphic knocked-out pose, no wounds. Orthographic 3/4 view facing right, centered in a square canvas, whole figure fits with transparent margin, baseline near bottom. True transparent background. No text, no extra sprites, no scenery, no cast shadow.",
+      "path": "C:\\Users\\user\\.codex\\generated_images\\01a10130-349c-7870-a623-2dc6018f4d46\\exec-976c9173-7b58-44bf-8bee-a3449e1e1fed.png"
+    }
+  ]
+}

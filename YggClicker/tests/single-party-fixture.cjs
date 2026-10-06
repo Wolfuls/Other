@@ -8,7 +8,7 @@ module.exports=function moveTestParty(state,id){
  const selected=state.selectedCharacterId;
  E.selectSession(state,id);
  state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,null]));
- state.sessionStates={};state.hp=E.getSession(state).hp;state.poisonDamage=0;state.respawnSeconds=0;state.batchHpFraction=0;
+ state.sessionStates={};state.hp=E.getSession(state).hp;state.poisonDamage=0;state.respawnSeconds=0;state.batchHpFraction=0;state.enemies=null;state.nextEnemyId=0;state.focusedEnemyId=null;
  E.selectCharacter(state,selected);
  return true;
 };

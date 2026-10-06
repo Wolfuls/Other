@@ -1,11 +1,14 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+const {freshTarget}=require('./target-fixtures.cjs');
+require('./passive-enemies.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),D=require('../js/data.js'),S=require('../js/save.js'),UI=require('../js/display.js'),{harness}=require('./app-harness.cjs');
-const prepared=()=>{const s=E.createState(1000);s.paused=true;s.factors=12345;s.kills=999;s.hp=3;s.levels.meta=50;s.levels.richter=50;s.levels.vishunal=30;s.actionLevels.meta=100;s.actionLevels.richter=100;s.purchasedPerks.richter=['bom-ber'];s.upgrades.reward=4;return s;};
+const prepared=()=>{const s=combatFixture(1000);s.paused=true;s.factors=12345;s.kills=999;s.hp=3;s.levels.meta=50;s.levels.richter=50;s.levels.vishunal=30;s.actionLevels.meta=100;s.actionLevels.richter=100;s.purchasedPerks.richter=['bom-ber'];s.upgrades.reward=4;return s;};
 const toggle=(h,value)=>{h.get('option-orbits').checked=value;h.get('option-orbits').listeners.get('change')();};
 
 test('currency stays synchronized across the desktop, pinned bar and dialog headers after earning, spending and importing',()=>{
- const state=prepared();state.paused=false;const h=harness(state);
+ const state=prepared();freshTarget(state,3);state.paused=false;const h=harness(state);
  const amounts=()=>['factors','factors-pinned','factors-save','factors-help'].map(id=>h.get(id).textContent);
  const check=value=>assert.deepEqual(amounts(),Array(4).fill(UI.currencyNumber(value)));
  check(state.factors);
@@ -32,7 +35,7 @@ test('display preference survives export/import and old unversioned states use t
 });
 
 test('orbit option removes the decorative nodes, persists and restores without changing combat values',()=>{
- const state=prepared(),h=harness(state),dps=h.get('dps').textContent,stats=h.get('stats-meta').textContent;
+ const state=prepared();E.ensureEnemies(state);const h=harness(state),dps=h.get('dps').textContent,stats=h.get('stats-meta').textContent;
  assert.ok(h.get('meta-orbits').children.length>0);assert.ok(h.get('richter-orbits').children.length>0);
  toggle(h,false);
  for(const id of ['meta-orbits','richter-orbits']){assert.equal(h.get(id).hidden,true);assert.equal(h.get(id).children.length,0);}

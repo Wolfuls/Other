@@ -4,9 +4,11 @@
   const B = typeof module !== 'undefined' && module.exports ? require('./battle-batch.js') : root.YggBatch;
   const N = typeof module !== 'undefined' && module.exports ? require('./numbers.js') : root.YggNumbers;
   const MAX_LEVEL = 200, MAX_PARTY_SIZE = 5;
-  const EXACT_ATTACK_BUDGET = 1200;
-  let incomeKey, incomeValue;
-  const questLevel = (state,id=state.sessionId) => state.questLevels?.[id] ?? 1;
+  const EXACT_ATTACK_BUDGET = 120;
+  const ENEMY_ID_RANGE = 1000000000;
+  function nextEnemyId(state){const id=state.nextEnemyId||0;state.nextEnemyId=(id+1)%ENEMY_ID_RANGE;return id;}
+  const incomeCache=new Map();
+  const questLevel = (state,id=state.sessionId) => state.questActiveLevels?.[id] ?? state.questLevels?.[id] ?? 1;
   function sessionAtLevel(session,level) {
     const defense=session.defenseGrowth ? N.geometric(session.defense||0,session.defenseGrowth,level-1) : (session.defense||0)+(session.defensePerLevel||0)*(level-1);
     return {...session,level,defense,hp:N.geometric(session.hp,D.questGrowth.hpGrowth,level-1),reward:N.geometric(session.reward,D.questGrowth.rewardGrowth,level-1)};
@@ -15,11 +17,22 @@
     const session=D.sessions.find(item=>item.id===id);
     return session ? sessionAtLevel(session,questLevel(state,id)) : undefined;
   }
+  function isQuestUnlocked(state,id){
+    const quest=D.sessions.find(q=>q.id===id);
+    return !!quest&&(!quest.unlockFactors||state.questUnlocks?.[id]===true||Number.isFinite(state.factors)&&state.factors>=quest.unlockFactors);
+  }
+  function refreshQuestUnlocks(state){
+    state.questUnlocks=Object.fromEntries(D.sessions.map(q=>[q.id,isQuestUnlocked(state,q.id)]));
+  }
   function createState(now = Date.now()) {
     return { factors: D.balance.initialFactors, earned: 0, kills: 0, clicks: 0, totalDamage: 0,
-      sessionId: D.sessions[0].id, hp: D.sessions[0].hp, poisonDamage:0, paused: false, boostSeconds: 0, options: {...D.displayDefaults},
-      respawnSeconds:0, sessionStates:{},
+      sessionId: D.sessions[0].id, hp: D.sessions[0].hp, poisonDamage:0, paused: false, options: {...D.displayDefaults},
+      floorClipTargetId:null, floorClipSeconds:0, respawnSeconds:0, sessionStates:{}, enemies:null, nextEnemyId:0, focusedEnemyId:null,
+      health:Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}])),
       formations: Object.fromEntries(D.sessions.map(s=>[s.id,null])),
+      concentration: Object.fromEntries(D.sessions.map(q=>[q.id,Object.fromEntries(D.concentration.map(c=>[c.id,0]))])),
+      questUnlocks: Object.fromEntries(D.sessions.map(q=>[q.id,!q.unlockFactors])),
+      questActiveLevels: {},
       questLevels: Object.fromEntries(D.sessions.map(s=>[s.id,1])), sceneSeconds:0, batchHpFraction:0,batchDamageFraction:0,
       levels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
       actionLevels: Object.fromEntries(D.characters.map(c => [c.id, 0])),
@@ -27,13 +40,13 @@
       purchasedPerks: Object.fromEntries(D.characters.map(c => [c.id, []])),
       upgrades: Object.fromEntries(D.upgrades.map(u => [u.id, 0])), savedAt: now };
   }
-  const BATTLE_FIELDS=['hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId'];
-  const respawnDelay=state=>(getSession(state).traits||[]).includes('swarm')?0:5;
-  const isWaiting=state=>(state.respawnSeconds||0)>0;
-  function battleSnapshot(state){return Object.fromEntries(BATTLE_FIELDS.map(k=>[k,state[k]??(k==='selectedCharacterId'?null:0)]));}
+  const BATTLE_FIELDS=['hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId','enemies','nextEnemyId','focusedEnemyId','floorClipTargetId','floorClipSeconds'];
+  const respawnDelay=()=>5;
+  const isWaiting=state=>state.enemies?state.enemies.every(e=>e.respawnSeconds>0):(state.respawnSeconds||0)>0;
+  function battleSnapshot(state){return Object.fromEntries(BATTLE_FIELDS.map(k=>[k,k==='enemies'?(state.enemies?structuredClone(state.enemies):null):state[k]??(['selectedCharacterId','focusedEnemyId','floorClipTargetId'].includes(k)?null:0)]));}
   function battleContext(state,id=state.sessionId){
     if(id===state.sessionId)return state;
-    return {...state,hp:getSession(state,id).hp,poisonDamage:0,batchHpFraction:0,batchDamageFraction:0,respawnSeconds:0,selectedCharacterId:null,
+    return {...state,floorClipTargetId:null,floorClipSeconds:0,hp:getSession(state,id).hp,poisonDamage:0,batchHpFraction:0,batchDamageFraction:0,respawnSeconds:0,selectedCharacterId:null,enemies:null,nextEnemyId:0,focusedEnemyId:null,
       ...state.sessionStates?.[id],sessionId:id,formations:Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]))};
   }
   // Only the initially viewed, untouched quest auto-fills unassigned recruits.
@@ -47,27 +60,48 @@
   }
   const formationOwner=(state,id)=>D.sessions.find(q=>formationIds(state,q.id).includes(id))?.id||null;
   const isDeployed=(state,id)=>formationIds(state).includes(id);
-  const activeCharacters=state=>D.characters.filter(c=>isDeployed(state,c.id));
+  const activeCharacters=state=>D.characters.filter(c=>canAct(state,c.id));
   function setFormation(state,questId,ids){
-    if(!D.sessions.some(q=>q.id===questId)||!Array.isArray(ids)||ids.length>MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!state.levels[id]||(formationOwner(state,id)&&formationOwner(state,id)!==questId)))return false;
-    // Freeze implicit rosters before modifying ownership or changing the view.
-    state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id===questId?[...ids]:formationIds(state,q.id)]));
-    const ctx=battleContext(state,questId);
-    if(ctx.selectedCharacterId&&!ids.includes(ctx.selectedCharacterId))ctx.selectedCharacterId=null;
-    if(questId!==state.sessionId)state.sessionStates={...state.sessionStates,[questId]:battleSnapshot(ctx)};
+    if(!isQuestUnlocked(state,questId)||!Array.isArray(ids)||ids.length>MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!state.levels[id]))return false;
+    refreshQuestUnlocks(state);
+    const rosters=Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]));
+    state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id===questId?[...ids]:rosters[q.id].filter(id=>!ids.includes(id))]));
+    for(const q of D.sessions){
+      const ctx=battleContext(state,q.id);
+      if(ctx.selectedCharacterId&&!isDeployed(ctx,ctx.selectedCharacterId))ctx.selectedCharacterId=null;
+      normalizeEnemyActions(ctx);refreshFloorClip(ctx,rosters[q.id].join(',')!==formationIds(ctx).join(','));
+      if(q.id!==state.sessionId)state.sessionStates={...state.sessionStates,[q.id]:battleSnapshot(ctx)};
+    }
     return true;
+  }
+  const concentration=(state,id=state.sessionId)=>state.concentration?.[id]||Object.fromEntries(D.concentration.map(c=>[c.id,0]));
+  function setConcentration(state,id,allocation){
+    if(!D.sessions.some(q=>q.id===id)||!allocation||Object.keys(allocation).some(k=>!D.concentration.some(c=>c.id===k)))return false;
+    if(D.concentration.some(c=>!Number.isInteger(allocation[c.id])||allocation[c.id]<0||allocation[c.id]>c.max)||Object.values(allocation).reduce((n,v)=>n+v,0)>10)return false;
+    state.concentration={...state.concentration,[id]:{...allocation}};return true;
+  }
+  // Empty and incapacitated parties cannot bank enemy action points. Pending
+  // attacks also end as soon as their original target leaves or falls.
+  function normalizeEnemyActions(state,events){
+    const active=activeCharacters(state);
+    for(const [slot,e]of (state.enemies||[]).entries()){
+      if(!active.length)e.actionPoints=0;
+      if(e.pendingAttack&&(!active.length||!canAct(state,e.pendingAttack.targetId))){
+        e.pendingAttack=null;if(events)events.push({type:'enemyCancel',enemyId:e.id,targetSlot:slot});
+      }
+    }
   }
   function perks(state, character) {
     return (character.perks || []).map(perk => {
       const level = (perk.levelType === 'action' ? state.actionLevels[character.id] : state.levels[character.id]) || 0;
       const owned=!!perk.initial || (state.purchasedPerks[character.id] || []).includes(perk.id);
-      const unlocked = state.levels[character.id] > 0 && level >= perk.level && owned;
+      const unlocked = state.levels[character.id] > 0 && healthOf(state,character.id).status==='active' && level >= perk.level && owned;
       return { ...perk, owned, unlocked, eligible: state.levels[character.id] > 0 && level >= perk.level,
-        dice: unlocked ? (perk.diceBonus || 0) + (perk.diceEvery ? Math.floor(level / perk.diceEvery) : 0) : 0 };
+        dice: unlocked ? (perk.diceBonus || 0) + (perk.diceEvery ? Math.floor(effectivePowerLevel(state,character) / perk.diceEvery) : 0) : 0 };
     });
   }
-  const overflowApplies = (perk,session) => perk.overflow && (!perk.overflowTrait || (session.traits||[]).includes(perk.overflowTrait));
-  const hasOverflow = (state, character, session=getSession(state)) => !!character && perks(state, character).some(p => p.unlocked && overflowApplies(p,session));
+  const areaApplies = (perk,session) => perk.areaAttack && (!perk.areaTrait || (session.traits||[]).includes(perk.areaTrait));
+  const hasAreaAttack = (state, character, session=getSession(state)) => !!character && perks(state, character).some(p => p.unlocked && areaApplies(p,session));
   function attackBreakdown(state, character, manual = false, session = getSession(state)) {
     const active = character ? perks(state, character).filter(p => p.unlocked) : [];
     const replacement = active.find(p => p.baseAttack);
@@ -78,12 +112,15 @@
       base:{ dice:base.dice, flat:base.flat, source:replacement?.name || '' },
       perk:{ dice:active.reduce((n,p) => n + p.dice, 0), flat:active.reduce((n,p) => n + (p.flat || 0), 0),
         conditional:active.reduce((n,p) => n + (p.targetTrait && (session.traits || []).includes(p.targetTrait) ? p.damageBonus || 0 : 0), 0) },
-      upgrade:{ flat:state.upgrades.click * D.balance.concentrationPerLevel, rate:0 },
-      spe:{ rate:state.boostSeconds > 0 ? D.balance.boostDamageBonus : 0 },
+      upgrade:{ flat:character&&isDeployed(state,character.id)?concentration(state).attack:0, rate:0 },
       item:{ flat:0 },
       levelMultiplier:characterMultiplier(state, character),
       defense:ignoreDefense ? 0 : enemyDefense(session), ignoreDefense, penetrationBlocked,
-      overflow:active.some(p => overflowApplies(p,session)), overflowDefense:ignoreDefense?0:enemyDefense(session),
+      areaAttack:active.some(p => areaApplies(p,session)),
+      defenseReduction:Math.max(0,...active.map(p=>p.defenseReduction||0)),
+      apReductionRate:Math.max(0,...active.map(p=>p.apReductionRate||0)),
+      accuracyPenaltyChance:Math.max(0,...active.map(p=>p.accuracyPenaltyChance||0)),
+      accuracyPenalty:Math.max(0,...active.map(p=>p.accuracyPenalty||0)),
       extraAttackChance:Math.max(0,...active.map(p=>p.extraAttackChance||0)),
       poisonDamage:active.some(p=>p.inflictPoison)?Math.max(0,...active.map(p=>p.poisonDamage||0)):0
     };
@@ -96,7 +133,7 @@
   function manualStats(state) {
     const character = selectedCharacter(state);
     const base = character ? stats(state, character) : { dice: D.balance.manualDice, flat: D.balance.manualFlat };
-    return { dice:base.dice, flat:base.flat + state.upgrades.click * D.balance.concentrationPerLevel };
+    return { dice:base.dice, flat:base.flat + (character?concentration(state).attack:0) };
   }
   function selectCharacter(state, id) {
     if (id !== null && !D.characters.some(c => c.id === id && isDeployed(state,id))) return false;
@@ -112,21 +149,28 @@
     return { total, visible: Math.min(total, D.richterVisual.maxVisibleBombs) };
   }
   function orbitCount(state, id) {
-    return isDeployed(state,id) ? Math.min(Number.MAX_SAFE_INTEGER, 1 + (state.actionLevels[id] || 0)) : 0;
+    return canAct(state,id) ? Math.min(Number.MAX_SAFE_INTEGER, 1 + (state.actionLevels[id] || 0)) : 0;
   }
   function weaponScale(state, id) {
     const level = Math.max(1, Math.min(MAX_LEVEL, state.levels[id] || 0));
     return 1 + Math.log2(level) * D.balance.weaponSizePerDoubling;
   }
-  const multiplier = state => state.boostSeconds > 0 ? 1 + D.balance.boostDamageBonus : 1;
-  const characterMultiplier = (state, character) => 1 + Math.max(0, (character ? state.levels[character.id] : 1) - 1) * D.balance.characterDamagePerLevel;
+  function effectivePowerLevel(state,c){
+    const base=c?state.levels[c.id]||0:1;
+    if(!c||c.id==='max'||!canAct(state,c.id)||!canAct(state,'max'))return base;
+    const max=D.characters.find(c=>c.id==='max');
+    const target=state.selectedCharacterId===c.id||state.gmRecipientId===c.id;
+    return base+(target&&perks(state,max).some(p=>p.unlocked&&p.sharePowerLevel)?state.levels.max:0);
+  }
+  const donatedProfile=(state,c)=>attackProfile({...state,gmRecipientId:c.id},c);
+  const characterMultiplier = (state, character) => 1 + Math.max(0, effectivePowerLevel(state,character) - 1) * D.balance.characterDamagePerLevel;
   const enemyDefense = session => Math.max(0, Math.floor(session.defense || 0));
   function attackProfile(state, character, manual = false, session = getSession(state)) {
     const breakdown = attackBreakdown(state, character, manual, session), b = breakdown;
     return { dice:b.base.dice + b.perk.dice, flat:b.base.flat + b.perk.flat + b.upgrade.flat + b.item.flat,
-      bonus:b.perk.conditional, multiplier:(1 + b.upgrade.rate) * (1 + b.spe.rate) * b.levelMultiplier,
-      defense:b.defense, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, overflow:b.overflow, overflowDefense:b.overflowDefense, extraAttackChance:b.extraAttackChance,poisonDamage:b.poisonDamage,
-      minimumLevelBonus:character&&state.levels[character.id]>1?1:0,preLevelMultiplier:(1+b.upgrade.rate)*(1+b.spe.rate),
+      bonus:b.perk.conditional, multiplier:(1 + b.upgrade.rate) * b.levelMultiplier,
+      defense:b.defense, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, areaAttack:b.areaAttack, extraAttackChance:b.extraAttackChance,poisonDamage:b.poisonDamage,defenseReduction:b.defenseReduction,apReductionRate:b.apReductionRate,accuracyPenaltyChance:b.accuracyPenaltyChance,accuracyPenalty:b.accuracyPenalty,
+      minimumLevelBonus:character&&effectivePowerLevel(state,character)>1?1:0,preLevelMultiplier:1+b.upgrade.rate,
       overkillThreshold:state.upgrades.overkill ? D.upgrades.find(u=>u.id==='overkill').threshold : 0, breakdown };
   }
   const reward = (state, session = getSession(state)) => N.linear(session.reward,D.balance.rewardPerLevel,state.upgrades.reward);
@@ -135,43 +179,51 @@
   // Recompute from the level rather than multiplying an already rounded price.
   const geometricCost = (base, purchases, growth = D.balance.purchaseCostGrowth) => N.geometric(base,growth,purchases);
   function questCost(state,id=state.sessionId) {
-    const session=D.sessions.find(s=>s.id===id),level=questLevel(state,id);
+    const session=D.sessions.find(s=>s.id===id),level=state.questLevels?.[id]??1;
     if(!session || !Number.isSafeInteger(level+1))return Infinity;
     const next=sessionAtLevel(session,level+1),cost=geometricCost(D.questGrowth.cost,level-1,D.questGrowth.costGrowth);
     return [next.hp,next.reward,cost].every(v=>Number.isFinite(v)&&v<=1e100)?cost:Infinity;
   }
-  function buyQuest(state,id) {
-    const cost=questCost(state,id),previous=getSession(state,id);
-    if(!previous || !Number.isFinite(cost) || state.factors<cost)return false;
-    state.factors-=cost;
-    state.questLevels ||= Object.fromEntries(D.sessions.map(s=>[s.id,1]));
-    state.questLevels[id]=previous.level+1;
-    // Preserve the current enemy's remaining-health proportion when investing.
-    const ctx=battleContext(state,id);ctx.batchHpFraction=0;
-    if(!isWaiting(ctx))ctx.hp=Math.min(getSession(state,id).hp,ctx.hp+N.delta(ctx.hp/previous.hp*(getSession(state,id).hp-previous.hp)));
+  function applyQuestLevel(state,id,level,ctx,oldHP){
+    state.questActiveLevels={...state.questActiveLevels,[id]:level};ctx.questActiveLevels=state.questActiveLevels;
+    const maxHP=getSession(state,id).hp;
+    for(const e of ctx.enemies)if(e.hp>0)e.hp=Math.max(1,Math.min(maxHP,N.floor(e.hp/oldHP*maxHP)));
+    syncFront(ctx);ctx.batchHpFraction=0;
     if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};
-    return true;
+  }
+  function setQuestLevel(state,id,level){
+    if(!isQuestUnlocked(state,id)||!Number.isSafeInteger(level)||level<1||level>(state.questLevels[id]||1))return false;
+    if(level===questLevel(state,id))return true;
+    const ctx=battleContext(state,id),oldHP=getSession(ctx).hp;ensureEnemies(ctx);refreshQuestUnlocks(state);
+    applyQuestLevel(state,id,level,ctx,oldHP);return true;
+  }
+  function buyQuest(state,id){
+    const cost=questCost(state,id);if(!isQuestUnlocked(state,id)||!Number.isFinite(cost)||state.factors<cost)return false;
+    const ctx=battleContext(state,id),oldHP=getSession(ctx).hp;ensureEnemies(ctx);refreshQuestUnlocks(state);
+    state.factors-=cost;state.questLevels[id]++;
+    applyQuestLevel(state,id,state.questLevels[id],ctx,oldHP);return true;
   }
   const hireCost = (state, c) => state.levels[c.id] === 0 ? c.cost
     : geometricCost(c.powerCost, state.levels[c.id] - 1);
   function supportPerks(state) {
-    const max = D.characters.find(c=>c.id==='max');
-    return isDeployed(state,'max') ? perks(state,max).filter(p=>p.unlocked) : [];
+    return activeCharacters(state).flatMap(c=>perks(state,c).filter(p=>p.unlocked));
   }
   function actionPower(state,c) {
+    if(healthOf(state,c.id).status!=='active')return 0;
     const active=isDeployed(state,c.id)?supportPerks(state):[];
-    const base=N.floor(c.action)+D.balance.actionPerLevel*state.actionLevels[c.id]+D.balance.speedPerLevel*state.upgrades.power;
-    const withAllies=base+(c.id==='max'?0:active.reduce((n,p)=>n+(p.allyAction||0),0));
-    return state.selectedCharacterId===c.id ? N.linear(withAllies,active.reduce((n,p)=>n+(p.selectedActionRate||0),0),1) : withAllies;
+    const base=N.linear(c.action,D.balance.actionPerLevel,state.actionLevels[c.id]);
+    const withAllies=base+active.reduce((n,p)=>n+(p.partyAction||0),0);
+    const supported=state.selectedCharacterId===c.id ? N.linear(withAllies,active.reduce((n,p)=>n+(p.selectedActionRate||0),0),1) : withAllies;
+    return isDeployed(state,c.id)?N.linear(supported,.1,concentration(state).action):supported;
   }
   const freeActionChance = (state,c) => isDeployed(state,c.id)&&state.selectedCharacterId===c.id ? Math.max(0,...supportPerks(state).map(p=>p.freeActionChance||0)) : 0;
   // A zero base has no meaningful relative multiplier; the UI shows absolute action power.
   const actionMultiplier = (state, c) => N.floor(c.action)>0 ? actionPower(state,c)/N.floor(c.action) : null;
   const attackRate = (state, c) => actionPower(state, c) / D.balance.actionThreshold;
-  const isActionDonor = (state,c) => isDeployed(state,c.id) && perks(state,c).some(p=>p.unlocked&&p.transferAction);
+  const isActionDonor = (state,c) => isDeployed(state,c.id) && perks(state,c).some(p=>p.unlocked&&p.transferAction) && transferTargets(state,c).length>0;
   const automaticActionRate = (state,c) => isDeployed(state,c.id) ? attackRate(state,c)/(1-freeActionChance(state,c)) : 0;
   function transferTargets(state,donor) {
-    const others=D.characters.filter(c=>c.id!==donor.id&&isDeployed(state,c.id));
+    const others=D.characters.filter(c=>c.id!==donor.id&&canAct(state,c.id));
     const selected=others.find(c=>c.id===state.selectedCharacterId);
     return selected ? [selected] : others;
   }
@@ -181,232 +233,299 @@
       return sum+(targets.some(t=>t.id===c.id)?automaticActionRate(state,d)/targets.length:0);
     },0);
   }
-  const effectiveAttackRate = (state,c) => !isDeployed(state,c.id)||isActionDonor(state,c) ? 0 :
+  const effectiveAttackRate = (state,c) => !canAct(state,c.id)||isActionDonor(state,c) ? 0 :
     (automaticActionRate(state,c)+donatedActionRate(state,c))/(1-attackProfile(state,c).extraAttackChance);
   function performAutomaticAction(state,c,random,events) {
     if(!isActionDonor(state,c)){performAttack(state,c,attackProfile(state,c),random,events);return;}
     const targets=transferTargets(state,c);
-    if(!targets.length){
-      if(events)events.push({type:'support',actor:c.name,actorId:c.id,maxTransfers:1,hpBefore:state.hp,hpAfter:state.hp});
-      return;
-    }
     const target=targets.length===1?targets[0]:targets[Math.min(targets.length-1,Math.floor(random()*targets.length))];
     const first=events?.length;
     // A donated action costs the recipient no points. Its reattack and poison
     // perks still apply; free-point rolls belong only to the donor's paid action.
-    performAttack(state,target,attackProfile(state,target),random,events);
-    if(events){events[first].maxTransfers=1;events[first].delegatedBy=c.id;}
+    performAttack(state,target,donatedProfile(state,target),random,events);
+    if(events?.[first]){events[first].maxTransfers=1;events[first].delegatedBy=c.id;}
   }
   const actionCost = (state, c) => geometricCost(c.actionCost, state.actionLevels[c.id]);
   const upgradeCost = (state, u) => geometricCost(u.cost, state.upgrades[u.id], D.balance.upgradeCostGrowth);
-  function roll(dice, flat, random = Math.random) {
+  function roll(dice, flat, random = Math.random, sides = 6) {
     let amount = flat;
-    for (let i = 0; i < dice; i++) amount += 1 + Math.floor(random() * 6);
+    for (let i = 0; i < dice; i++) amount += 1 + Math.floor(random() * sides);
     return amount;
   }
-  function applyDamage(state, amount, events, actor, actorId, random, profile, extraAttack = false, poisonTick = false) {
-    if(isWaiting(state))return;
-    state.batchHpFraction=0;
-    const { overflow, defense } = profile, overflowDefense=profile.overflowDefense??defense;
-    let remaining = amount, continuation = false;
-    do {
-      if(!poisonTick && profile.poisonDamage)state.poisonDamage=Math.max(state.poisonDamage||0,profile.poisonDamage);
-      const afterDefense = N.mitigate(remaining,continuation?overflowDefense:defense);
-      const overkill = profile.overkillThreshold > 0 && afterDefense - state.hp >= profile.overkillThreshold;
-      const damage = overflow ? Math.min(state.hp, afterDefense) : afterDefense;
-      const hpBefore = state.hp;
-      state.totalDamage += Math.min(state.hp, damage);
-      state.hp = Math.max(0, state.hp - damage);
-      // Only a positive HP loss triggers the check. Surviving another hit at
-      // 1-4 HP requires another roll; zero HP is an unconditional defeat.
-      const knockoutRoll = damage > 0 && state.hp > 0 && state.hp <= D.balance.knockoutHP ? roll(1, 0, random) : null;
-      const knockedOut = knockoutRoll !== null && knockoutRoll % 2 === 1;
-      if (events) events.push({ type: 'attack', actor, actorId, damage, hpBefore, hpAfter:state.hp, knockoutRoll, knockedOut, continuation, ...(extraAttack ? {extraAttack:true} : {}), ...(poisonTick?{poisonTick:true}:{}) });
-      if (state.hp <= 0 || knockedOut) {
-        const bonus=overkill ? overkillBonus(state) : 0, gain = reward(state) + bonus;
-        state.factors += gain;
-        state.earned += gain;
-        state.kills++;
-        state.respawnSeconds=respawnDelay(state);
-        state.hp = isWaiting(state)?0:getSession(state).hp;
-        state.poisonDamage=0;
-        if (events) events.push({ type: 'clear', reward: gain, overkillBonus:bonus, overkills:overkill?1:0, reason:knockedOut ? 'knockout' : 'hp', hpAfter:state.hp });
-      } else if(!poisonTick && state.poisonDamage) {
-        // Damage-over-time is its own fixed hit, never an attack/re-attack trigger.
-        // Direct kills and KOs have already cleared the status and skip this branch.
-        applyDamage(state,state.poisonDamage,events,'猛毒',null,random,
-          {defense:0,overflow:false,overkillThreshold:0},false,true);
-      }
-      if(isWaiting(state))break;
-      remaining = overflow ? Math.max(0, afterDefense - damage) : 0;
-      continuation = true;
-      // Collapse only long runs of guaranteed full-HP kills; the final partial
-      // target still gets its own 50% knockout check. No RNG is skipped here.
-      const fullKillCost = getSession(state).hp + overflowDefense;
-      const fullKills = Math.floor(remaining / fullKillCost);
-      if (fullKills > 12) {
-        const overkills = profile.overkillThreshold > 0 ? Math.max(0,Math.floor((remaining-profile.overkillThreshold)/fullKillCost)) : 0;
-        const bonus=overkills*overkillBonus(state),dealt = fullKills * getSession(state).hp, gain = fullKills * reward(state) + bonus;
-        state.kills += fullKills; state.totalDamage += dealt; state.factors += gain; state.earned += gain;
-        state.poisonDamage=0;
-        if (events) {
-          events.push({ type:'attack', actor, actorId, damage:dealt, count:fullKills, hpBefore:state.hp, hpAfter:0, continuation:true, approximate:true, ...(extraAttack ? {extraAttack:true} : {}) });
-          events.push({ type:'clear', count:fullKills, reward:gain, overkillBonus:bonus, overkills, reason:'hp', hpAfter:state.hp });
-        }
-        remaining -= fullKills * fullKillCost;
-      }
-    } while (remaining > 0);
+  const healthOf=(state,id)=>state.health?.[id]||{hp:D.characters.find(c=>c.id===id).maxHP,status:'active',regenSeconds:0};
+  const canAct=(state,id)=>isDeployed(state,id)&&healthOf(state,id).status==='active';
+  function newEnemy(state,hp=getSession(state).hp,poisonDamage=0,respawnSeconds=0){
+    return {id:nextEnemyId(state),hp,poisonDamage,respawnSeconds,actionPoints:0,pendingAttack:null,defensePenalty:0,accuracyPenalty:0};
   }
-  // A chain ends at its first failed reattack roll. Inverse sampling gives
-  // exactly that geometric distribution without an unbounded random loop.
-  function chainAttackCount(chance, random = Math.random) {
-    if (!(chance>0 && chance<1)) return 1;
+  function ensureEnemies(state){
+    const count=(getSession(state).traits||[]).includes('swarm')?3:1;
+    if(!Array.isArray(state.enemies)||state.enemies.length!==count){
+      state.enemies=Array.from({length:count},(_,i)=>newEnemy(state,i?getSession(state).hp:state.hp,i?0:state.poisonDamage||0,i?0:state.respawnSeconds||0));
+      syncFront(state);
+    }
+    return state.enemies;
+  }
+  const livingEnemies=state=>ensureEnemies(state).filter(e=>e.hp>0&&!e.respawnSeconds);
+  function syncFront(state){
+    const living=state.enemies.filter(e=>e.hp>0&&!e.respawnSeconds);
+    if(!living.some(e=>e.id===state.focusedEnemyId))state.focusedEnemyId=null;
+    const target=living.find(e=>e.id===state.focusedEnemyId)||living[0];
+    state.hp=target?.hp||0;state.poisonDamage=target?.poisonDamage||0;
+    state.respawnSeconds=target?0:Math.min(...state.enemies.map(e=>e.respawnSeconds));
+  }
+  function selectEnemy(state,id){
+    if(id!==null&&(!(getSession(state).traits||[]).includes('swarm')||!livingEnemies(state).some(e=>e.id===id)))return false;
+    state.focusedEnemyId=id;syncFront(state);return true;
+  }
+  function attackTargets(state,areaAttack,random){
+    const es=livingEnemies(state);if(areaAttack||es.length<2)return es;
+    return [es.find(e=>e.id===state.focusedEnemyId)||es[Math.min(es.length-1,Math.floor(random()*es.length))]];
+  }
+  function combatRoll(spec,random=Math.random){
+    let total=spec.flat||0;const dice=[];
+    for(let i=0;i<spec.dice;i++){
+      let face;
+      do{
+        if(dice.length>=4096)throw new Error('対抗ロールの乱数が収束しません。');
+        face=roll(1,0,random);dice.push(face);total+=face;
+        if(face===1){const penalty=roll(1,0,random);total-=penalty;dice.push(-penalty);}
+      }while(face===6);
+    }
+    return {total,dice,critical:dice.includes(6),fumble:dice.includes(1)};
+  }
+  function recoverAllies(state,seconds,events){
+    for(const c of D.characters){
+      if(!state.levels[c.id])continue;
+      const h=state.health[c.id];
+      if(h.hp>=c.maxHP){h.regenSeconds=0;continue;}
+      h.regenSeconds+=seconds;
+      const ticks=Math.floor((h.regenSeconds+1e-9)/D.balance.recoverySeconds);
+      if(!ticks)continue;
+      h.regenSeconds=Math.max(0,h.regenSeconds-ticks*D.balance.recoverySeconds);
+      const before=h.hp;h.hp=Math.min(c.maxHP,h.hp+ticks*Math.max(1,N.floor(c.maxHP*.01)));
+      if(h.hp===c.maxHP&&h.status!=='active'){h.status='active';if(events)events.push({type:'revive',actorId:c.id,hp:h.hp});}
+      if(h.hp===c.maxHP)h.regenSeconds=0;
+      if(events&&h.hp>before)events.push({type:'heal',actorId:c.id,amount:h.hp-before,hp:h.hp});
+    }
+  }
+  const enemyAttackDuration=state=>getSession(state).attackSeconds||.72;
+  function refreshFloorClip(state,force=false){
+    if(!supportPerks(state).some(p=>p.protectLowestHP)){state.floorClipTargetId=null;state.floorClipSeconds=0;return;}
+    if(!force&&state.floorClipSeconds>1e-9)return;
+    const active=formationIds(state).filter(id=>canAct(state,id));
+    state.floorClipTargetId=active.reduce((best,id)=>best===null||healthOf(state,id).hp<healthOf(state,best).hp?id:best,null);
+    state.floorClipSeconds=10;
+  }
+  function enemyTargetCandidates(state){
+    refreshFloorClip(state);
+    const active=formationIds(state).map(id=>D.characters.find(c=>c.id===id)).filter(c=>canAct(state,c.id));
+    return active.length<2?active:active.filter(c=>c.id!==state.floorClipTargetId);
+  }
+  function enemyActions(state,random,events){
+    const session=getSession(state),spec=session.actionDice;
+    if(!spec&&!session.action)return;
+    if(!activeCharacters(state).length){normalizeEnemyActions(state,events);return;}
+    for(const [slot,enemy]of ensureEnemies(state).entries()){
+      if(enemy.respawnSeconds||enemy.hp<=0)continue;
+      // Every living individual rolls its own fresh action dice each second.
+      enemy.actionPoints+=spec?roll(spec.dice,spec.flat,random):session.action;
+      if(enemy.pendingAttack||enemy.actionPoints<D.balance.actionThreshold)continue;
+      enemy.actionPoints-=D.balance.actionThreshold;
+      const targets=enemyTargetCandidates(state),target=targets[Math.min(targets.length-1,Math.floor(random()*targets.length))];
+      const duration=enemyAttackDuration(state);
+      enemy.pendingAttack={targetId:target.id,remaining:duration};
+      if(events)events.push({type:'enemyWindup',targetId:target.id,enemyId:enemy.id,targetSlot:slot,duration});
+    }
+  }
+  function evasionSpec(state,c,mental=false){
+    const base=mental?c.ss:c.evasion,extra=!mental&&isDeployed(state,c.id)?supportPerks(state).reduce((n,p)=>n+(p.partyEvasionDice||0),0):0;
+    const own=perks(state,c).filter(p=>p.unlocked).reduce((n,p)=>n+(p.evasionBonus||0),0);
+    const party=isDeployed(state,c.id)?supportPerks(state).reduce((n,p)=>n+(p.partyEvasionBonus||0),0):0;
+    return {...base,flat:base.flat+own+party+(isDeployed(state,c.id)?concentration(state).reaction:0),dice:base.dice+extra};
+  }
+  function enemyAttackSpec(state){
+    const attack=getSession(state).attack;
+    return attack?{...attack,sides:Math.min(6,...supportPerks(state).map(p=>p.enemyDamageSides||6))}:null;
+  }
+  function resolveEnemyAttack(state,enemy,slot,random,events){
+    const pending=enemy.pendingAttack;enemy.pendingAttack=null;
+    if(!pending||enemy.hp<=0||enemy.respawnSeconds||!canAct(state,pending.targetId)){
+      if(events&&pending)events.push({type:'enemyCancel',enemyId:enemy.id,targetSlot:slot});return;
+    }
+    const session=getSession(state),c=D.characters.find(c=>c.id===pending.targetId),h=state.health[c.id];
+    const mental=session.attackType==='mental',bonus=concentration(state);
+    const accuracySpec={...(mental?session.ss:session.accuracy)};
+    const accuracyPenalty=enemy.accuracyPenalty||0;accuracySpec.flat-=accuracyPenalty;enemy.accuracyPenalty=0;
+    let accuracy=combatRoll(accuracySpec,random),evasion;
+    const accuracyReroll=!!state.upgrades.reversal&&accuracy.critical;
+    if(accuracyReroll){const original=accuracy;accuracy={...combatRoll(accuracySpec,random),original};}
+    const evasionDice=evasionSpec(state,c,mental);
+    evasion=combatRoll(evasionDice,random);
+    const evasionReroll=!!state.upgrades.retake&&evasion.fumble;
+    if(evasionReroll){const original=evasion;evasion={...combatRoll(evasionDice,random),original};}
+    const nullifyChance=Math.max(0,...perks(state,c).filter(p=>p.unlocked).map(p=>p.nullifyChance||0));
+    const nullified=nullifyChance>0&&random()<nullifyChance;
+    const hit=!nullified&&accuracy.total>evasion.total,before=h.hp;
+    const attack=enemyAttackSpec(state);
+    let damage=hit?Math.max(1,roll(attack.dice,attack.flat,random,attack.sides)-bonus.defense-(mental?c.resistance||0:c.defense||0)):0,badLuck=false,fightingSpirit=false;
+    if(hit){
+      if(before-damage<=0&&state.upgrades.badLuck&&random()<.3){damage=Math.max(1,Math.floor(damage/2));badLuck=true;}
+      if(before-damage<=0&&state.upgrades.fightingSpirit&&random()<.3){h.hp=1;h.status='active';fightingSpirit=true;}
+      else {h.hp-=damage;if(h.hp<0)h.status='dying';else if(h.hp<4&&random()<.5)h.status='unconscious';}
+      if(before===c.maxHP)h.regenSeconds=0;
+    }
+    if(events)events.push({type:'enemyAttack',targetId:c.id,enemyId:enemy.id,targetSlot:slot,accuracy,evasion,accuracyReroll,evasionReroll,mental,hit,nullified,accuracyPenalty,damage,badLuck,fightingSpirit,hpBefore:before,hpAfter:h.hp,status:h.status});
+    normalizeEnemyActions(state,events);
+  }
+
+  function clearEnemy(state,enemy,slot,overkill,reason,events){
+    const bonus=overkill?overkillBonus(state):0,gain=reward(state)+bonus;
+    state.factors+=gain;refreshQuestUnlocks(state);state.earned+=gain;state.kills++;
+    if(events)events.push({type:'clear',reward:gain,overkillBonus:bonus,overkills:overkill?1:0,reason,targetSlot:slot,enemyId:enemy.id,hpAfter:state.hp});
+  }
+  const targetDefense=(profile,enemy)=>profile.ignoreDefense?0:Math.max(0,profile.defense-Math.max(enemy?.defensePenalty||0,profile.defenseReduction||0));
+  function attackDamage(profile,enemy,amount){
+    const mitigated=N.mitigate(amount,targetDefense(profile,enemy));
+    return profile.areaAttack?Math.max(1,N.floor(mitigated/2)):mitigated;
+  }
+  function applyHitEffects(enemy,profile,count,random){
+    enemy.defensePenalty=Math.max(enemy.defensePenalty||0,profile.defenseReduction||0);
+    // AP is an integer gauge; repeated reductions stop as soon as it is empty.
+    if(profile.apReductionRate)for(let i=0;i<count&&enemy.actionPoints>0;i++)enemy.actionPoints=Math.max(0,enemy.actionPoints-N.delta(enemy.actionPoints*profile.apReductionRate));
+    const chance=profile.accuracyPenaltyChance||0;
+    if(chance&&random()<(count===1?chance:-Math.expm1(count*Math.log1p(-chance))))enemy.accuracyPenalty=Math.max(enemy.accuracyPenalty||0,profile.accuracyPenalty);
+  }
+  function applyDamage(state,amount,events,actor,actorId,random,profile,extraAttack=false,chosenTargets=null){
+    if(isWaiting(state))return;
+    const enemies=ensureEnemies(state),targets=chosenTargets||attackTargets(state,profile.areaAttack,random);
+    for(const [targetIndex,enemy]of targets.entries()){
+      const slot=enemies.indexOf(enemy);applyHitEffects(enemy,profile,1,random);
+      const damage=attackDamage(profile,enemy,amount);
+      if(profile.poisonDamage)enemy.poisonDamage=Math.max(enemy.poisonDamage,profile.poisonDamage);
+      const hit=(damage,poisonTick=false)=>{
+        const before=enemy.hp;state.totalDamage+=Math.min(before,damage);enemy.hp=Math.max(0,before-damage);
+        const knockoutRoll=enemy.hp>0&&enemy.hp<=D.balance.knockoutHP?roll(1,0,random):null;
+        const knockedOut=knockoutRoll!==null&&knockoutRoll%2===1;
+        if(events)events.push({type:'attack',actor:poisonTick?'猛毒':actor,actorId:poisonTick?null:actorId,damage,hpBefore:before,hpAfter:enemy.hp,
+          targetSlot:slot,enemyId:enemy.id,areaAttack:!!profile.areaAttack,continuation:targetIndex>0,extraAttack,poisonTick,knockoutRoll,knockedOut});
+        if(!enemy.hp||knockedOut){
+          clearEnemy(state,enemy,slot,!poisonTick&&profile.overkillThreshold>0&&damage-before>=profile.overkillThreshold,knockedOut?'knockout':'hp',events);
+          if(enemy.pendingAttack&&events)events.push({type:'enemyCancel',enemyId:enemy.id,targetSlot:slot});
+          enemy.hp=0;enemy.poisonDamage=0;enemy.respawnSeconds=respawnDelay(state);enemy.actionPoints=0;enemy.pendingAttack=null;enemy.defensePenalty=0;enemy.accuracyPenalty=0;
+          if(state.focusedEnemyId===enemy.id)state.focusedEnemyId=null;return true;
+        }
+        return false;
+      };
+      if(!hit(damage)&&enemy.poisonDamage)hit(enemy.poisonDamage,true);
+    }
+    syncFront(state);
+    if(events){const last=events.at(-1);if(last)last.frontHP=state.hp;}
+  }
+  // Inverse sampling keeps reattack/free-action chains bounded even with a
+  // deterministic test RNG; damage and opposed checks still roll real dice.
+  function chainAttackCount(chance,random=Math.random){
+    if(!(chance>0&&chance<1))return 1;
     const u=Math.max(0,Math.min(1-Number.EPSILON/2,random()));
     return 1+Math.floor(Math.log1p(-u)/Math.log(chance));
   }
-  function performAttack(state, character, profile, random, events) {
+  function performAttack(state,character,profile,random,events){
     const count=chainAttackCount(profile.extraAttackChance,random);
-    for(let i=0;i<count&&!isWaiting(state);i++) {
-      const amount=B.rolledDamage(profile,roll(profile.dice,profile.flat,random)+profile.bonus);
-      applyDamage(state,amount,events,character?character.name:'あなた',character?character.id:null,random,profile,i>0);
+    for(let i=0;i<count&&!isWaiting(state);i++)applyDamage(state,B.rolledDamage(profile,roll(profile.dice,profile.flat,random)+profile.bonus),events,character?character.name:'あなた',character?.id||null,random,profile,i>0);
+  }
+  function click(state,random=Math.random){
+    if(state.paused||isWaiting(state))return [];
+    const character=selectedCharacter(state);
+    if(character&&!canAct(state,character.id))return [];
+    // Unassigned manual attacks remain available to bootstrap the first hire.
+    state.clicks++;const events=[];performAttack(state,character,attackProfile(state,character,true),random,events);return events;
+  }
+  function chargeActions(state,c,ticks){
+    const total=state.actionPoints[c.id]+actionPower(state,c)*ticks,threshold=D.balance.actionThreshold;
+    const count=Math.floor(total/threshold);state.actionPoints[c.id]=total%threshold;return count;
+  }
+  function repeatAverageHits(state,c,profile,count,events,random){
+    const amount=B.rolledDamage(profile,profile.dice*3.5+profile.flat+profile.bonus);
+    let left=count,phase=0;
+    // With a per-individual respawn delay, at most three enemies can fall in
+    // one tick. Skip only safe interior HP transitions, preserve boundary hits.
+    while(left>0&&!isWaiting(state)){
+      const es=livingEnemies(state),focused=es.find(e=>e.id===state.focusedEnemyId);
+      const targets=profile.areaAttack?es:focused?[focused]:[es[(phase++)%es.length]];
+      // For unfocused fast attacks, a round visits each living enemy once.
+      const balanced=!profile.areaAttack&&!focused,cycleTargets=balanced?es:targets,cycle=balanced?es.length:1;
+      if(cycleTargets.every(e=>!profile.poisonDamage||e.poisonDamage>=profile.poisonDamage)){
+        const skip=Math.min(Math.floor((left-1)/cycle),...cycleTargets.map(e=>Math.max(0,Math.floor((e.hp-D.balance.knockoutHP-1)/(attackDamage(profile,e,amount)+e.poisonDamage))-1)));
+        if(skip>0){
+          for(const e of cycleTargets){applyHitEffects(e,profile,skip,random);const damage=(attackDamage(profile,e,amount)+e.poisonDamage)*skip,before=e.hp;e.hp-=damage;state.totalDamage+=damage;
+            if(events)events.push({type:'attack',actor:c.name,actorId:c.id,count:skip,damage,hpBefore:before,hpAfter:e.hp,enemyId:e.id,targetSlot:state.enemies.indexOf(e),continuation:profile.areaAttack&&e!==cycleTargets[0],areaAttack:profile.areaAttack,approximate:true});}
+          left-=skip*cycle;syncFront(state);
+        }
+      }
+      // Select the same sampled target for this boundary hit without changing focus.
+      applyDamage(state,amount,events,c.name,c.id,random,profile,false,targets);left--;
     }
   }
-  function click(state, random = Math.random) {
-    if (state.paused||isWaiting(state)) return [];
-    state.clicks++;
-    const events = [];
-    const character = selectedCharacter(state);
-    const profile = attackProfile(state, character, true);
-    performAttack(state,character,profile,random,events);
-    return events;
-  }
-  function chargeActions(state, c, ticks) {
-    const threshold = D.balance.actionThreshold;
-    const total = state.actionPoints[c.id] + actionPower(state, c) * ticks;
-    let count = Math.floor(total / threshold), remainder = total % threshold;
-    // Do not miss an attack at a decimal boundary such as (100 / 1.8) * 9.
-    if (threshold - remainder < threshold * 1e-10) { count++; remainder = 0; }
-    state.actionPoints[c.id] = remainder;
-    return count;
-  }
-  function advanceBatch(state, ticks, active, events) {
-    const profiles=[],actions=Object.fromEntries(active.map(c=>[c.id,chargeActions(state,c,ticks)/(1-freeActionChance(state,c))]));
-    let maxTransfers=0;
-    for(const donor of active.filter(c=>isActionDonor(state,c))){
-      const count=actions[donor.id],targets=transferTargets(state,donor);
-      maxTransfers+=count;actions[donor.id]=0;
-      for(const target of targets)actions[target.id]+=count/targets.length;
-    }
-    const counts={meta:0,richter:0,vishunal:0,tordeliese:0,max:0};let attacks=0;
-    for(const c of active){
-      const profile=attackProfile(state,c),count=actions[c.id]/(1-profile.extraAttackChance);
-      counts[c.id]=count;attacks+=count;if(count)profiles.push({...profile,rate:count});
-    }
-    let {meta:metaAttacks,richter:richterAttacks,vishunal:vishunalAttacks,tordeliese:tordelieseAttacks,max:maxAttacks}=counts;
-    if(!attacks){
-      if(events&&maxTransfers)events.push({type:'support',actor:'マックス',actorId:'max',maxTransfers:Math.round(maxTransfers),count:Math.round(maxTransfers),hpBefore:state.hp,hpAfter:state.hp,approximate:true});
-      return;
-    }
-    const hpBefore = state.hp;
-    const result = B.resolve(state.hp+(state.batchHpFraction||0), getSession(state).hp, attacks, profiles, { threshold:D.balance.knockoutHP, chance:.5 },state.poisonDamage||0);
-    state.poisonDamage=result.poisonDamage??(result.kills?0:state.poisonDamage||0);
-    if(respawnDelay(state)&&result.kills){
-      // No following target exists during a single-enemy respawn. A bounded
-      // average tick may therefore clear at most one target, whatever its DPS.
-      const used=Math.min(1,Math.max(1,attacks/result.kills)/attacks);
-      metaAttacks*=used;richterAttacks*=used;vishunalAttacks*=used;tordelieseAttacks*=used;maxAttacks*=used;maxTransfers*=used;attacks*=used;
-      result.kills=1;result.overkills=Math.min(1,result.overkills||0);result.knockouts=Math.min(1,result.knockouts||0);
-      result.hp=0;result.damage=hpBefore;state.poisonDamage=0;state.respawnSeconds=respawnDelay(state);
-    }
-    const bonus=(result.overkills || 0)*overkillBonus(state),gain = result.kills * reward(state) + bonus;
-    // Fractional predictions stay internal so splitting a long offline interval
-    // cannot repeatedly grant rounding damage. Actual HP/counters are integers.
-    state.hp = isWaiting(state)?0:Math.max(1,N.floor(result.hp));state.batchHpFraction=result.hp-state.hp;
-    const predictedDamage=result.damage+(state.batchDamageFraction||0),creditedDamage=N.delta(predictedDamage);
-    state.batchDamageFraction=predictedDamage-creditedDamage;
-    state.kills += result.kills; state.totalDamage += creditedDamage;
-    state.factors += gain; state.earned += gain;
-    if (events && attacks) events.push({ type:'attack', actor:'パーティ（平均判定）', actorId:null, maxTransfers:Math.round(maxTransfers), metaAttacks, richterAttacks, vishunalAttacks:Math.round(vishunalAttacks),tordelieseAttacks:Math.round(tordelieseAttacks),maxAttacks:Math.round(maxAttacks), count:Math.round(maxAttacks)+metaAttacks+richterAttacks+Math.round(vishunalAttacks)+Math.round(tordelieseAttacks), damage:result.damage, hpBefore, hpAfter:state.hp, approximate:true });
-    if (events && result.kills) events.push({ type:'clear', count:result.kills, knockouts:result.knockouts, overkills:result.overkills||0, overkillBonus:bonus, reward:gain, reason:'average', hpAfter:state.hp });
-  }
-  // All hired characters gain action points on each whole-second game tick.
-  // Unspent points and the fractional second both survive saves and pauses.
-  function advanceBattle(state, seconds, random = Math.random, collectEvents = true) {
-    if (state.paused || seconds <= 0) return [];
-    const duration = Math.min(seconds, D.maxOfflineSeconds);
-    state.sceneSeconds=((state.sceneSeconds||0)+duration)%D.sceneCycle.seconds;
-    const oldClock = state.actionClock, oldBoost = state.boostSeconds;
-    const elapsed = oldClock + duration, ticks = Math.floor(elapsed + 1e-10);
-    state.actionClock = Math.max(0, elapsed - ticks);
-    const active = activeCharacters(state);
-    const events = collectEvents ? [] : null;
-    if(respawnDelay(state)){
-      let previous=0;
-      const approximate=active.reduce((n,c)=>n+(state.actionPoints[c.id]+actionPower(state,c)*ticks)/D.balance.actionThreshold/(1-freeActionChance(state,c))/(1-attackProfile(state,c).extraAttackChance),0)>EXACT_ATTACK_BUDGET;
-      const wait=dt=>{if(!isWaiting(state))return;state.respawnSeconds=Math.max(0,state.respawnSeconds-dt);if(state.respawnSeconds<1e-9){state.respawnSeconds=0;state.hp=getSession(state).hp;state.batchHpFraction=0;}};
-      for(let tick=1;tick<=ticks;tick++){
-        const waitingAtTickStart=isWaiting(state),at=tick-oldClock;wait(at-previous);previous=at;
-        state.boostSeconds=Math.max(0,oldBoost-at);
-        if(waitingAtTickStart||isWaiting(state)||!active.length)continue;
-        const estimate=active.reduce((n,c)=>n+(state.actionPoints[c.id]+actionPower(state,c))/D.balance.actionThreshold/(1-freeActionChance(state,c))/(1-attackProfile(state,c).extraAttackChance),0);
-        if(approximate||estimate>EXACT_ATTACK_BUDGET){advanceBatch(state,1,active,events);continue;}
-        const charged=active.map(c=>[c,chargeActions(state,c,1)]);
-        for(const [c,count] of charged){
-          if(isWaiting(state))break;
-          for(let action=0;action<count&&!isWaiting(state);action++){
-            const attempts=chainAttackCount(freeActionChance(state,c),random);
-            for(let attempt=0;attempt<attempts&&!isWaiting(state);attempt++)performAutomaticAction(state,c,random,events);
+  function automaticTick(state,random,events){
+    for(const c of activeCharacters(state)){
+      if(isWaiting(state))break;
+      const count=chargeActions(state,c,1);if(!count)continue;
+      const profile=attackProfile(state,c),estimate=count/(1-freeActionChance(state,c))/(1-profile.extraAttackChance);
+      if(estimate>EXACT_ATTACK_BUDGET){
+        if(isActionDonor(state,c)){
+          const donorActions=Math.floor(count/(1-freeActionChance(state,c))),targets=transferTargets(state,c);for(const [i,t]of targets.entries()){
+            const actions=Math.floor(donorActions/targets.length)+(i<donorActions%targets.length?1:0),p=donatedProfile(state,t);
+            repeatAverageHits(state,t,p,Math.floor(actions/(1-p.extraAttackChance)),events,random);
           }
-        }
-      }
-      wait(duration-previous);
-      state.boostSeconds=Math.max(0,oldBoost-duration);
-      return events||[];
+          if(events)events.push({type:'support',actor:c.name,actorId:c.id,maxTransfers:donorActions,count:donorActions,hpBefore:state.hp,hpAfter:state.hp,approximate:true});
+        }else repeatAverageHits(state,c,profile,Math.floor(estimate),events,random);
+      }else for(let i=0;i<count&&!isWaiting(state);i++)for(let n=chainAttackCount(freeActionChance(state,c),random);n>0&&!isWaiting(state);n--)performAutomaticAction(state,c,random,events);
     }
-    if (!active.length || !ticks) {
-      state.boostSeconds = Math.max(0, oldBoost - duration);
-      return [];
-    }
-    const estimated = active.reduce((sum, c) => sum + Math.ceil((state.actionPoints[c.id] + actionPower(state, c) * ticks) / D.balance.actionThreshold)/(1-attackProfile(state,c).extraAttackChance)/(1-freeActionChance(state,c)), 0);
-    if (estimated > EXACT_ATTACK_BUDGET) {
-      // A boost ending exactly on a tick has already expired for that tick.
-      const boostedTicks = Math.min(ticks, Math.max(0, Math.ceil(oldBoost + oldClock) - 1));
-      if (boostedTicks) advanceBatch(state, boostedTicks, active, events);
-      if (ticks > boostedTicks) { state.boostSeconds = 0; advanceBatch(state, ticks - boostedTicks, active, events); }
-      state.boostSeconds = Math.max(0, oldBoost - duration);
-      return events || [];
-    }
-    for (let tick = 1; tick <= ticks; tick++) {
-      state.boostSeconds = Math.max(0, oldBoost - (tick - oldClock));
-      for (const c of active) {
-        const count = chargeActions(state, c, 1);
-        for (let action = 0; action < count; action++) {
-          // Each paid action includes the geometrically distributed free attempts
-          // before the first consumed action. Manual clicks remain free as before.
-          const attempts=chainAttackCount(freeActionChance(state,c),random);
-          for(let attempt=0;attempt<attempts;attempt++)performAutomaticAction(state,c,random,events);
-        }
-      }
-    }
-    state.boostSeconds = Math.max(0, oldBoost - duration);
-    return events || [];
+    enemyActions(state,random,events);
   }
   function advance(state,seconds,random=Math.random,collectEvents=true){
     if(state.paused||seconds<=0)return [];
-    // Each quest receives the same time interval and shared upgrades. Only its
-    // assigned allies act; counters are merged once and only visible FX render.
-    const clock=state.actionClock,boost=state.boostSeconds,scene=state.sceneSeconds;
-    const background=D.sessions.filter(q=>q.id!==state.sessionId&&(formationIds(state,q.id).length||isWaiting(battleContext(state,q.id))));
-    const all=advanceBattle(state,seconds,random,collectEvents).map(e=>({...e,sessionId:state.sessionId}));
-    for(const q of background){
-      const ctx={...battleContext(state,q.id),actionClock:clock,boostSeconds:boost,sceneSeconds:scene};
-      const before={factors:ctx.factors,earned:ctx.earned,kills:ctx.kills,totalDamage:ctx.totalDamage};
-      const events=advanceBattle(ctx,seconds,random,collectEvents);
-      for(const key of Object.keys(before))state[key]+=ctx[key]-before[key];
-      state.sessionStates={...state.sessionStates,[q.id]:battleSnapshot(ctx)};
-      if(collectEvents)all.push(...events.map(e=>({...e,sessionId:q.id})));
+    const duration=Math.min(seconds,D.maxOfflineSeconds),clock=state.actionClock,events=collectEvents?[]:null;
+    state.health||=Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}]));
+    const contexts=D.sessions.filter(q=>{const ctx=battleContext(state,q.id);return formationIds(state,q.id).length||isWaiting(ctx)||ctx.enemies?.some(e=>e.respawnSeconds>0||e.pendingAttack);}).map(q=>battleContext(state,q.id));
+    for(const ctx of contexts){normalizeEnemyActions(ctx,events?{push:e=>events.push({...e,sessionId:ctx.sessionId})}:null);refreshFloorClip(ctx);}
+    const ticks=Math.floor(clock+duration+1e-10);let previous=0;
+    function elapse(dt){
+      // Resolve sub-second impacts and respawns in chronological order. The
+      // same boundaries are used by live, background and offline simulation.
+      let remaining=dt;
+      while(remaining>1e-10){
+        const timers=contexts.flatMap(ctx=>ensureEnemies(ctx).flatMap(e=>[e.respawnSeconds||Infinity,e.pendingAttack?.remaining??Infinity]));
+        const step=Math.min(remaining,...timers,...contexts.map(ctx=>ctx.floorClipSeconds||Infinity));recoverAllies(state,step,events);remaining=Math.max(0,remaining-step);
+        for(const ctx of contexts){
+          const local=collectEvents?[]:null;
+          ctx.floorClipSeconds=Math.max(0,(ctx.floorClipSeconds||0)-step);
+          for(const [slot,e]of ensureEnemies(ctx).entries()){
+            if(e.respawnSeconds>0){e.respawnSeconds=Math.max(0,e.respawnSeconds-step);
+              if(e.respawnSeconds<1e-9){Object.assign(e,newEnemy(ctx));if(local)local.push({type:'enemyRespawn',targetSlot:slot,enemyId:e.id});}
+            }else if(e.pendingAttack){e.pendingAttack.remaining=Math.max(0,e.pendingAttack.remaining-step);
+              if(e.pendingAttack.remaining<1e-9)resolveEnemyAttack(ctx,e,slot,random,local);
+            }
+          }
+          syncFront(ctx);refreshFloorClip(ctx);if(events)events.push(...local.map(e=>({...e,sessionId:ctx.sessionId})));
+        }
+      }
     }
-    return all;
+    for(let tick=1;tick<=ticks;tick++){
+      const at=tick-clock;elapse(at-previous);previous=at;
+      for(const ctx of contexts){
+        if(isWaiting(ctx)||!activeCharacters(ctx).length)continue;
+        if(ctx.forecastTicks!==undefined)ctx.forecastTicks++;
+        const before={factors:ctx.factors,earned:ctx.earned,kills:ctx.kills,totalDamage:ctx.totalDamage},local=collectEvents?[]:null;
+        automaticTick(ctx,random,local);
+        if(ctx!==state)for(const k of Object.keys(before))state[k]+=ctx[k]-before[k];
+        if(events)events.push(...local.map(e=>({...e,sessionId:ctx.sessionId})));
+      }
+    }
+    elapse(duration-previous);
+    for(const ctx of contexts)if(ctx!==state)state.sessionStates={...state.sessionStates,[ctx.sessionId]:battleSnapshot(ctx)};
+    state.actionClock=Math.max(0,clock+duration-ticks);state.sceneSeconds=((state.sceneSeconds||0)+duration)%D.sceneCycle.seconds;
+    refreshQuestUnlocks(state);
+    return events||[];
   }
   function catchUp(state, now = Date.now()) {
     const seconds = Math.max(0, Math.min(D.maxOfflineSeconds, (now - state.savedAt) / 1000));
@@ -420,6 +539,7 @@
     if (!c || state.levels[id] >= MAX_LEVEL) return false;
     const cost = hireCost(state, c);
     if (state.factors < cost) return false;
+    refreshQuestUnlocks(state);
     state.factors -= cost;
     if (state.levels[id] === 0) state.actionPoints[id] = 0;
     state.levels[id]++;
@@ -430,6 +550,7 @@
     if (!character) return false;
     const perk = perks(state, character).find(p => p.id === perkId);
     if (!perk || !perk.eligible || perk.owned || state.factors < perk.cost) return false;
+    refreshQuestUnlocks(state);
     state.factors -= perk.cost;
     state.purchasedPerks[characterId].push(perkId);
     return true;
@@ -439,6 +560,7 @@
     if (!u || (u.max != null && state.upgrades[id] >= u.max) || !Number.isSafeInteger(state.upgrades[id]+1)) return false;
     const cost = upgradeCost(state, u);
     if (!Number.isFinite(cost) || state.factors < cost) return false;
+    refreshQuestUnlocks(state);
     state.factors -= cost;
     state.upgrades[id]++;
     return true;
@@ -449,6 +571,7 @@
     if (!c || !state.levels[id] || !Number.isSafeInteger(state.actionLevels[id] + 1)) return false;
     const cost = actionCost(state, c);
     if (!Number.isFinite(cost) || state.factors < cost) return false;
+    refreshQuestUnlocks(state);
     state.factors -= cost;
     state.actionLevels[id]++;
     return true;
@@ -463,10 +586,11 @@
     if(kind==='quest'&&D.sessions.some(q=>q.id===id))return {field:'questLevels',minimum:1,buy:buyQuest,cost:s=>questCost(s,id)};
     return null;
   }
-  function tradeDraft(state) { return {...state,levels:{...state.levels},actionLevels:{...state.actionLevels},upgrades:{...state.upgrades},questLevels:{...state.questLevels},sessionStates:{...state.sessionStates}}; }
+  function tradeDraft(state) { return {...state,levels:{...state.levels},actionLevels:{...state.actionLevels},upgrades:{...state.upgrades},questLevels:{...state.questLevels},questActiveLevels:{...state.questActiveLevels},sessionStates:structuredClone(state.sessionStates),enemies:state.enemies?structuredClone(state.enemies):null,health:structuredClone(state.health)}; }
   function purchaseQuote(state,kind,id,count=10) {
     const track=tradeTrack(state,kind,id),draft=tradeDraft(state);let cost=0;
-    if(!track||![1,10].includes(count))return {valid:false,cost:Infinity,count};
+    if(!track||kind==='quest'&&!isQuestUnlocked(state,id)||![1,10].includes(count))return {valid:false,cost:Infinity,count};
+    refreshQuestUnlocks(draft);
     draft.factors=Infinity;
     for(let i=0;i<count;i++){
       const next=track.cost(draft);
@@ -478,6 +602,7 @@
   function buyMany(state,kind,id,count=10) {
     const quote=purchaseQuote(state,kind,id,count);
     if(!quote.valid||state.factors<quote.cost)return false;
+    refreshQuestUnlocks(state);
     const track=tradeTrack(state,kind,id),draft=tradeDraft(state);
     // Avoid repeated subtraction rounding changing the final affordable step.
     draft.factors=Infinity;
@@ -486,28 +611,22 @@
   }
   function saleQuote(state,kind,id) {
     const track=tradeTrack(state,kind,id);
-    if(!track||state[track.field][id]<=track.minimum)return {valid:false,refund:0};
+    if(!track||kind==='quest'&&!isQuestUnlocked(state,id)||state[track.field][id]<=track.minimum)return {valid:false,refund:0};
     const draft=tradeDraft(state);draft[track.field][id]--;
     const price=track.cost(draft),refund=Math.max(1,N.floor(price*.5));
     return {valid:Number.isFinite(price)&&state.factors+refund<=1e100,refund,from:state[track.field][id],to:draft[track.field][id]};
   }
   function sell(state,kind,id) {
     const quote=saleQuote(state,kind,id);if(!quote.valid)return false;
-    const track=tradeTrack(state,kind,id),oldHP=kind==='quest'?getSession(state,id).hp:0,ctx=oldHP?battleContext(state,id):null;
-    state[track.field][id]--;state.factors+=quote.refund;
-    if(oldHP){if(!isWaiting(ctx))ctx.hp=Math.max(1,Math.min(getSession(state,id).hp,N.floor(ctx.hp/oldHP*getSession(state,id).hp)));ctx.batchHpFraction=0;
-      if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};}
-    return true;
-  }
-  function buyBoost(state) {
-    const cost = boostCost(state);
-    if (!Number.isFinite(cost) || cost <= 0 || state.factors < cost || state.boostSeconds > 0) return false;
-    state.factors -= cost;
-    state.boostSeconds = D.balance.boostDuration;
+    const track=tradeTrack(state,kind,id),ctx=kind==='quest'?battleContext(state,id):null,oldHP=ctx?getSession(ctx).hp:0,active=ctx?questLevel(state,id):0;
+    if(ctx)ensureEnemies(ctx);
+    state[track.field][id]--;state.factors+=quote.refund;refreshQuestUnlocks(state);
+    if(ctx&&active>state.questLevels[id])applyQuestLevel(state,id,state.questLevels[id],ctx,oldHP);
     return true;
   }
   function selectSession(state,id){
-    if(!D.sessions.some(q=>q.id===id)||state.sessionId===id)return false;
+    if(!isQuestUnlocked(state,id)||state.sessionId===id)return false;
+    refreshQuestUnlocks(state);
     const next=battleContext(state,id),previous=state.sessionId;
     state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]));
     state.sessionStates={...state.sessionStates,[previous]:battleSnapshot(state)};
@@ -516,45 +635,61 @@
     if(state.selectedCharacterId&&!isDeployed(state,state.selectedCharacterId))state.selectedCharacterId=null;
     return true;
   }
-  const averageAttackDamage=(state,c)=>B.averageDamage(attackProfile(state,c));
+  function profileAverage(state,p){
+    const live=(state.enemies||[]).filter(e=>e.hp>0&&!e.respawnSeconds),focused=live.find(e=>e.id===state.focusedEnemyId);
+    const targets=p.areaAttack?live:focused?[focused]:live;
+    if(!targets.length)return B.averageDamage({...p,defense:targetDefense(p,null)})*(p.areaAttack?3:1);
+    const total=targets.reduce((n,e)=>n+B.averageDamage({...p,defense:targetDefense(p,e)}),0);
+    return p.areaAttack?total:total/targets.length;
+  }
+  const averageAttackDamage=(state,c)=>profileAverage(state,attackProfile(state,c));
   function characterMetrics(state,c){
-    const damage=averageAttackDamage(state,c),uptime=combatUptime(state),attacksPerSecond=effectiveAttackRate(state,c)*uptime;
+    const normal=automaticActionRate(state,c),donated=donatedActionRate(state,c),p=donatedProfile(state,c);
+    const direct=averageAttackDamage(state,c),gift=profileAverage(state,p);
+    const damage=normal+donated?(direct*normal+gift*donated)/(normal+donated):direct,uptime=combatUptime(state),attacksPerSecond=effectiveAttackRate(state,c)*uptime;
     return {damage,attacksPerSecond,dps:damage*attacksPerSecond,action:actionPower(state,c),transfersPerSecond:isActionDonor(state,c)?automaticActionRate(state,c)*uptime:0};
   }
-  const characterDps = (state,c) => characterMetrics(state,c).dps;
-  const dps = state => D.characters.reduce((sum,c)=>sum+characterDps(state,c),0);
-  function respawnUptime(rate,delay){
-    // Automatic actions are issued on whole-second ticks. A single target can
-    // occupy at least one combat tick, then five full recharge-free wait ticks.
-    return delay&&rate>0?Math.min(1,1/rate)/(1+Math.min(1,rate)*delay):1;
-  }
-  function combatUptime(state){
-    if(!respawnDelay(state))return 1;
-    const profiles=activeCharacters(state).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
-    const rate=B.rewardRates(getSession(state).hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}).clears;
-    return respawnUptime(rate,respawnDelay(state));
-  }
-  const totalDps=state=>D.sessions.reduce((sum,q)=>sum+dps(battleContext(state,q.id)),0);
+  const characterDps=(state,c)=>characterMetrics(state,c).dps;
+  const dps=state=>D.characters.reduce((n,c)=>n+characterDps(state,c),0);
+  const combatUptime=state=>respawnDelay(state)?expectedIncome(state).combatUptime:1;
+  const totalDps=state=>D.sessions.reduce((n,q)=>n+dps(battleContext(state,q.id)),0);
   function totalIncome(state){
     const sessions=D.sessions.filter(q=>formationIds(state,q.id).length).map(q=>({id:q.id,name:q.name,...expectedIncome(battleContext(state,q.id))}));
-    return {sessions,factorsPerSecond:sessions.reduce((n,q)=>n+q.factorsPerSecond,0),boosted:state.boostSeconds>0,approximate:sessions.some(q=>q.approximate)};
+    return {sessions,factorsPerSecond:sessions.reduce((n,q)=>n+q.factorsPerSecond,0),approximate:true};
   }
-  // The active boost never inflates its own next price. Defense and paid
-  // target-specific perks use the same unboosted DPS shown by the game.
-  const unboostedDps = state => totalDps(state.boostSeconds > 0 ? {...state, boostSeconds:0} : state);
-  const boostCost = state => N.delta(unboostedDps(state) * D.balance.boostCostDpsRatio);
-  function expectedIncome(state) {
-    const session=getSession(state),boosted=state.boostSeconds>0;
-    const key=JSON.stringify([session.id,session.hp,session.reward,session.defense,session.traits,formationIds(state),state.levels,state.actionLevels,
-      state.purchasedPerks,supportPerks(state).some(p=>p.selectedActionRate||p.freeActionChance||p.transferAction)?state.selectedCharacterId:null,state.upgrades.click,state.upgrades.power,state.upgrades.reward,state.upgrades.overkill,boosted]);
-    if (key===incomeKey) return incomeValue;
-    const profiles=activeCharacters(state).map(c=>({...attackProfile(state,c),rate:effectiveAttackRate(state,c)}));
-    const rates=B.rewardRates(session.hp,profiles,{threshold:D.balance.knockoutHP,chance:.5}),uptime=respawnUptime(rates.clears,respawnDelay(state)),clearsPerSecond=rates.clears*uptime,perClear=reward(state);
-    const bonusPerSecond=rates.overkills*overkillBonus(state)*uptime;
-    incomeKey=key;incomeValue=Object.freeze({clearsPerSecond,reward:perClear,bonusPerSecond,factorsPerSecond:clearsPerSecond*perClear+bonusPerSecond,boosted,approximate:!!rates.approximate});
-    return incomeValue;
+  function expectedIncome(state){
+    const q=getSession(state),ids=formationIds(state);
+    const key=JSON.stringify([q.id,q.hp,q.reward,q.defense,q.traits,q.action,q.actionDice,q.attack,q.accuracy,q.ss,q.attackType,concentration(state),ids,state.levels,state.actionLevels,state.upgrades,state.purchasedPerks,ids.includes('max')?state.selectedCharacterId:null]);
+    if(incomeCache.has(key))return incomeCache.get(key);
+    const sample=structuredClone(state);sample.paused=false;sample.enemies=null;sample.hp=q.hp;sample.poisonDamage=0;sample.respawnSeconds=0;sample.focusedEnemyId=null;sample.nextEnemyId=0;
+    sample.formations=Object.fromEntries(D.sessions.map(s=>[s.id,s.id===q.id?ids:[]]));sample.sessionStates={};sample.actionClock=0;sample.forecastTicks=0;
+    sample.actionPoints=Object.fromEntries(D.characters.map(c=>[c.id,0]));sample.health=Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}]));
+    sample.factors=0;sample.earned=0;sample.kills=0;sample.totalDamage=0;
+    let seed=0x143fa53;const random=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return(seed>>>0)/4294967296;};
+    advance(sample,600,random,false);
+    // Credit unfinished HP progress in the forecast, never in the real balance.
+    const progress=isWaiting(sample)?0:(sample.enemies||[]).reduce((n,e)=>n+(e.hp>0?(q.hp-e.hp)/q.hp:0),0);
+    const perClear=reward(state),result=Object.freeze({clearsPerSecond:(sample.kills+progress)/600,reward:perClear,bonusPerSecond:(sample.earned-sample.kills*perClear)/600,factorsPerSecond:(sample.earned+progress*perClear)/600,approximate:true,combatUptime:sample.forecastTicks/600});
+    if(incomeCache.size>=32)incomeCache.delete(incomeCache.keys().next().value);incomeCache.set(key,result);return result;
   }
-  const api = { battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, totalIncome, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasOverflow, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, multiplier, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, buyBoost, boostCost, unboostedDps, selectSession, dps, characterDps, expectedIncome };
+  function revivalCost(state,id){
+    const c=D.characters.find(c=>c.id===id);if(!c||!state.levels[id])return Infinity;
+    const power=Math.max(0,state.levels[id]-1),action=state.actionLevels[id];let spent=0;
+    // Finite current-level investment, using the same rounded purchase prices.
+    for(const [base,count]of [[c.powerCost,power],[c.actionCost,action]]){
+      if(count&&!Number.isFinite(geometricCost(base,count-1)))return Infinity;
+      if(count&&geometricCost(base,count-1)>1e100)return Infinity;
+      for(let level=0;level<count;level++){spent+=geometricCost(base,level);if(spent>1e101)return Infinity;}
+    }
+    const cost=c.cost+N.delta(spent*.1);return Number.isFinite(cost)&&cost<=1e100?cost:Infinity;
+  }
+  function revive(state,id){
+    const cost=revivalCost(state,id),h=state.health?.[id],c=D.characters.find(c=>c.id===id);
+    if(!c||!h||h.status==='active'||!Number.isFinite(cost)||state.factors<cost)return false;
+    refreshQuestUnlocks(state);
+    state.factors-=cost;h.hp=c.maxHP;h.status='active';h.regenSeconds=0;return true;
+  }
+  const api = { enemyTargetCandidates, targetDefense, effectivePowerLevel, evasionSpec, enemyAttackSpec, setQuestLevel, isQuestUnlocked, refreshQuestUnlocks, concentration, setConcentration, normalizeEnemyActions, livingEnemies, selectEnemy, enemyAttackDuration, revivalCost, revive, healthOf, canAct, ensureEnemies, combatRoll, battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, totalIncome, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, MAX_LEVEL, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasAreaAttack, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, characterMultiplier, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, actionMultiplier, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyAction, buyPerk, buyUpgrade, selectSession, dps, characterDps, expectedIncome };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);

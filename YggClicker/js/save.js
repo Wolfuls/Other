@@ -5,11 +5,70 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 22;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 29;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const migrations = {
+    28(document){return {...document,schemaVersion:29};},
+    27(document){return {...document,schemaVersion:28};},
+    26(document){
+      const old=record(document.state,'旧セーブ'),{boostSeconds,...state}=old;
+      state.questActiveLevels={};
+      const convert=(battle,id)=>{
+        const q=D.sessions.find(q=>q.id===id);if(!q)throw new Error('未対応のクエストです。');
+        const level=number(old.questLevels?.[id]??1,'クエストLv',1,Number.MAX_SAFE_INTEGER,true),before=N.geometric(q.hp,1.15,level-1),after=N.geometric(q.hp,1.1,level-1);
+        const scale=(hp,wait)=>{number(hp,'旧敵HP',wait?0:1,before);if(!Number.isInteger(hp)||wait&&hp!==0)throw new Error('旧敵HPが正しくありません。');return wait?0:Math.max(1,Math.min(after,N.floor(hp/before*after)));};
+        return {...battle,hp:scale(battle.hp,battle.respawnSeconds),enemies:battle.enemies?.map(e=>({...e,hp:scale(e.hp,e.respawnSeconds)}))??null,batchHpFraction:0,batchDamageFraction:0};
+      };
+      Object.assign(state,convert(state,old.sessionId));state.sessionStates=Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,b])=>[id,convert(b,id)]));
+      state.health=Object.fromEntries(Object.entries(old.health||{}).map(([id,h])=>[id,{...h,regenSeconds:number(h.regenSeconds,'旧回復周期',0,10)*.6}]));
+      state.purchasedPerks={...old.purchasedPerks,max:(old.purchasedPerks?.max||[]).map(id=>id==='golden-rule'?'plot-armor':id)};
+      return {...document,schemaVersion:27,state};
+    },
+    25(document){
+      const old=record(document.state,'旧セーブ');
+      const questUnlocks=Object.fromEntries(D.sessions.map(q=>[q.id,!q.unlockFactors||old.questUnlocks?.[q.id]===true||old.factors>=q.unlockFactors||old.sessionId===q.id||(old.questLevels?.[q.id]??1)>1||(old.formations?.[q.id]?.length??0)>0]));
+      // Preserve elapsed waiting time when extending the old two-second delay.
+      const extend=value=>{const seconds=number(value??0,'旧再出現待ち',0,2);return seconds>0?seconds+3:0;};
+      const convert=battle=>({...battle,respawnSeconds:extend(battle.respawnSeconds),enemies:battle.enemies?.map(e=>({...e,respawnSeconds:extend(e.respawnSeconds)}))??null});
+      return {...document,schemaVersion:26,state:{...convert(old),questUnlocks,sessionStates:Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,b])=>[id,convert(b)]))}};
+    },
+    24(document){
+      const old=record(document.state,'旧セーブ'),upgrades={...record(old.upgrades,'旧全体強化')};let refund=0;
+      for(const [id,base]of [['click',5],['power',30]]){
+        const count=number(upgrades[id]??0,'旧強化Lv',0,Number.MAX_SAFE_INTEGER,true);
+        if(count&&N.geometric(base,1.25,count-1)>1e100)throw new Error('旧強化価格が計算範囲外です。');
+        for(let i=0;i<count;i++)refund+=N.geometric(base,1.25,i);
+        delete upgrades[id];
+      }
+      return {...document,schemaVersion:25,state:{...old,upgrades,factors:number(number(old.factors,'所持因子')+refund,'返還後因子'),concentration:E.createState().concentration}};
+    },
+    23(document){
+      const old=record(document.state,'旧セーブ');
+      function convert(value){
+        const {enemyActionPoints,...battle}=value;
+        const enemies=battle.enemies?.map((e,i)=>({...e,respawnSeconds:i===0?battle.respawnSeconds||0:0,actionPoints:i===0?number(enemyActionPoints??0,'旧敵AP',0,D.balance.actionThreshold,true):0,pendingAttack:null}))??null;
+        return {...battle,enemies,focusedEnemyId:null};
+      }
+      return {...document,schemaVersion:24,state:{...convert(old),sessionStates:Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,v])=>[id,convert(v)]))}};
+    },
+    22(document){
+      const old=record(document.state,'旧セーブ'),state={...old,sessionStates:{}};
+      state.health=Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}]));
+      const convert=(value,id)=>{
+        const level=number(old.questLevels?.[id]??1,'クエストレベル',1,Number.MAX_SAFE_INTEGER,true),q=D.sessions.find(q=>q.id===id);
+        if(!q)throw new Error('未対応のクエストです。');
+        const oldMax=N.geometric(id==='scarecrow'?40:q.hp,1.15,level-1),maxHP=N.geometric(q.hp,1.15,level-1);
+        const wait=number(value.respawnSeconds??0,'再出現待ち',0,id==='scarecrow'?5:0);
+        const hp=number(value.hp,'旧残りHP',wait?0:1,oldMax);
+        if(!Number.isInteger(hp)||wait&&hp!==0)throw new Error('旧HPが正しくありません。');
+        return {...value,hp:wait?0:Math.max(1,Math.min(maxHP,N.floor(hp/oldMax*maxHP))),respawnSeconds:Math.min(wait,2),enemies:null,nextEnemyId:0,enemyActionPoints:0,batchHpFraction:0,batchDamageFraction:0};
+      };
+      Object.assign(state,convert(old,old.sessionId));state.sessionStates={};
+      for(const [id,value]of Object.entries(old.sessionStates||{}))state.sessionStates[id]=convert(value,id);
+      return {...document,schemaVersion:23,state};
+    },
     21(document){
       const old=record(document.state,'旧セーブ'),forms=old.formations===undefined?{}:record(old.formations,'旧部隊編成'),used=new Set(),formations={};
       if(Object.keys(forms).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('旧部隊編成のクエストが正しくありません。');
@@ -124,9 +183,9 @@
       return {...document,schemaVersion:13,state:{...document.state,questLevels:Object.fromEntries(D.sessions.map(s=>[s.id,1])),sceneSeconds:0}};
     },
     13(document) {
-      const old=record(document.state,'旧セーブ'),state={...old,actionPoints:{...record(old.actionPoints,'行動点')}};
+      const old=record(document.state,'旧セーブ'),state={...old,actionPoints:{...record(old.actionPoints,'AP')}};
       for(const key of ['factors','earned','totalDamage'])state[key]=Math.floor(number(old[key],key));
-      for(const c of D.characters)state.actionPoints[c.id]=Math.floor(number(state.actionPoints[c.id]??0,'行動点',0,D.balance.actionThreshold));
+      for(const c of D.characters)state.actionPoints[c.id]=Math.floor(number(state.actionPoints[c.id]??0,'AP',0,D.balance.actionThreshold));
       const base=D.sessions.find(s=>s.id===old.sessionId),level=number(old.questLevels?.[old.sessionId]??1,'クエストレベル',1,Number.MAX_SAFE_INTEGER,true);
       if(!base)throw new Error('未対応のクエストです。');
       const historicalBase=base.id==='mohicans'?10:base.hp;
@@ -220,12 +279,25 @@
     const session = D.sessions.find(s => s.id === raw.sessionId);
     if (!session) throw new Error('このバージョンでは読み込めないセッションです。');
     result.sessionId = session.id;
+    const unlocks=raw.questUnlocks===undefined?{}:record(raw.questUnlocks,'クエスト解放');
+    if(Object.keys(unlocks).some(id=>!D.sessions.some(q=>q.id===id))||Object.values(unlocks).some(value=>typeof value!=='boolean'))throw new Error('クエスト解放の値が正しくありません。');
+    result.questUnlocks={...result.questUnlocks,...unlocks};E.refreshQuestUnlocks(result);
+    if(!E.isQuestUnlocked(result,result.sessionId))throw new Error('未解放のクエストは選択できません。');
     const quests=raw.questLevels===undefined?{}:record(raw.questLevels,'クエストレベル');
     if(Object.keys(quests).some(id=>!D.sessions.some(s=>s.id===id)))throw new Error('未対応のクエストが含まれています。');
     for(const s of D.sessions){
       result.questLevels[s.id]=number(quests[s.id]===undefined?1:quests[s.id],'クエストレベル',1,Number.MAX_SAFE_INTEGER,true);
       const scaled=E.getSession(result,s.id);
       number(scaled.hp,'クエストHP',1);number(scaled.reward,'クエスト報酬',0);
+    }
+    const activeLevels=raw.questActiveLevels===undefined?{}:record(raw.questActiveLevels,'挑戦Lv');
+    if(Object.keys(activeLevels).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応の挑戦クエストです。');
+    result.questActiveLevels=Object.fromEntries(Object.entries(activeLevels).map(([id,level])=>[id,number(level,'挑戦Lv',1,result.questLevels[id],true)]));
+    const allocation=raw.concentration===undefined?{}:record(raw.concentration,'コンセントレイション');
+    if(Object.keys(allocation).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト配分です。');
+    for(const q of D.sessions){
+      const value=allocation[q.id]===undefined?result.concentration[q.id]:record(allocation[q.id],'配分');
+      if(!E.setConcentration(result,q.id,value))throw new Error('配分は合計10点以内、防御は5点以内の整数で指定してください。');
     }
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
@@ -248,9 +320,8 @@
       if(key==='hitEffects'?!D.hitEffectModes.includes(value):typeof value!=='boolean')throw new Error('表示設定が正しくありません。');
       result.options[key]=value;
     }
-    result.boostSeconds = number(raw.boostSeconds, 'ブースト時間', 0, 30);
-    result.actionClock = number(raw.actionClock, '行動点の加算周期', 0, 1);
-    if (result.actionClock >= 1) throw new Error('行動点の加算周期が正しくありません。');
+    result.actionClock = number(raw.actionClock, 'APの加算周期', 0, 1);
+    if (result.actionClock >= 1) throw new Error('APの加算周期が正しくありません。');
     for (const field of ['levels', 'actionLevels', 'actionPoints', 'upgrades', 'purchasedPerks']) record(raw[field], field);
     for (const field of ['levels', 'actionLevels', 'actionPoints', 'purchasedPerks']) {
       if (Object.keys(raw[field]).some(id => !D.characters.some(c => c.id === id))) throw new Error('未対応のキャラクターが含まれています。ゲームを更新してください。');
@@ -260,15 +331,23 @@
       // Missing new character IDs default to unowned, allowing content additions.
       result.levels[c.id] = number(raw.levels[c.id] ?? 0, c.name, 0, E.MAX_LEVEL, true);
       result.actionLevels[c.id] = number(raw.actionLevels[c.id] ?? 0, '行動力の強化レベル', 0, Number.MAX_SAFE_INTEGER, true);
-      result.actionPoints[c.id] = number(raw.actionPoints[c.id] ?? 0, '行動点', 0, D.balance.actionThreshold);
-      if(!Number.isInteger(result.actionPoints[c.id]))throw new Error('行動点は整数で指定してください。');
-      if (!result.levels[c.id] && (result.actionLevels[c.id] || result.actionPoints[c.id])) throw new Error('未雇用キャラクターの行動力・行動点が正しくありません。');
+      result.actionPoints[c.id] = number(raw.actionPoints[c.id] ?? 0, 'AP', 0, D.balance.actionThreshold);
+      if(!Number.isInteger(result.actionPoints[c.id]))throw new Error('APは整数で指定してください。');
+      if (!result.levels[c.id] && (result.actionLevels[c.id] || result.actionPoints[c.id])) throw new Error('未雇用キャラクターの行動力・APが正しくありません。');
       const purchased = raw.purchasedPerks[c.id] ?? [];
       if (!Array.isArray(purchased) || new Set(purchased).size !== purchased.length || purchased.some(id => {
         const perk = (c.perks || []).find(p => p.id === id);
         return !perk || !result.levels[c.id];
       })) throw new Error('購入済みパークの値が正しくありません。');
       result.purchasedPerks[c.id] = [...purchased];
+    }
+    const health=raw.health===undefined?{}:record(raw.health,'味方のHP');
+    if(Object.keys(health).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の味方HPです。');
+    for(const c of D.characters){
+      const h=health[c.id]??{hp:c.maxHP,status:'active',regenSeconds:0};record(h,'味方の状態');
+      const hp=number(h.hp,'味方HP',-1e100,c.maxHP),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
+      if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===c.maxHP&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==c.maxHP||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
+      result.health[c.id]={hp,status:h.status,regenSeconds};
     }
     const formations=raw.formations===undefined?{}:record(raw.formations,'部隊編成');
     if(Object.keys(formations).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト編成です。');
@@ -281,6 +360,41 @@
     for(const q of D.sessions)for(const id of E.formationIds(result,q.id)){
       if(assigned.has(id))throw new Error('同じ仲間を複数のクエストに編成できません。');assigned.add(id);
     }
+    function validateProtection(value,ctx){
+      const floorClipTargetId=value.floorClipTargetId??null,floorClipSeconds=number(value.floorClipSeconds??0,'保護対象の更新待ち',0,10);
+      if(floorClipTargetId!==null&&(!E.formationIds(ctx).includes(floorClipTargetId)||floorClipSeconds===0))throw new Error('保護対象が正しくありません。');
+      return {floorClipTargetId,floorClipSeconds};
+    }
+    function validateEnemies(value,ctx){
+      const nextEnemyId=number(value.nextEnemyId??0,'敵の識別番号',0),enemies=value.enemies??null,maxHP=E.getSession(ctx).hp;
+      const focusedEnemyId=value.focusedEnemyId??null;
+      if(!Number.isInteger(nextEnemyId)||nextEnemyId>=1000000000)throw new Error('敵の識別番号が正しくありません。');
+      if(enemies===null){if(focusedEnemyId!==null)throw new Error('集中対象が正しくありません。');return {enemies:null,nextEnemyId,focusedEnemyId};}
+      const count=(E.getSession(ctx).traits||[]).includes('swarm')?3:1;
+      if(!Array.isArray(enemies)||enemies.length!==count)throw new Error('敵の人数が正しくありません。');
+      const ids=new Set(),normalized=enemies.map(e=>{
+        record(e,'エネミー');
+        const id=number(e.id,'敵の識別番号',0),respawnSeconds=number(e.respawnSeconds,'個体の再出現待ち',0,E.respawnDelay(ctx));
+        const hp=number(e.hp,'エネミーHP',respawnSeconds>0?0:1,maxHP),poisonDamage=e.poisonDamage;
+        const actionPoints=number(e.actionPoints,'敵のAP',0,1000,true);
+        if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||respawnSeconds&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
+        const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
+        if(![0,3].includes(defensePenalty)||![0,15].includes(accuracyPenalty)||respawnSeconds&&(defensePenalty||accuracyPenalty))throw new Error('敵の弱体効果が正しくありません。');
+        let pendingAttack=null;
+        if(e.pendingAttack!=null){
+          const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx));
+          if(respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
+          pendingAttack={targetId:p.targetId,remaining};
+        }
+        ids.add(id);return {id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty};
+      });
+      const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
+      if(focusedEnemyId!==null&&(count===1||!living.some(e=>e.id===focusedEnemyId)))throw new Error('集中対象が正しくありません。');
+      const wait=target?0:Math.min(...normalized.map(e=>e.respawnSeconds));
+      if(ctx.hp!==(target?.hp||0)||ctx.poisonDamage!==(target?.poisonDamage||0)||Math.abs(ctx.respawnSeconds-wait)>1e-9)throw new Error('表示対象の状態が正しくありません。');
+      return {enemies:normalized,nextEnemyId,focusedEnemyId};
+    }
+    Object.assign(result,validateEnemies(raw,result),validateProtection(raw,result));
     const battles=raw.sessionStates===undefined?{}:record(raw.sessionStates,'クエスト別の戦況');
     result.sessionStates={};
     for(const [id,data] of Object.entries(battles)){
@@ -293,11 +407,14 @@
       if(![0,4,8,12,16].includes(poisonDamage)||Math.abs(batchHpFraction)>=1||Math.abs(batchDamageFraction)>=1||(respawnSeconds?poisonDamage!==0||batchHpFraction!==0:hp+batchHpFraction<=0||hp+batchHpFraction>maxHP))throw new Error('クエスト別の戦闘状態が正しくありません。');
       const selectedCharacterId=value.selectedCharacterId??null;
       if(selectedCharacterId!==null&&!E.formationIds(result,id).includes(selectedCharacterId))throw new Error('クエスト別の手動攻撃対象が正しくありません。');
-      result.sessionStates[id]={hp,poisonDamage,batchHpFraction,batchDamageFraction,respawnSeconds,selectedCharacterId};
+      const battle={hp,poisonDamage,batchHpFraction,batchDamageFraction,respawnSeconds,selectedCharacterId};
+      result.sessionStates[id]={...battle,...validateEnemies(value,{...ctx,...battle}),...validateProtection(value,ctx)};
     }
     if (raw.selectedCharacterId !== null && !D.characters.some(c => c.id === raw.selectedCharacterId && E.isDeployed(result,c.id))) throw new Error('手動攻撃の担当キャラクターが正しくありません。');
     result.selectedCharacterId = raw.selectedCharacterId;
     for (const u of D.upgrades) result.upgrades[u.id] = number(raw.upgrades[u.id] ?? 0, u.name, 0, u.max ?? Number.MAX_SAFE_INTEGER, true);
+    for(const q of D.sessions){const ctx=E.battleContext(result,q.id);E.normalizeEnemyActions(ctx);if(q.id!==result.sessionId&&result.sessionStates[q.id])result.sessionStates[q.id]=E.battleSnapshot(ctx);}
+    for(const q of D.sessions)if(!E.isQuestUnlocked(result,q.id)&&(result.questLevels[q.id]>1||E.formationIds(result,q.id).length))throw new Error('未解放のクエストに進行データがあります。');
     return result;
   }
   function encode(state, now = Date.now()) {

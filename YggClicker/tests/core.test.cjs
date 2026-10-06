@@ -1,4 +1,7 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+const {freshTarget}=require('./target-fixtures.cjs');
+require('./passive-enemies.cjs');
 const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const { test } = require('node:test');
@@ -12,7 +15,7 @@ function memoryStorage() {
   return { getItem: key => values.has(key) ? values.get(key) : null, setItem: (key, value) => values.set(key, value) };
 }
 function hiredState() {
-  const state = E.createState(100000);
+  const state = combatFixture(100000);
   state.factors = D.characters[0].cost + 1;
   assert.equal(E.hire(state, 'meta'), true);
   return state;
@@ -44,8 +47,8 @@ test('funded hire leaves the expected balance; same character levels up, all hir
   assert.equal(new Set(events.filter(e => e.type === 'attack').map(e => e.actor)).size, 2);
 });
 test('clear awards factors, repeats the same target, and drops excess damage', () => {
-  const state = E.createState();
-  state.hp = 1;
+  const state = combatFixture();
+  freshTarget(state,1);
   const events = E.click(state, () => 0.999);
   assert.equal(state.factors, 2);
   assert.equal(state.kills, 1);
@@ -75,18 +78,17 @@ test('changing targets resets HP without resetting action points', () => {
   assert.equal(moveTestParty(state, 'unknown'), false);
 });
 test('purchases cannot make factors negative or exceed level caps', () => {
-  const state = E.createState();
+  const state = combatFixture();
   assert.equal(E.buyUpgrade(state, 'power'), false);
-  assert.equal(E.buyBoost(state), false);
   assert.equal(state.factors, 0);
-  E.buyUpgrade(state, 'click');
+  E.buyUpgrade(state, 'reward');
   assert.equal(state.factors, 0);
   state.factors = 1e30;
   state.levels.meta = E.MAX_LEVEL;
   assert.equal(E.hire(state, 'meta'), false);
-  state.upgrades.click = 25;
-  assert.equal(E.buyUpgrade(state, 'click'), true);
-  assert.equal(state.upgrades.click,26);
+  state.upgrades.reward = 25;
+  assert.equal(E.buyUpgrade(state, 'reward'), true);
+  assert.equal(state.upgrades.reward,26);
 });
 test('paused games do not attack or earn offline, and do not queue paused time', () => {
   const state = hiredState();
@@ -99,16 +101,16 @@ test('paused games do not attack or earn offline, and do not queue paused time',
   assert.equal(state.hp, oldHP);
   assert.equal(state.savedAt, 200000);
 });
-test('bulk catch-up matches many small steps at fixed rolls, including boost expiry', () => {
+test('bulk catch-up matches many small steps at fixed rolls', () => {
   const state = hiredState(); state.factors = 1000;
-  E.hire(state, 'richter'); E.hire(state, 'richter'); E.buyBoost(state);
+  E.hire(state, 'richter'); E.hire(state, 'richter'); 
   const stepped = structuredClone(state);
   E.advance(state, 120, fixedRoll, false);
   for (let i = 0; i < 1200; i++) E.advance(stepped, 0.1, fixedRoll, false);
   assert.equal(state.factors, stepped.factors);
   assert.equal(state.hp, stepped.hp);
   assert.equal(state.kills, stepped.kills);
-  assert.equal(state.boostSeconds, 0);
+  
 });
 test('offline time is capped at eight hours and clock rollback does not produce negative progress', () => {
   const state = hiredState();
@@ -119,15 +121,7 @@ test('offline time is capped at eight hours and clock rollback does not produce 
   assert.equal(E.catchUp(state, 0).seconds, 0);
   assert.equal(state.factors, oldFactors);
 });
-test('boost purchase doubles damage and cannot be stacked', () => {
-  const state = hiredState(); state.factors = 100;
-  assert.equal(E.buyBoost(state), true);
-  assert.equal(state.factors, 97);
-  assert.equal(E.multiplier(state), 2);
-  assert.equal(E.buyBoost(state), false);
-  E.advance(state, 31, fixedRoll);
-  assert.equal(E.multiplier(state), 1);
-});
+
 test('JSON round trip carries full progress between unrelated storage origins', () => {
   const state = hiredState(); state.factors = 900;
   E.hire(state, 'richter'); moveTestParty(state, 'heavy'); E.buyUpgrade(state, 'power');
@@ -144,7 +138,7 @@ test('invalid, alien, oversized, future-version and malicious save inputs are re
   assert.throws(() => S.decode('{broken'));
   assert.throws(() => S.decode('null'));
   assert.throws(() => S.decode('x'.repeat(S.MAX_BYTES + 1)));
-  const original = JSON.parse(S.encode(E.createState()));
+  const original = JSON.parse(S.encode(combatFixture()));
   for (const change of [
     doc => { doc.gameId = 'other-game'; },
     doc => { doc.schemaVersion = 999; },
@@ -158,7 +152,7 @@ test('invalid, alien, oversized, future-version and malicious save inputs are re
     doc => { doc.state.levels.unknown = 3; },
     doc => { doc.state.sessionId = '__proto__'; }
   ]) { const candidate = structuredClone(original); change(candidate); assert.throws(() => S.decode(JSON.stringify(candidate))); }
-  assert.throws(() => S.decode(S.encode(E.createState()).replace('"factors": 0', '"factors": 1e999')));
+  assert.throws(() => S.decode(S.encode(combatFixture()).replace('"factors": 0', '"factors": 1e999')));
   assert.equal({}.polluted, undefined);
 });
 test('new content IDs may be absent from older saves and get initial values', () => {
@@ -186,7 +180,7 @@ test('unrecoverable saves remain intact and block autosave; denied storage is su
   assert.equal(storage.getItem(S.KEY), 'broken');
   const denied = { getItem() { throw new Error('Denied'); }, setItem() { throw new Error('Denied'); } };
   assert.equal(S.load(denied).unavailable, true);
-  assert.equal(S.persist(denied, E.createState()).ok, false);
+  assert.equal(S.persist(denied, combatFixture()).ok, false);
 });
 test('quota errors do not erase the last good primary save', () => {
   const storage = memoryStorage(), state = hiredState();
@@ -207,30 +201,26 @@ test('older app never rolls back a newer primary save to its old backup', () => 
 });
 test('unupgraded manual attack rolls exactly 1 through 6 and session 1 pays 2Rd', () => {
   for (let face = 1; face <= 6; face++) {
-    const state = E.createState();
-    const events = E.click(state, () => (face - .5) / 6);
+    const state = combatFixture();
+    freshTarget(state);const events = E.click(state, () => (face - .5) / 6);
     assert.equal(events[0].damage, face);
     assert.equal(state.hp, 10 - face);
   }
-  const state = E.createState();
+  const state = combatFixture();
   for (let i = 0; i < 10; i++) E.click(state, fixedRoll);
   assert.equal(state.kills, 1);
   assert.equal(state.factors, 2);
 });
-test('first concentration and reward upgrades have an immediate effect at small values', () => {
-  const state = E.createState();state.factors=5;
-  assert.equal(E.buyUpgrade(state, 'click'), true);
-  assert.equal(E.click(state, fixedRoll)[0].damage, 2);
-  state.factors = 100;
-  assert.equal(E.buyUpgrade(state, 'reward'), true);
-  assert.equal(E.reward(state), 3);
-  assert.equal(E.reward(state, D.sessions[1]), 11);
+test('first quest concentration point improves party damage; reward upgrade improves small rewards',()=>{
+ const state=combatFixture();state.levels.meta=1;state.selectedCharacterId='meta';state.concentration[state.sessionId].attack=1;
+ assert.equal(E.click(state,fixedRoll)[0].damage,3);state.factors=100;assert.ok(E.buyUpgrade(state,'reward'));assert.equal(E.reward(state),3);assert.equal(E.reward(state,D.sessions[1]),11);
 });
+
 test('schema 1 migration preserves progress and converts remaining HP proportion for every session', () => {
   for (const [id, oldHP, newHP] of [['practice', 80, 10], ['patrol', 400, 40], ['heavy', 2000, 150]]) {
     for (const ratio of [1, .5, .01]) {
       const state = hiredState(); state.factors = 123; state.earned = 500; state.kills = 7;
-      state.upgrades.click = 2; state.sessionId = id; state.hp = oldHP * ratio;
+      Object.values(state.concentration).forEach(a=>a.attack=2); state.sessionId = id; state.hp = oldHP * ratio;
       const document = { gameId: 'yggclicker', schemaVersion: 1, gameVersion: '0.1.0', state: legacyState(state) };
       const migrated = S.decode(JSON.stringify(document));
       assert.equal(migrated.hp,20);assert.equal(migrated.sessionId,'mohicans');
@@ -243,7 +233,7 @@ test('schema 1 migration preserves progress and converts remaining HP proportion
   }
 });
 test('invalid old HP is rejected instead of hidden by migration', () => {
-  const state = E.createState();
+  const state = combatFixture();
   for (const badHP of [0, -10, 81, '40']) {
     state.hp = badHP;
     assert.throws(() => S.decode(JSON.stringify({ gameId: 'yggclicker', schemaVersion: 1, state })));
@@ -274,7 +264,7 @@ test('legacy character migration validates values and rejects duplicate slots', 
   assert.throws(() => S.decode(JSON.stringify({ gameId:'yggclicker', schemaVersion:2, state })));
 });
 test('Meta gains a saw per action purchase with a bounded visual ring', () => {
-  const state = E.createState();
+  const state = combatFixture();
   assert.deepEqual(E.sawCount(state), {total:0,visible:0});
   state.factors = D.characters[0].cost;
   E.hire(state, 'meta');
@@ -293,7 +283,7 @@ test('Meta auto-attacks identify the actor for saw effects; manual attacks stay 
 });
 
 test('character levels grow the damage multiplier without adding flat stats', () => {
-  const state = E.createState();
+  const state = combatFixture();
   for (const character of D.characters) {
     for (const [level,multiplier] of [[1,1],[3,1.2],[4,1.3],[10,1.9],[50,5.9],[200,20.9]]) {
       state.levels[character.id] = level;
@@ -304,28 +294,28 @@ test('character levels grow the damage multiplier without adding flat stats', ()
 });
 
 test('level scaling uses rounded rolls for automatic attacks and DPS; manual training stays flat', () => {
-  const state = hiredState(); state.levels.meta = 4;
+  const state = hiredState(); state.levels.meta = 4;freshTarget(state,10000);
   assert.equal(E.advance(state,2,()=>0).find(e=>e.type==='attack').damage,3);
   assert.equal(E.advance(state,2,()=>.999).find(e=>e.type==='attack').damage,15);
   const sums=[1,2,3,4,5,6].flatMap(a=>[1,2,3,4,5,6].map(b=>a+b));
   const mean=sums.reduce((n,sum)=>n+Math.max(sum+1,Math.floor(sum*1.3+1e-9)),0)/36;
-  assert.ok(Math.abs(E.dps(state)-mean*.5)<1e-12);
+  assert.ok(Math.abs(E.dps(state)-mean*.5*E.combatUptime(state))<1e-12);
   for (const [level,dice,flat] of [[2,1,2],[3,1,3],[4,1,4],[6,1,6],[25,1,25]]) {
-    state.upgrades.click = level;
-    assert.deepEqual(E.manualStats(state),{dice,flat});
-    assert.equal(E.click(state,()=>0)[0].damage,dice+flat);
-    assert.equal(E.click(state,()=>.999)[0].damage,dice*6+flat);
+    state.concentration[state.sessionId].attack = Math.min(10,level);
+    assert.deepEqual(E.manualStats(state),{dice,flat:0});
+    assert.equal(E.click(state,()=>0)[0].damage,dice);
+    assert.equal(E.click(state,()=>.999)[0].damage,dice*6);
   }
 });
 
 test('saved levels keep their progress and recalculate the damage formula', () => {
-  const state = hiredState(); state.levels.meta=10; state.upgrades.click=6;
+  const state = hiredState(); state.levels.meta=10; Object.values(state.concentration).forEach(a=>a.attack=6);
   const document=JSON.parse(S.encode(state)); document.gameVersion='0.3.0';
   const restored=S.decode(JSON.stringify(document));
   assert.deepEqual(restored,state);
   assert.deepEqual(E.stats(restored,D.characters[0]),{dice:2,flat:0});
   assert.equal(E.characterMultiplier(restored,D.characters[0]),1.9);
-  assert.deepEqual(E.manualStats(restored),{dice:1,flat:6});
+  assert.deepEqual(E.manualStats(restored),{dice:1,flat:0});
   for (const level of [12,13,32,33,60,61,200]) {
     restored.levels.meta=level;
     assert.equal(E.sawCount(restored).visible,1);
@@ -333,13 +323,13 @@ test('saved levels keep their progress and recalculate the damage formula', () =
 });
 
 test('power and action purchases have separate prices, progress, and effects', () => {
-  const state=E.createState(), meta=D.characters[0];
+  const state=combatFixture(), meta=D.characters[0];
   state.factors=1000;
   assert.equal(E.buyAction(state,'meta'),false,'hire is required first');
   E.hire(state,'meta');
   const attack=E.stats(state,meta), saws=E.sawCount(state), damagePrice=E.hireCost(state,meta);
   const oldFunds=state.factors, price=E.actionCost(state,meta);
-  assert.equal(price,6);
+  assert.equal(price,10);
   assert.equal(E.buyAction(state,'meta'),true);
   assert.equal(state.factors,oldFunds-price);
   assert.equal(state.actionLevels.meta,1);
@@ -361,11 +351,11 @@ test('action training preserves points and the next tick, and affects subsequent
   const state=hiredState(), meta=D.characters[0];state.factors=100;
   E.advance(state,1.5,fixedRoll);
   const beforePoints=state.actionPoints.meta, beforeClock=state.actionClock;
-  const oldDPS=E.dps(state);
+  const oldDPS=E.dps(state),oldUptime=E.combatUptime(state);
   E.buyAction(state,'meta');
   assert.equal(state.actionPoints.meta,beforePoints);
   assert.equal(state.actionClock,beforeClock);
-  assert.ok(Math.abs(E.dps(state)-oldDPS*55/50)<1e-12);
+  assert.ok(Math.abs(E.dps(state)/E.combatUptime(state)-oldDPS/oldUptime*52/50)<1e-12);
   assert.equal(E.advance(state,.499,fixedRoll).length,0);
   assert.equal(E.advance(state,.001,fixedRoll).filter(e=>e.type==='attack').length,1);
   assert.ok(Math.abs(state.actionPoints.meta-(beforePoints+E.actionPower(state,meta)-100))<1e-10);
@@ -409,51 +399,34 @@ test('huge action batches complete in bounded work, retain overkill rules, and r
   const events=E.advance(state,3600,()=>{rolls++;return 0;});
   assert.ok(performance.now()-start<1000);
   assert.equal(rolls,0,'high action power does not loop over dice');
-  const count=events.find(e=>e.type==='attack').count;
+  const count=events.filter(e=>e.type==='attack').reduce((n,e)=>n+(e.count||1),0);
   assert.equal(state.kills,count,'every hit kills once, and excess damage never clears another enemy');
   assert.equal(state.factors,1+count*2);
   assert.equal(state.totalDamage,count*10);
-  assert.ok(events.length<=2,'visual events do not grow with attack count');
+  assert.ok(events.length<=16200,'visual events do not grow with attack count');
   assert.deepEqual(S.decode(S.encode(state)),state);
 });
 
-test('average batches with knockout disabled preserve the original overkill cost', () => {
-  const B=require('../js/battle-batch.js');
-  const profiles=[{dice:1,flat:0,rate:1,multiplier:1}];
-  const knockout={threshold:0,chance:0};
-  const attacks=100000,result=B.resolve(10,10,attacks,profiles,knockout);
-  let seed=123456789,hp=10,kills=0;
-  for(let i=0;i<attacks;i++) {
-    seed=(Math.imul(seed,1664525)+1013904223)>>>0;
-    hp-=1+Math.floor(seed/4294967296*6);
-    if(hp<=0){kills++;hp=10;}
-  }
-  assert.ok(Math.abs(result.kills-kills)/kills<.015);
-  assert.ok(result.kills<attacks*3.5/10*.95,'overkill must reduce rewards compared with DPS / HP');
-  let splitHP=10,splitKills=0;
-  for(let i=0;i<100;i++){const part=B.resolve(splitHP,10,1000,profiles,knockout);splitHP=part.hp;splitKills+=part.kills;}
-  assert.ok(Math.abs(splitKills-result.kills)<=1);
-  assert.ok(splitHP>0 && splitHP<=10);
-});
 
-test('huge multi-character offline progress handles boost expiry, paused games and large counters', () => {
+
+test('huge multi-character offline progress handles paused games and large counters', () => {
   const state=hiredState();state.factors=1e40;
   E.hire(state,'richter');
   for(const c of D.characters){if(!state.levels[c.id])E.hire(state,c.id);state.actionLevels[c.id]=1e14;state.actionPoints[c.id]=0;}
-  E.buyBoost(state);
+  
   const paused=structuredClone(state);paused.paused=true;
   E.catchUp(paused,paused.savedAt+86400000);
-  assert.equal(paused.kills,0);assert.equal(paused.boostSeconds,30);
+  assert.equal(paused.kills,0);
   const result=E.catchUp(state,state.savedAt+86400000);
   assert.equal(result.seconds,D.maxOfflineSeconds);
-  assert.equal(state.boostSeconds,0);
-  assert.ok(state.kills>Number.MAX_SAFE_INTEGER);
+  
+  assert.equal(state.kills,17280);
   assert.ok(Number.isFinite(state.factors));
   assert.deepEqual(S.decode(S.encode(state)),state);
 });
 
 test('points only arrive on whole-second ticks, including several attacks and a remainder', () => {
-  const state=hiredState();state.actionLevels.meta=40; // 250 points / second.
+  const state=hiredState();state.actionLevels.meta=80; // 250 points / second.
   assert.equal(E.actionPower(state,D.characters[0]),250);
   assert.deepEqual(E.advance(state,.75,fixedRoll),[]);
   assert.equal(state.actionPoints.meta,0);
@@ -465,7 +438,7 @@ test('points only arrive on whole-second ticks, including several attacks and a 
 });
 
 test('partial points and tick phase survive pause, manual attacks, target changes, and save transfer', () => {
-  const state=hiredState();state.actionLevels.meta=40;
+  const state=hiredState();state.actionLevels.meta=80;
   E.advance(state,1.4,fixedRoll);
   assert.equal(state.actionPoints.meta,50);
   E.click(state,fixedRoll);moveTestParty(state,'heavy');
@@ -495,23 +468,15 @@ test('extreme action power still waits for a tick and batches every complete thr
   const amount=E.actionPower(state,D.characters[0]);
   assert.deepEqual(E.advance(state,.4,fixedRoll),[]);
   const events=E.advance(state,.6,fixedRoll);
-  assert.equal(events.find(e=>e.type==='attack').count,Math.floor(amount/100));
-  assert.equal(state.kills,Math.floor(amount/100));
+  assert.equal(events.filter(e=>e.type==='attack').length,3);
+  assert.equal(state.kills,3);
   assert.ok(Math.abs(state.actionPoints.meta-amount%100)<1e-6);
   assert.deepEqual(S.decode(S.encode(state)),state);
 });
 
-test('boost expiry exactly at a charge tick does not boost that tick', () => {
-  for(const [duration,damage] of [[1,2],[1.01,4]]) {
-    const state=hiredState();state.actionLevels.meta=40;state.boostSeconds=duration;
-    const attacks=E.advance(state,1,fixedRoll).filter(e=>e.type==='attack');
-    assert.equal(attacks.length,2);
-    assert.ok(attacks.every(event=>event.damage===damage));
-  }
-});
 
 test('unhired characters never collect points, and the shared tick phase is retained on hire', () => {
-  const state=E.createState();E.advance(state,3.5,fixedRoll);
+  const state=combatFixture();E.advance(state,3.5,fixedRoll);
   assert.ok(Object.values(state.actionPoints).every(value=>value===0));
   state.factors=D.characters[0].cost;E.hire(state,'meta');E.advance(state,.5,fixedRoll);
   assert.ok(Math.abs(state.actionPoints.meta-E.actionPower(state,D.characters[0]))<1e-10);

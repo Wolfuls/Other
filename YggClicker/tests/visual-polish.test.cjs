@@ -1,4 +1,6 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+require('./passive-enemies.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const UI=require('../js/display.js'),D=require('../js/data.js'),E=require('../js/engine.js'),{harness}=require('./app-harness.cjs');
 const seeded=(seed=23142)=>()=>((seed=(Math.imul(1664525,seed)+1013904223)>>>0)/4294967296);
@@ -18,17 +20,17 @@ test('new arrivals are random, keep visible reserves in order, and do not repeat
 });
 
 test('character identity stays hidden below hire price, reveals at affordability and stays visible after hire',()=>{
- const s=E.createState(1000);s.factors=97;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
+ const s=combatFixture(1000);s.factors=97;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
  assert.ok(h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,'？？？');
  assert.equal(h.get('hire-cost-richter').textContent,'◇ 100Rd');assert.equal(h.get('meta-combatant').hidden,false);
  h.click('attack');assert.ok(h.get('card-richter').classList.contains('obscured'));
  h.click('attack');h.click('attack');h.click('attack');assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters[1].name);
- buy(h,{hire:'richter'});assert.equal(h.saved().factors,1);assert.ok(!h.get('card-richter').classList.contains('obscured'));
+ buy(h,{hire:'richter'});assert.equal(h.saved().factors,3);assert.ok(!h.get('card-richter').classList.contains('obscured'));
  assert.ok(h.get('card-vishunal').classList.contains('obscured'));
- const t=E.createState(1000);t.paused=true;t.factors=100;t.levels.meta=1;const k=harness(t);
+ const t=combatFixture(1000);t.paused=true;t.factors=100;t.levels.meta=1;const k=harness(t);
  assert.ok(!k.get('card-richter').classList.contains('obscured'));buy(k,{hire:'meta'});
  assert.ok(k.get('card-richter').classList.contains('obscured'));assert.ok(!k.get('card-meta').classList.contains('obscured'));
- assert.equal(harness(E.createState(1000)).get('meta-combatant').hidden,true);
+ assert.equal(harness(combatFixture(1000)).get('meta-combatant').hidden,true);
 });
 
 test('battle window size stays stable across levels, counts and hires; only occupied content controls zoom',()=>{
@@ -41,13 +43,13 @@ test('battle window size stays stable across levels, counts and hires; only occu
   for(const l of layouts){assert.ok(l.viewWidth<=width+1e-9);assert.ok(l.height*l.zoom<=l.viewHeight+1e-9);}
  }
  const hidden=UI.orbitLayout({width:1000,grounded:true,enemyCount:3,metaHired:false,metaScale:100,metaCount:60});assert.equal(hidden.zoom,1);
- const s=E.createState(1000);s.paused=true;s.factors=1e7;s.levels.meta=50;s.actionLevels.meta=50;const h=harness(s);
+ const s=combatFixture(1000);s.paused=true;s.factors=1e7;s.levels.meta=50;s.actionLevels.meta=50;const h=harness(s);
  const height=h.get('arena-viewport').style.height;
  for(let i=0;i<20;i++){buy(h,{hire:'meta'});buy(h,{action:'meta'});assert.equal(h.get('arena-viewport').style.height,height);}
 });
 
 test('missile volleys use all eight muzzle origins and clear their synchronized flashes on pause',()=>{
- const s=E.createState(1000);s.levels.vishunal=1;s.selectedCharacterId='vishunal';const h=harness(s),shots=[];
+ const s=combatFixture(1000);s.levels.vishunal=1;s.selectedCharacterId='vishunal';s.questLevels.mohicans=30;s.hp=E.getSession(s).hp;const h=harness(s),shots=[];
  for(let i=0;i<8;i++){h.click('attack');shots.push(h.get('vishunal-projectiles').lastElementChild);}
  assert.equal(new Set(shots.map(n=>n.dataset.muzzle)).size,8);
  assert.equal(new Set(shots.map(n=>n.style.left+','+n.style.top)).size,8);

@@ -755,3 +755,36 @@ Strict invariants: keep ONLY this same small four-legged brown/tan dog with blue
 ## v0.39.5：トルデリーゼ v6
 
 内蔵 image_gen.imagegen による表情・連続攻撃姿勢の更新。待機・通常攻撃は快活で表情豊かに。連続攻撃は指差しをやめ、膝を曲げて低く踏ん張る姿勢と集中した攻撃的な顔へ。各6コマ、384×384の独立透過PNG。通常立ち絵の身長比と共通倍率を維持し、しゃがみを縮尺で引き伸ばさない。tordeliese-poses-v6.png は2304×1152の確認用一覧。伸びる触手はv5画像を再利用。全プロンプトと配置は tordeliese-v6.json に記録。
+
+
+## v0.45.0
+
+- `meta-down-v1.png`, `richter-down-v1.png`, `vishunal-down-v1.png`, `tordeliese-down-v1.png`, `max-down-v1.png`: built-in ImageGen, existing character designs as references; transparent down poses. Prompt and source records: `ally-down-v1.json`.
+- `tordeliese-animation-v8.png`: lossless arrangement of existing v6 idle/attack and v7 burst frames into a 6 × 3 atlas (384 px cells). No repaint or palette change.
+## v0.46.0 enemy attacks
+
+- Eleven transparent four-frame attack sheets: ten weapon-specific Mohican variants and Dementor soul drain, created with built-in ImageGen using the existing idle sprite sheets as identity/style references.
+- Files: `enemy-*-attack-v1.png`. Layout: 1280 × 280, four 320 × 280 cells. Source frames are separated at transparent gutters, uniformly resized with nearest-neighbor sampling and registered to a common foot baseline. No frame overlaps.
+- Full prompts, source paths, reference assets and export metadata: `enemy-attacks-v1.json`.
+
+## v0.51.0：今回の採用素材
+
+内蔵 image_gen による画像編集。足元の位置合わせ・アトラスへの格納はSharpで行い、同一モーション内は共通の縮尺。
+
+| 素材 | アトラス寸法 | コマ数 | 原寸での足元アンカー |
+| --- | --- | --- | --- |
+| meta-poses-v7.png | 1280×320 | 横4 | (160,304) |
+| meta-burst-v10.png | 1792×448 | 横4 | (224,368) |
+| waku-poses-v2.png | 1792×448 | 横4 | (224,368) |
+| waku-burst-v2.png | 2816×512 | 横4 | (352,400) |
+| tordeliese-animation-v9.png | 2304×1152 | 6列×3行 | (166,360) |
+| tordeliese-tendril-1〜6-v6.png | 各384×384 | 各1 | 根元(24,192) |
+
+実表示でメタと枠の足元は、通常・連続とも画像中心より72px下。トルデリーゼの元画像アンカーは既存の影の位置43.359375%を維持。整数画素へ丸めるため水平中心の差は原寸0.5px以内。接地線の縦ずれは0px、全40コマの外周に不透明な画素なし。
+
+メタは身体の前を通る腕、枠は複数の剣閃、トルデリーゼは右腕の小さな変化を中心に作成。触手の小爪は金色、先端は青。旧版は復旧可能な別名のまま保持。
+
+## v0.52.0：提供ひな形からの調整
+
+内蔵image_genで編集。メタはユーザー提供の4コマを同順で調整（meta-burst-v11.png、1792×448）。枠は6コマの2〜5を軸に4コマ化し、通常時の服装に合わせる（waku-burst-v3.png、2816×512）。通常時と同じ足元で登録。
+トルデリーゼは連続攻撃4コマ目のみ触手の向きを変更（tordeliese-animation-v10.png、2304×1152）。残る17コマは既存RGBA画素をそのまま保持。

@@ -75,7 +75,7 @@
 @media(max-width:600px){.richter-explosion{width:128px;height:128px}.richter-explosion.chain-explosion{width:154px;height:154px}}
 
 /* Each hit owns its variation, so overlapping defeats keep independent paths. */
-.meta-arena.hit #enemy-art{animation:enemy-impact-varied .18s ease-out both}
+.meta-arena .enemy-hit{animation:enemy-impact-varied .18s ease-out both}
 .meta-arena .enemy-art.enemy-defeat{animation:enemy-defeat-varied var(--fall-duration,500ms) cubic-bezier(.25,.1,.65,1) both}
 .meta-arena .defeat-label{animation:defeat-label-varied var(--fall-duration,500ms) ease-out both}
 .meta-arena .damage-float{animation:damage-varied .8s ease-out both}
@@ -105,7 +105,7 @@
 .upgrade-purchase{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .upgrade-purchase .button{flex:1;min-width:0}
 .upgrade-purchase .enhancement-bonus{flex:0 0 86px}
-@media(prefers-reduced-motion:reduce){.meta-arena.hit #enemy-art,.meta-arena .enemy-defeat,.meta-arena .defeat-label,.meta-arena .damage-float{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.meta-arena .enemy-hit,.meta-arena .enemy-defeat,.meta-arena .defeat-label,.meta-arena .damage-float{animation:none!important}}
 
 /* Larger type needs wrapping instead of narrower text on small screens. */
 .panel-heading,.battle-heading,.session-top{gap:8px;flex-wrap:wrap}
@@ -203,7 +203,7 @@
 .meta-arena #enemy-next-1{left:calc(var(--enemy-x) + var(--reserve-1-x));top:calc(var(--enemy-y) + var(--reserve-1-y))}
 .meta-arena #enemy-next-2{left:calc(var(--enemy-x) + var(--reserve-2-x));top:calc(var(--enemy-y) + var(--reserve-2-y))}
 #enemy-next-1 .enemy-sprite{animation-delay:-.33s}#enemy-next-2 .enemy-sprite{animation-delay:-.66s}
-.meta-arena.mohican-line.hit #enemy-art{animation:enemy-impact-varied .18s ease-out both}
+.meta-arena #enemy-art.enemy-hit,.meta-arena #enemy-next-1.enemy-hit,.meta-arena #enemy-next-2.enemy-hit{animation:enemy-impact-varied .18s ease-out both}
 .meta-arena.mohican-line.enemy-spawning #enemy-art{animation:mohican-step-front .18s ease-out both}
 .meta-arena.mohican-line.enemy-spawning #enemy-next-1{animation:mohican-step-next .18s ease-out both}
 .meta-arena.mohican-line.enemy-spawning #enemy-next-2{animation:mohican-step-enter .18s ease-out both}

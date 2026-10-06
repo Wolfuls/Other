@@ -1,9 +1,11 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+require('./passive-enemies.cjs');
 const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),{harness}=require('./app-harness.cjs');
 const change=(h,id,value)=>{const el=h.get('option-'+id);if(typeof value==='boolean')el.checked=value;else el.value=value;el.listeners.get('change')();};
-function fighter(){const s=E.createState(1000);s.levels.richter=50;s.selectedCharacterId='richter';s.factors=100000;s.upgrades.overkill=1;return s;}
+function fighter(){const s=combatFixture(1000);s.levels.richter=50;s.selectedCharacterId='richter';s.factors=100000;s.upgrades.overkill=1;return s;}
 const textOf=node=>node.textContent+' '+node.children.map(textOf).join(' ');
 
 test('all display preferences persist, missing fields default safely, and malformed values are rejected',()=>{
@@ -38,7 +40,7 @@ test('turning off visuals during a volley clears current effects, keeps projecti
   for(const id of ['hit-effects','explosions','damage-floats'])assert.equal(off.get(id).children.length,0);
   for(const id of ['reward-rain','factor-rain'])assert.ok(off.get(id).children.every(n=>n.hidden));
   assert.ok(off.get('enemy-defeats').children.every(n=>!n.classList.contains('defeat-label')));
-  assert.ok(off.get('richter-projectiles').children.length>0);
+  assert.equal(off.get('richter-projectiles').children.length,on.get('richter-projectiles').children.length,'visual options do not remove real projectiles; both views share respawn gaps');
   on.advance(100);off.advance(100);
  }
  for(const h of [on,off])h.click('pause');
@@ -53,8 +55,8 @@ test('damage, overflow and defeat text have independent controls and include bat
   const h=harness(s);let seen=false;
   for(let i=0;i<80;i++){
    h.advance(50);const damage=textOf(h.get('damage-floats')),down=textOf(h.get('enemy-defeats'));
-   if(key==='showDamageNumbers'){assert.doesNotMatch(damage,/巻き込み|気絶/);assert.doesNotMatch(down,/DOWN|OVERKILL/);seen||=/合計/.test(damage);}
-   if(key==='showOverflowLabels'){assert.doesNotMatch(damage,/合計|気絶|\d/);assert.doesNotMatch(down,/DOWN|OVERKILL/);seen||=/巻き込み/.test(damage);}
+   if(key==='showDamageNumbers'){assert.doesNotMatch(damage,/巻き込み|気絶/);assert.doesNotMatch(down,/DOWN|OVERKILL/);seen||=/\d/.test(damage);}
+   if(key==='showOverflowLabels'){assert.doesNotMatch(damage,/合計|気絶|\d/);assert.doesNotMatch(down,/DOWN|OVERKILL/);seen||=/全体攻撃/.test(damage);}
    if(key==='showDefeatLabels'){assert.doesNotMatch(damage,/合計|巻き込み/);seen||=/DOWN.*OVERKILL/.test(down);}
   }
   assert.ok(seen,key);
@@ -71,13 +73,3 @@ test('reward dice can be disabled independently of ambient dice and restored on 
  const reloaded=harness(h.saved());assert.equal(reloaded.get('option-factor-rain').checked,false);assert.equal(reloaded.get('option-reward-dice').checked,true);
 });
 
-test('limit-break bands and timer track purchase, pause, tab switching, expiry and imported saves',()=>{
- const h=harness(fighter());assert.equal(h.get('limit-break-overlay').hidden,true);
- h.click('boost');assert.equal(h.get('limit-break-overlay').hidden,false);assert.match(h.get('boost-status').textContent,/限界突破 ×2.*30秒/);
- h.advance(2000);h.click('pause');const text=h.get('boost-status').textContent;assert.match(text,/28秒.*一時停止/);
- h.click('tab-options');h.advance(5000);assert.equal(h.get('boost-status').textContent,text);assert.equal(h.get('limit-break-overlay').hidden,false);
- const loaded=harness(h.saved());assert.equal(loaded.get('limit-break-overlay').hidden,false);
- h.click('pause');h.advance(28500);assert.equal(h.get('limit-break-overlay').hidden,true);assert.equal(h.get('boost-status').hidden,true);
- const imported=fighter();imported.paused=true;imported.boostSeconds=7;
- h.get('save-text').value=S.encode(imported);h.click('preview-import');h.click('confirm-import');assert.match(h.get('boost-status').textContent,/7秒/);assert.equal(h.get('limit-break-overlay').hidden,false);
-});

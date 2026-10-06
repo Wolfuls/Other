@@ -1,4 +1,6 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+require('./passive-enemies.cjs');
 const moveTestParty=require('./single-party-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const UI=require('../js/display.js'),E=require('../js/engine.js'),D=require('../js/data.js'),{harness}=require('./app-harness.cjs');
@@ -26,7 +28,7 @@ test('Utgard keeps feet on the cover-cropped pavement and complete visible orbit
 });
 
 test('resize refreshes background bounds and combat coordinates without altering progress',()=>{
- const s=E.createState(1000);s.levels.meta=50;s.levels.richter=20;s.paused=true;const h=harness(s),arena=h.get('arena');
+ const s=combatFixture(1000);s.levels.meta=50;s.levels.richter=20;s.paused=true;const h=harness(s),arena=h.get('arena');
  assert.ok(arena.classList.contains('grounded'));
  const width=500;h.get('arena-viewport').clientWidth=width;h.resize();
  const l=UI.orbitLayout({grounded:true,width,richterHired:true,enemyCount:3,metaScale:E.weaponScale(s,'meta'),richterScale:E.weaponScale(s,'richter'),metaCount:1,richterCount:1});
@@ -39,7 +41,7 @@ test('resize refreshes background bounds and combat coordinates without altering
 });
 
 test('enemy feet correction follows the individual when the queue advances',()=>{
- const s=E.createState(1000);s.sessionId='mohicans';s.hp=10;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
+ const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
  const expected=D.sessions.find(s=>s.id==='mohicans').variants.find(v=>v.sheet===h.get('enemy-art').dataset.appearance);
  assert.equal(h.get('enemy-art').firstElementChild.style.getPropertyValue('--foot-shift'),((211-(expected.footY??211))/224*100)+'%');
  const next=h.get('enemy-next-1').firstElementChild.style.getPropertyValue('--foot-shift');
@@ -52,6 +54,6 @@ test('the fixed rain pool contains all six dice faces and a fivefold size range 
  assert.equal(Math.min(...looks.map(d=>d.size)),8);assert.equal(Math.max(...looks.map(d=>d.size)),40);
  assert.equal(Math.max(...looks.slice(0,3).map(d=>d.size))/Math.min(...looks.slice(0,3).map(d=>d.size)),5);
  for(const d of looks)assert.equal((d.pips.match(/radial-gradient/g)||[]).length,d.face);
- const h=harness(E.createState(1000)),pool=h.get('factor-rain').children;
+ const h=harness(combatFixture(1000)),pool=h.get('factor-rain').children;
  assert.equal(pool.length,24);pool.forEach((node,i)=>{assert.equal(node.dataset.face,String(looks[i].face));assert.equal(node.style.getPropertyValue('--crystal-size'),looks[i].size+'px');});
 });

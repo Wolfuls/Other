@@ -1,6 +1,6 @@
 {
   "name": "yggclicker",
-  "version": "0.44.0",
+  "version": "0.52.1",
   "private": true,
   "description": "Local-first incremental fan game prototype for Yggdrasill RW",
   "scripts": { "start": "node tools/serve.cjs", "test": "node --test tests/*.test.cjs" },

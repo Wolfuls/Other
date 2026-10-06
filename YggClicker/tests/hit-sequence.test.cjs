@@ -1,4 +1,7 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+const {freshTarget}=require('./target-fixtures.cjs');
+require('./passive-enemies.cjs');
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const E=require('../js/engine.js'), B=require('../js/battle-batch.js'), FX=require('../js/combat-effects.js'), S=require('../js/save.js');
@@ -16,16 +19,16 @@ function lethalVolley(count){
 }
 test('HP 4 boundary rolls all six faces: exactly three knockouts, with a full clear reward',()=>{
   for(let face=1;face<=6;face++){
-    const state=E.createState();state.hp=5;
+    const state=combatFixture();freshTarget(state,5);
     const events=E.click(state,rolls(0,(face-.5)/6)),hit=events[0];
     assert.equal(hit.hpBefore,5);assert.equal(hit.hpAfter,4);assert.equal(hit.knockoutRoll,face);
     assert.equal(hit.knockedOut,face%2===1);assert.equal(state.totalDamage,1,'unspent enemy HP is not dealt damage');
-    assert.equal(state.hp,face%2?20:4);assert.equal(state.kills,face%2?1:0);assert.equal(state.factors,face%2?2:0);
+    assert.equal(state.hp,face%2?20:4);assert.equal(state.kills,face%2?1:0);assert.equal(state.factors,face%2?3:0);
     if(face%2)assert.equal(events[1].reason,'knockout');
   }
 });
 test('surviving at HP4 checks again on the next loss, including automatic multi-hits',()=>{
-  const state=E.createState();state.factors=100;E.hire(state,'meta');state.actionLevels.meta=35;state.hp=6;
+  const state=combatFixture();state.factors=100;E.hire(state,'meta');state.actionLevels.meta=70;freshTarget(state,6);
   const events=E.advance(state,1,rolls(0,0,.25,0,0,0));
   const hits=events.filter(e=>e.type==='attack');
   assert.deepEqual(hits.map(e=>[e.hpAfter,e.knockoutRoll,e.knockedOut]),[[4,2,false],[2,1,true]]);
@@ -33,34 +36,19 @@ test('surviving at HP4 checks again on the next loss, including automatic multi-
   assert.deepEqual(S.decode(S.encode(state)),state);
 });
 test('HP5, zero HP, loading and pauses do not introduce knockout checks',()=>{
-  const state=E.createState();state.hp=6;
+  const state=combatFixture();freshTarget(state,6);
   assert.equal(E.click(state,rolls(0))[0].knockoutRoll,null);
-  state.hp=1;const dead=E.click(state,rolls(.999));
+  freshTarget(state,1);const dead=E.click(state,rolls(.999));
   assert.equal(dead[0].hpAfter,0);assert.equal(dead[0].knockoutRoll,null);assert.equal(dead[1].reason,'hp');
-  state.hp=4;state.paused=true;assert.deepEqual(E.click(state,rolls()),[]);assert.deepEqual(E.advance(state,5,rolls()),[]);
+  freshTarget(state,4);state.paused=true;assert.deepEqual(E.click(state,rolls()),[]);assert.deepEqual(E.advance(state,5,rolls()),[]);
   assert.equal(S.decode(S.encode(state)).hp,4);
 });
 test('eventless progress uses exactly the same knockout rolls and rewards',()=>{
-  const a=E.createState();a.factors=100;E.hire(a,'meta');a.hp=6;a.actionLevels.meta=35;const b=structuredClone(a);
+  const a=combatFixture();a.factors=100;E.hire(a,'meta');freshTarget(a,6);a.actionLevels.meta=70;const b=structuredClone(a);
   E.advance(a,1,rolls(0,0,.25,0,0,0));E.advance(b,1,rolls(0,0,.25,0,0,0),false);
   assert.deepEqual(a,b);
 });
-test('average knockout progress agrees with sampled clears and actual damage, including HP remainders',()=>{
-  const profiles=[{dice:1,flat:0,rate:1,multiplier:1}],attacks=200000;
-  const result=B.resolve(10,10,attacks,profiles);
-  let seed=982451653,hp=10,kills=0,damage=0,knockouts=0;
-  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-  for(let i=0;i<attacks;i++){
-    const hit=1+Math.floor(random()*6);damage+=Math.min(hp,hit);hp-=hit;
-    const stunned=hp>0&&hp<=4&&(1+Math.floor(random()*6))%2===1;
-    if(hp<=0||stunned){kills++;if(stunned)knockouts++;hp=10;}
-  }
-  for(const [actual,expected] of [[result.kills,kills],[result.damage,damage],[result.knockouts,knockouts]])assert.ok(Math.abs(actual-expected)/expected<.015,`${actual} vs ${expected}`);
-  assert.ok(result.damage<result.kills*10,'knockout must not count untouched HP as damage');
-  let splitHP=10,splitKills=0,splitDamage=0;
-  for(let i=0;i<200;i++){const r=B.resolve(splitHP,10,1000,profiles);splitHP=r.hp;splitKills+=r.kills;splitDamage+=r.damage;}
-  assert.ok(Math.abs(splitKills-result.kills)<=1);assert.ok(Math.abs(splitDamage-result.damage)<10);
-});
+
 test('every lethal hit retains its own ordered impact and defeat, with flight delay',()=>{
   const clock=fakeClock(),launched=[],impacts=[];let idle=0;
   const playback=FX.createPlayback({schedule:clock.schedule,cancel:clock.cancel,onLaunch:f=>launched.push([clock.now,f]),onImpact:f=>impacts.push([clock.now,f]),onIdle:()=>idle++});

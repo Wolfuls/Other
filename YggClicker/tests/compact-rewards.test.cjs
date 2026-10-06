@@ -1,10 +1,13 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+const {freshTarget}=require('./target-fixtures.cjs');
+require('./passive-enemies.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const E=require('../js/engine.js'),D=require('../js/data.js'),UI=require('../js/display.js'),{harness}=require('./app-harness.cjs');
 const active=h=>h.get('reward-rain').children.filter(n=>!n.hidden);
 
 test('manual clears trigger fast dice at impact even with no party income; ordinary hits do not',()=>{
- const s=E.createState(1000);s.hp=10;const h=harness(s);const pool=[...h.get('reward-rain').children];
+ const s=combatFixture(1000);freshTarget(s,10);const h=harness(s);const pool=[...h.get('reward-rain').children];
  assert.equal(pool.length,48);h.click('attack');h.advance(560);assert.equal(active(h).length,0);
  h.click('attack');h.advance(559);assert.equal(active(h).length,0);h.advance(1);assert.equal(active(h).length,3);
  assert.ok(h.get('factor-rain').children.every(n=>n.hidden),'slow income rain is independent');
@@ -13,26 +16,26 @@ test('manual clears trigger fast dice at impact even with no party income; ordin
 });
 
 test('high-rate overflow uses a bounded reward pool, never interrupts active falls, and resets on pause/hidden/reduced motion',()=>{
- const s=E.createState(1000);s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];s.sessionId='mohicans';s.hp=10;
+ const s=combatFixture(1000);s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];s.sessionId='mohicans';s.hp=10;
  const h=harness(s),pool=[...h.get('reward-rain').children];h.advance(1900);assert.ok(active(h).length>0);
  const die=active(h)[0],impact=die.dataset.impactId;h.advance(50);assert.equal(die.dataset.impactId,impact);
  h.advance(2200);assert.ok(active(h).length<=48);assert.deepEqual(h.get('reward-rain').children,pool);
  h.click('pause');assert.equal(active(h).length,0);h.advance(1500);assert.equal(active(h).length,0);
- h.click('pause');h.advance(2200);assert.ok(active(h).length>0);h.visible(false);assert.equal(active(h).length,0);
+ h.click('pause');h.advance(3200);assert.ok(active(h).length>0);h.visible(false);assert.equal(active(h).length,0);
  h.advance(2000);h.visible(true);h.media.matches=true;h.media.change();h.advance(2200);assert.equal(active(h).length,0);
 });
 
 test('compact cards show current independent levels and absolute values and purchases still update prices and formulas',()=>{
- const s=E.createState(1000);s.paused=true;s.factors=100000;s.levels.meta=20;s.actionLevels.meta=10;s.purchasedPerks.meta=['attack-plus'];
+ const s=combatFixture(1000);s.paused=true;s.factors=100000;s.levels.meta=20;s.actionLevels.meta=10;s.purchasedPerks.meta=['attack-plus'];
  const h=harness(s),html=h.get('character-list').innerHTML;
  assert.doesNotMatch(html,/action-charge|damage-growth|selection-label|damage-breakdown|meta-growth/);
  assert.ok(html.indexOf('perk-list')<html.indexOf('current-attack'));
  assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.20）');assert.equal(h.get('damage-bonus-meta').textContent,'31.42');
- assert.equal(h.get('action-label-meta').textContent,'行動力＋5（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'100');
+ assert.equal(h.get('action-label-meta').textContent,'行動力を強化（Lv.10）');assert.equal(h.get('action-bonus-meta').textContent,'75');
  assert.match(h.get('stats-meta').textContent,/2D6 \+ 4.*×2\.9/);
  const buy=dataset=>h.get('character-list').listeners.get('click')({target:{closest:selector=>selector==='[data-hire], [data-action]'?{dataset,disabled:false}:null}});
  buy({hire:'meta'});assert.equal(h.get('hire-label-meta').textContent,'攻撃力を強化（Lv.21）');assert.equal(h.get('damage-bonus-meta').textContent,'33');
- const formula=h.get('stats-meta').textContent;buy({action:'meta'});assert.equal(h.get('action-bonus-meta').textContent,'105');assert.equal(h.get('stats-meta').textContent,formula);
+ const formula=h.get('stats-meta').textContent;buy({action:'meta'});assert.equal(h.get('action-bonus-meta').textContent,'77');assert.equal(h.get('stats-meta').textContent,formula);
  assert.equal(h.saved().levels.meta,21);assert.equal(h.saved().actionLevels.meta,11);
 });
 

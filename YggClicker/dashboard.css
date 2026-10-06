@@ -56,10 +56,6 @@
 .dashboard .upgrade-purchase .enhancement-bonus{display:flex;flex:0 0 auto;flex-direction:row;align-items:center;justify-content:space-between;max-width:none;gap:6px;font-size:13px}
 .dashboard .upgrade-purchase .enhancement-bonus small{font-size:12px}
 .dashboard .upgrade-card .button{font-size:14px;min-height:38px;white-space:normal;overflow-wrap:anywhere}
-.dashboard .boost-row{align-items:center;gap:8px;margin-top:8px;padding-top:8px;flex-wrap:wrap}
-.dashboard .boost-row>div{flex:1 1 220px}.dashboard .boost-row span{display:block;margin:3px 0 0}
-.dashboard .boost-row strong{font-size:14px}.dashboard .boost-row span,.dashboard #boost-cost-rule{font-size:12px;line-height:1.4}
-.dashboard .boost-row .button{min-height:38px;font-size:14px}
 .stats-panel .income-details{margin:14px 0}.stats-panel .log-panel{padding:12px 0 0}
 .options-panel h3{margin:16px 0 10px}.option-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer}
 .option-row strong{font-size:16px}.option-row small{display:block;color:var(--muted);font-size:13px;margin-top:6px}.option-row input{width:24px;height:24px;accent-color:var(--accent);flex-shrink:0}
@@ -122,24 +118,16 @@
 .enemy-placeholder::after{content:'画像準備中';position:absolute;bottom:0;left:0;width:100%;text-align:center;color:#a8b7b5;font-size:12px}
 
 /* Static warning bands stay visible across management tabs without intercepting input. */
-.limit-break-overlay{position:absolute;inset:0;z-index:7;pointer-events:none;overflow:hidden;border:1px solid #ec486077;box-shadow:inset 0 0 45px #b9183430}
-.limit-break-overlay::before,.limit-break-overlay::after{content:'';position:absolute;left:-2%;width:104%;height:38px;background:linear-gradient(110deg,#140c19 0 8%,#ed254b 8.2% 8.6%,#74102a 9% 24%,#160e1de6 26% 65%,#dc214855 75%,transparent 90%),repeating-linear-gradient(110deg,transparent 0 72px,#ff66751c 73px 75px,transparent 76px 108px);border-top:2px solid #ff4264;filter:drop-shadow(0 0 7px #f31f5280);clip-path:polygon(0 0,100% 0,100% 24%,84% 24%,81% 42%,42% 42%,39% 100%,13% 100%,10% 66%,0 66%)}
-.limit-break-overlay::before{top:0;animation:limit-break-enter .32s ease-out both}
-.limit-break-overlay::after{bottom:0;transform:rotate(180deg);animation:limit-break-enter-bottom .32s ease-out both}
-.boost-status{position:absolute;z-index:8;top:13px;left:18px;max-width:calc(100% - 36px);padding:6px 20px 6px 12px;border-left:3px solid #ffb7a2;clip-path:polygon(0 0,100% 0,calc(100% - 12px) 100%,0 100%);background:linear-gradient(110deg,#b90e36f5,#320e26e8);color:#fff4ec;font-size:14px;font-weight:850;font-style:italic;letter-spacing:.1em;line-height:1.5;white-space:nowrap;pointer-events:none;text-shadow:0 0 12px #ff8e7f88}
-@keyframes limit-break-enter{from{translate:-30px -28px;opacity:0}to{translate:0 0;opacity:1}}
-@keyframes limit-break-enter-bottom{from{translate:30px 28px;opacity:0}to{translate:0 0;opacity:1}}
-@media(prefers-reduced-motion:reduce){.limit-break-overlay::before,.limit-break-overlay::after{animation:none}}
 
 .option-row select{max-width:145px;min-width:112px;flex-shrink:0;border:1px solid #64827e;border-radius:5px;background:#142326;color:#e3eeeb;font:inherit;font-size:15px;padding:8px;cursor:pointer}
 .option-row select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 /* Fade each whole layer, so overlapping hits cannot build back up to opacity 1. */
+#hit-effects,#explosions{position:absolute;inset:0;pointer-events:none;z-index:6}
 .arena-viewport[data-hit-effects=translucent] #hit-effects,.arena-viewport[data-hit-effects=translucent] #explosions{opacity:.28}
 .arena-viewport[data-hit-effects=off] #hit-effects,.arena-viewport[data-hit-effects=off] #explosions,.arena-viewport[data-hit-effects=simple] #explosions{display:none}
 .hit-spark.simple-hit{width:28px;height:28px;opacity:.7}
 .hit-spark.simple-hit::before{background:none;border:2px solid #ffe9a2;clip-path:none;border-radius:50%;filter:none;box-shadow:none}
 .hit-spark.simple-hit::after{display:none}
-@media(max-width:600px){.boost-status{top:10px;left:10px;font-size:11px;padding:4px 14px 4px 8px;letter-spacing:.03em}.limit-break-overlay::before,.limit-break-overlay::after{height:28px}}
 
 .trade-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:5px 0 8px}.trade-button{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:6px 8px;min-height:34px;border:1px solid #608578;background:#263c35;color:#e0f3df;font:inherit;font-size:12px;text-align:left;cursor:pointer}.trade-button small{font-size:11px;overflow-wrap:anywhere;line-height:1.25}.trade-button:disabled{opacity:.42;cursor:default}.trade-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.sell-button{border-color:#66545a;background:#302a2c;color:#d9bfc3}.trade-controls:has(:only-child){grid-template-columns:1fr}.upgrade-card .trade-controls{grid-column:1/-1}.compact-character .trade-controls{margin-top:-2px}.compact-character:not(.owned) .trade-controls{display:none}.trade-controls[hidden]{display:none}
 
@@ -159,8 +147,57 @@
 /* Concurrent sessions share currency but keep separate targets. */
 .quest-live-status{color:var(--accent,#cceba0);font-size:14px;line-height:1.5;margin:12px 0 4px;}
 .quest-live-income{font-size:13px;color:var(--muted,#9aafab);margin:0 0 16px;}
-.is-respawning #enemy-art{visibility:hidden;}
+
 .respawn-notice{position:absolute;z-index:30;left:50%;top:14px;transform:translateX(-50%);padding:10px 18px;border:1px solid #99bac4;background:#13262eed;color:#d7edf2;font-size:16px;font-variant-numeric:tabular-nums;border-radius:6px;white-space:nowrap;pointer-events:none;}
 .formation-member small{overflow-wrap:anywhere;line-height:1.5;}
 #formation-dialog .save-actions{position:sticky;bottom:calc(-1 * var(--dialog-inset));z-index:3;background:#19262b;padding:12px 0;margin-bottom:calc(-1 * var(--dialog-inset));border-top:1px solid var(--line);}
 .formation-member:disabled{opacity:.75;}
+
+/* Dedicated combat layers keep translucency from moving FX behind sprites. */
+#damage-floats{position:absolute;inset:0;z-index:8;pointer-events:none}
+.ally-down-sprite{display:none;position:absolute;left:50%;bottom:calc(50% - var(--down-foot,var(--body-foot,75px)));transform:translate(-50%,var(--down-bottom-gap,0%));width:var(--down-width,160px);height:auto;z-index:3;pointer-events:none}
+.downed .ally-down-sprite{display:block}.downed>.meta-body,.downed>.max-float,.downed>.tordeliese-standing,.downed>.meta-orbits,.downed>.richter-orbits{visibility:hidden}
+#meta-combatant{--down-width:128px}#richter-combatant{--down-width:185px}#vishunal-combatant{--down-width:96px}#tordeliese-combatant{--down-width:170px}#max-combatant{--down-width:166px}
+.ally-health,.enemy-health{position:absolute;display:block;left:50%;transform:translateX(-50%);min-width:94px;padding:3px 5px 5px;white-space:nowrap;line-height:1.2;font:12px var(--mono);color:#f1f5ef;background:#071014c9;border-radius:3px;z-index:7;pointer-events:none}
+.ally-health{top:calc(50% + var(--down-foot,var(--body-foot,75px)) + 7px)}.enemy-health{top:calc(50% + var(--enemy-foot) + 7px)}
+.ally-health:after,.enemy-health:after{content:'';position:absolute;bottom:1px;left:2px;width:calc(var(--hp-ratio,100%) - 4px);max-width:calc(100% - 4px);height:2px;background:#a7cf91}
+.enemy-health:after{background:#e9a279}.downed .ally-health{color:#f4aaaa}.character-picker .downed{border-color:#ba6e73}
+.character-vitals{font-size:13px;color:#c6d9d3;margin:6px 0}.revive-button{display:block;margin-top:7px;font-size:13px;padding:6px 9px;width:100%;border-color:#ad6968;color:#ffc5aa}
+.ally-damage{color:#ffb4ba;font-size:24px}
+
+
+/* Attack atlases use discrete frame offsets; transform-only overrides must
+   never expose the center (between frames) of a horizontal sprite sheet. */
+.animated-enemy .enemy-sprite{background-position:0 0}
+.grounded .enemy-attacking:not(.enemy-defeat) .enemy-sprite{width:166.666667%;height:125%;position:relative;left:-33.333333%;top:-25%;transform:none;background-image:var(--enemy-attack-image);background-size:400% 100%;animation:enemy-attack-frames var(--enemy-attack-duration,.72s) steps(1,end) var(--enemy-attack-delay,0s) both!important}
+@keyframes enemy-attack-frames{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+.meta-arena .enemy-art:not(.enemy-defeat){pointer-events:auto}
+.enemy-target{position:absolute;inset:0;border:0;padding:0;background:none;cursor:crosshair;border-radius:18%;z-index:2}
+.enemy-target:focus-visible{outline:2px solid #fff1a9;outline-offset:3px}
+.focused-enemy::after{content:'';position:absolute;inset:14% 8% 8%;border:2px solid #ffd074;border-radius:20%;box-shadow:0 0 14px #ffcb5855;pointer-events:none}
+.focused-enemy .enemy-health{color:#ffe4a0;border-color:#ffd074}
+.enemy-absent .enemy-sprite{visibility:hidden}.enemy-absent .enemy-target{display:none}.enemy-absent .enemy-health{background:#101b20ba;color:#9cafba;border-color:#4d626b;white-space:nowrap}
+.focus-controls{position:absolute;left:12px;top:12px;z-index:12;font-size:13px;color:#e7f0ee;background:#0b181ecc;border:1px solid #50656b;padding:5px 9px;border-radius:5px;max-width:80%}
+.focus-controls button{font:inherit;color:#ffdb94;border:0;border-left:1px solid #607178;background:none;margin-left:8px;padding-left:8px;cursor:pointer}
+#enemy-effects{position:absolute;inset:0;z-index:7;pointer-events:none}
+.soul-drain{position:absolute;width:76px;height:105px;margin:-65px 0 0 -38px;filter:drop-shadow(0 0 7px #91ffe9);animation:soul-extract var(--soul-duration,1.2s) cubic-bezier(.5,0,.8,.3) both}
+.soul-portrait{display:block;width:100%;height:100%;background-position:left center;background-size:contain;background-repeat:no-repeat;filter:grayscale(1) brightness(2) sepia(.6) hue-rotate(100deg);opacity:.7}
+.soul-drain::after{content:'';position:absolute;left:25%;right:25%;height:45%;top:50%;background:linear-gradient(#b5ffe970,transparent);border-radius:50%;filter:blur(4px)}
+@keyframes soul-extract{0%{transform:translate(0,0) scale(1);opacity:0}18%{transform:translate(0,-25px) scale(1);opacity:.85}72%{opacity:.7}100%{transform:translate(var(--soul-x),var(--soul-y)) scale(.06);opacity:0}}
+.enemy-paused .soul-drain{animation-play-state:paused}
+.ally-hit .meta-body,.ally-hit .vishunal-body,.ally-hit .tordeliese-body,.ally-hit .max-body{filter:brightness(1.8) sepia(.6) saturate(1.5)}
+#revive-dialog{width:min(520px,calc(100vw - 32px))}#revive-cost{font-variant-numeric:tabular-nums;color:#ffdc98}.dialog-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.concentration-panel{margin-top:16px;padding:14px 12px;background:#102124;border:1px solid #425752;border-radius:8px}
+.concentration-heading{display:flex;justify-content:space-between;gap:8px;align-items:center}.concentration-heading h4{margin:0;font-size:16px}.concentration-heading strong{white-space:nowrap;color:#d0edac}
+.concentration-row{display:grid;grid-template-columns:minmax(100px,1fr) 28px minmax(56px,1fr) 20px 28px;gap:6px;align-items:center;margin-top:12px}.concentration-row label{font-weight:600}.concentration-row small{display:block;font-weight:400;color:#9eb5ae;font-size:11px;line-height:1.45}.concentration-row input{min-width:0;width:100%;accent-color:#c5e694}.concentration-row button{width:28px;height:28px;border:1px solid #60756b;border-radius:5px;background:#293d36;color:#eff5dd;cursor:pointer}.concentration-row button:disabled{opacity:.35;cursor:default}.concentration-row output{text-align:center;font-variant-numeric:tabular-nums}
+.quest-enemy-stats{margin-top:14px;color:#b6c9c1;font-size:13px}.quest-enemy-stats summary{cursor:pointer}.quest-enemy-stats p{line-height:1.8}
+
+.quest-number{display:block;color:var(--muted);font:12px var(--mono)}
+.quest-enhance-toggle{width:100%;margin:4px 0 8px}.quest-enhance-toggle[aria-expanded=true]{border-color:var(--accent)}
+.quest-enhancement{margin:8px 0 16px;padding:14px 0;border-block:1px solid var(--line)}.quest-enhancement>strong{display:block;color:var(--accent);margin-bottom:12px}
+.quest-lock{padding:10px;background:#152125;color:#c1cece;font-size:13px;border:1px dashed #526465;border-radius:5px}.quest-card.locked{background:#1b272b;border-color:#3c4b50}.quest-card.locked .concentration-panel{display:none}
+
+.quest-level-choice{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:12px 0 6px}.quest-level-choice label{display:grid;gap:4px;flex:1;min-width:110px;font-size:13px;color:var(--muted)}.quest-level-choice input{width:100%;min-width:0;color:var(--text);background:#111d22;border:1px solid #425957;border-radius:4px;padding:8px}.quest-level-choice button{font-size:13px;padding:9px}
+
+#waku-combatant{--down-width:164px}
+.enemy-health{max-width:245px;white-space:normal;font-size:10px;line-height:1.4}

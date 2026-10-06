@@ -1,3 +1,4 @@
+const combatFixture=require('./combat-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),M=require('../js/maintenance.js'),E=require('../js/engine.js'),S=require('../js/save.js'),{harness}=require('./app-harness.cjs');
 test('data deletion removes only this game and all three of its backup slots',()=>{
  const values=new Map(M.SAVE_KEYS.map(key=>[key,'progress']));values.set('another-game','safe');const storage={getItem:k=>values.get(k)??null,removeItem:k=>values.delete(k),setItem:(k,v)=>values.set(k,v)};
@@ -15,7 +16,7 @@ test('cache refresh is scoped to this directory, fetches with reload, and limits
  assert.equal(result.ok,true);assert.equal(requests,4);assert.ok(peak<=4);assert.equal((await M.refresh(urls,async()=>({ok:false}))).ok,false);
 });
 test('delete UI defaults to cancel, cancellation preserves save, and confirmation cannot resurrect old backups',()=>{
- const s=E.createState(1000);s.paused=true;s.factors=1234;s.levels.meta=5;const h=harness(s);h.click('option-delete');assert.equal(h.document.activeElement.id,'delete-cancel');h.click('delete-cancel');assert.deepEqual(h.saved(),s);
+ const s=combatFixture(1000);s.paused=true;s.factors=1234;s.levels.meta=5;const h=harness(s);h.click('option-delete');assert.equal(h.document.activeElement.id,'delete-cancel');h.click('delete-cancel');assert.deepEqual(h.saved(),s);
  const imported={...s,factors:6789};h.get('save-text').value=S.encode(imported);h.click('preview-import');h.click('confirm-import');
  h.click('option-delete');h.click('delete-confirm');assert.equal(h.get('factors').textContent,'0');assert.equal(h.get('save-text').value,'');h.advance(10001);const clean=h.saved();assert.equal(clean.factors,0);assert.equal(clean.levels.meta,0);h.click('restore-import');assert.match(h.get('save-message').textContent,/まだありません/);
 });

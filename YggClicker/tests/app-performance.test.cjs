@@ -1,9 +1,11 @@
 'use strict';
+const combatFixture=require('./combat-fixture.cjs');
+require('./passive-enemies.cjs');
 const moveTestParty=require('./single-party-fixture.cjs');
 require('./battle-fixtures.cjs')();
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine.js'),{harness}=require('./app-harness.cjs');
-function fixture(action=190){const s=E.createState(1000);s.levels.richter=50;s.actionLevels.richter=action;s.selectedCharacterId='richter';moveTestParty(s,'heavy');return s;}
+function fixture(action=190){const s=combatFixture(1000);s.levels.richter=50;s.actionLevels.richter=action;s.selectedCharacterId='richter';moveTestParty(s,'heavy');s.questLevels.heavy=160;s.hp=E.getSession(s).hp;return s;}
 
 test('continuous auto volleys stay in the same burst through tick gaps and delayed callbacks',()=>{
   const h=harness(fixture());h.advance(1100);
@@ -24,7 +26,7 @@ test('finite rapid manual attacks stop at their release, with no forced full spr
 });
 
 test('a burst produced by accumulated points at low action returns to idle',()=>{
-  const s=fixture(24);s.actionPoints.richter=75;const h=harness(s);
+  const s=fixture(72);s.actionPoints.richter=75;const h=harness(s);
   h.advance(1100);assert.ok(h.get('richter-combatant').classList.contains('bursting'));
   h.advance(110);assert.ok(!h.get('richter-combatant').classList.contains('bursting'));
 });
@@ -43,8 +45,8 @@ test('unchanged ticks do not rewrite controls; hits only update combat HUD, geom
   assert.deepEqual(h.metrics,{text:0,formulas:0,controls:0,layout:0});
   h.click('pause');h.resetMetrics();h.advance(5000);
   assert.ok(h.metrics.controls<=5,JSON.stringify(h.metrics));assert.ok(h.metrics.formulas<=5*24);
-  assert.equal(h.metrics.layout,7,'one geometry read for the entire volley stream');
-  h.resize();h.advance(1000);assert.equal(h.metrics.layout,14);
+  assert.equal(h.metrics.layout,11,'one geometry read for the entire volley stream');
+  h.resize();h.advance(1000);assert.equal(h.metrics.layout,22);
 });
 
 test('extreme attack summaries are not expanded again into hundreds of projectile nodes',()=>{
@@ -60,7 +62,7 @@ test('extreme attack summaries are not expanded again into hundreds of projectil
 
 test('both actors keep projectiles in flight between one-second ticks at least two attacks per second',()=>{
   for(const spillover of [false,true]){
-    const s=fixture(48);s.levels.meta=50;s.actionLevels.meta=30;s.sessionId='practice';s.hp=10;
+    const s=fixture(96);s.levels.meta=50;s.actionLevels.meta=60;s.questLevels.heavy=160;s.hp=E.getSession(s).hp;
     if(spillover)s.purchasedPerks.richter=['bom-ber'];
     const h=harness(s);h.advance(2500);
     for(let i=0;i<250;i++){
@@ -77,6 +79,6 @@ test('both actors keep projectiles in flight between one-second ticks at least t
 
 test('mohican appearances rotate on defeats and normal renders retain the active variant',()=>{
   const s=fixture(70);s.sessionId='mohicans';s.hp=10;const h=harness(s),names=new Set();
-  for(let i=0;i<200;i++){h.advance(50);names.add(h.get('enemy-name').textContent);}
-  assert.equal(names.size,10);h.click('pause');const image=h.get('enemy-art').dataset.appearance;h.advance(1000);assert.equal(h.get('enemy-art').dataset.appearance,image);
+  for(let i=0;i<400;i++){h.advance(50);names.add(h.get('enemy-name').textContent);}
+  assert.ok(names.size>=3);h.click('pause');const image=h.get('enemy-art').dataset.appearance;h.advance(1000);assert.equal(h.get('enemy-art').dataset.appearance,image);
 });

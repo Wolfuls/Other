@@ -9,7 +9,8 @@
 .meta-combatant{position:absolute;left:24%;top:47%;width:210px;height:218px;transform:translate(-50%,-50%);z-index:2;--character-accent:#ee929e}
 .meta-ground{position:absolute;bottom:28px;left:calc(50% - 43px);width:86px;height:13px;border:1px solid #bc667b55;background:radial-gradient(ellipse,#ad546c40,transparent 75%);border-radius:50%}
 .meta-body{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform-origin:50% 85%;z-index:3;pointer-events:none;animation:meta-breathe 2s steps(4,end) infinite}
-.meta-standing{display:block;flex-shrink:0;width:128px;height:160px;background-image:var(--meta-normal-sheet);background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;filter:drop-shadow(0 3px 0 #090d1499)}
+.meta-combatant .meta-body{animation:none}
+.meta-standing{display:block;flex-shrink:0;width:160px;height:160px;background-image:var(--meta-normal-sheet);background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;filter:drop-shadow(0 3px 0 #090d1499)}
 .meta-orbits{position:absolute;width:210px;height:210px;left:0;top:0;z-index:2;pointer-events:none}
 .saw-ring{position:absolute;inset:0;animation:saw-orbit 10s linear infinite}
 .saw-slot{position:absolute;width:28px;height:28px;margin:-14px 0 0 -14px}
@@ -19,10 +20,10 @@
 .meta-combatant.unhired .meta-ground{opacity:.4}
 .meta-combatant.unhired *,.meta-combatant.is-paused *{animation-play-state:paused!important}
 .meta-combatant.attacking .meta-standing{animation:meta-attack-frames .62s steps(1,end) both}
-.meta-combatant.attacking .meta-body{animation:meta-lunge .62s steps(5,end) both}
+.meta-combatant.attacking .meta-body{animation:none}
 .meta-combatant.attacking .meta-ground{background:#bc667b44}
-.meta-combatant.bursting .meta-standing{width:224px;height:224px;background-image:var(--meta-burst-sheet);background-size:300% 100%;animation:meta-burst-frames .18s steps(1,end) infinite}
-.meta-combatant.bursting .meta-body{animation:meta-burst-rock .18s steps(1,end) infinite}
+.meta-combatant.bursting .meta-standing{width:224px;height:224px;background-image:var(--meta-burst-sheet);background-size:400% 100%;animation:meta-burst-frames .32s steps(1,end) infinite}
+.meta-combatant.bursting .meta-body{animation:none}
 .meta-combatant.bursting .meta-ground{background:#bc667b44}
 .saw-projectile{position:absolute;width:32px;height:32px;left:24%;top:40%;z-index:5;animation:saw-flight var(--flight-duration,560ms) var(--launch-delay,0ms) cubic-bezier(.25,.5,.5,1) both;pointer-events:none}
 .saw-projectile .meta-saw{animation-duration:.28s;filter:drop-shadow(-6px 0 3px #ed91a655)}
@@ -33,7 +34,7 @@
 .character-identity strong{display:block;font-size:15px;font-weight:650;line-height:1.45}
 .character-identity small{display:block;color:var(--muted);font-size:12px;margin-top:3px}
 .selection-label{display:block;color:var(--teal);font-size:11px;margin-top:4px}
-.character-card.manual-selected,#card-meta.manual-selected{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}
+.character-card.manual-selected{border-color:var(--accent);box-shadow:inset 3px 0 var(--accent)}
 .manual-selected .selection-label{color:var(--accent)}
 .character-card.owned .character-select:not(:disabled):hover .character-identity strong{color:var(--accent)}
 .meta-select{position:absolute;inset:20px 38px 23px;z-index:4;border:0;border-radius:14px;background:transparent}
@@ -58,9 +59,9 @@
 .avatar.sprite-avatar:after{display:none}
 .meta-growth{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin:-2px 0 11px}
 .meta-growth span:first-child{font:13px var(--mono);color:#efa8b2}
-#card-meta{background:linear-gradient(125deg,#2c292f,#1b282d 70%)}
-#card-meta.owned{border-color:#9a6675}
-#card-meta.owned .hire-button{background:#422e37;border-color:#73515e;color:#f0c8cf}
+
+
+
 @keyframes saw-orbit{to{transform:rotate(360deg)}}
 @keyframes saw-spin{to{transform:rotate(360deg)}}
 .character-controls{display:grid;gap:6px}
@@ -75,16 +76,15 @@
 .action-note{display:flex;justify-content:space-between;gap:5px;font-size:12px;color:var(--muted);margin:8px 0 0}
 .action-note span:first-child{font-family:var(--mono);color:var(--teal)}
 .character-card:not(.owned) .action-button,.character-card:not(.owned) .action-note{display:none}
-#card-meta.owned .action-button{background:#1c3436;border-color:#49696b;color:#a2d8cf}
+
 @keyframes meta-attack-frames{0%{background-position:66.666667% 0}32%{background-position:100% 0}90%,100%{background-position:0 0}}
-@keyframes meta-burst-frames{0%,100%{background-position:0 0}33.333333%{background-position:50% 0}66.666667%{background-position:100% 0}}
-@keyframes meta-burst-rock{0%,100%{transform:translate(2px,0)}33.333333%{transform:translate(6px,-2px)}66.666667%{transform:translate(0,0)}}
+@keyframes meta-burst-frames{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
 @keyframes meta-breathe{50%{transform:translateY(-2px)}}
 @keyframes meta-lunge{0%,100%{transform:translateX(0)}28%{transform:translateX(-4px)}45%,72%{transform:translateX(9px)}}
 @keyframes enemy-float{50%{transform:translate(-50%,calc(-50% - 7px))}}
 @keyframes saw-flight{0%{transform:translate(0,var(--lane,0px)) scale(.7);opacity:0}1%{opacity:1}85%{opacity:1}100%{transform:translate(var(--travel),calc(var(--lane,0px) * .3 + var(--rise,8px))) scale(1.05);opacity:1}}
 @media(max-width:1120px){.meta-combatant{width:180px;height:208px;left:27%}.meta-orbits{width:180px;height:180px;top:12px}.meta-arena .enemy-art{max-width:177px}.meta-arena .ring-outer{width:132px;height:132px}.meta-arena .ring-inner{width:102px;height:102px}.meta-arena .ring-inner:before,.meta-arena .ring-inner:after{top:49px}.meta-growth{font-size:11px}.saw-projectile{left:27%}.saw-slot{width:24px;height:24px;margin:-12px 0 0 -12px}.meta-orbits.dense .saw-slot{width:16px;height:16px;margin:-8px 0 0 -8px}}
 @media(max-width:900px){.meta-growth{flex-wrap:wrap;gap:3px}.meta-growth span:last-child{font-size:11px}}
-@media(max-width:600px){.meta-arena{height:261px}.meta-combatant{width:166px;height:202px;left:29%}.meta-orbits{width:166px;height:176px;top:6px}.meta-standing{width:120px;height:150px}.meta-growth{flex-wrap:nowrap;font-size:13px}.meta-growth span:last-child{font-size:12px}.meta-arena .enemy-art{width:45%;height:154px;left:78%}.meta-arena .target-ring,.meta-arena .damage-float{left:78%}.saw-projectile{width:27px;height:27px;left:29%}.meta-orbits.dense .saw-slot{width:14px;height:14px;margin:-7px 0 0 -7px}}
+@media(max-width:600px){.meta-arena{height:261px}.meta-combatant{width:166px;height:202px;left:29%}.meta-orbits{width:166px;height:176px;top:6px}.meta-standing{width:150px;height:150px}.meta-growth{flex-wrap:nowrap;font-size:13px}.meta-growth span:last-child{font-size:12px}.meta-arena .enemy-art{width:45%;height:154px;left:78%}.meta-arena .target-ring,.meta-arena .damage-float{left:78%}.saw-projectile{width:27px;height:27px;left:29%}.meta-orbits.dense .saw-slot{width:14px;height:14px;margin:-7px 0 0 -7px}}
 @media(max-width:600px){.enemy-down-label{left:78%}.character-select{gap:8px}.character-identity strong{font-size:14px}.meta-combatant.bursting .meta-standing{width:210px;height:210px}}
 @media(prefers-reduced-motion:reduce){.meta-arena *{animation:none!important;transition:none!important}.meta-standing{background-position:0 0!important}.saw-projectile{display:none}.meta-combatant.attacking .meta-body{transform:none}}

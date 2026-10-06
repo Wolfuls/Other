@@ -1,0 +1,23 @@
+/* Four-frame pistol fire and two-handed wooden-sword slashes. */
+.waku-combatant{position:absolute;width:224px;height:224px;transform:translate(-50%,-50%);z-index:2;--character-accent:#83c7e1}
+.waku-standing{display:block;flex-shrink:0;width:224px;height:224px;background:var(--waku-sheet) 0 0/400% 100% no-repeat}
+.waku-combatant .meta-body{animation:none}
+.waku-combatant .meta-ground{top:calc(50% + var(--body-foot,72px) - 5px);bottom:auto;background:radial-gradient(ellipse,#071311bb,transparent 75%)}
+.waku-combatant.attacking .waku-standing{animation:waku-fire .56s steps(1,end) both}
+.waku-combatant.attacking .meta-body{animation:none}
+.waku-combatant.bursting .waku-standing{width:352px;height:256px;background-image:var(--waku-burst-sheet);animation:waku-combo .4s steps(1,end) infinite}
+.waku-combatant.bursting .meta-body{animation:none}
+.waku-combatant.is-paused *{animation-play-state:paused!important}
+.waku-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #bade9055}
+#waku-projectiles{position:absolute;inset:0;pointer-events:none;z-index:6}
+.arena-viewport[data-hit-effects=translucent] #waku-projectiles{opacity:.28}
+.arena-viewport[data-hit-effects=off] .waku-slash,.arena-viewport[data-hit-effects=simple] .waku-slash{display:none}
+.waku-bullet{position:absolute;width:12px;height:4px;background:#fff8bf;border:1px solid #a9dafa;box-shadow:-8px 0 #fff1a866;z-index:5;pointer-events:none;animation:waku-shot 560ms var(--launch-delay,0ms) linear both}
+.waku-slash{position:absolute;width:54px;height:116px;border-right:8px solid #ffe39e;border-radius:50%;box-shadow:5px 0 #d5904277;z-index:5;pointer-events:none;animation:waku-slash .18s var(--launch-delay,0ms) steps(3,end) both}
+.waku-muzzle{position:absolute;width:20px;height:20px;z-index:5;pointer-events:none;background:#fff3b3;clip-path:polygon(0 40%,40% 30%,50% 0,62% 33%,100% 15%,75% 50%,100% 85%,60% 70%,45% 100%,36% 65%,0 60%);animation:waku-flash .12s var(--launch-delay,0ms) steps(1,end) both}
+@keyframes waku-slash{0%{transform:translate(-50%,-50%) rotate(var(--slash-angle)) scale(.65);opacity:0}20%{opacity:1}100%{transform:translate(-50%,-50%) rotate(var(--slash-angle)) scale(1.2);opacity:0}}
+@keyframes waku-flash{0%{transform:translate(-20%,-50%);opacity:0}10%,70%{opacity:1}100%{opacity:0}}
+@keyframes waku-fire{0%{background-position:0 0}25%{background-position:33.333333% 0}45%{background-position:66.666667% 0}75%{background-position:100% 0}100%{background-position:0 0}}
+@keyframes waku-combo{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@keyframes waku-shot{0%{transform:translate(0,0);opacity:0}1%,95%{opacity:1}100%{transform:translate(var(--travel),var(--rise));opacity:0}}
+@media(prefers-reduced-motion:reduce){.waku-combatant *{animation:none!important}.waku-bullet,.waku-slash,.waku-muzzle{display:none}}
