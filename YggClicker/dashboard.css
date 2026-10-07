@@ -201,3 +201,27 @@
 
 #waku-combatant{--down-width:164px}
 .enemy-health{max-width:245px;white-space:normal;font-size:10px;line-height:1.4}
+
+/* Compact ability dialog, based on the supplied v053 layout. */
+
+.ability-open{width:100%;margin:12px 0}
+.ability-dialog{width:min(1040px,calc(100vw - 24px));max-height:94dvh;padding:0;background:#111c25;color:#edf4fa;border:1px solid #688296;border-radius:14px;box-shadow:0 24px 90px #000b}
+.ability-dialog::backdrop{background:#040910bb;backdrop-filter:blur(3px)}
+.ability-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px 24px;background:linear-gradient(115deg,#263d4d,#172631);border-bottom:1px solid #526b7d}
+.ability-head h2{font-size:23px;margin:0;letter-spacing:.04em}.ability-head p{display:inline-block;font-size:13px;font-weight:700;color:#bde8cf;margin:9px 0 0}
+.ability-head .button{min-width:42px;border-radius:8px}
+.ability-rows{padding:16px;display:grid;gap:9px;overflow:auto;max-height:calc(94dvh - 112px)}
+.ability-row{--row-accent:#aebfe3;display:grid;grid-template-columns:105px minmax(160px,1fr) 380px;gap:16px;align-items:center;padding:14px 16px;border:1px solid #415563;border-left:4px solid var(--row-accent);border-radius:9px;background:linear-gradient(105deg,#21323e,#192732)}
+.ability-power{--row-accent:#f3ae96}.ability-action{--row-accent:#8acde7}.ability-vitality{--row-accent:#9bdbad}.ability-armor{--row-accent:#e8cf8b}
+.ability-label{display:grid;gap:6px}.ability-label strong{font-size:15px;color:var(--row-accent)}.ability-label small{font:bold 12px ui-monospace,monospace;color:#e5edf3}
+.ability-main strong{display:block;font:600 15px/1.45 ui-monospace,monospace;color:#fff;overflow-wrap:anywhere}.ability-main small{display:block;color:#c4b8ef;font-size:12px;margin-top:4px}.ability-main small:empty{display:none}
+.ability-actions{display:grid;grid-template-columns:1fr 3fr;gap:7px}.ability-actions .trade-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:0}
+.ability-actions .button,.ability-actions .trade-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:54px;padding:8px 4px;border:1px solid #739cb0;border-radius:7px;background:#254856;color:#e5f7ff;font:bold 15px/1.2 ui-monospace,monospace;text-align:center;box-shadow:inset 0 1px #ffffff12}
+.ability-actions .button small,.ability-actions .trade-button small{display:block;font:500 11px/1.25 ui-monospace,monospace;overflow-wrap:anywhere;color:#d2e6ee}
+.ability-actions .sell-button{border-color:#998271;background:#493e36;color:#f9e6cd}.ability-actions .sell-button small{color:#ebd7c2}
+.ability-actions button:hover:not(:disabled){filter:brightness(1.22);border-color:#d8edfa}.ability-actions button:disabled{opacity:.38;box-shadow:none}
+.compact-character.obscured .ability-open{visibility:visible}
+@media(max-width:900px){.ability-row{grid-template-columns:110px minmax(0,1fr);gap:7px 14px;padding:10px 13px}.ability-label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ability-label strong{font-size:13px}.ability-actions{grid-column:1/-1}.ability-actions .button,.ability-actions .trade-button{min-height:44px;padding:5px}.ability-main strong{font-size:13px}.ability-head{padding:15px 20px}.ability-rows{padding:12px;gap:7px}}
+@media(max-width:420px){.ability-row{grid-template-columns:95px minmax(0,1fr)}.ability-rows{padding:8px}.ability-actions{gap:4px}.ability-actions .trade-controls{gap:4px}.ability-actions .button small,.ability-actions .trade-button small{font-size:10px}}
+
+.ability-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-top:1px solid #526b7d;background:#172631}.ability-footer>span{font-size:12px;color:#e8d3a8}.ability-footer>div{display:flex;gap:8px}.ability-footer button{min-width:72px}.ability-rows{max-height:calc(94dvh - 186px)}

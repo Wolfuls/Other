@@ -1,0 +1,40 @@
+.quest-card{padding:12px!important;margin-bottom:10px!important}.quest-title h3{font-size:14px;line-height:1.45;margin:0 0 8px}.quest-actions{display:flex;flex-wrap:wrap;gap:6px}.quest-actions .button{width:auto!important;flex:1 1 auto;margin:0!important;min-height:32px;padding:6px 9px;font-size:12px}.quest-progress{display:flex;flex-wrap:wrap;gap:3px 14px;margin:7px 0}.quest-progress p{margin:0;font-size:11px;line-height:1.5}.quest-enemy-stats{margin:5px 0 0!important}.quest-enemy-stats summary{font-size:11px}.quest-enhancement{margin-top:10px}.quest-card .quest-lock{margin:5px 0}.quest-card.locked .quest-progress{display:none}#formation-concentration .concentration-panel{margin:12px 0;padding:12px;border:1px solid #536665;border-radius:8px}#formation-dialog{max-height:90dvh;overflow:auto}#formation-concentration .concentration-row{grid-template-columns:minmax(100px,1fr) 28px minmax(50px,1fr) 24px 28px}#formation-concentration .concentration-row small{font-size:10px}@media(min-width:900px){.quest-actions .button{flex:0 1 auto}.quest-progress{justify-content:space-between}}
+.quest-actions .enemy-info-toggle{border-color:#77856b;color:#d5eac1;background:#2b3830}
+.quest-actions .enemy-info-toggle[aria-expanded=true]{background:#c3dca4;color:#15251d;border-color:#d2eab6}
+.enemy-info-panel{margin-top:12px;padding:14px;border:1px solid #6a8176;border-radius:9px;background:linear-gradient(125deg,#253832,#17292c);box-shadow:inset 3px 0 #c3dca4}
+.enemy-info-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+.enemy-info-heading small{color:#b2cba3;font:10px var(--mono);letter-spacing:1.5px}
+.enemy-info-heading h4{margin:2px 0;font-size:18px;color:#f1f5e8;line-height:1.35}
+.enemy-info-heading>span{border:1px solid #8ca290;border-radius:4px;padding:3px 7px;color:#d7e6c5;font-size:10px;white-space:nowrap}
+.enemy-stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0}
+.enemy-stat-grid>div{padding:6px 9px;background:#091b2370;border:1px solid #6c8f792b;border-radius:4px}
+.enemy-stat-grid dt{color:#a9bfb9;font-size:10px}.enemy-stat-grid dd{margin:1px 0 0;color:#f1eac9;font:600 17px var(--mono)}
+.enemy-info-panel h5{font-size:13px;margin:15px 0 7px;display:flex;gap:10px;align-items:baseline}
+.enemy-info-panel h5 small{font-weight:400;font-size:10px;color:#9eb7ad}
+.matchup-scroll{overflow-x:auto}.matchup-table{width:100%;border-collapse:collapse;font-size:11px;line-height:1.4;min-width:370px}
+.matchup-table th,.matchup-table td{padding:9px 5px;border-bottom:1px solid #6f93823d;text-align:right;font-variant-numeric:tabular-nums}
+.matchup-table thead th{font-size:10px;font-weight:500;color:#afc9bd;background:#10212690;white-space:nowrap}
+.matchup-table thead small{display:block;font-size:9px;color:#839d92}.matchup-table th:first-child{text-align:left}
+.matchup-table tbody th{max-width:145px;font-size:11px;color:#e6eee6;font-weight:500}.matchup-table tbody tr:nth-child(even){background:#8fa59009}
+.matchup-table td{white-space:nowrap}.matchup-hit{color:#9bdbc8}.matchup-endurance{color:#e7d193}
+.matchup-note{font-size:10px;line-height:1.6;color:#9eb4ac;margin:9px 0 0}
+#formation-dialog{width:min(900px,calc(100vw - 28px));max-width:900px}
+#formation-dialog .enemy-info-panel{margin:12px 0}.quest-enhancement{padding:10px!important;background:#11232866;border:1px solid #426050;border-radius:6px}
+.quest-enhancement>strong{font-size:12px}.quest-level-choice{display:flex;align-items:center;gap:8px;margin:7px 0!important}
+.quest-level-choice label{display:flex;align-items:center;gap:8px;font-size:12px}.quest-level-choice input{width:72px;padding:4px!important}
+.quest-level-choice .button{font-size:11px;min-height:30px;padding:4px 9px}.quest-enhancement .quest-note{font-size:10px;margin:4px 0}
+.quest-enhancement .quest-columns{margin:7px 0 4px;padding:0;font-size:10px}
+.quest-enhancement .quest-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px 10px;margin:0!important}
+.quest-enhancement .quest-values>div{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 0!important;margin:0;border-bottom:1px solid #678a7330}
+.quest-enhancement .quest-values dt{font-size:10px}.quest-enhancement .quest-values dd{font:12px var(--mono);margin:0;white-space:nowrap}
+.quest-enhancement .quest-buy{display:flex;justify-content:space-between;width:100%;margin:10px 0 5px;padding:6px 10px;min-height:32px;font-size:12px}
+.quest-enhancement .trade-controls{margin:4px 0!important}.quest-enhancement .trade-controls button{padding:5px 8px;font-size:11px}
+@media(max-width:520px){.enemy-info-panel{padding:10px}.enemy-info-heading h4{font-size:16px}.enemy-stat-grid dd{font-size:14px}.quest-enhancement .quest-values{grid-template-columns:1fr}.matchup-table tbody th{max-width:95px}}
+.formation-layout{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:16px}.formation-editor,.formation-analysis{min-width:0}
+#formation-dialog{width:min(1120px,calc(100vw - 28px));max-width:1120px}
+#formation-dialog .formation-members{margin:8px 0;gap:6px}#formation-dialog .formation-member{min-height:55px;padding:8px;gap:3px;font-size:12px;line-height:1.3}#formation-dialog .formation-member small{font-size:10px}
+#formation-dialog .formation-heading{margin:10px 0 4px}#formation-dialog .formation-heading strong{font-size:19px}#formation-dialog .formation-heading span{font-size:11px}
+#formation-dialog .formation-editor>.option-note{font-size:11px;margin:5px 0}#formation-dialog .formation-preview{font-size:11px;margin:7px 0}
+#formation-concentration .concentration-panel{padding:9px;margin:10px 0}#formation-concentration .concentration-row{padding:5px 0;gap:5px;grid-template-columns:minmax(105px,1fr) 23px minmax(35px,.7fr) 18px 23px}
+#formation-concentration .concentration-row button{width:23px;height:25px;min-height:0;padding:0}#formation-concentration .concentration-row label{font-size:12px}#formation-concentration .concentration-panel .quest-note{font-size:10px;margin:4px 0}
+@media(max-width:800px){.formation-layout{grid-template-columns:1fr}#formation-dialog .formation-member{min-height:50px}#formation-dialog{width:calc(100vw - 20px)}#formation-dialog .dialog-header h2{font-size:16px}}

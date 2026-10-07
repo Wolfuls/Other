@@ -323,3 +323,34 @@
 @keyframes enemy-collapse-in-place{0%,82%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(-50%,-50%);opacity:0}}
 .enemy-art[data-defeat-style=dissolve]:not(.enemy-defeat) .enemy-sprite{animation-duration:1.6s}
 .perk s{text-decoration-line:line-through;text-decoration-thickness:2px}
+
+/* Cloud encounters retain one sprite coordinate system through idle/attack. */
+.cloud-battle .enemy-art:not(.enemy-defeat) .enemy-sprite{transform:none;animation-duration:1.6s}
+.cloud-battle.grounded .enemy-attacking:not(.enemy-defeat) .enemy-sprite{width:100%;height:100%;left:0;top:0}
+.cloud-battle.grounded .enemy-absorbing:not(.enemy-defeat) .enemy-sprite{background-image:var(--enemy-absorb-image)}
+.cloud-battle #enemy-art{top:calc(var(--enemy-y) - 65px)}
+.cloud-battle #enemy-next-1{top:calc(var(--enemy-y) - 125px);left:calc(var(--enemy-x) + 160px)}
+.cloud-battle #enemy-next-2{top:calc(var(--enemy-y) + 50px);left:calc(var(--enemy-x) + 150px)}
+.cloud-battle .enemy-art::before{display:none}
+.cloud-minion .enemy-health{top:70%}.cloud-minion .enemy-target{inset:20%}
+.cloud-heal{color:#a6f0ce}
+.ozmorn-lightning,.kogumo-flash{position:absolute;pointer-events:none;z-index:8;image-rendering:pixelated}
+.ozmorn-lightning{width:88px;height:270px;margin:-245px 0 0 -44px;background:#fff4ac;filter:drop-shadow(0 0 9px #eacb46);clip-path:polygon(56% 0,90% 0,53% 36%,84% 36%,42% 75%,57% 75%,13% 100%,31% 64%,12% 64%,45% 26%,20% 26%);animation:cloud-bolt .42s steps(1,end) both}
+.kogumo-flash{width:112px;height:112px;margin:-56px;background:#ffee83;clip-path:polygon(48% 0,60% 35%,95% 16%,71% 46%,100% 55%,69% 66%,83% 100%,54% 76%,38% 100%,34% 69%,0 81%,22% 51%,0 35%,34% 33%);animation:cloud-bolt .4s steps(1,end) both}
+@keyframes cloud-bolt{0%,40%{opacity:1}20%,65%{opacity:.15}85%,100%{opacity:0}}
+.cloud-suction-mote{position:absolute;width:100px;height:100px;margin:-50px;background:url('./img/enemy-kogumo-idle-v1.png') 0 0/400% 100%;animation:cloud-suck 1.1s ease-in both;pointer-events:none}
+@keyframes cloud-suck{0%{transform:translate(0,0) scale(1);opacity:0}15%{opacity:1}100%{transform:translate(var(--suck-x),var(--suck-y)) scale(.12);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ozmorn-lightning,.kogumo-flash,.cloud-suction{display:none}}
+.clouds-sucking .cloud-minion .enemy-sprite{visibility:hidden}
+.arena-viewport.four-phase .scene-phase{top:auto;bottom:8px;left:auto;right:8px}
+
+/* Cloud atlases are square and share stable world-space centers. */
+.meta-arena.cloud-battle #enemy-art,.meta-arena.cloud-battle .cloud-boss.enemy-defeat.has-defeat-sheet{width:var(--enemy-width);height:var(--enemy-width)}
+.meta-arena.cloud-battle #enemy-art{top:calc(var(--enemy-y) - 55px)}
+.meta-arena.cloud-battle #enemy-next-1,.meta-arena.cloud-battle #enemy-next-2{width:calc(var(--enemy-width) * .42);height:calc(var(--enemy-width) * .42)}
+.meta-arena.cloud-battle #enemy-next-1{left:calc(var(--enemy-x) + 185px);top:calc(var(--enemy-y) - 120px)}
+.meta-arena.cloud-battle #enemy-next-2{left:calc(var(--enemy-x) + 180px);top:calc(var(--enemy-y) + 55px)}
+.meta-arena.cloud-battle .cloud-minion.cloud-emerging{animation:cloud-emerge .36s ease-out both}
+@keyframes cloud-emerge{from{transform:translate(calc(-50% + var(--birth-x)),calc(-50% + var(--birth-y))) scale(.25);opacity:0}30%{opacity:1}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.scene-phase{display:none!important}
+@media(prefers-reduced-motion:reduce){.meta-arena.cloud-battle .cloud-minion.cloud-emerging{animation:none}}

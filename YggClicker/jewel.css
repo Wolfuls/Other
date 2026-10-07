@@ -1,0 +1,14 @@
+.jewel-combatant{position:absolute;width:224px;height:224px;transform:translate(-50%,-50%);z-index:3;--character-accent:#df91d8}
+.jewel-standing{display:block;position:absolute;left:-84px;top:-37.333333px;width:392px;height:261.333333px;background:var(--jewel-sheet) 0 0/400% 400% no-repeat;animation:jewel-idle 1.8s steps(1,end) infinite}
+.jewel-combatant .meta-body{animation:none}
+.jewel-combatant .meta-ground{top:calc(50% + var(--body-foot,101.5px) - 5px);bottom:auto;background:#d387c122;border-color:#d387c144}
+.jewel-combatant .meta-select{width:116px;height:184px;top:28px;left:54px}
+.jewel-combatant.attacking .jewel-standing{animation:jewel-punch .56s steps(1,end) both}
+.jewel-combatant.bursting .jewel-standing{animation:jewel-barrage .8s steps(1,end) infinite}
+.jewel-combatant.is-paused *{animation-play-state:paused!important}
+.jewel-combatant.downed .meta-body{visibility:hidden}
+.jewel-combatant.rainbow-active .meta-ground{border-color:#edbcf4;box-shadow:0 0 12px #dd92ef66}
+@keyframes jewel-idle{0%,100%{background-position:0 0}30%{background-position:33.333333% 0}45%{background-position:66.666667% 0}52%{background-position:100% 0}}
+@keyframes jewel-punch{0%{background-position:0 33.333333%}22%{background-position:33.333333% 33.333333%}46%{background-position:66.666667% 33.333333%}76%,100%{background-position:100% 33.333333%}}
+@keyframes jewel-barrage{0%{background-position:0 66.666667%}12.5%{background-position:33.333333% 66.666667%}25%{background-position:66.666667% 66.666667%}37.5%{background-position:100% 66.666667%}50%{background-position:0 100%}62.5%{background-position:33.333333% 100%}75%{background-position:66.666667% 100%}87.5%,100%{background-position:100% 100%}}
+@media(prefers-reduced-motion:reduce){.jewel-combatant *{animation:none!important}}

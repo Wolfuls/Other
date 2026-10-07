@@ -1,14 +1,19 @@
 .max-combatant{position:absolute;width:var(--max-size,180px);height:var(--max-size,180px);transform:translate(-50%,-50%);z-index:3}
 .max-float{position:absolute;inset:0;animation:max-hover 3.4s ease-in-out infinite}
 @keyframes max-hover{0%,100%{transform:translateY(-5px)}50%{transform:translateY(5px)}}
-.max-standing{display:block;width:100%;height:100%;background:url('./img/gamer-throne-standing-v6.png') 0 0/100% 100% no-repeat}
-.max-combatant.attacking .max-standing{background-image:url('./img/gamer-throne-attack-v6.png');background-size:800% 100%;animation:max-throw 1.18s steps(1,end) both}
-.max-combatant.bursting .max-standing{background-image:url('./img/gamer-throne-burst-v5.png');background-size:1600% 100%;animation:max-chess .96s steps(16,end) infinite}
+.max-standing{position:relative;display:block;width:100%;height:100%;background:url('./img/gamer-throne-standing-v7.png') 0 0/100% 100% no-repeat}
+.max-combatant.attacking .max-standing{background-image:url('./img/gamer-throne-attack-v7.png');background-size:800% 100%;animation:max-throw 1.18s steps(1,end) both}
+.max-combatant.bursting .max-standing{background:none;animation:none}
+/* Freeze the throne, head and legs; only the arm and board window advances. */
+.max-combatant.bursting .max-standing::before,.max-combatant.bursting .max-standing::after{content:'';position:absolute;inset:0;background:url('./img/gamer-throne-burst-v7.png') 0 0/800% 100% no-repeat}
+.max-combatant.bursting .max-standing::before{clip-path:polygon(0 0,100% 0,100% 32%,68.75% 32%,68.75% 40.63%,64.45% 44.92%,55.86% 44.92%,55.86% 53.52%,66.4% 56.6%,68.75% 64%,100% 64%,100% 100%,0 100%)}
+.max-combatant.bursting .max-standing::after{clip-path:polygon(68.75% 32%,100% 32%,100% 64%,68.75% 64%,66.4% 56.6%,55.86% 53.52%,55.86% 44.92%,64.45% 44.92%,68.75% 40.63%);animation:max-chess .64s steps(8,end) infinite}
+.max-combatant.is-paused .max-standing::after{animation-play-state:paused!important}
 @keyframes max-throw{0%{background-position:0 0}25.42%{background-position:14.285714% 0}33.05%{background-position:28.571429% 0}42.37%{background-position:42.857143% 0}50%{background-position:57.142857% 0}56.78%{background-position:71.428571% 0}65.25%{background-position:85.714286% 0}74.58%,100%{background-position:100% 0}}
-@keyframes max-chess{from{background-position:0 0}to{background-position:106.666667% 0}}
+@keyframes max-chess{from{background-position:0 0}to{background-position:114.285714% 0}}
 .max-combatant.is-paused *{animation-play-state:paused!important}.max-combatant .meta-select{inset:12% 10% 4%}.max-combatant .meta-ground{top:calc(50% + var(--body-foot) - 5px);bottom:auto}.max-combatant.manual-selected .meta-ground{box-shadow:0 0 14px #bade9055}
 #max-tubs{position:absolute;inset:0;pointer-events:none;z-index:5}.max-tub{position:absolute;width:76px;height:76px;background:url('./img/tarai-v1.png') center/contain no-repeat;animation:max-tub-fall .32s linear both}@keyframes max-tub-fall{0%{transform:translateY(-140px) rotate(-15deg);opacity:0}10%{opacity:1}100%{transform:translateY(100px) rotate(8deg);opacity:1}}
-@media(prefers-reduced-motion:reduce){.max-standing,.max-float{animation:none!important}.max-tub{display:none}}
+@media(prefers-reduced-motion:reduce){.max-standing,.max-float,.max-standing::after{animation:none!important}.max-tub{display:none}}
 
 /* The revival target stays outside the hidden hover layer. */
 .max-combatant.downed .meta-select{inset:auto;left:50%;top:calc(50% + var(--down-foot,70px) - 90px);width:var(--down-width,166px);height:100px;transform:translateX(-50%)}

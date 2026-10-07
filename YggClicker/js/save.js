@@ -5,11 +5,25 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 29;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 33;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const migrations = {
+    32(document){return {...document,schemaVersion:33};},
+    31(document){
+      const old=record(document.state,'旧セーブ'),owned=old.purchasedPerks?.max;
+      if(Array.isArray(owned)&&owned.includes('plot-armor')&&(old.armorLevels?.max??0)<50){
+        return {...document,schemaVersion:32,state:{...old,factors:number(old.factors+10000000,'返還後因子'),purchasedPerks:{...old.purchasedPerks,max:owned.filter(id=>id!=='plot-armor')}}};
+      }
+      return {...document,schemaVersion:32};
+    },
+    30(document){return {...document,schemaVersion:31};},
+    29(document){
+      const state={...record(document.state,'旧セーブ')};
+      for(const t of D.statUpgrades)state[t.field]=Object.fromEntries(D.characters.map(c=>[c.id,0]));
+      return {...document,schemaVersion:30,state};
+    },
     28(document){return {...document,schemaVersion:29};},
     27(document){return {...document,schemaVersion:28};},
     26(document){
@@ -302,7 +316,7 @@
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
     result.respawnSeconds=number(raw.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(result));
-    result.hp = number(raw.hp, '残りHP', result.respawnSeconds>0?0:1, E.getSession(result).hp);
+    result.hp = number(raw.hp, '残りHP', result.respawnSeconds>0?0:1, (E.getSession(result).summons?1e100:E.getSession(result).hp));
     if(result.respawnSeconds>0&&result.hp!==0)throw new Error('再出現待ちのHPが正しくありません。');
     result.poisonDamage=raw.poisonDamage===undefined?0:raw.poisonDamage;
     if(![0,4,8,12,16].includes(result.poisonDamage))throw new Error('猛毒の値が正しくありません。');
@@ -311,7 +325,7 @@
       result[field]=number(raw[field]??0,'放置計算の端数',-1,1);
       if(Math.abs(result[field])>=1)throw new Error('放置計算の端数が正しくありません。');
     }
-    if(result.respawnSeconds>0?result.batchHpFraction!==0||result.poisonDamage!==0:result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>E.getSession(result).hp)throw new Error('放置計算のHPが正しくありません。');
+    if(result.respawnSeconds>0?result.batchHpFraction!==0||result.poisonDamage!==0:result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>(E.getSession(result).summons?1e100:E.getSession(result).hp))throw new Error('放置計算のHPが正しくありません。');
     if (typeof raw.paused !== 'boolean') throw new Error('一時停止状態が正しくありません。');
     result.paused = raw.paused;
     const options = raw.options === undefined ? {} : record(raw.options, '表示設定');
@@ -331,7 +345,7 @@
       // Missing new character IDs default to unowned, allowing content additions.
       result.levels[c.id] = number(raw.levels[c.id] ?? 0, c.name, 0, E.MAX_LEVEL, true);
       result.actionLevels[c.id] = number(raw.actionLevels[c.id] ?? 0, '行動力の強化レベル', 0, Number.MAX_SAFE_INTEGER, true);
-      result.actionPoints[c.id] = number(raw.actionPoints[c.id] ?? 0, 'AP', 0, D.balance.actionThreshold);
+      result.actionPoints[c.id] = number(raw.actionPoints[c.id] ?? 0, 'AP', 0, 1e100);
       if(!Number.isInteger(result.actionPoints[c.id]))throw new Error('APは整数で指定してください。');
       if (!result.levels[c.id] && (result.actionLevels[c.id] || result.actionPoints[c.id])) throw new Error('未雇用キャラクターの行動力・APが正しくありません。');
       const purchased = raw.purchasedPerks[c.id] ?? [];
@@ -341,12 +355,22 @@
       })) throw new Error('購入済みパークの値が正しくありません。');
       result.purchasedPerks[c.id] = [...purchased];
     }
+    for(const t of D.statUpgrades){
+      const values=record(raw[t.field],t.name+'の育成');
+      if(Object.keys(values).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の能力値育成です。');
+      result[t.field]={};for(const c of D.characters){
+        const lv=number(values[c.id]??0,t.name+'のLv',0,Number.MAX_SAFE_INTEGER,true);
+        if(lv&&!result.levels[c.id])throw new Error('未雇用キャラクターは強化できません。');
+        if(lv&&!Number.isFinite(E.statCost({...result,[t.field]:{[c.id]:lv-1}},c,t.id)))throw new Error('能力値育成が計算範囲外です。');
+        result[t.field][c.id]=lv;
+      }
+    }
     const health=raw.health===undefined?{}:record(raw.health,'味方のHP');
     if(Object.keys(health).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の味方HPです。');
     for(const c of D.characters){
-      const h=health[c.id]??{hp:c.maxHP,status:'active',regenSeconds:0};record(h,'味方の状態');
-      const hp=number(h.hp,'味方HP',-1e100,c.maxHP),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
-      if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===c.maxHP&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==c.maxHP||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
+      const h=health[c.id]??{hp:E.maxHP(result,c),status:'active',regenSeconds:0};record(h,'味方の状態');
+      const hp=number(h.hp,'味方HP',-1e100,E.maxHP(result,c)),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
+      if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===E.maxHP(result,c)&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==E.maxHP(result,c)||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
       result.health[c.id]={hp,status:h.status,regenSeconds};
     }
     const formations=raw.formations===undefined?{}:record(raw.formations,'部隊編成');
@@ -363,34 +387,46 @@
     function validateProtection(value,ctx){
       const floorClipTargetId=value.floorClipTargetId??null,floorClipSeconds=number(value.floorClipSeconds??0,'保護対象の更新待ち',0,10);
       if(floorClipTargetId!==null&&(!E.formationIds(ctx).includes(floorClipTargetId)||floorClipSeconds===0))throw new Error('保護対象が正しくありません。');
-      return {floorClipTargetId,floorClipSeconds};
+      const rainbowTurns=number(value.rainbowTurns??0,'虹の装甲の残り手番',0,3,true);
+      if(rainbowTurns&&!E.isDeployed(ctx,'jewel'))throw new Error('虹の装甲の対象が編成されていません。');
+      return {floorClipTargetId,floorClipSeconds,rainbowTurns};
     }
     function validateEnemies(value,ctx){
       const nextEnemyId=number(value.nextEnemyId??0,'敵の識別番号',0),enemies=value.enemies??null,maxHP=E.getSession(ctx).hp;
       const focusedEnemyId=value.focusedEnemyId??null;
       if(!Number.isInteger(nextEnemyId)||nextEnemyId>=1000000000)throw new Error('敵の識別番号が正しくありません。');
       if(enemies===null){if(focusedEnemyId!==null)throw new Error('集中対象が正しくありません。');return {enemies:null,nextEnemyId,focusedEnemyId};}
-      const count=(E.getSession(ctx).traits||[]).includes('swarm')?3:1;
+      const quest=E.getSession(ctx),count=quest.summons?3:quest.formationCount||1;
       if(!Array.isArray(enemies)||enemies.length!==count)throw new Error('敵の人数が正しくありません。');
-      const ids=new Set(),normalized=enemies.map(e=>{
+      const ids=new Set(),normalized=enemies.map((e,slot)=>{
         record(e,'エネミー');
         const id=number(e.id,'敵の識別番号',0),respawnSeconds=number(e.respawnSeconds,'個体の再出現待ち',0,E.respawnDelay(ctx));
-        const hp=number(e.hp,'エネミーHP',respawnSeconds>0?0:1,maxHP),poisonDamage=e.poisonDamage;
-        const actionPoints=number(e.actionPoints,'敵のAP',0,1000,true);
-        if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||respawnSeconds&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
+        const summon=!!quest.summons&&slot>0;
+        if(summon?e.kind!=='kogumo':e.kind!==undefined)throw new Error('エネミー種別が正しくありません。');
+        const creationDamage=summon?number(e.creationDamage,'創造時ダメージ',0,1e100,true):0;
+        const summonMaxHP=summon?number(e.maxHP,'コグモ最大HP',creationDamage,1e100,true):0;
+        if(summon&&respawnSeconds)throw new Error('コグモは自動再出現しません。');
+        const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:maxHP),poisonDamage=e.poisonDamage;
+        const actionPoints=number(e.actionPoints,'敵のAP',0,1e100,true);
+        if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
         const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
+        const evasionFailure=e.evasionFailure??false;if(typeof evasionFailure!=='boolean'||respawnSeconds&&evasionFailure)throw new Error('回避自動失敗の状態が正しくありません。');
+        const evasionPenalty=number(e.evasionPenalty??0,'回避低下',0,6,true),evasionPenaltyTurns=number(e.evasionPenaltyTurns??0,'回避低下の残り手番',0,2,true);
+        if(![0,6].includes(evasionPenalty)||!!evasionPenalty!==!!evasionPenaltyTurns||respawnSeconds&&(evasionPenalty||evasionPenaltyTurns))throw new Error('回避低下の状態が正しくありません。');
         if(![0,3].includes(defensePenalty)||![0,15].includes(accuracyPenalty)||respawnSeconds&&(defensePenalty||accuracyPenalty))throw new Error('敵の弱体効果が正しくありません。');
         let pendingAttack=null;
         if(e.pendingAttack!=null){
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx));
-          if(respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
-          pendingAttack={targetId:p.targetId,remaining};
+          if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
+          const kind=p.kind||'attack';if(!['attack','flash','absorb'].includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
+          pendingAttack={targetId:p.targetId,remaining,count:number(p.count??1,'攻撃回数',1,1e100,true),...(p.kind?{kind}:{})};
         }
-        ids.add(id);return {id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty};
+        ids.add(id);return {...(summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure};
       });
+      if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
       if(focusedEnemyId!==null&&(count===1||!living.some(e=>e.id===focusedEnemyId)))throw new Error('集中対象が正しくありません。');
-      const wait=target?0:Math.min(...normalized.map(e=>e.respawnSeconds));
+      const wait=target?0:Math.min(...normalized.filter(e=>e.kind!=='kogumo').map(e=>e.respawnSeconds));
       if(ctx.hp!==(target?.hp||0)||ctx.poisonDamage!==(target?.poisonDamage||0)||Math.abs(ctx.respawnSeconds-wait)>1e-9)throw new Error('表示対象の状態が正しくありません。');
       return {enemies:normalized,nextEnemyId,focusedEnemyId};
     }
@@ -399,7 +435,7 @@
     result.sessionStates={};
     for(const [id,data] of Object.entries(battles)){
       if(!D.sessions.some(q=>q.id===id)||id===result.sessionId)throw new Error('クエスト別の戦況が重複しています。');
-      const value=record(data,'戦況'),ctx=E.battleContext(result,id),maxHP=E.getSession(ctx).hp;
+      const value=record(data,'戦況'),ctx=E.battleContext(result,id),maxHP=E.getSession(ctx).summons?1e100:E.getSession(ctx).hp;
       const respawnSeconds=number(value.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(ctx));
       const hp=number(value.hp,'残りHP',respawnSeconds?0:1,maxHP);
       if(!Number.isInteger(hp)||respawnSeconds&&hp!==0)throw new Error('クエスト別HPが正しくありません。');

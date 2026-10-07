@@ -39,13 +39,14 @@
   const volleySpan = count => Math.min(720, Math.max(0, count - 1) * 120);
   function mergeFrames(frames) {
     const first = frames[0], last = frames[frames.length - 1];
-    const merged = { ...last, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null, supportOnly:frames.every(f=>f.supportOnly),poisonTick:frames.every(f=>f.poisonTick) };
-    for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'vishunalAttacks', 'tordelieseAttacks','maxAttacks','wakuAttacks','maxTransfers', 'clears', 'knockouts', 'overkills', 'overkillBonus', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
+    const merged = { ...last, summons:frames.flatMap(f=>f.summons||[]), hit:frames.some(f=>f.hit!==false),doubleHit:frames.some(f=>f.doubleHit),smashCritical:frames.reduce((n,f)=>n+(f.smashCritical||0),0),poisonBefore:first.poisonBefore, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null, supportOnly:frames.every(f=>f.supportOnly),poisonTick:frames.every(f=>f.poisonTick) };
+    for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'vishunalAttacks', 'tordelieseAttacks','maxAttacks','wakuAttacks','jewelAttacks','maxTransfers', 'clears', 'knockouts', 'overkills', 'overkillBonus', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
     merged.actor = frames.every(f => f.actor === first.actor) ? first.actor : 'パーティ';
     merged.volleyMetaCount = Math.max(merged.metaAttacks, ...frames.map(f => f.volleyMetaCount));
     merged.volleyRichterCount = Math.max(merged.richterAttacks, ...frames.map(f => f.volleyRichterCount));
     merged.volleyVishunalCount = Math.max(merged.vishunalAttacks, ...frames.map(f => f.volleyVishunalCount));
     merged.volleyTordelieseCount = Math.max(merged.tordelieseAttacks, ...frames.map(f => f.volleyTordelieseCount||0));
+    merged.volleyJewelCount=Math.max(actorReleases(merged,'jewel'),...frames.map(f=>f.volleyJewelCount||0));
     merged.volleyWakuCount=Math.max(actorReleases(merged,'waku'),...frames.map(f=>f.volleyWakuCount||0));
     merged.volleyMaxCount=Math.max(actorReleases(merged,'max'),...frames.map(f=>f.volleyMaxCount||0));
     return merged;
@@ -59,6 +60,7 @@
     const volleyRichterCount = events.reduce((n,e) => n + (e.type !== 'attack' || e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0)), 0);
     const volleyVishunalCount = events.reduce((n,e)=>n+(e.type!=='attack'||e.continuation?0:e.actorId==='vishunal'?(e.count||1):(e.vishunalAttacks||0)),0);
     const volleyTordelieseCount = events.reduce((n,e)=>n+(e.type!=='attack'||e.continuation||e.poisonTick?0:e.actorId==='tordeliese'?(e.count||1):(e.tordelieseAttacks||0)),0);
+    const volleyJewelCount=events.reduce((n,e)=>n+(e.type!=='attack'||e.poisonTick||e.continuation?0:e.actorId==='jewel'?(e.count||1):(e.jewelAttacks||0)),0);
     const volleyWakuCount=events.reduce((n,e)=>n+(e.type!=='attack'||e.poisonTick||e.continuation?0:e.actorId==='waku'?(e.count||1):(e.wakuAttacks||0)),0);
     const volleyMaxCount=events.reduce((n,e)=>n+(e.maxTransfers||0)+(e.type!=='attack'||e.poisonTick||e.continuation?0:e.actorId==='max'?(e.count||1):(e.maxAttacks||0)),0);
     for (const e of events) {
@@ -66,9 +68,12 @@
         richterAttacks:e.continuation ? 0 : e.actorId === 'richter' ? (e.count || 1) : (e.richterAttacks || 0),
         vishunalAttacks:e.continuation ? 0 : e.actorId === 'vishunal' ? (e.count || 1) : (e.vishunalAttacks || 0),
         tordelieseAttacks:e.poisonTick||e.continuation?0:e.actorId==='tordeliese'?(e.count||1):(e.tordelieseAttacks||0),
+        jewelAttacks:e.poisonTick||e.continuation?0:e.actorId==='jewel'?(e.count||1):(e.jewelAttacks||0),volleyJewelCount,
         wakuAttacks:e.type==='support'||e.poisonTick||e.continuation?0:e.actorId==='waku'?(e.count||1):(e.wakuAttacks||0),volleyWakuCount,
         maxAttacks:e.type==='support'||e.poisonTick||e.continuation?0:e.actorId==='max'?(e.count||1):(e.maxAttacks||0),volleyMaxCount,
         clears:0, knockouts:0, overkills:0, overkillBonus:0, reward:0, volleyMetaCount, volleyRichterCount, volleyVishunalCount, volleyTordelieseCount, endHP:e.hpAfter });
+      else if(e.type==='enemySummon'&&raw.length){(raw[raw.length-1].summons??=[]).push(e);}
+      else if(e.type==='enemyRemoved'&&raw.length){raw[raw.length-1].removed=true;}
       else if (e.type === 'clear' && raw.length) {
         const frame = raw[raw.length - 1];
         frame.clears += e.count || 1; frame.reward += e.reward;
@@ -83,11 +88,11 @@
       // Keep it one labelled projectile instead of expanding each slot again.
       if (frame.count === 1 || frame.approximate) return [frame];
       const groups = projectileGroups(frame.count), size = groups.length;
-      const integers = Object.fromEntries(['metaAttacks','richterAttacks','vishunalAttacks','tordelieseAttacks','maxAttacks','wakuAttacks','maxTransfers','clears','knockouts','overkills'].map(key => [key, projectileGroups(frame[key], size)]));
+      const integers = Object.fromEntries(['metaAttacks','richterAttacks','vishunalAttacks','tordelieseAttacks','maxAttacks','wakuAttacks','jewelAttacks','maxTransfers','clears','knockouts','overkills'].map(key => [key, projectileGroups(frame[key], size)]));
       // Distribute summaries without inventing individual rolls or HP states.
-      return groups.map((count, i) => ({ ...frame, count, damage:frame.damage / size, reward:frame.reward / size,
+      return groups.map((count, i) => ({ ...frame, summons:i===size-1?frame.summons:[], count, damage:frame.damage / size, reward:frame.reward / size,
         overkillBonus:frame.overkills ? frame.overkillBonus*(integers.overkills[i]||0)/frame.overkills : 0,
-        metaAttacks:integers.metaAttacks[i] || 0, richterAttacks:integers.richterAttacks[i] || 0, vishunalAttacks:integers.vishunalAttacks[i] || 0, tordelieseAttacks:integers.tordelieseAttacks[i] || 0, maxAttacks:integers.maxAttacks[i] || 0, wakuAttacks:integers.wakuAttacks[i] || 0, maxTransfers:integers.maxTransfers[i] || 0, clears:integers.clears[i] || 0, knockouts:integers.knockouts[i] || 0, overkills:integers.overkills[i]||0,
+        metaAttacks:integers.metaAttacks[i] || 0, richterAttacks:integers.richterAttacks[i] || 0, vishunalAttacks:integers.vishunalAttacks[i] || 0, tordelieseAttacks:integers.tordelieseAttacks[i] || 0, maxAttacks:integers.maxAttacks[i] || 0, wakuAttacks:integers.wakuAttacks[i] || 0, jewelAttacks:integers.jewelAttacks[i] || 0, maxTransfers:integers.maxTransfers[i] || 0, clears:integers.clears[i] || 0, knockouts:integers.knockouts[i] || 0, overkills:integers.overkills[i]||0,
         hpBefore:i === 0 ? frame.hpBefore : null, hpAfter:i === size - 1 ? frame.hpAfter : null,
         endHP:i === size - 1 ? frame.endHP : null, approximate:true }));
     });
@@ -95,10 +100,10 @@
     if(sustainedActors.length){
       // Spread each actor's actual releases over its whole one-second charge
       // interval. Overflow impacts do not steal release slots from that actor.
-      const slots=Object.fromEntries(['meta','richter','vishunal','tordeliese','max','waku'].map(id=>[id,frames.filter(f=>actorReleases(f,id)>0).length]));
-      const used={meta:0,richter:0,vishunal:0,tordeliese:0,max:0,waku:0};let lastOffset=0;
+      const slots=Object.fromEntries(['meta','richter','vishunal','tordeliese','max','waku','jewel'].map(id=>[id,frames.filter(f=>actorReleases(f,id)>0).length]));
+      const used={meta:0,richter:0,vishunal:0,tordeliese:0,max:0,waku:0,jewel:0};let lastOffset=0;
       frames=frames.map((frame,index)=>{
-        const actors=['meta','richter','vishunal','tordeliese','max','waku'].filter(id=>actorReleases(frame,id)>0);
+        const actors=['meta','richter','vishunal','tordeliese','max','waku','jewel'].filter(id=>actorReleases(frame,id)>0);
         let offset=lastOffset;
         if(actors.length){offset=Math.min(...actors.map(id=>used[id]*(sustainedActors.includes(id)?1000/slots[id]:120)));actors.forEach(id=>used[id]++);lastOffset=offset;}
         return {...frame,offset,index};
@@ -114,12 +119,12 @@
   function createPlayback({ onLaunch, onImpact, onActorIdle = () => {}, onIdle = () => {}, schedule = setTimeout, cancel = clearTimeout }) {
     let queue = [], launchTimer = null, inFlight = 0,sequence=0,nextImpact=0;
     const readyImpacts=new Map();
-    const timers = new Set(), releases = { meta:0, richter:0, vishunal:0, tordeliese:0,max:0,waku:0 };
+    const timers = new Set(), releases = { meta:0, richter:0, vishunal:0, tordeliese:0,max:0,waku:0,jewel:0 };
     function later(fn, delay) { const id = schedule(() => { timers.delete(id); fn(); }, delay); timers.add(id); return id; }
     function trackReleases(frame, delays) {
       // onLaunch returns the time until each actor's last projectile leaves.
       // End its pose independently of in-flight hits, overflow and other actors.
-      for (const actor of ['meta', 'richter', 'vishunal', 'tordeliese','max','waku']) {
+      for (const actor of ['meta', 'richter', 'vishunal', 'tordeliese','max','waku','jewel']) {
         if (!actorReleases(frame,actor)) continue;
         releases[actor]++;
         const delay = Number.isFinite(delays?.[actor]) ? Math.max(0, delays[actor]) : 0;
@@ -155,7 +160,7 @@
         }
         if (queue.length && launchTimer === null) pump();
       },
-      reset() { for (const id of timers) cancel(id); timers.clear(); readyImpacts.clear();sequence=nextImpact=0;releases.meta = releases.richter = releases.vishunal = releases.tordeliese = releases.max = releases.waku = 0; queue = []; inFlight = 0; launchTimer = null; },
+      reset() { for (const id of timers) cancel(id); timers.clear(); readyImpacts.clear();sequence=nextImpact=0;releases.meta = releases.richter = releases.vishunal = releases.tordeliese = releases.max = releases.waku = releases.jewel = 0; queue = []; inFlight = 0; launchTimer = null; },
       get pending() { return queue.length + inFlight; }
     };
   }
@@ -163,3 +168,4 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggCombatEffects = api;
 })(typeof window !== 'undefined' ? window : globalThis);
+
