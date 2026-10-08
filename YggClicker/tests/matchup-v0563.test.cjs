@@ -2,10 +2,10 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data'),E=require('../js/engine'),F=require('../js/matchup'),N=require('../js/numbers'),{harness}=require('./app-harness.cjs');
 const c=id=>D.characters.find(c=>c.id===id);
 function ready(q='mohican-solo',ids=['meta']){const s=E.createState();s.factors=1e8;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,q,ids);E.selectSession(s,q);E.ensureEnemies(s);return s;}
-test('all five quests use 1.05 combat growth while HP, armor, resistance and SS keep 1.1',()=>{
+test('all quests retain HP/reward/action growth and move combat growth to intensity',()=>{
  for(const q of D.sessions){const s=ready(q.id);s.questLevels[q.id]=s.questActiveLevels[q.id]=12;const next=E.getSession(s);
- for(const k of ['attack','accuracy','evasion'])assert.equal(next[k].multiplier,1.05**11);
- assert.equal(next.ss.multiplier,1.1**11);assert.equal(next.hp,N.geometric(q.hp,1.1,11));assert.equal(next.reward,N.geometric(q.reward,1.25,11));
+ for(const k of ['attack','accuracy','evasion','ss'])assert.deepEqual(next[k],q[k]);assert.equal(next.strengthLevel,11);
+ assert.equal(next.hp,N.geometric(q.hp,1.1,11));assert.equal(next.reward,N.geometric(q.reward,1.25,11));
  const action=q.actionDice?q.actionDice.flat+3.5*q.actionDice.dice:q.action||0;assert.equal(E.enemyActionPower(s),N.geometric(action,1.05,11));}
 });
 test('wiping out enemies clears only that party AP, no banking or manual attacks during respawn',()=>{
@@ -17,8 +17,8 @@ test('wiping out enemies clears only that party AP, no banking or manual attacks
 test('summons retain creation-damage bases and receive the corresponding check/action growth',()=>{
  const s=ready('ozmorn');s.questLevels.ozmorn=s.questActiveLevels.ozmorn=8;
  const cloud={...s.enemies[1],creationDamage:4,maxHP:4,hp:4},q=E.enemySpec(s,cloud);
- assert.equal(q.accuracy.flat,4);assert.equal(q.accuracy.multiplier,1.05**7);assert.equal(q.ss.multiplier,1.1**7);
- assert.equal(E.targetEvasion(E.attackProfile(s,c('meta')),cloud).multiplier,1.05**7);
+ assert.equal(q.accuracy.flat,4);assert.equal(q.accuracy.multiplier,undefined);assert.equal(q.strengthLevel,7);
+ assert.equal(E.targetEvasion(E.attackProfile(s,c('meta')),cloud).multiplier,undefined);
  assert.equal(E.enemyActionPower(s,undefined,cloud),N.geometric(13.5,1.05,7));
 });
 test('partial swarm defeat preserves ally AP until all slots are gone',()=>{
@@ -40,7 +40,7 @@ test('draft concentration and level-correct enemy stats affect forecasts, passiv
  const passive=F.party(ready('scarecrow')).rows[0];assert.equal(passive.passive,true);assert.equal(passive.endurance,Infinity);
 });
 test('expected stat values include exploding/fumbling dice and per-roll rounding',()=>{
- assert.ok(Math.abs(F.expectedRoll({flat:10,dice:1})-13.5)<1e-5);
+ assert.ok(Math.abs(F.expectedRoll({flat:10,dice:1})-(13+37/60))<1e-5);
  assert.equal(F.expectedRoll({flat:3,dice:3,sides:4},false),10.5);
  assert.equal(F.expectedRoll({flat:10,dice:0,multiplier:1.05}),11);
 });
@@ -54,7 +54,9 @@ test('lethal enemy sprite stays present in flight, then swaps to a defeat snapsh
 test('enemy information opens separately and formation edits preview unsaved allocations',()=>{
  const s=ready();s.paused=true;const h=harness(s);const click=data=>h.get('quest-list').listeners.get('click')({target:{closest:sel=>sel===data.selector?{dataset:data.dataset,setAttribute(){}}:null}});
  click({selector:'[data-enemy-info]',dataset:{enemyInfo:s.sessionId}});click({selector:'[data-enemy-info]',dataset:{enemyInfo:s.sessionId}});
- assert.ok(h.get('enemy-info-'+s.sessionId).innerHTML.includes('命中率'));
+ assert.equal(h.get('enemy-info-dialog').open,true);
+ assert.ok(h.get('enemy-info-content').innerHTML.includes('命中率'));
+ h.click('enemy-info-close');assert.equal(h.get('enemy-info-dialog').open,false);
  click({selector:'[data-formation-open]',dataset:{formationOpen:s.sessionId}});
  const before=h.get('formation-enemy-info').innerHTML;h.get('formation-dialog').listeners.get('input')({target:{dataset:{concentration:s.sessionId,stat:'reaction'},type:'range',value:'5'}});
  assert.notEqual(h.get('formation-enemy-info').innerHTML,before);assert.equal(h.saved().concentration[s.sessionId].reaction,0);

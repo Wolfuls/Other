@@ -5,11 +5,33 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 33;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 36;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
+  const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    35(document){
+      const old=record(document.state,'旧セーブ'),upgrades={...record(old.upgrades,'旧全体強化')};
+      const count=number(upgrades.sedation??0,'旧鎮静調律Lv',0,Number.MAX_SAFE_INTEGER,true);
+      // Freeze the retired price curve; reject impossible levels before summing.
+      if(count&&N.geometric(1000,1.25,count-1)>1e100)throw new Error('旧強化価格が計算範囲外です。');
+      let refund=0;for(let i=0;i<count;i++)refund+=N.geometric(1000,1.25,i);
+      delete upgrades.sedation;
+      return {...document,schemaVersion:36,state:{...old,upgrades,factors:Math.min(1e100,number(old.factors,'所持因子')+refund)}};
+    },
+    34(document){return {...document,schemaVersion:35,state:{...document.state,upgrades:{...document.state.upgrades,stabilization:0}}};},
+    33(document){
+      const old=record(document.state,'旧セーブ'),purchased=record(old.purchasedPerks,'購入済みパーク'),enabled={},unlocked={},ledger={...(old.incomeTotals||{})};let refund=0;
+      for(const c of D.characters){
+        const ids=purchased[c.id]||[];
+        if(!Array.isArray(ids)||new Set(ids).size!==ids.length||ids.some(id=>!Object.hasOwn(legacyPerkCostsV33[c.id],id)))throw new Error('旧購入パークが正しくありません。');
+        enabled[c.id]=Object.fromEntries(c.perks.map(p=>[p.id,!!p.initial||ids.includes(p.id)]));unlocked[c.id]=[...ids];
+        if(!old.perkRefunded)for(const id of ids)refund+=legacyPerkCostsV33[c.id][id];
+      }
+      const factors=number(old.factors,'所持因子'),gain=Math.min(refund,1e100-factors);ledger.migrationRefund=(ledger.migrationRefund||0)+gain;
+      return {...document,schemaVersion:34,state:{...old,factors:factors+gain,perkRefunded:true,perkEnabled:enabled,unlockedPerks:unlocked,incomeTotals:ledger}};
+    },
     32(document){return {...document,schemaVersion:33};},
     31(document){
       const old=record(document.state,'旧セーブ'),owned=old.purchasedPerks?.max;
@@ -365,6 +387,33 @@
         result[t.field][c.id]=lv;
       }
     }
+    const enabled=raw.perkEnabled===undefined?{}:record(raw.perkEnabled,'パーク切替'),unlocked=raw.unlockedPerks===undefined?{}:record(raw.unlockedPerks,'解放済みパーク');
+    if(raw.perkRefunded!==undefined&&typeof raw.perkRefunded!=='boolean')throw new Error('返還状態が正しくありません。');
+    result.perkRefunded=raw.perkRefunded??true;
+    for(const map of [enabled,unlocked])if(Object.keys(map).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応のキャラクターです。');
+    for(const c of D.characters){
+      const toggle=enabled[c.id]===undefined?result.perkEnabled[c.id]:record(enabled[c.id],'パーク切替');
+      if(Object.keys(toggle).some(id=>!c.perks.some(p=>p.id===id))||Object.values(toggle).some(v=>typeof v!=='boolean'))throw new Error('パーク切替が正しくありません。');
+      const ids=unlocked[c.id]||[];if(!Array.isArray(ids)||new Set(ids).size!==ids.length||ids.some(id=>!c.perks.some(p=>p.id===id)))throw new Error('パーク解放が正しくありません。');
+      result.perkEnabled[c.id]={...result.perkEnabled[c.id],...toggle};result.unlockedPerks[c.id]=[...ids];
+    }
+    E.refreshPerkUnlocks(result);
+    const runaway=raw.runaway===undefined?{}:record(raw.runaway,'暴走');
+    if(Object.keys(runaway).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の暴走キャラクターです。');
+    for(const c of D.characters){
+      const value=runaway[c.id];if(value===undefined)continue;const r=record(value,'暴走状態');
+      const rate=number(r.runawayRate,'暴走率',0,150),reserve=number(r.criticalReserve,'臨界余力',0,1e100);
+      if(![null,'augment','reaction','sense','recovery','awakening'].includes(r.activationType)||typeof r.runawayCollapsed!=='boolean'||r.runawaySymptom!==null&&!D.runawaySymptoms.includes(r.runawaySymptom))throw new Error('暴走状態が正しくありません。');
+      const armed=record(r.thresholdArmedState,'再武装状態');if(Object.keys(armed).length!==D.runawayThresholds.length||D.runawayThresholds.some(t=>typeof armed[t]!=='boolean'))throw new Error('再武装状態が正しくありません。');
+      result.runaway[c.id]={runawayRate:rate,criticalReserve:reserve,activationType:r.activationType,runawayCollapsed:r.runawayCollapsed,runawaySymptom:r.runawaySymptom,baseRunawayPressure:number(r.baseRunawayPressure,'基礎暴走圧',-1e6,1e6),temporaryRunawayPressure:number(r.temporaryRunawayPressure??0,'一時暴走圧',-1e6,1e6),thresholdArmedState:{...armed}};
+    }
+    const seeds=raw.seedLevels===undefined?{}:record(raw.seedLevels,'種');
+    if(Object.keys(seeds).some(k=>!Object.hasOwn(result.seedLevels,k)))throw new Error('未対応の種です。');
+    for(const k of Object.keys(result.seedLevels))result.seedLevels[k]=number(seeds[k]||0,'種Lv',0,Number.MAX_SAFE_INTEGER,true);
+    const karma=raw.karmaSelections===undefined?{}:record(raw.karmaSelections,'カルマ');
+    if(Object.keys(karma).some(k=>!Object.hasOwn(result.seedLevels,k))||Object.values(karma).some(v=>typeof v!=='string'||v.length>100))throw new Error('カルマ選択が正しくありません。');result.karmaSelections={...karma};
+    const income=raw.incomeTotals===undefined?{}:record(raw.incomeTotals,'収入種別');
+    for(const [k,v]of Object.entries(income)){if(!D.incomeTypes.includes(k)||!Number.isInteger(v))throw new Error('収入種別が正しくありません。');result.incomeTotals[k]=number(v,'収入',0,1e100);}
     const health=raw.health===undefined?{}:record(raw.health,'味方のHP');
     if(Object.keys(health).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の味方HPです。');
     for(const c of D.characters){
@@ -420,6 +469,13 @@
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
           const kind=p.kind||'attack';if(!['attack','flash','absorb'].includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
           pendingAttack={targetId:p.targetId,remaining,count:number(p.count??1,'攻撃回数',1,1e100,true),...(p.kind?{kind}:{})};
+          if(p.profile!==undefined){
+            const profile=record(p.profile,'予約攻撃');
+            const walk=(v,depth=0)=>{if(depth>4)throw new Error('予約攻撃が複雑すぎます。');if(typeof v==='number'){number(v,'予約攻撃の数値',-1e100,1e100);return;}if(typeof v==='boolean'||v===null)return;if(typeof v==='object'&&!Array.isArray(v)){for(const x of Object.values(v))walk(x,depth+1);return;}throw new Error('予約攻撃が正しくありません。');};walk(profile);
+            for(const key of ['accuracySpec','evasionDice','attack']){const spec=record(profile[key],'予約ロール');number(spec.dice,'ダイス',0,100,true);number(spec.flat,'固定値',-1e100,1e100);}
+            for(const key of ['reduction','postReduction','shield','hitLogRatio','damageLogRatio'])number(profile[key]??0,'予約補正',-1e100,1e100);
+            pendingAttack.profile=structuredClone(profile);
+          }
         }
         ids.add(id);return {...(summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure};
       });
@@ -472,7 +528,13 @@
       const migration = migrations[document.schemaVersion];
       if (!migration) throw new Error('この旧形式にはまだ対応していません。');
       const oldVersion = document.schemaVersion;
+      const previousFactors=document.state.factors||0;
       document = migration(document);
+      // Earlier migrations may also refund retired upgrades/perks. Attribute
+      // those credits once; schema 33 records its own refund in its migration.
+      if(oldVersion!==33&&document.state.factors>previousFactors){
+        document.state.incomeTotals={...document.state.incomeTotals,migrationRefund:Math.min(1e100,(document.state.incomeTotals?.migrationRefund||0)+document.state.factors-previousFactors)};
+      }
       if (document.schemaVersion <= oldVersion) throw new Error('セーブ形式の更新に失敗しました。');
     }
     return validateState(document.state);

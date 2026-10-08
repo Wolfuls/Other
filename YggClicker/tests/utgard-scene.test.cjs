@@ -11,7 +11,7 @@ test('crystal density follows income monotonically, saturates at 24, and does no
  }
  assert.equal(UI.factorRainCount(0),0);assert.equal(UI.factorRainCount(NaN),0);assert.equal(UI.factorRainCount(-1),0);assert.equal(UI.factorRainCount(1e100),24);
  const empty=harness(combatFixture(1000));assert.equal(empty.get('factor-rain').children.length,24);assert.ok(empty.get('factor-rain').children.every(n=>n.hidden));
- const s=combatFixture(1000);s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];
+ const s=combatFixture(1000);s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
  const h=harness(s),pool=[...h.get('factor-rain').children];
  assert.equal(pool.filter(n=>!n.hidden).length,UI.factorRainCount(E.expectedIncome(s).factorsPerSecond));
  h.advance(4000);assert.deepEqual(h.get('factor-rain').children,pool,'effect reuses a fixed pool across live ticks');
@@ -27,14 +27,14 @@ test('the gang quest uses Utgard, hides the individual enemy title and includes 
  const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;const h=harness(s);
  assert.ok(h.get('enemy-name').hidden);assert.ok(h.get('arena-viewport').classList.contains('has-scene'));
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--session-background'),'url("'+mob.background+'")');
- assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','dementor']);
+ assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','dementor','ozmorn']);
  assert.equal(moveTestParty(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 
 test('cumulative clears retain full grouped digits beyond exponential notation; save transfer remains unchanged',()=>{
  for(const[kills,label]of [[1234567,'1,234,567'],[1234567890123,'1,234,567,890,123'],[1e21,'1,000,000,000,000,000,000,000']]){
   const s=combatFixture(1000);s.kills=kills;s.paused=true;s.factors=123;s.upgrades.reward=7;s.levels.meta=15;s.actionLevels.meta=35;
-  const doc=JSON.parse(S.encode(s));doc.gameVersion='0.24.0';assert.deepEqual(S.decode(JSON.stringify(doc)),s);
+  const doc=JSON.parse(S.encode(s));doc.gameVersion='0.24.0';assert.deepEqual(S.decode(JSON.stringify(doc)),S.validateState(s));
   assert.equal(harness(s).get('kills').textContent,label);
  }
 });

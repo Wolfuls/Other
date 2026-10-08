@@ -4,12 +4,12 @@ const c=id=>D.characters.find(x=>x.id===id);
 function ready(ids=['meta'],q='mohican-solo'){const s=E.createState(1000);s.factors=1e9;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,q,ids);if(q!==s.sessionId)E.selectSession(s,q);E.ensureEnemies(s);s.selectedCharacterId=ids[0];return s;}
 const faces=(...values)=>()=>((values.shift()??4)-.5)/6;
 const clickControl=(h,selector,dataset)=>h.get('character-list').listeners.get('click')({target:{closest:s=>s===selector?{disabled:false,dataset}:null}});
-test('every personal level adds at least one, including base zero and negative judgments',()=>{
+test('legacy training helper remains for HP/action; combat training grows intensity',()=>{
  for(const base of [-4,0,1,2,6,13,20,50])for(const rate of [.05,.1])for(let lv=1;lv<=100;lv++)assert.ok(N.training(base,rate,lv)-N.training(base,rate,lv-1)>=1);
- const s=ready(['tordeliese']);s.armorLevels.tordeliese=10;assert.equal(E.armor(s,c('tordeliese')),10);assert.equal(E.armor(s,c('tordeliese'),true),12);
+ const s=ready(['tordeliese']);s.armorLevels.tordeliese=10;assert.equal(E.armor(s,c('tordeliese')),0);assert.equal(E.armor(s,c('tordeliese'),true),2);
  s.actionLevels.tordeliese=10;assert.equal(E.actionPower(s,c('tordeliese')),23);
- s.accuracyLevels.tordeliese=10;const spec=E.accuracySpec(s,c('tordeliese'));assert.equal(E.combatRoll({...spec,flat:0},faces(1,6)).total,5);
- s.levels.tordeliese=11;assert.equal(B.rolledDamage(E.attackProfile(s,c('tordeliese')),1),11);
+ s.accuracyLevels.tordeliese=10;const spec=E.accuracySpec(s,c('tordeliese'));assert.equal(E.combatRoll({...spec,flat:0},faces(1,6)).total,-5);
+ s.levels.tordeliese=11;assert.equal(E.attackProfile(s,c('tordeliese')).damageLogRatio,E.T.logRatio(10,0));
 });
 test('AP excludes zero-base participants but retains all other occupied slots and always multiplies by two',()=>{
  const s=ready(['meta'],'scarecrow');assert.equal(E.actionThreshold(s),30);s.health.meta.status='dying';s.health.meta.hp=-2;assert.equal(E.actionThreshold(s),30);s.enemies[0].hp=0;s.enemies[0].respawnSeconds=5;assert.equal(E.actionThreshold(s),30);
@@ -21,9 +21,9 @@ test('double hit includes equality; smash counts each pair of rolled sixes, stac
  assert.deepEqual(result(20,10,[6,6,6,6,6,2]),{doubleHit:true,smashCritical:2,bonusDice:3});
  assert.equal(result(19,10,[6,6,2]).bonusDice,1);assert.equal(result(11,10,[6,2]).bonusDice,0);assert.equal(result(10,10,[6,6]).bonusDice,0);
 });
-test('allied bonus damage dice precede personal damage scaling',()=>{
- const s=ready();s.levels.meta=11;const hit=E.click(s,faces(4,4,6,6,4,4,3,5)).find(e=>e.type==='attack');
- assert.equal(hit.accuracy.total,30);assert.equal(hit.evasion.total,14);assert.equal(hit.doubleHit,true);assert.equal(hit.smashCritical,1);assert.equal(hit.bonusDice,2);assert.equal(hit.damage,32);
+test('allied bonus dice define the original formula before intensity inversion',()=>{
+ const s=ready();s.levels.meta=11;const hit=E.click(s,faces(6,6,4,4,3,5,4,4)).find(e=>e.type==='attack');
+ assert.equal(hit.accuracy.total,30);assert.equal(hit.evasion.total,14);assert.equal(hit.doubleHit,true);assert.equal(hit.smashCritical,1);assert.equal(hit.bonusDice,2);assert.equal(hit.damage,16+E.T.damage({dice:4,flat:0,resultScale:1},0,E.T.logRatio(10,0)).correction);
 });
 test('enemy bonus dice precede quest damage scaling and normal defense',()=>{
  const s=ready();s.questLevels[s.sessionId]=2;E.setQuestLevel(s,s.sessionId,2);E.ensureEnemies(s)[0].pendingAttack={targetId:'meta',remaining:.1,count:1};
@@ -35,14 +35,14 @@ test('mental attacks use SS to earn judgment damage bonuses too',()=>{
  assert.equal(hit.accuracy.total,36);assert.equal(hit.evasion.total,11);assert.equal(hit.bonusDice,2);assert.equal(hit.damage,1); // 18 minus resistance 30
 });
 test('poison is only applied by an actual hit; a miss never triggers existing poison',()=>{
- const s=ready(['tordeliese'],'scarecrow');s.levels.tordeliese=10;s.purchasedPerks.tordeliese=['greedy-gale'];
+ const s=ready(['tordeliese'],'scarecrow');s.levels.tordeliese=10;s.purchasedPerks.tordeliese=['greedy-gale'];s.perkEnabled.tordeliese=Object.fromEntries(s.purchasedPerks.tordeliese.map(id=>[id,true]));
  const hit=E.click(s,()=>.5);assert.equal(s.enemies[0].poisonDamage,4);assert.equal(hit.filter(e=>e.poisonTick).length,1);assert.equal(hit.find(e=>e.type==='attack').poisonBefore,0);
  s.questLevels.scarecrow=80;E.setQuestLevel(s,'scarecrow',80);s.enemies[0].poisonDamage=4;const hp=s.enemies[0].hp;
  const miss=E.click(s,()=>.5);assert.equal(miss.find(e=>e.type==='attack').hit,false);assert.equal(miss.some(e=>e.poisonTick),false);assert.equal(s.enemies[0].hp,hp);
  s.enemies[0].poisonDamage=0;E.click(s,()=>.5);assert.equal(s.enemies[0].poisonDamage,0);
 });
 test('poison badge is synchronized to visual impact instead of the immediate tick result',()=>{
- const s=ready(['tordeliese'],'scarecrow');s.levels.tordeliese=10;s.purchasedPerks.tordeliese=['greedy-gale'];const h=harness(s,undefined,{combatRandom:()=>.5});
+ const s=ready(['tordeliese'],'scarecrow');s.levels.tordeliese=10;s.purchasedPerks.tordeliese=['greedy-gale'];s.perkEnabled.tordeliese=Object.fromEntries(s.purchasedPerks.tordeliese.map(id=>[id,true]));const h=harness(s,undefined,{combatRandom:()=>.5});
  h.click('attack');const bar=h.get('enemy-art').querySelector('.enemy-health');assert.doesNotMatch(bar.textContent,/猛毒/);h.advance(900);assert.match(bar.textContent,/猛毒/);
 });
 test('training draft cancels purchases, sale quotes, and HP clipping without changing saves; undoing a provisional increase costs nothing',()=>{

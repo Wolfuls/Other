@@ -146,7 +146,8 @@
     const face=index%6+1,size=[8,20,40,12,28,10,16,34][index%8];
     return {face,size,pips:dieFaces[face-1].map(([x,y])=>`radial-gradient(circle at ${x}% ${y}%,#1d4b40 0 8%,transparent 9%)`).join(',')};
   };
-  const api={fullNumber,currencyNumber,incomeNumber,scenePhase,outdoorPhase,orbitLayout,creatureOrbit,enemyFormationSize,advanceEnemyQueue,shuffledPorts,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
+  const cloudFormation=(x,y)=>[{x:x+180,y:y-55},{x,y:y-120},{x:x+5,y:y+55}];
+  const api={cloudFormation,fullNumber,currencyNumber,incomeNumber,scenePhase,outdoorPhase,orbitLayout,creatureOrbit,enemyFormationSize,advanceEnemyQueue,shuffledPorts,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   else root.YggDisplay=api;
 })(typeof window !== 'undefined' ? window : globalThis);

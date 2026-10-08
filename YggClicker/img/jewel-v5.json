@@ -1,0 +1,385 @@
+{
+  "version": "0.57.3",
+  "mode": "builtin imagegen edit; deterministic atlas registration",
+  "prompts": [
+    {
+      "key": "jewelUserDown",
+      "refs": [
+        "C:/Users/user/Downloads/苦悶する紫髪のピンクスーツ男(1).png"
+      ],
+      "prompt": "Use case: background-extraction. Edit target: the provided pixel-art image of Jewel, a purple-haired adult man in a pink suit slumped on the ground. Remove only the black background and return a genuinely transparent PNG. Preserve EXACTLY the original pixel art subject, cleft chin, face, violet spiral pompadour, brown tie with cyan gems, blue lapel jewel, gold rings, cyan gemstones, suit buttons, brown shoes, pose, framing, crisp edges and colors. Do not redraw, simplify or add any pixels to the character. Do not change proportions. Preserve dark outlines and shoes; they are foreground, not background. No glow, no shadow background, no text."
+    },
+    {
+      "key": "jewelUserSheet",
+      "refs": [
+        "C:/Users/user/Downloads/ピンクスーツの格闘家スプライトシート.png",
+        "C:/Users/user/Downloads/苦悶する紫髪のピンクスーツ男(1).png"
+      ],
+      "prompt": "Use case: background-extraction and precise-object-edit. Image 1 is the EDIT TARGET: a four-column four-row (16 frame) pixel-art combat sprite sheet of Jewel. Image 2 is the authoritative DETAIL REFERENCE for his cleft chin, purple spiral pompadour, brown tie with cyan round gems, blue lapel brooch and blue suit buttons. Primarily remove the black background from Image 1 to actual alpha transparency, preserving the 16 poses, all feet positions, cell positions and same proportions precisely. Keep the user's artwork faithfully; only align small costume/face details to image 2 if needed. Row 1 idle, row 2 punch, rows 3 and 4 rapid punches, uppercut, recovery. Preserve every pink punch streak and golden fist. Do not add figures, omit frames, rearrange cells, rescale individual poses, smooth pixels, introduce glow into the background, or change expressions or posture. Black outlines and dark brown shoes must stay opaque. Return the full 4 by 4 transparent sprite sheet."
+    }
+  ],
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-b5defb1b-826d-463f-8846-8751d6ba9e8d.png",
+  "downSource": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-e9b6c9ac-8d7d-423f-a6d4-4adbecd82720.png",
+  "cellSize": [
+    672,
+    448
+  ],
+  "rowEdges": [
+    0,
+    270,
+    540,
+    763,
+    1086
+  ],
+  "columnEdges": [
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ],
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ],
+    [
+      0,
+      362,
+      727,
+      1089,
+      1448
+    ],
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ]
+  ],
+  "records": [
+    {
+      "label": "idle-0",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 108,
+        "width": 301,
+        "height": 324,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-1",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 108,
+        "width": 301,
+        "height": 324,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-2",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 108,
+        "width": 301,
+        "height": 324,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-3",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 108,
+        "width": 301,
+        "height": 324,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-4",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 185,
+        "top": 98,
+        "width": 301,
+        "height": 334,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-5",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 188,
+        "top": 100,
+        "width": 397,
+        "height": 332,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-6",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 100,
+        "width": 415,
+        "height": 332,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-7",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 185,
+        "top": 100,
+        "width": 301,
+        "height": 333,
+        "bottom": 433
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-8",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 183,
+        "top": 100,
+        "width": 435,
+        "height": 330,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-9",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 182,
+        "top": 100,
+        "width": 466,
+        "height": 331,
+        "bottom": 431
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-10",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 147,
+        "top": 100,
+        "width": 507,
+        "height": 330,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-11",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 131,
+        "top": 100,
+        "width": 505,
+        "height": 330,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-12",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 141,
+        "top": 86,
+        "width": 486,
+        "height": 346,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-13",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 182,
+        "top": 21,
+        "width": 385,
+        "height": 411,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-14",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 174,
+        "top": 86,
+        "width": 405,
+        "height": 346,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-15",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 183,
+        "top": 86,
+        "width": 307,
+        "height": 346,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "down",
+      "scale": 0.21174205967276227,
+      "anchor": [
+        128,
+        240
+      ],
+      "bounds": {
+        "left": 18,
+        "top": 76,
+        "width": 221,
+        "height": 164,
+        "bottom": 240
+      }
+    }
+  ]
+}

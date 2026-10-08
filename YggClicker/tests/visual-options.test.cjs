@@ -11,14 +11,14 @@ const textOf=node=>node.textContent+' '+node.children.map(textOf).join(' ');
 test('all display preferences persist, missing fields default safely, and malformed values are rejected',()=>{
  const s=fighter();s.options={showOrbits:false};assert.deepEqual(S.validateState(s).options,{...D.displayDefaults,showOrbits:false});
  s.options={...D.displayDefaults,hitEffects:'simple',showFactorRain:false,showRewardDice:false,showDamageNumbers:false,showOverflowLabels:false,showDefeatLabels:false};
- assert.deepEqual(S.decode(S.encode(s)),s);
+ assert.deepEqual(S.decode(S.encode(s)),S.validateState(s));
  for(const key of Object.keys(D.displayDefaults))for(const value of [null,42,{},'invalid'])assert.throws(()=>S.encode({...s,options:{...s.options,[key]:value}}),/表示設定/);
 });
 
 test('hit modes retain the same single-target combat but change only their visual layers',()=>{
  let expected;
  for(const mode of D.hitEffectModes){
-  const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');const h=harness(s);
+  const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');const h=harness(s,undefined,{combatRandom:()=>.5});
   h.click('attack');h.advance(780);
   assert.equal(h.get('arena-viewport').dataset.hitEffects,mode);
   assert.equal(h.get('hit-effects').children.length,mode==='off'?0:1);
@@ -31,9 +31,9 @@ test('hit modes retain the same single-target combat but change only their visua
 });
 
 test('turning off visuals during a volley clears current effects, keeps projectiles and preserves all progress',()=>{
- const s=fighter();s.actionLevels.richter=200;s.purchasedPerks.richter=['bom-ber'];
- const on=harness(s),off=harness(s);
- for(const h of [on,off])h.advance(2200);
+ const s=fighter();s.actionLevels.richter=200;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
+ const on=harness(s,undefined,{combatRandom:()=>.5}),off=harness(s,undefined,{combatRandom:()=>.5});
+ for(const h of [on,off]){h.click("attack");h.advance(780);}
  assert.ok(off.get('explosions').children.length>0);
  for(const [id,value] of [['hit-effects','off'],['factor-rain',false],['reward-dice',false],['damage-numbers',false],['overflow-labels',false],['defeat-labels',false]])change(off,id,value);
  for(let i=0;i<30;i++){
@@ -50,9 +50,9 @@ test('turning off visuals during a volley clears current effects, keeps projecti
 
 test('damage, overflow and defeat text have independent controls and include batched summaries',()=>{
  for(const key of ['showDamageNumbers','showOverflowLabels','showDefeatLabels']){
-  const s=fighter();s.actionLevels.richter=key==='showOverflowLabels'?100:1000000;s.purchasedPerks.richter=['bom-ber'];
+  const s=fighter();s.actionLevels.richter=key==='showOverflowLabels'?100:1000000;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
   for(const option of ['showDamageNumbers','showOverflowLabels','showDefeatLabels'])s.options[option]=option===key;
-  const h=harness(s);let seen=false;
+  const h=harness(s,undefined,{combatRandom:()=>.5});let seen=false;
   for(let i=0;i<80;i++){
    h.advance(50);const damage=textOf(h.get('damage-floats')),down=textOf(h.get('enemy-defeats'));
    if(key==='showDamageNumbers'){assert.doesNotMatch(damage,/巻き込み|気絶/);assert.doesNotMatch(down,/DOWN|OVERKILL/);seen||=/\d/.test(damage);}

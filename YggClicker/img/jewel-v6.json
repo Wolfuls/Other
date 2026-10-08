@@ -1,0 +1,860 @@
+{
+  "version": "0.57.5",
+  "mode": "builtin imagegen edit; deterministic atlas registration",
+  "prompts": {
+    "mode": "built-in imagegen edit",
+    "prompt": "Edit the FIRST image, an exact 4-column by 4-row transparent pixel-art sprite atlas (16 poses). Images 2 and 3 are reference ONLY: image 2 is the authoritative down-state drawing, image 3 the original character portrait. Correct ONLY the disproportionately long faces on the first atlas to the original character's facial proportions: a compact, broad adult face, shortening the lower face / eye-to-chin distance about 18%, moderately broad cheeks and jaw, distinctly cleft chin, blue eyes, confident toothy smile, purple curled pompadour. Match the down drawing's facial proportions and pixel-art line/shading style. Preserve each pose's expression, including closed eyes and shouting. This is a small facial proportion correction, not a character redesign or change to overall stature. IMPORTANT: everything other than the face/head outline must stay registered and unchanged: exact canvas dimensions 1448x1086, original 4x4 cell placement, all foot/shoe positions, body size, hands, jewelry, pink suit, brown dotted tie, brown shoes, pink punch trails and all attack poses. Keep shoulders, neck attachment and hair silhouette consistent frame to frame. Do not alter the frame layout or introduce motion drift. Keep crisp pixel art with clear outlines; no blur. Transparent background, no floor or shadow, no labels. Return ONLY the edited first atlas; do not include the references.",
+    "postprocess": "Head-only compositing onto original atlas; original body/effect pixels and foot registration preserved."
+  },
+  "headRegistration": {
+    "original": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-b5defb1b-826d-463f-8846-8751d6ba9e8d.png",
+    "edited": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-7324b792-1234-41e7-919c-fd063abc8300.png",
+    "polygons": [
+      [
+        [
+          134,
+          30
+        ],
+        [
+          226,
+          30
+        ],
+        [
+          226,
+          93
+        ],
+        [
+          207,
+          110
+        ],
+        [
+          171,
+          112
+        ],
+        [
+          144,
+          95
+        ],
+        [
+          134,
+          82
+        ]
+      ],
+      [
+        [
+          495,
+          30
+        ],
+        [
+          587,
+          30
+        ],
+        [
+          587,
+          93
+        ],
+        [
+          568,
+          110
+        ],
+        [
+          532,
+          112
+        ],
+        [
+          505,
+          95
+        ],
+        [
+          495,
+          82
+        ]
+      ],
+      [
+        [
+          858,
+          30
+        ],
+        [
+          950,
+          30
+        ],
+        [
+          950,
+          93
+        ],
+        [
+          931,
+          110
+        ],
+        [
+          895,
+          112
+        ],
+        [
+          868,
+          95
+        ],
+        [
+          858,
+          82
+        ]
+      ],
+      [
+        [
+          1219,
+          30
+        ],
+        [
+          1311,
+          30
+        ],
+        [
+          1311,
+          93
+        ],
+        [
+          1292,
+          110
+        ],
+        [
+          1256,
+          112
+        ],
+        [
+          1229,
+          95
+        ],
+        [
+          1219,
+          82
+        ]
+      ],
+      [
+        [
+          134,
+          297
+        ],
+        [
+          226,
+          297
+        ],
+        [
+          226,
+          360
+        ],
+        [
+          207,
+          377
+        ],
+        [
+          171,
+          379
+        ],
+        [
+          144,
+          362
+        ],
+        [
+          134,
+          349
+        ]
+      ],
+      [
+        [
+          495,
+          297
+        ],
+        [
+          587,
+          297
+        ],
+        [
+          587,
+          360
+        ],
+        [
+          568,
+          377
+        ],
+        [
+          532,
+          379
+        ],
+        [
+          505,
+          362
+        ],
+        [
+          495,
+          349
+        ]
+      ],
+      [
+        [
+          858,
+          297
+        ],
+        [
+          950,
+          297
+        ],
+        [
+          950,
+          360
+        ],
+        [
+          931,
+          377
+        ],
+        [
+          895,
+          379
+        ],
+        [
+          868,
+          362
+        ],
+        [
+          858,
+          349
+        ]
+      ],
+      [
+        [
+          1219,
+          297
+        ],
+        [
+          1311,
+          297
+        ],
+        [
+          1311,
+          360
+        ],
+        [
+          1292,
+          377
+        ],
+        [
+          1256,
+          379
+        ],
+        [
+          1229,
+          362
+        ],
+        [
+          1219,
+          349
+        ]
+      ],
+      [
+        [
+          134,
+          549
+        ],
+        [
+          226,
+          549
+        ],
+        [
+          226,
+          612
+        ],
+        [
+          207,
+          629
+        ],
+        [
+          171,
+          631
+        ],
+        [
+          144,
+          614
+        ],
+        [
+          134,
+          601
+        ]
+      ],
+      [
+        [
+          495,
+          549
+        ],
+        [
+          587,
+          549
+        ],
+        [
+          587,
+          612
+        ],
+        [
+          568,
+          629
+        ],
+        [
+          532,
+          631
+        ],
+        [
+          505,
+          614
+        ],
+        [
+          495,
+          601
+        ]
+      ],
+      [
+        [
+          856,
+          549
+        ],
+        [
+          948,
+          549
+        ],
+        [
+          948,
+          612
+        ],
+        [
+          929,
+          629
+        ],
+        [
+          893,
+          631
+        ],
+        [
+          866,
+          614
+        ],
+        [
+          856,
+          601
+        ]
+      ],
+      [
+        [
+          1218,
+          549
+        ],
+        [
+          1310,
+          549
+        ],
+        [
+          1310,
+          612
+        ],
+        [
+          1291,
+          629
+        ],
+        [
+          1255,
+          631
+        ],
+        [
+          1228,
+          614
+        ],
+        [
+          1218,
+          601
+        ]
+      ],
+      [
+        [
+          132,
+          799
+        ],
+        [
+          224,
+          799
+        ],
+        [
+          224,
+          862
+        ],
+        [
+          205,
+          879
+        ],
+        [
+          169,
+          881
+        ],
+        [
+          142,
+          864
+        ],
+        [
+          132,
+          851
+        ]
+      ],
+      [
+        [
+          484,
+          804
+        ],
+        [
+          576,
+          804
+        ],
+        [
+          576,
+          867
+        ],
+        [
+          557,
+          884
+        ],
+        [
+          521,
+          886
+        ],
+        [
+          494,
+          869
+        ],
+        [
+          484,
+          856
+        ]
+      ],
+      [
+        [
+          865,
+          798
+        ],
+        [
+          957,
+          798
+        ],
+        [
+          957,
+          861
+        ],
+        [
+          938,
+          878
+        ],
+        [
+          902,
+          880
+        ],
+        [
+          875,
+          863
+        ],
+        [
+          865,
+          850
+        ]
+      ],
+      [
+        [
+          1219,
+          799
+        ],
+        [
+          1311,
+          799
+        ],
+        [
+          1311,
+          862
+        ],
+        [
+          1292,
+          879
+        ],
+        [
+          1256,
+          881
+        ],
+        [
+          1229,
+          864
+        ],
+        [
+          1219,
+          851
+        ]
+      ]
+    ],
+    "bodyAndFootPixels": "unchanged outside head polygons"
+  },
+  "source": "work/jewel-v6-qa/source-heads.png",
+  "downSource": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-e9b6c9ac-8d7d-423f-a6d4-4adbecd82720.png",
+  "cellSize": [
+    672,
+    448
+  ],
+  "rowEdges": [
+    0,
+    270,
+    540,
+    763,
+    1086
+  ],
+  "columnEdges": [
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ],
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ],
+    [
+      0,
+      362,
+      727,
+      1089,
+      1448
+    ],
+    [
+      0,
+      362,
+      724,
+      1086,
+      1448
+    ]
+  ],
+  "records": [
+    {
+      "label": "idle-0",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 103,
+        "width": 301,
+        "height": 329,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-1",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 103,
+        "width": 301,
+        "height": 329,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-2",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 103,
+        "width": 301,
+        "height": 329,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "idle-3",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 103,
+        "width": 301,
+        "height": 329,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-4",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 185,
+        "top": 95,
+        "width": 301,
+        "height": 337,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-5",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 188,
+        "top": 95,
+        "width": 397,
+        "height": 337,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-6",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 186,
+        "top": 95,
+        "width": 415,
+        "height": 337,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "punch-7",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 185,
+        "top": 95,
+        "width": 301,
+        "height": 338,
+        "bottom": 433
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-8",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 183,
+        "top": 94,
+        "width": 435,
+        "height": 336,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-9",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 182,
+        "top": 94,
+        "width": 466,
+        "height": 337,
+        "bottom": 431
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-10",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 147,
+        "top": 97,
+        "width": 507,
+        "height": 333,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-11",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 131,
+        "top": 94,
+        "width": 505,
+        "height": 336,
+        "bottom": 430
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-12",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 141,
+        "top": 81,
+        "width": 486,
+        "height": 351,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-13",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 182,
+        "top": 21,
+        "width": 385,
+        "height": 411,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-14",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 174,
+        "top": 83,
+        "width": 405,
+        "height": 349,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336,
+        "y": 430
+      }
+    },
+    {
+      "label": "rush-15",
+      "scale": 1.6243654822335025,
+      "anchor": [
+        336,
+        430
+      ],
+      "bounds": {
+        "left": 183,
+        "top": 81,
+        "width": 307,
+        "height": 351,
+        "bottom": 432
+      },
+      "feet": {
+        "x": 336.5,
+        "y": 430
+      }
+    },
+    {
+      "label": "down",
+      "scale": 0.21174205967276227,
+      "anchor": [
+        128,
+        240
+      ],
+      "bounds": {
+        "left": 18,
+        "top": 76,
+        "width": 221,
+        "height": 164,
+        "bottom": 240
+      }
+    }
+  ]
+}

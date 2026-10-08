@@ -328,9 +328,6 @@
 .cloud-battle .enemy-art:not(.enemy-defeat) .enemy-sprite{transform:none;animation-duration:1.6s}
 .cloud-battle.grounded .enemy-attacking:not(.enemy-defeat) .enemy-sprite{width:100%;height:100%;left:0;top:0}
 .cloud-battle.grounded .enemy-absorbing:not(.enemy-defeat) .enemy-sprite{background-image:var(--enemy-absorb-image)}
-.cloud-battle #enemy-art{top:calc(var(--enemy-y) - 65px)}
-.cloud-battle #enemy-next-1{top:calc(var(--enemy-y) - 125px);left:calc(var(--enemy-x) + 160px)}
-.cloud-battle #enemy-next-2{top:calc(var(--enemy-y) + 50px);left:calc(var(--enemy-x) + 150px)}
 .cloud-battle .enemy-art::before{display:none}
 .cloud-minion .enemy-health{top:70%}.cloud-minion .enemy-target{inset:20%}
 .cloud-heal{color:#a6f0ce}
@@ -346,10 +343,10 @@
 
 /* Cloud atlases are square and share stable world-space centers. */
 .meta-arena.cloud-battle #enemy-art,.meta-arena.cloud-battle .cloud-boss.enemy-defeat.has-defeat-sheet{width:var(--enemy-width);height:var(--enemy-width)}
-.meta-arena.cloud-battle #enemy-art{top:calc(var(--enemy-y) - 55px)}
+.meta-arena.cloud-battle #enemy-art{left:var(--cloud-0-x);top:var(--cloud-0-y)}
 .meta-arena.cloud-battle #enemy-next-1,.meta-arena.cloud-battle #enemy-next-2{width:calc(var(--enemy-width) * .42);height:calc(var(--enemy-width) * .42)}
-.meta-arena.cloud-battle #enemy-next-1{left:calc(var(--enemy-x) + 185px);top:calc(var(--enemy-y) - 120px)}
-.meta-arena.cloud-battle #enemy-next-2{left:calc(var(--enemy-x) + 180px);top:calc(var(--enemy-y) + 55px)}
+.meta-arena.cloud-battle #enemy-next-1{left:var(--cloud-1-x);top:var(--cloud-1-y)}
+.meta-arena.cloud-battle #enemy-next-2{left:var(--cloud-2-x);top:var(--cloud-2-y)}
 .meta-arena.cloud-battle .cloud-minion.cloud-emerging{animation:cloud-emerge .36s ease-out both}
 @keyframes cloud-emerge{from{transform:translate(calc(-50% + var(--birth-x)),calc(-50% + var(--birth-y))) scale(.25);opacity:0}30%{opacity:1}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .scene-phase{display:none!important}

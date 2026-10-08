@@ -3,7 +3,8 @@
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),FX=require('../js/combat-effects.js');
 function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8'),options={}){
-  let visualSeed=81423;
+  let visualSeed=81423,combatSeed=17581;
+  const combatRandom=options.combatRandom||(()=>((combatSeed=(Math.imul(1664525,combatSeed)+1013904223)>>>0)/4294967296));
   const visualRandom=options.visualRandom||(()=>((visualSeed=(Math.imul(1664525,visualSeed)+1013904223)>>>0)/4294967296));
   let now=state.savedAt,next=0;const timers=new Map(),ids=new Map(),selectors=new Map();
   const metrics={text:0,formulas:0,controls:0,layout:0},windowEvents=new Map(),documentEvents=new Map();
@@ -40,7 +41,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     setTimeout:(fn,delay)=>schedule(fn,delay),clearTimeout:id=>timers.delete(id),setInterval:(fn,delay)=>schedule(fn,delay,delay),
     requestAnimationFrame:fn=>schedule(fn,16),cancelAnimationFrame:id=>timers.delete(id),Image:class{},ResizeObserver:class{observe(){}},
     addEventListener:(type,fn)=>windowEvents.set(type,fn),matchMedia:()=>media,localStorage:storage,
-    YggData:D,YggMatchup:require('../js/matchup.js'),YggNumbers:require('../js/numbers.js'),YggMaintenance:require('../js/maintenance.js'),YggEngine:{...E,catchUp:s=>E.catchUp(s,now),click:(s,rng=options.combatRandom||(()=>.999))=>E.click(s,rng),advance:(s,seconds,rng=options.combatRandom||(()=>.999),collect=true)=>E.advance(s,seconds,rng,collect)},YggSave:S,YggDisplay:require('../js/display.js'),YggCombatEffects:{...FX,createPlayback:options=>FX.createPlayback({...options,schedule:(fn,ms)=>schedule(fn,ms),cancel:id=>timers.delete(id)})}};
+    YggData:D,YggMatchup:require('../js/matchup.js'),YggNumbers:require('../js/numbers.js'),YggMaintenance:require('../js/maintenance.js'),YggEngine:{...E,catchUp:s=>E.catchUp(s,now),click:(s,rng=combatRandom)=>E.click(s,rng),advance:(s,seconds,rng=combatRandom,collect=true)=>E.advance(s,seconds,rng,collect)},YggSave:S,YggDisplay:require('../js/display.js'),YggCombatEffects:{...FX,createPlayback:options=>FX.createPlayback({...options,schedule:(fn,ms)=>schedule(fn,ms),cancel:id=>timers.delete(id)})}};
   context.window=context;vm.runInNewContext(source,context);
   function runTo(until,late=false){let budget=100000;while(timers.size){const [id,t]=[...timers].sort((a,b)=>a[1].at-b[1].at||a[0]-b[0])[0];if(t.at>until)break;if(!--budget)throw Error('Timer loop');now=late?until:t.at;timers.delete(id);t.fn();if(t.repeat)timers.set(id,{...t,at:now+t.repeat});}now=until;}
   const resetMetrics=()=>{for(const k in metrics)metrics[k]=0;};resetMetrics();

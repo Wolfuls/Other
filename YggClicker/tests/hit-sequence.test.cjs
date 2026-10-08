@@ -27,13 +27,12 @@ test('HP 4 boundary rolls all six faces: exactly three knockouts, with a full cl
     if(face%2)assert.equal(events[1].reason,'knockout');
   }
 });
-test('surviving at HP4 checks again on the next loss, including automatic multi-hits',()=>{
-  const state=combatFixture();state.factors=100;E.hire(state,'meta');state.actionLevels.meta=70;freshTarget(state,6);
-  const events=E.advance(state,1,rolls(0,0,.25,0,0,0));
-  const hits=events.filter(e=>e.type==='attack');
-  assert.deepEqual(hits.map(e=>[e.hpAfter,e.knockoutRoll,e.knockedOut]),[[4,2,false],[2,1,true]]);
-  assert.equal(state.kills,1);assert.equal(state.totalDamage,4);assert.equal(state.hp,20);
-  assert.deepEqual(S.decode(S.encode(state)),state);
+test('surviving at HP4 checks again on the next loss',()=>{
+  const state=combatFixture();freshTarget(state,5);
+  const first=E.click(state,rolls(0,.25))[0],second=E.click(state,rolls(0,0))[0];
+  assert.deepEqual([first,second].map(e=>[e.hpAfter,e.knockoutRoll,e.knockedOut]),[[4,2,false],[3,1,true]]);
+  assert.equal(state.kills,1);assert.equal(state.totalDamage,2);assert.equal(state.hp,20);
+  assert.deepEqual(S.decode(S.encode(state)),S.validateState(state));
 });
 test('HP5, zero HP, loading and pauses do not introduce knockout checks',()=>{
   const state=combatFixture();freshTarget(state,6);

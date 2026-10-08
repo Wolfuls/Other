@@ -30,7 +30,7 @@ test('ten gang appearances include women and two bald enemies, all sharing the s
 test('each defeated variant keeps its own four-pose sheet while its slot is absent; pause clears all falling sprites',()=>{
  const variants=D.sessions.find(s=>s.id==='mohicans').variants;
  for(let i=0;i<variants.length;i++){
-  const s=combatFixture(1000);s.sessionId='mohicans';s.levels.meta=50;s.hp=10;s.selectedCharacterId='meta';freshTarget(s,10);const h=harness(s,undefined,{visualRandom:()=> (i+.1)/variants.length});
+  const s=combatFixture(1000);s.sessionId='mohicans';s.levels.meta=50;s.hp=10;s.selectedCharacterId='meta';freshTarget(s,1);const h=harness(s,undefined,{combatRandom:()=>.5,visualRandom:()=> (i+.1)/variants.length});
   const next=h.get('enemy-next-1').dataset.appearance;
   assert.equal(h.get('enemy-art').dataset.appearance,variants[i].sheet);
   h.click('attack');h.advance(800);
@@ -46,7 +46,7 @@ test('each defeated variant keeps its own four-pose sheet while its slot is abse
 });
 
 test('sustained extreme gang clears keep falling sprites bounded and release them when hidden',()=>{
- const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];
+ const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;s.levels.richter=50;s.actionLevels.richter=1000000;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
  const h=harness(s);let max=0;for(let i=0;i<200;i++){h.advance(40);max=Math.max(max,h.get('enemy-defeats').children.length);}
  assert.ok(max>0);assert.ok(max<=24,`${max} falling sprites and labels`);
  h.visible(false);assert.equal(h.get('enemy-defeats').children.length,0);h.advance(2000);assert.equal(h.get('enemy-defeats').children.length,0);

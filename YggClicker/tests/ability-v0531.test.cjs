@@ -8,14 +8,15 @@ for(const kind of ['power','action',...D.statUpgrades.map(t=>t.id)])test(kind+':
  const floor=structuredClone(a);assert.equal(E.sell(a,kind,'meta',10),false);assert.deepEqual(a,floor);
  E.buyMany(a,kind,'meta',10);E.sell(a,kind,'meta');const nine=structuredClone(a);assert.equal(E.saleQuote(a,kind,'meta',10).valid,false);assert.equal(E.sell(a,kind,'meta',10),false);assert.deepEqual(a,nine);
 });
-test('ability controls show prices, no gauge, explain only purchased judgment bonuses, dispatch sell ten',()=>{
+test('ability controls show prices, no gauge, separate original rolls and trained intensity, dispatch sell ten',()=>{
  const s=ready();E.buyMany(s,'accuracy','meta',10);const h=harness(s,undefined,{combatRandom:()=>.5});
  const html=h.get('character-list').innerHTML;assert.doesNotMatch(html,/ability-track|ability-fill|ability-price/);assert.match(html,/sell10-accuracy-meta/);
  assert.equal(h.get('hire-cost-meta').textContent,'8 Rd');assert.equal(h.get('action-cost-meta').textContent,'10 Rd');assert.equal(h.get('vitality-cost-meta').textContent,'8 Rd');
- assert.equal(h.get('ability-note-accuracy-meta').textContent,'判定結果 ＋100%（最低＋10）');assert.equal(h.get('ability-note-evasion-meta').textContent,'');
+ assert.equal(h.get('ability-value-accuracy-meta').textContent,'259');assert.equal(h.get('ability-value-evasion-meta').textContent,'100');
+ assert.match(h.get('ability-base-accuracy-meta').textContent,/D6/);
  assert.doesNotMatch(h.get('ability-value-accuracy-meta').textContent,/判定 ×/);
  const control={disabled:false,dataset:{kind:'accuracy',id:'meta',trade:'sell',count:'10'}};
  h.get('character-list').listeners.get('click')({target:{closest:sel=>sel==='[data-trade]'?control:null}});
- assert.equal(h.saved().accuracyLevels.meta,0);assert.equal(h.get('ability-note-accuracy-meta').textContent,'');
+ assert.equal(h.saved().accuracyLevels.meta,0);assert.equal(h.get('ability-value-accuracy-meta').textContent,'100');
 });
 

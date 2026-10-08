@@ -2,12 +2,19 @@
   'use strict';
   // IDs are save-data identifiers. Keep them stable when names or folders change.
   const data = {
-    gameId: 'yggclicker', version: '0.56.3', maxOfflineSeconds: 8 * 60 * 60,
+    gameId: 'yggclicker', version: '0.57.5', maxOfflineSeconds: 8 * 60 * 60,
+    incomeTypes:['questReward','overkillReward','secondaryIncome','jewelSideIncome','jewelDoubleHitIncome','jewelDamageIncome','refund','migrationRefund','prestigeReward'],
+    secondaryIncomeTypes:['secondaryIncome','jewelSideIncome','jewelDoubleHitIncome','jewelDamageIncome'],
+    strength:{strengthBase:100,strengthGrowth:1.10,hitStrengthExponent:1,damageStrengthExponent:1,probabilityEpsilon:1e-6},
+    runtimeBalance:{jewelSideIncomeMeanIntervalSeconds:1800,jewelSideIncomeRate:.01,trainingPressureScale:.01,recoverySpeedBonusPerStack:.20,runawayPressureReductionPerStack:.10,basePressures:{normal:.02,slightlyLow:.01,low:.005},criticalRewardRate:0,overloadDamageRate:1},
+    runawayThresholds:[50,70,90,110,120,130,140,150],
+    runawaySymptoms:['control','overload','hearing','vision','body','ability','language','memory','mind','oblivion'],
+    seedSystem:{enabled:false,effects:{pride:'action',vanity:'evasionStrength',envy:'hitStrength',wrath:'attackStrength',melancholy:'sedation',greed:'secondaryIncome',gluttony:'maxHP',lust:'defenseStrength'},karmaEffects:{}},
     tordelieseVisual: {
       sheet:'./img/tordeliese-animation-v13.png',
       tendrilFrames:Array.from({length:6},(_,i)=>`./img/tordeliese-tendril-${i+1}-v6.png`)
     },
-    questGrowth: { cost:100, costGrowth:1.1, hpGrowth:1.1, statGrowth:1.1, combatGrowth:1.05, rewardGrowth:1.25 },
+    questGrowth: { cost:100, costGrowth:1.15, hpGrowth:1.1, statGrowth:1.1, combatGrowth:1.05, rewardGrowth:1.25 },
     statUpgrades:[
       {id:'vitality',field:'vitalityLevels',name:'最大HP'},
       {id:'armor',field:'armorLevels',name:'防御＆抵抗'},
@@ -111,7 +118,7 @@
     "description": "倍差命中以外の被弾時、その攻撃への防御＋6。"
   }
 ] },
-      { id: 'richter', defense:1, resistance:6, maxHP:24, evasion:{flat:9,dice:1}, ss:{flat:12,dice:1}, downSprite:'./img/richter-down-v1.png', name: 'ゲルハムト・リヒター', initials: 'GR', title: 'BoM-BeR', role: '爆弾投球・群れへの全体攻撃', cost: 100, powerCost: 20, actionCost: 25, dice: 5, flat: 0, action: 35, color: '#e5ae83', portrait: './img/richter-standing-v11.png', description: '行動力で数、攻撃力Lvで大きさが増す爆弾クリーチャーを投げる。攻撃力の節目で特性を購入でき、BoM-BeRで群れの3体へ全体攻撃する。', source: 'ユーザー提供のキャラクター設定・参考画像', perks: [
+      { id: 'richter', defense:1, resistance:6, maxHP:24, evasion:{flat:9,dice:1}, ss:{flat:12,dice:1}, downSprite:'./img/richter-down-v1.png', name: 'ゲルハムト・リヒター', initials: 'GR', title: 'BoM-BeR', role: '爆弾投球・群れへの全体攻撃', cost: 100, powerCost: 20, actionCost: 25, dice: 5, flat: 0, action: 35, color: '#e5ae83', portrait: './img/richter-standing-v11.png', description: '行動力で数、攻撃力Lvで大きさが増す爆弾クリーチャーを投げる。攻撃力の節目で特性が解放され、BoM-BeRで群れの3体へ全体攻撃する。', source: 'ユーザー提供のキャラクター設定・参考画像', perks: [
         {"id":"z-bom","level":10,"cost":100,"name":"Z-BoM.","diceEvery":10,"description":"攻撃力Lv10ごとに攻撃力＋1D6。"},
         {"id":"dx-bom","level":25,"cost":1000,"name":"DX-BoM.","flat":8,"description":"攻撃力の固定値＋8。"},
         {"id":"bom-ber","level":50,"cost":10000,"name":"BoM-BeR","areaAttack":true,"description":"[群れ]の3体に全体攻撃。防御計算後のダメージを半減。","areaTrait":"swarm"},
@@ -349,6 +356,7 @@
       {id:'action',name:'行動',max:10,effect:'行動力＋10% / 点'}
     ],
     upgrades: [
+      {id:'stabilization',name:'因子安定化',label:'全味方の鎮静圧＋0.1 / 分 / Lv',description:'時間経過による暴走率の鎮静を促す。',cost:20000,costGrowth:1.5,max:null,pressure:.1/60,icon:'◈'},
       {id:'retake',name:'リテイク',label:'回避のファンブルを1度だけ振り直す',description:"回避判定のファンブルを1度だけ振り直す。",cost:500000,max:1,icon:'↶'},
       {id:'reversal',name:'逆転',label:'敵の命中クリティカルを1度だけ振り直す',description:"敵の命中判定のクリティカルを1度だけ振り直す。",cost:500000,max:1,icon:'⇄'},
       {id:'fightingSpirit',name:'闘志',label:'致死ダメージ時、30%でHP1に踏みとどまる',description:"致死ダメージ時、30%でHP1に踏みとどまる。",cost:500000,max:1,icon:'◆'},
@@ -357,8 +365,8 @@
       { id: 'overkill', name: 'オーバーキルボーナス', label: '撃破時のHPが−20以下なら報酬＋25%', description: "残りHPを20以上超えて倒すと、クリア報酬＋25%。", cost: 200, max: 1, icon: '✦', threshold: 20, bonusRate: .25 }
     ]
   };
-  data.characters.push({"id":"jewel","name":"ジュエル","initials":"JW","title":"宝石の拳","role":"高い防御・因子の獲得","cost":12000,"powerCost":2400,"actionCost":3000,"dice":3,"flat":5,"action":11,"accuracy":{"flat":16,"dice":1},"actionDice":{"flat":4,"dice":2},"evasion":{"flat":6,"dice":1},"ss":{"flat":10,"dice":1},"maxHP":36,"defense":7,"resistance":4,"color":"#df91d8","portrait":"./img/jewel-standing-v3.png","downSprite":"./img/jewel-down-v1.png","description":"宝石を身に着けた拳闘家。育成への投資を力と収入に変える。","source":"ユーザー提供の設定・参考画像","perks":[{"id":"side-income","initial":true,"level":0,"cost":0,"name":"臨時収入","clearIncomeChance":0.01,"description":"クエストクリア時、1%で自身の所持因子の1%を獲得。"},{"id":"crimson-fist","level":10,"cost":100000,"name":"紅の拳","doubleHitIncome":true,"description":"倍差命中時、与ダメージ分の因子を獲得。"},{"id":"adamant-fist","level":25,"cost":1000000,"name":"金剛の剛拳","flat":3,"defenseBonus":4,"description":"攻撃力＋3、防御＋4。"},{"id":"rainbow-armor","level":100,"cost":1000000000,"name":"虹の装甲","rainbowArmor":true,"description":"倍差命中時、その攻撃から3R、攻撃力・防御＋15。"},{"id":"crystal-radiance","levelType":"accuracy","level":50,"cost":10000000,"name":"水晶の煌","evasionReduction":6,"description":"攻撃命中時、対象の回避を2Rの間−6。"},{"id":"yellow-glow","levelType":"armor","level":10,"cost":100000,"name":"黄の発光","defenseBonus":4,"allyTargetWeight":0.5,"description":"防御＋4。他の味方の狙われやすさを半減。"},{"id":"iolite-shield","levelType":"armor","level":50,"cost":10000000,"name":"菫青の大盾","defenseBonus":8,"damageIncome":true,"description":"防御＋8。受けたダメージ分の因子を獲得。"},{"id":"black-egg","levelType":"armor","level":100,"cost":1000000000,"name":"黒蛋の魂","investmentArmor":true,"description":"所持因子が1兆Rdを超えると防御＋10。以降、倍増するごとにさらに＋3。"}]});
-  data.jewelVisual={sheet:'./img/jewel-animation-v3.png'};
+  data.characters.push({"id":"jewel","name":"ジュエル","initials":"JW","title":"宝石の拳","role":"高い防御・因子の獲得","cost":12000,"powerCost":2400,"actionCost":3000,"dice":3,"flat":5,"action":11,"accuracy":{"flat":16,"dice":1},"actionDice":{"flat":4,"dice":2},"evasion":{"flat":6,"dice":1},"ss":{"flat":10,"dice":1},"maxHP":36,"defense":7,"resistance":4,"color":"#df91d8","portrait":"./img/jewel-standing-v6.png","downSprite":"./img/jewel-down-v3.png","description":"宝石を身に着けた拳闘家。因子の蓄えを力と収入に変える。","source":"ユーザー提供の設定・参考画像","perks":[{"id":"side-income","initial":true,"level":0,"cost":0,"name":"臨時収入","sideIncome":true,"description":"部隊参加中、まれに所持因子の1%を獲得。"},{"id":"crimson-fist","level":10,"cost":100000,"name":"紅の拳","doubleHitIncome":true,"description":"倍差命中時、与ダメージ分の因子を獲得。"},{"id":"adamant-fist","level":25,"cost":1000000,"name":"金剛の剛拳","flat":3,"defenseBonus":4,"description":"攻撃力＋3、防御＋4。"},{"id":"rainbow-armor","level":100,"cost":1000000000,"name":"虹の装甲","rainbowArmor":true,"description":"倍差命中時、その攻撃から3R、攻撃力・防御＋15。"},{"id":"crystal-radiance","levelType":"accuracy","level":50,"cost":10000000,"name":"水晶の煌","evasionReduction":6,"description":"攻撃命中時、対象の回避を2Rの間−6。"},{"id":"yellow-glow","levelType":"armor","level":10,"cost":100000,"name":"黄の発光","defenseBonus":4,"allyTargetWeight":0.5,"description":"防御＋4。他の味方の狙われやすさを半減。"},{"id":"iolite-shield","levelType":"armor","level":50,"cost":10000000,"name":"菫青の大盾","defenseBonus":8,"damageIncome":true,"description":"防御＋8。受けたダメージ分の因子を獲得。"},{"id":"black-egg","levelType":"armor","level":100,"cost":1000000000,"name":"黒蛋の魂","investmentArmor":true,"description":"プレイヤーの所持因子が1兆Rdを超えると防御＋10。以降、倍増するごとにさらに＋3。"}]});
+  data.jewelVisual={sheet:'./img/jewel-animation-v6.png'};
   const allyCombat={meta:[14,1,8],richter:[14,1,7],vishunal:[12,1,10],tordeliese:[20,1,6],waku:[14,1,14],max:[4,2,12],jewel:[16,1,4]};
   for(const c of data.characters){
     const [flat,dice,actionFlat]=allyCombat[c.id];
@@ -387,6 +395,7 @@
     dawnBackground:'./img/rooftop-overcast-dawn-v1.png',duskBackground:'./img/rooftop-overcast-dusk-v1.png',
     sheet:'./img/enemy-ozmorn-idle-v1.png',attackSheet:'./img/enemy-ozmorn-attack-v1.png',absorbSheet:'./img/enemy-ozmorn-absorb-v1.png',
     summon:{name:'コグモ',sheet:'./img/enemy-kogumo-idle-v1.png',attackSheet:'./img/enemy-kogumo-attack-v1.png',defeatStyle:'dissolve',attack:{dice:3,flat:3},actionDice:{flat:10,dice:1},defense:0,resistance:0,apAttack:true}});
+  for(const c of data.characters){const type={meta:'awakening',richter:'awakening',jewel:'awakening',vishunal:'reaction',waku:'reaction',tordeliese:'recovery',max:'recovery'}[c.id];c.activationType=type;c.baseRunawayPressure=data.runtimeBalance.basePressures[type==='awakening'?'normal':type==='reaction'?'slightlyLow':'low'];for(const p of c.perks||[]){p.runawayPressure??=0;p.effectClass??=(p.transferAction||p.partyActionDice||p.partyEvasionDice||p.sharePowerLevel||p.selectedActionRate||p.freeActionChance||p.protectLowestHP)?'support':'special';}}
   if (typeof module !== 'undefined' && module.exports) module.exports = data;
   else root.YggData = data;
 })(typeof window !== 'undefined' ? window : globalThis);
