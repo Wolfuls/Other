@@ -19,3 +19,6 @@
 .formation-entry{cursor:pointer}.formation-remove{justify-self:end;background:transparent;color:var(--muted);border:1px solid var(--line);border-radius:4px;cursor:pointer;padding:3px 8px}.formation-remove:focus-visible{outline:2px solid var(--accent)}
 
 .formation-entry .formation-range{grid-column:1;align-self:center}.formation-remove{grid-column:2;grid-row:2}
+
+.auto-rest-settings{display:grid;gap:8px;margin:12px 0;padding:12px;border:1px solid var(--border,#657080)}
+.auto-rest-settings label{display:flex;align-items:center;justify-content:space-between;gap:12px}.auto-rest-settings input[type=number]{width:110px;max-width:45%}#auto-rest-error{color:#ff8181;margin:0}

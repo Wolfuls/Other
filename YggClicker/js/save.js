@@ -5,12 +5,13 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 49;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 50;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    49(document){return {...document,schemaVersion:50,state:{...document.state,autoRest:Object.fromEntries(D.sessions.map(q=>[q.id,E.newAutoRest()]))}};},
     48(document){
       const old=record(document.state,'旧セーブ'),state={...old};
       const convert=(battle,id)=>{
@@ -481,6 +482,13 @@
   function validateState(input) {
     const raw = record(input, 'セーブ');
     const result = E.createState();
+    const rests=raw.autoRest===undefined?{}:record(raw.autoRest,'自動休憩');
+    if(Object.keys(rests).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応の自動休憩部隊');
+    for(const [id,value]of Object.entries(rests)){
+      const r=record(value,'自動休憩');if(!E.setAutoRest(result,id,r))throw new Error('自動休憩の設定が不正です');
+      Object.assign(result.autoRest[id],{elapsed:number(r.elapsed,'出撃時間',0),defeats:number(r.defeats,'討伐数',0,1e9,true),remaining:number(r.remaining,'休憩残り時間',0,r.restMinutes*60)});
+      if(!r.enabled&&r.remaining>0)throw new Error('無効な休憩状態');
+    }
     result.runNumber=number(raw.runNumber,'周回数',1,Number.MAX_SAFE_INTEGER,true);
     for (const key of ['factors', 'earned', 'previousRunsEarned', 'totalDamage']) { result[key] = number(raw[key], key); if(!Number.isInteger(result[key]))throw new Error(`${key}は整数で指定してください。`); }
     for (const key of ['kills', 'clicks']) {

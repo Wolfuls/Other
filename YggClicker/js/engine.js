@@ -139,8 +139,20 @@
     state.memoriesUnlocked=isMemoriesUnlocked(state);
     state.questUnlocks=Object.fromEntries(D.sessions.map(q=>[q.id,isQuestUnlocked(state,q.id)]));
   }
+  const newAutoRest=()=>({enabled:false,kills:0,minutes:0,restMinutes:5,elapsed:0,defeats:0,remaining:0});
+  const restOf=(state,id=state.sessionId)=>state.autoRest?.[id]||newAutoRest();
+  const isResting=(state,id=state.sessionId)=>restOf(state,id).remaining>0;
+  function setAutoRest(state,id,settings){
+    if(!D.sessions.some(q=>q.id===id)||typeof settings.enabled!=='boolean'||!Number.isSafeInteger(settings.kills)||settings.kills<0||settings.kills>1e9||!Number.isFinite(settings.minutes)||settings.minutes<0||settings.minutes>1e6||!Number.isFinite(settings.restMinutes)||settings.restMinutes<1/60||settings.restMinutes>1e6||settings.enabled&&!settings.kills&&!settings.minutes)return false;
+    state.autoRest||={};const old=restOf(state,id);
+    if(['enabled','kills','minutes','restMinutes'].some(k=>old[k]!==settings[k]))state.autoRest[id]={...newAutoRest(),...Object.fromEntries(['enabled','kills','minutes','restMinutes'].map(k=>[k,settings[k]]))};
+    return true;
+  }
+  function checkAutoRest(state){const r=restOf(state);if(r.enabled&&!r.remaining&&formationIds(state).length&&((r.kills&&r.defeats>=r.kills)||(r.minutes&&r.elapsed+1e-9>=r.minutes*60)))r.remaining=r.restMinutes*60;}
+  function restBoundary(state){const r=restOf(state);return !r.enabled||!formationIds(state).length?Infinity:r.remaining|| (r.minutes?Math.max(1e-9,r.minutes*60-r.elapsed):Infinity);}
+  function advanceRest(state,seconds){const r=restOf(state);if(!r.enabled||!formationIds(state).length)return;if(r.remaining){r.remaining=Math.max(0,r.remaining-seconds);if(r.remaining<1e-9){r.remaining=0;r.elapsed=0;r.defeats=0;}}else {r.elapsed=Math.min(1e100,r.elapsed+seconds);checkAutoRest(state);}}
   function createState(now = Date.now()) {
-    return { perkRefunded:true,perkEnabled:Object.fromEntries(D.characters.map(c=>[c.id,Object.fromEntries((c.perks||[]).map(p=>[p.id,!!(p.initial||p.awakeningLevel)]))])),
+    return { autoRest:Object.fromEntries(D.sessions.map(q=>[q.id,newAutoRest()])),perkRefunded:true,perkEnabled:Object.fromEntries(D.characters.map(c=>[c.id,Object.fromEntries((c.perks||[]).map(p=>[p.id,!!(p.initial||p.awakeningLevel)]))])),
       unlockedPerks:Object.fromEntries(D.characters.map(c=>[c.id,[]])),runaway:Object.fromEntries(D.characters.map(c=>[c.id,newRunaway(c)])),incomeTotals:{},
       seedLevels:Object.fromEntries(Object.keys(D.seedSystem.effects).map(k=>[k,0])),karmaSelections:{},
       factors: D.balance.initialFactors, earned: 0, previousRunsEarned: 0, runNumber:1, kills: 0, clicks: 0, totalDamage: 0,
@@ -188,6 +200,7 @@
     state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id===questId?[...ids]:rosters[q.id].filter(id=>!ids.includes(id))]));
     for(const q of D.sessions){
       const ctx=battleContext(state,q.id);
+      if(!formationIds(ctx).length&&state.autoRest?.[q.id])Object.assign(state.autoRest[q.id],{elapsed:0,defeats:0,remaining:0});
       if(!isDeployed(ctx,'jewel'))ctx.rainbowTurns=0;
       if(ctx.selectedCharacterId&&!isDeployed(ctx,ctx.selectedCharacterId))ctx.selectedCharacterId=null;
       normalizeEnemyActions(ctx);refreshFloorClip(ctx,rosters[q.id].join(',')!==formationIds(ctx).join(','));
@@ -327,11 +340,12 @@
   function questCost(state,id=state.sessionId) {
     const session=D.sessions.find(s=>s.id===id),level=state.questLevels?.[id]??1;
     if(!session || !Number.isSafeInteger(level+1))return Infinity;
-    // Keep the early unlock prices; later prices must not outgrow rewards
-    // simply because the legacy 15% curve was tuned for larger payouts.
+    // Each quest starts at 20 times its unmodified initial reward.
+    // Retain the existing growth curve and late reward-based ceiling.
+    const base=session.reward*D.questGrowth.costRewardMultiplier;
     const next=sessionAtLevel(session,level+1),cost=Math.min(
-      geometricCost(D.questGrowth.cost,level-1,D.questGrowth.costGrowth),
-      N.floor(N.curveValue(D.questGrowth.cost,level-1,D.questGrowth.rewardCurve)));
+      geometricCost(base,level-1,D.questGrowth.costGrowth),
+      N.floor(N.curveValue(base,level-1,D.questGrowth.rewardCurve)));
     return [next.hp,next.reward,cost].every(v=>Number.isFinite(v)&&v<=1e100)?cost:Infinity;
   }
   function applyQuestLevel(state,id,level,ctx,oldHP){
@@ -438,7 +452,7 @@
     return amount;
   }
   const healthOf=(state,id)=>state.health?.[id]||{hp:maxHP(state,D.characters.find(c=>c.id===id)),status:'active',regenSeconds:0};
-  const canAct=(state,id)=>isDeployed(state,id)&&healthOf(state,id).status==='active'&&!runawayOf(state,id).runawayCollapsed;
+  const canAct=(state,id)=>!isResting(state)&&isDeployed(state,id)&&healthOf(state,id).status==='active'&&!runawayOf(state,id).runawayCollapsed;
   function newEnemy(state,hp=getSession(state).hp,poisonDamage=0,respawnSeconds=0){
     return {row:getSession(state).row||'front',id:nextEnemyId(state),hp,poisonDamage,respawnSeconds,actionPoints:0,pendingAttack:null,defensePenalty:0,accuracyPenalty:0,evasionPenalty:0,evasionPenaltyTurns:0,evasionFailure:false,tauntId:null,slowSeconds:0,actionPenalty:0,queenCancels:0};
   }
@@ -552,6 +566,7 @@
     for(const t of choices){value-=t.weight;if(value<0)return t.character;}return choices.at(-1)?.character;
   }
   function enemyActions(state,random,events){
+    if(isResting(state))return;
     const session=getSession(state);
     if(!session.actionDice&&!session.action)return;
     if(!activeCharacters(state).length){normalizeEnemyActions(state,events);return;}
@@ -686,6 +701,7 @@
     }
     if(getSession(state).summons)dismissKogumo(state,events);
     const bonus=overkill?overkillBonus(state):0,gain=grantIncome(state,reward(state),'questReward')+grantIncome(state,bonus,'overkillReward');state.kills++;
+    const rest=restOf(state);if(rest.enabled){rest.defeats=Math.min(1e9,rest.defeats+1);checkAutoRest(state);}
     if(events)events.push({type:'clear',reward:gain,overkillBonus:bonus,overkills:overkill?1:0,reason,targetSlot:slot,enemyId:enemy.id,hpAfter:state.hp});
 
   }
@@ -805,7 +821,7 @@
   }
   function click(state,random=Math.random){
     if(state.viewingMemories)return [];
-    if(state.paused||isWaiting(state))return [];
+    if(state.paused||isResting(state)||isWaiting(state))return [];
     const character=selectedCharacter(state);
     if(character&&(!canAct(state,character.id)||isStunned(state,character.id)||!hasReachableTarget(state,character)))return [];
     // Unassigned manual attacks remain available to bootstrap the first hire.
@@ -860,7 +876,7 @@
       // Turn-ending self damage, misfires and perk failure rolls can change
       // who is able to act. Resolve those turns instead of skipping them in
       // the damage-only batch. Pure roll modifiers remain safe to aggregate.
-      const turnSensitive=Object.values(state.formationRows||{}).includes('rear')||livingEnemies(state).some(e=>e.row==='rear')||getSession(state).summons||activeCharacters(state).some(a=>a.id==='megumin'||isStunned(state,a.id))||activeCharacters(state).some(a=>a.id==='jewel'||['control','overload','ability','language'].includes(runawayOf(state,a.id).runawaySymptom))||livingEnemies(state).some(e=>e.evasionFailure||e.evasionPenaltyTurns)||attackProfile(state,c).evasionFailureChance;
+      const turnSensitive=restOf(state).enabled||Object.values(state.formationRows||{}).includes('rear')||livingEnemies(state).some(e=>e.row==='rear')||getSession(state).summons||activeCharacters(state).some(a=>a.id==='megumin'||isStunned(state,a.id))||activeCharacters(state).some(a=>a.id==='jewel'||['control','overload','ability','language'].includes(runawayOf(state,a.id).runawaySymptom))||livingEnemies(state).some(e=>e.evasionFailure||e.evasionPenaltyTurns)||attackProfile(state,c).evasionFailureChance;
       if(runawayOf(state,c.id).runawaySymptom==='oblivion'&&count>EXACT_ATTACK_BUDGET&&!turnSensitive){
         const skipped=Math.floor(count/2)+(count%2&&random()<.5?1:0);count-=skipped;
         if(events&&skipped)events.push({type:'runawaySkip',actorId:c.id,count:skipped,approximate:true});
@@ -898,6 +914,7 @@
     if(state.paused||seconds<=0)return [];
     const duration=Math.min(seconds,D.maxOfflineSeconds),clock=state.actionClock,events=collectEvents?[]:null;
     state.health||=Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}]));
+    state.autoRest||=Object.fromEntries(D.sessions.map(q=>[q.id,newAutoRest()]));
     const contexts=D.sessions.filter(q=>{const ctx=battleContext(state,q.id);return formationIds(state,q.id).length||isWaiting(ctx)||ctx.enemies?.some(e=>e.respawnSeconds>0||e.pendingAttack);}).map(q=>battleContext(state,q.id));
     for(const ctx of contexts){normalizeEnemyActions(ctx,events?{push:e=>events.push({...e,sessionId:ctx.sessionId})}:null);refreshFloorClip(ctx);}
     const ticks=Math.floor(clock+duration+1e-10);let previous=0,elapsed=0;
@@ -910,10 +927,11 @@
       // same boundaries are used by live, background and offline simulation.
       let remaining=dt;
       while(remaining>1e-10){
-        const timers=contexts.flatMap(ctx=>ensureEnemies(ctx).flatMap(e=>[e.respawnSeconds||Infinity,e.pendingAttack?.remaining??Infinity]));
-        const step=Math.min(remaining,...timers,...contexts.map(ctx=>ctx.floorClipSeconds||Infinity),Math.max(0,incomeAt-elapsed));recoverAllies(state,step,events);remaining=Math.max(0,remaining-step);elapsed+=step;
+        const timers=contexts.filter(ctx=>!isResting(ctx)).flatMap(ctx=>ensureEnemies(ctx).flatMap(e=>[e.respawnSeconds||Infinity,e.pendingAttack?.remaining??Infinity]));
+        const step=Math.min(remaining,...timers,...contexts.map(restBoundary),...contexts.filter(ctx=>!isResting(ctx)).map(ctx=>ctx.floorClipSeconds||Infinity),Math.max(0,incomeAt-elapsed));recoverAllies(state,step,events);remaining=Math.max(0,remaining-step);elapsed+=step;
         if(elapsed+1e-9>=incomeAt){jewelSideIncome(state,random,events);incomeAt+=exponential();}
         for(const ctx of contexts){
+          if(isResting(ctx)){advanceRest(ctx,step);continue;}
           const local=collectEvents?[]:null;
           ctx.factors=state.factors;ctx.earned=state.earned;ctx.formations=state.formations;
           const incomeBefore={factors:ctx.factors,earned:ctx.earned};
@@ -926,7 +944,7 @@
               if(e.pendingAttack.remaining<1e-9)resolveEnemyAttack(ctx,e,slot,random,local);
             }
           }
-          syncFront(ctx);refreshFloorClip(ctx);if(events)events.push(...local.map(e=>({...e,sessionId:ctx.sessionId})));
+          if(!isResting(ctx))advanceRest(ctx,step);syncFront(ctx);refreshFloorClip(ctx);if(events)events.push(...local.map(e=>({...e,sessionId:ctx.sessionId})));
           if(ctx!==state)for(const k of Object.keys(incomeBefore))state[k]+=ctx[k]-incomeBefore[k];
         }
       }
@@ -946,7 +964,7 @@
       }
       for(const ctx of contexts){
         ctx.formations=state.formations;ctx.factors=state.factors;ctx.earned=state.earned;
-        normalizeEnemyActions(ctx);if(isWaiting(ctx)||!activeCharacters(ctx).length)continue;
+        normalizeEnemyActions(ctx);if(isResting(ctx)||isWaiting(ctx)||!activeCharacters(ctx).length)continue;
         if(ctx.forecastTicks!==undefined)ctx.forecastTicks++;
         const before={factors:ctx.factors,earned:ctx.earned,kills:ctx.kills,totalDamage:ctx.totalDamage},local=collectEvents?[]:null;
         automaticTick(ctx,random,local);
@@ -1101,9 +1119,10 @@
   }
   function expectedIncome(state){
     const q=getSession(state),ids=formationIds(state);
-    const key=JSON.stringify([q.id,q.level,q.hp,q.reward,q.defense,q.resistance,q.evasion,q.traits,q.action,q.actionDice,q.attack,q.accuracy,q.ss,q.attackType,state.concentration,state.formationRows,ids,state.levels,state.upgrades,state.purchasedPerks,state.perkEnabled,ids.map(id=>activation(state,D.characters.find(c=>c.id===id))),ids.includes('max')?state.selectedCharacterId:null,ids.includes('jewel')?walletArmorBonus(state.factors):0]);
+    if(isResting(state))return {clearsPerSecond:0,reward:reward(state),bonusPerSecond:0,factorsPerSecond:0,approximate:true,combatUptime:0};
+    const key=JSON.stringify([restOf(state).enabled,restOf(state).kills,restOf(state).minutes,restOf(state).restMinutes,q.id,q.level,q.hp,q.reward,q.defense,q.resistance,q.evasion,q.traits,q.action,q.actionDice,q.attack,q.accuracy,q.ss,q.attackType,state.concentration,state.formationRows,ids,state.levels,state.upgrades,state.purchasedPerks,state.perkEnabled,ids.map(id=>activation(state,D.characters.find(c=>c.id===id))),ids.includes('max')?state.selectedCharacterId:null,ids.includes('jewel')?walletArmorBonus(state.factors):0]);
     if(incomeCache.has(key))return incomeCache.get(key);
-    const sample=structuredClone(state);sample.paused=false;sample.rainbowTurns=0;sample.enemies=null;sample.hp=q.hp;sample.poisonDamage=0;sample.respawnSeconds=0;sample.focusedEnemyId=null;sample.nextEnemyId=0;
+    const sample=structuredClone(state);sample.paused=false;sample.autoRest=Object.fromEntries(D.sessions.map(q=>[q.id,{...restOf(state,q.id),elapsed:0,defeats:0,remaining:0}]));sample.rainbowTurns=0;sample.enemies=null;sample.hp=q.hp;sample.poisonDamage=0;sample.respawnSeconds=0;sample.focusedEnemyId=null;sample.nextEnemyId=0;
     sample.formations=Object.fromEntries(D.sessions.map(s=>[s.id,s.id===q.id?ids:[]]));sample.sessionStates={};sample.actionClock=0;sample.forecastTicks=0;sample.forecast=true;
     sample.actionPoints=Object.fromEntries(D.characters.map(c=>[c.id,0]));sample.health=Object.fromEntries(D.characters.map(c=>[c.id,{hp:maxHP(state,c),status:'active',regenSeconds:0}]));
     sample.factors=state.factors;sample.earned=0;sample.kills=0;sample.totalDamage=0;
@@ -1140,7 +1159,7 @@
   // Entries retain their configured values when OFF or ineligible for inspection.
   function runawayPressureBreakdown(state,c){
     const r=runawayOf(state,c.id),deployed=!!formationOwner(state,c.id),healthy=healthOf(state,c.id).status==='active';
-    const active=deployed&&healthy&&!r.runawayCollapsed;
+    const active=deployed&&healthy&&!r.runawayCollapsed&&!isResting(state,formationOwner(state,c.id));
     const trainingLevels=trainingPressureLevels(state,c),trainingTotal=trainingLevels.reduce((n,t)=>n+t.level,0),trainingScale=D.runtimeBalance.trainingPressureScale;
     const training=trainingScale*Math.log2(1+trainingTotal);
     const perkEntries=perks(state,c).map(p=>({id:p.id,name:p.name,enabled:p.enabled,eligible:p.eligible,configured:p.runawayPressure||0,pressure:p.enabled&&p.eligible?p.runawayPressure||0:0}));
@@ -1279,7 +1298,7 @@
     return grantPerkIncome(state,Math.floor(state.factors*D.runtimeBalance.jewelSideIncomeRate),'臨時収入',events);
   }
 
-  const api = { formationRow,inRange,combatDistance,canReach,reachableEnemies,hasReachableTarget,enemyCanReach,rangedPerks,attackMotion, magicState, ownActionBonus, attackForecastProfile, isStunned, turnEffects, nextRun, isMemoriesUnlocked, incomeRecord, rolloverIncome, enemyStrength, selectMemories, concentrationResetCost, resetConcentration, strengthValue, concentrationPoints, clampHealth, hpStrength, hpFromStrength, enemyActionValue, suppressionQuote,suppressRunaway,newRunaway,runawayOf,activation,trainingRunawayPressure,runawayPressureBreakdown,runawayPressure,criticalFactorReward,changeRunaway,symptomRoll,thresholdEvent,jewelEligible,jewelSideIncome, T, grantIncome, refreshPerkUnlocks, togglePerk, profileAverage, enemyHitProfile, rollEnemyHit, enemySpec, scaledCombatTotal, trainingPlan, judgmentBonus, judgmentOutcomes, actionThreshold, enemyActionPower, accuracySpec, opposedHitChance, maxHP, armor, statLevel, enemyTargetCandidates, targetDefense, targetEvasion, evasionSpec, enemyAttackSpec, setQuestLevel, isQuestUnlocked, refreshQuestUnlocks, concentration, setConcentration, normalizeEnemyActions, livingEnemies, selectEnemy, enemyAttackDuration, revivalCost, revive, healthOf, canAct, ensureEnemies, combatRoll, battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, totalIncome, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasAreaAttack, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyPerk, buyUpgrade, selectSession, dps, characterDps, expectedIncome };
+  const api = { newAutoRest,restOf,isResting,setAutoRest, formationRow,inRange,combatDistance,canReach,reachableEnemies,hasReachableTarget,enemyCanReach,rangedPerks,attackMotion, magicState, ownActionBonus, attackForecastProfile, isStunned, turnEffects, nextRun, isMemoriesUnlocked, incomeRecord, rolloverIncome, enemyStrength, selectMemories, concentrationResetCost, resetConcentration, strengthValue, concentrationPoints, clampHealth, hpStrength, hpFromStrength, enemyActionValue, suppressionQuote,suppressRunaway,newRunaway,runawayOf,activation,trainingRunawayPressure,runawayPressureBreakdown,runawayPressure,criticalFactorReward,changeRunaway,symptomRoll,thresholdEvent,jewelEligible,jewelSideIncome, T, grantIncome, refreshPerkUnlocks, togglePerk, profileAverage, enemyHitProfile, rollEnemyHit, enemySpec, scaledCombatTotal, trainingPlan, judgmentBonus, judgmentOutcomes, actionThreshold, enemyActionPower, accuracySpec, opposedHitChance, maxHP, armor, statLevel, enemyTargetCandidates, targetDefense, targetEvasion, evasionSpec, enemyAttackSpec, setQuestLevel, isQuestUnlocked, refreshQuestUnlocks, concentration, setConcentration, normalizeEnemyActions, livingEnemies, selectEnemy, enemyAttackDuration, revivalCost, revive, healthOf, canAct, ensureEnemies, combatRoll, battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, totalIncome, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasAreaAttack, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyPerk, buyUpgrade, selectSession, dps, characterDps, expectedIncome };
   Object.assign(api,{enemyMaxHP,trainingInvestment,perkLevel,rainbowActive,enemyTargetWeights});
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;

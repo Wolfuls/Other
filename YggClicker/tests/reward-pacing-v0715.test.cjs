@@ -38,9 +38,9 @@ test('late quest unlock costs follow the new reward economy without inflating ea
  for(let level=1;level<=1000;level++){
   s.questLevels.ozmorn=level;const cost=E.questCost(s,'ozmorn');
   assert.ok(cost>=previous);previous=cost;
-  assert.ok(cost<=N.geometric(100,1.15,level-1));
-  assert.ok(cost<=(E.sessionAtLevel(q,level).reward*100/45+3)*(1+1e-12));
-  if(level<=25)assert.equal(cost,N.geometric(100,1.15,level-1));
+  assert.ok(cost<=N.geometric(q.reward*20,1.15,level-1));
+  assert.ok(cost<=(E.sessionAtLevel(q,level).reward*20+20)*(1+1e-12));
+  if(level<=25)assert.equal(cost,N.geometric(q.reward*20,1.15,level-1));
  }
  s.questLevels.ozmorn=200;s.factors=1e20;
  const quote=E.purchaseQuote(s,'quest','ozmorn',10),single=structuredClone(s);

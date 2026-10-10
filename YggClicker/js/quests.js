@@ -149,7 +149,7 @@
   {
     "id": "mohicans",
     "code": "03",
-    "unlockFactors": 1000,
+    "unlockFactors": 100,
     "formationCount": 3,
     "name": "YDF密着24分 101匹モヒちゃん大暴れ！",
     "area": "中層 / ウトガルド工業地帯",
@@ -192,7 +192,7 @@
   {
     "id": "dementor",
     "code": "04",
-    "unlockFactors": 100000,
+    "unlockFactors": 800,
     "name": "旧き看守",
     "area": "下層 / ヘルヘイム・緊急封鎖区画（屋外）",
     "enemy": "ディメンター",
@@ -237,7 +237,7 @@
     "id": "ozmorn",
     "code": "05",
     "name": "ところにより雷が伴う見込みです",
-    "unlockFactors": 1000000,
+    "unlockFactors": 1000,
     "area": "廃ビルの屋上",
     "enemy": "オズモーン",
     "hp": 130,

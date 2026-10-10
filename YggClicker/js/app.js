@@ -1444,6 +1444,7 @@
   }
   function openFormation(id){
     if(blocked()||!D.sessions.some(q=>q.id===id))return;
+    const rest=E.restOf(state,id);$('auto-rest-enabled').checked=rest.enabled;$('auto-rest-kills').value=rest.kills;$('auto-rest-minutes').value=rest.minutes;$('auto-rest-duration').value=rest.restMinutes;setText('auto-rest-error','');
     formationQuestId=id;formationDraft=[...E.formationIds(state,id)];formationRowsDraft={...state.formationRows};renderFormationDraft();$('formation-dialog').showModal();
   }
   function applySuppression(id=null){
@@ -1567,7 +1568,10 @@
     for(const id of ['formation-close','formation-cancel'])$(id).addEventListener('click',()=>$('formation-dialog').close());
     $('formation-save').addEventListener('click',()=>{
       if(blocked())return;sync();
+      const settings={enabled:$('auto-rest-enabled').checked,kills:Number($('auto-rest-kills').value),minutes:Number($('auto-rest-minutes').value),restMinutes:Number($('auto-rest-duration').value)};
+      if(!E.setAutoRest({...state,autoRest:structuredClone(state.autoRest)},formationQuestId,settings)) {setText('auto-rest-error','条件を1つ以上指定し、休憩時間は0より大きい数値を入力してください。');return;}
       if(E.setFormation(state,formationQuestId,formationDraft,formationRowsDraft)){
+        E.setAutoRest(state,formationQuestId,settings);
         resetCombatVisuals(true);
         save();render();$('formation-dialog').close();notice(E.getSession(state,formationQuestId).name+'の部隊編成を保存しました。');
       }

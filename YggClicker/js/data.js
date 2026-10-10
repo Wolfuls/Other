@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.72.2",
+  "version": "0.73.0",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -94,7 +94,7 @@
     ]
   },
   "questGrowth": {
-    "cost": 100,
+    "costRewardMultiplier": 20,
     "costGrowth": 1.15,
     "enemyCurve": { "initial": 1.025, "terminal": 1.012, "transition": 100 },
     "durability": { "transition": 100, "hpExponent": 3.5, "defenseExponent": 1, "attackExponent": 2 },

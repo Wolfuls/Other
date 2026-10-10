@@ -183,7 +183,7 @@
     function renderLive(state){
     for(const q of D.sessions){
       const ctx=E.battleContext(state,q.id),members=E.formationIds(state,q.id).length;
-      setText('quest-live-'+q.id,(state.paused?'全体一時停止':members?'自動周回中':'部隊未編成')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?'再出現まで '+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(ctx.hp)+' / '+fullNumber(E.getSession(ctx).hp)));
+      setText('quest-live-'+q.id,(state.paused?'全体一時停止':E.isResting(ctx)?'休憩中（あと'+Math.ceil(E.restOf(ctx).remaining)+'秒）':members?'自動周回中':'部隊未編成')+(E.restOf(ctx).enabled?' · 出撃 '+Math.floor(E.restOf(ctx).elapsed/60)+'分 / '+E.restOf(ctx).defeats+'討伐':'')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?'再出現まで '+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(ctx.hp)+' / '+fullNumber(E.getSession(ctx).hp)));
     }
     }
     return {build,render,renderLive,renderPreview};
