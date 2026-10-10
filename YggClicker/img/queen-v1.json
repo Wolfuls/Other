@@ -1,0 +1,316 @@
+{
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-791ffdeb-2c6a-4276-a459-b2104e0b01f1.png",
+  "mode": "built-in imagegen; atlas slicing and foot registration",
+  "cell": [
+    512,
+    384
+  ],
+  "bodyScale": 1,
+  "registration": [
+    {
+      "row": 0,
+      "col": 0,
+      "anchor": {
+        "x": 202,
+        "bottom": 310
+      },
+      "bounds": {
+        "left": 79,
+        "top": 8,
+        "width": 187,
+        "height": 303
+      },
+      "translation": [
+        -10,
+        50
+      ],
+      "ground": 360
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "anchor": {
+        "x": 156,
+        "bottom": 310
+      },
+      "bounds": {
+        "left": 56,
+        "top": 8,
+        "width": 193,
+        "height": 303
+      },
+      "translation": [
+        36,
+        50
+      ],
+      "ground": 360
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "anchor": {
+        "x": 152,
+        "bottom": 310
+      },
+      "bounds": {
+        "left": 54,
+        "top": 8,
+        "width": 195,
+        "height": 303
+      },
+      "translation": [
+        40,
+        50
+      ],
+      "ground": 360
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "anchor": {
+        "x": 151.5,
+        "bottom": 310
+      },
+      "bounds": {
+        "left": 53,
+        "top": 7,
+        "width": 195,
+        "height": 304
+      },
+      "translation": [
+        41,
+        50
+      ],
+      "ground": 360
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "anchor": {
+        "x": 183.5,
+        "bottom": 305
+      },
+      "bounds": {
+        "left": 84,
+        "top": 0,
+        "width": 211,
+        "height": 306
+      },
+      "translation": [
+        9,
+        55
+      ],
+      "ground": 360
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "anchor": {
+        "x": 172,
+        "bottom": 304
+      },
+      "bounds": {
+        "left": 69,
+        "top": 1,
+        "width": 229,
+        "height": 305
+      },
+      "translation": [
+        20,
+        56
+      ],
+      "ground": 360
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "anchor": {
+        "x": 161,
+        "bottom": 305
+      },
+      "bounds": {
+        "left": 60,
+        "top": 1,
+        "width": 193,
+        "height": 305
+      },
+      "translation": [
+        31,
+        55
+      ],
+      "ground": 360
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "anchor": {
+        "x": 189,
+        "bottom": 305
+      },
+      "bounds": {
+        "left": 63,
+        "top": 2,
+        "width": 193,
+        "height": 304
+      },
+      "translation": [
+        3,
+        55
+      ],
+      "ground": 360
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "anchor": {
+        "x": 217,
+        "bottom": 303
+      },
+      "bounds": {
+        "left": 82,
+        "top": 1,
+        "width": 205,
+        "height": 303
+      },
+      "translation": [
+        -25,
+        57
+      ],
+      "ground": 360
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "anchor": {
+        "x": 186,
+        "bottom": 303
+      },
+      "bounds": {
+        "left": 83,
+        "top": 1,
+        "width": 198,
+        "height": 303
+      },
+      "translation": [
+        6,
+        57
+      ],
+      "ground": 360
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "anchor": {
+        "x": 163.5,
+        "bottom": 303
+      },
+      "bounds": {
+        "left": 69,
+        "top": 1,
+        "width": 191,
+        "height": 303
+      },
+      "translation": [
+        29,
+        57
+      ],
+      "ground": 360
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "anchor": {
+        "x": 190.5,
+        "bottom": 303
+      },
+      "bounds": {
+        "left": 55,
+        "top": 0,
+        "width": 203,
+        "height": 304
+      },
+      "translation": [
+        2,
+        57
+      ],
+      "ground": 360
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "anchor": {
+        "x": 187.5,
+        "bottom": 269
+      },
+      "bounds": {
+        "left": 31,
+        "top": 4,
+        "width": 313,
+        "height": 265
+      },
+      "translation": [
+        5,
+        91
+      ],
+      "ground": 360
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "anchor": {
+        "x": 165.5,
+        "bottom": 263
+      },
+      "bounds": {
+        "left": 10,
+        "top": 1,
+        "width": 311,
+        "height": 262
+      },
+      "translation": [
+        27,
+        97
+      ],
+      "ground": 360
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "anchor": {
+        "x": 158,
+        "bottom": 264
+      },
+      "bounds": {
+        "left": 9,
+        "top": 3,
+        "width": 298,
+        "height": 261
+      },
+      "translation": [
+        34,
+        96
+      ],
+      "ground": 360
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "anchor": {
+        "x": 155.5,
+        "bottom": 267
+      },
+      "bounds": {
+        "left": 9,
+        "top": 2,
+        "width": 293,
+        "height": 265
+      },
+      "translation": [
+        37,
+        93
+      ],
+      "ground": 360
+    }
+  ],
+  "prompt": "queen-v1-prompt.txt"
+}

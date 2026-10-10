@@ -20,7 +20,7 @@ function lethalVolley(count){
 test('HP 4 boundary rolls all six faces: exactly three knockouts, with a full clear reward',()=>{
   for(let face=1;face<=6;face++){
     const state=combatFixture();freshTarget(state,5);
-    const events=E.click(state,rolls(0,(face-.5)/6)),hit=events[0];
+    const events=E.click(state,rolls((face-.5)/6)),hit=events[0];
     assert.equal(hit.hpBefore,5);assert.equal(hit.hpAfter,4);assert.equal(hit.knockoutRoll,face);
     assert.equal(hit.knockedOut,face%2===1);assert.equal(state.totalDamage,1,'unspent enemy HP is not dealt damage');
     assert.equal(state.hp,face%2?20:4);assert.equal(state.kills,face%2?1:0);assert.equal(state.factors,face%2?3:0);
@@ -29,7 +29,7 @@ test('HP 4 boundary rolls all six faces: exactly three knockouts, with a full cl
 });
 test('surviving at HP4 checks again on the next loss',()=>{
   const state=combatFixture();freshTarget(state,5);
-  const first=E.click(state,rolls(0,.25))[0],second=E.click(state,rolls(0,0))[0];
+  const first=E.click(state,rolls(.25))[0],second=E.click(state,rolls(0))[0];
   assert.deepEqual([first,second].map(e=>[e.hpAfter,e.knockoutRoll,e.knockedOut]),[[4,2,false],[3,1,true]]);
   assert.equal(state.kills,1);assert.equal(state.totalDamage,2);assert.equal(state.hp,20);
   assert.deepEqual(S.decode(S.encode(state)),S.validateState(state));
@@ -43,7 +43,7 @@ test('HP5, zero HP, loading and pauses do not introduce knockout checks',()=>{
   assert.equal(S.decode(S.encode(state)).hp,4);
 });
 test('eventless progress uses exactly the same knockout rolls and rewards',()=>{
-  const a=combatFixture();a.factors=100;E.hire(a,'meta');freshTarget(a,6);a.actionLevels.meta=70;const b=structuredClone(a);
+  const a=combatFixture();a.factors=100;E.hire(a,'meta');freshTarget(a,6);a.levels.meta=Math.max(a.levels.meta,71);const b=structuredClone(a);
   E.advance(a,1,rolls(0,0,.25,0,0,0));E.advance(b,1,rolls(0,0,.25,0,0,0),false);
   assert.deepEqual(a,b);
 });

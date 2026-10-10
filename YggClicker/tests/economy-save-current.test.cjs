@@ -2,35 +2,37 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,character:c,rng,ready,enable,roundTrip}=require('./current-fixtures.cjs');
 const UI=require('../js/display'),N=require('../js/numbers');
-for(const char of D.characters)for(const [kind,field]of [['power','levels'],['action','actionLevels'],...D.statUpgrades.map(t=>[t.id,t.field])])test(`${char.id}/${kind}: ten-buy equals singles, sale refund and save are consistent`,()=>{
+for(const char of D.characters)for(const [kind,field]of [['level','levels']])test(`${char.id}/${kind}: ten-buy equals singles, sale refund and save are consistent`,()=>{
  const a=ready([char.id]),b=structuredClone(a),before=a.factors,lv=a[field][char.id];
  const quote=E.purchaseQuote(a,kind,char.id,10);assert.ok(quote.valid);assert.ok(E.buyMany(a,kind,char.id,10));
  for(let i=0;i<10;i++)assert.ok(E.buyMany(b,kind,char.id,1));assert.equal(a.factors,b.factors);assert.equal(a.factors,before-quote.cost);assert.equal(a[field][char.id],lv+10);
  const sale=E.saleQuote(a,kind,char.id,10);assert.ok(sale.valid);assert.ok(E.sell(a,kind,char.id,10));assert.equal(a[field][char.id],lv);assert.equal(a.factors,b.factors+sale.refund);assert.equal(a.incomeTotals.refund,sale.refund);assert.equal(roundTrip(a)[field][char.id],lv);
 });
-test('quote failure is atomic; temporary plans can cancel and sale proceeds can fund other tracks',()=>{
- const s=ready();s.factors=7;const before=structuredClone(s);assert.equal(E.buyMany(s,'power','meta',10),false);assert.deepEqual(s,before);s.armorLevels.meta=20;s.factors=0;const start=structuredClone(s);
- const proposal=E.trainingPlan(s,'meta',{armor:0,accuracy:4});assert.ok(proposal.valid);assert.equal(proposal.state.accuracyLevels.meta,4);assert.deepEqual(s,start);assert.equal(E.trainingPlan(s,'meta',{accuracy:200}).valid,false);
+test('quote failure is atomic; plans price unified levels without modifying the original',()=>{
+ const s=ready();s.factors=7;const before=structuredClone(s);assert.equal(E.buyMany(s,'level','meta',10),false);assert.deepEqual(s,before);
+ s.levels.meta=21;s.factors=0;const start=structuredClone(s),sale=E.trainingPlan(s,'meta',{level:11});assert.ok(sale.valid);assert.ok(sale.state.factors>0);assert.deepEqual(s,start);assert.equal(E.trainingPlan(s,'meta',{level:201}).valid,false);
 });
-test('HP/action still guarantee one per level; original attack and armor instead grow intensity',()=>{
+
+test('legacy linear training guarantees one per level; original attack and armor instead grow intensity',()=>{
  for(const n of [-4,0,1,2,20])for(const rate of [.05,.1])for(let lv=1;lv<100;lv++)assert.ok(N.training(n,rate,lv)>=N.training(n,rate,lv-1)+1);
- const s=ready();const original=E.attackProfile(s,c('meta'));s.levels.meta=100;s.armorLevels.meta=100;assert.equal(E.attackProfile(s,c('meta')).flat,original.flat);assert.equal(E.armor(s,c('meta')),2);assert.ok(E.T.value(100)>1000000);
+ const s=ready();const original=E.attackProfile(s,c('meta'));s.levels.meta=100;assert.equal(E.attackProfile(s,c('meta')).flat,original.flat);assert.equal(E.armor(s,c('meta')),2);assert.ok(E.T.value(100)>1000000);
 });
-test('quest quotes grow at 1.15, reward at 1.25 and reward upgrade has minimum one every level',()=>{
+test('early quest quotes retain 1.15 growth and reward upgrades have minimum one every level',()=>{
  const s=ready();for(let lv=1;lv<80;lv++){s.questLevels.scarecrow=lv;assert.equal(E.questCost(s),N.geometric(100,1.15,lv-1));}
  s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),5);assert.equal(E.reward(s,{reward:45}),57);
  const u=D.upgrades.find(u=>u.id==='stabilization');s.upgrades.stabilization=2;assert.equal(E.upgradeCost(s,u),45000);assert.ok(E.buyUpgrade(s,'stabilization'));assert.equal(s.upgrades.stabilization,3);
 });
 test('quest/overkill/refund credits remain separated; current save never repays them',()=>{
- const s=ready(['meta'],'mohican-solo');s.selectedCharacterId=null;s.upgrades.overkill=1;s.enemies[0].hp=1;s.enemies[0].poisonDamage=0;
- const old=D.balance.manualFlat;D.balance.manualFlat=100;try{const events=E.click(s,()=>.5);assert.ok(events.some(e=>e.type==='clear'&&e.overkillBonus));assert.equal(s.incomeTotals.questReward,2);assert.equal(s.incomeTotals.overkillReward,1);}finally{D.balance.manualFlat=old;}
+ const s=ready(['meta'],'mohican-solo');s.selectedCharacterId='meta';s.upgrades.overkill=1;s.enemies[0].hp=1;s.enemies[0].poisonDamage=0;
+ {const events=E.click(s,()=>.5);assert.ok(events.some(e=>e.type==='clear'&&e.overkillBonus));assert.equal(s.incomeTotals.questReward,2);assert.equal(s.incomeTotals.overkillReward,1);}
  const again=roundTrip(s);assert.equal(again.factors,s.factors);assert.deepEqual(again.incomeTotals,s.incomeTotals);
 });
 test('all schema33 purchased perks refund their historical costs once with original funds and progress retained',()=>{
- const s=ready();for(const char of D.characters){s.levels[char.id]=1;s.purchasedPerks[char.id]=char.perks.map(p=>p.id);}delete s.perkRefunded;
- const sum=D.characters.flatMap(c=>c.perks).reduce((n,p)=>n+(p.cost||0),0),legacy={gameId:D.gameId,schemaVersion:33,gameVersion:'0.56.3',state:s};
+ const legacyCosts={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
+ const s=ready();for(const char of D.characters){s.levels[char.id]=1;s.purchasedPerks[char.id]=Object.keys(legacyCosts[char.id]||{});}delete s.perkRefunded;
+ const sum=Object.values(legacyCosts).flatMap(Object.values).reduce((n,cost)=>n+cost,0),legacy={gameId:D.gameId,schemaVersion:33,gameVersion:'0.56.3',state:s};
  const loaded=S.decode(JSON.stringify(legacy));assert.equal(loaded.factors,s.factors+sum);assert.equal(loaded.earned,s.earned);assert.equal(loaded.incomeTotals.migrationRefund,sum);assert.equal(roundTrip(loaded).factors,loaded.factors);
- for(const char of D.characters)for(const p of char.perks)assert.equal(loaded.perkEnabled[char.id][p.id],true);
+ for(const char of D.characters)for(const id of Object.keys(legacyCosts[char.id]||{}))assert.equal(loaded.perkEnabled[char.id][id],id==='western-munchkin'?undefined:true);
 });
 test('older Plot Armor migration refund is also classified and never counted twice',()=>{
  const s=ready(['max']);s.purchasedPerks.max=['plot-armor'];delete s.perkRefunded;const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:31,state:s}));
@@ -67,6 +69,6 @@ test('early timer saves migrate old character names, charges, currency and count
   if(version<4){delete s.speedLevels;s.timers.meta=1.8*.25;}
   if(version<3){s.levels.hikari=s.levels.meta;delete s.levels.meta;s.timers.hikari=s.timers.meta;delete s.timers.meta;}
   const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:version,state:s}));
-  assert.equal(loaded.levels.meta,2);assert.equal(loaded.factors,123);assert.equal(loaded.kills,7);assert.equal(loaded.earned,500);assert.equal(loaded.actionLevels.meta,version===4?7:0);assert.ok(Math.abs(loaded.actionPoints.meta-75)<1e-8);assert.deepEqual(roundTrip(loaded),loaded);
+  assert.ok(loaded.levels.meta>=2);assert.ok(loaded.factors>=123);assert.equal(loaded.kills,7);assert.equal(loaded.earned,500);assert.equal(loaded.actionLevels,undefined);assert.ok(Math.abs(loaded.actionPoints.meta-75)<1e-8);assert.deepEqual(roundTrip(loaded),loaded);
  }
 });

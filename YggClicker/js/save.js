@@ -5,12 +5,187 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 36;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 49;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    48(document){
+      const old=record(document.state,'旧セーブ'),state={...old};
+      const convert=(battle,id)=>{
+        const base=D.sessions.find(q=>q.id===id);if(!base)throw new Error('未対応のクエストです。');
+        const level=number(old.questActiveLevels?.[id]??old.questLevels?.[id]??1,'旧挑戦Lv',1,Number.MAX_SAFE_INTEGER,true);
+        const strength=N.curveValue(100,level-1,{initial:1.025,terminal:1.012,transition:100});
+        const oldMax=Math.max(1,N.floor(Math.min(1e100,base.hp*strength/100))),q=E.sessionAtLevel(base,level);
+        const resize=hp=>{
+          number(hp,'旧エネミーHP',0,oldMax,true);
+          return hp>0?Math.max(1,Math.min(q.hp,N.floor(hp/oldMax*q.hp))):0;
+        };
+        const delta=Math.log(E.enemyStrength(q))-Math.log(strength);
+        const enemies=battle.enemies?.map(e=>{
+          const next=e.kind==='kogumo'?{...e}:{...e,hp:resize(e.hp)};
+          if(e.pendingAttack?.profile){const p=e.pendingAttack.profile;
+            next.pendingAttack={...e.pendingAttack,profile:{...p,damageLogRatio:(p.damageLogRatio||0)+delta,damageScaleLog:(p.damageScaleLog||0)+delta/2}};
+          }
+          return next;
+        })??null;
+        const target=battle.enemies?.find(e=>e.id===battle.focusedEnemyId&&e.hp>0)||battle.enemies?.find(e=>e.hp>0);
+        return {...battle,enemies,hp:target?.kind==='kogumo'?battle.hp:resize(battle.hp),batchHpFraction:0};
+      };
+      Object.assign(state,convert(state,state.sessionId));
+      state.sessionStates=Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,b])=>[id,convert(b,id)]));
+      return {...document,schemaVersion:49,state};
+    },
+    47(document){return {...document,schemaVersion:48,state:{...record(document.state,'旧セーブ'),formationRows:Object.fromEntries(D.characters.map(c=>[c.id,'front']))}};},
+    46(document){
+      const old=record(document.state,'旧セーブ'),health=structuredClone(old.health||{}),perkEnabled=structuredClone(old.perkEnabled||{});
+      if(health.megumin)for(const key of ['blastTurns','blastReduction','blastEvasion','magicLevel'])delete health.megumin[key];
+      if(perkEnabled.megumin)delete perkEnabled.megumin['blast-wall'];
+      const clean=field=>({...old[field],megumin:(old[field]?.megumin||[]).filter(id=>id!=='blast-wall')});
+      return {...document,schemaVersion:47,state:{...old,health,perkEnabled,unlockedPerks:clean('unlockedPerks'),purchasedPerks:clean('purchasedPerks')}};
+    },
+    45(document){return {...document,schemaVersion:46};},
+    44(document){return {...document,schemaVersion:45};},
+    43(document){return {...document,schemaVersion:44,state:{...record(document.state,'旧セーブ'),runNumber:1}};},
+    42(document){
+      const old=record(document.state,'旧セーブ'),memoriesUnlocked=old.factors>D.memoryQuest.unlockFactors;
+      return {...document,schemaVersion:43,state:{...old,memoriesUnlocked,viewingMemories:memoriesUnlocked&&!!old.viewingMemories}};
+    },
+    41(document){
+      const old=record(document.state,'旧セーブ'),perkEnabled=structuredClone(old.perkEnabled||{});
+      // Preserve choices for previously available perks; enable newly initial ones.
+      for(const [id,key,previousLevel]of [['vishunal','mad-dog',25],['tordeliese','greedy-gale',10]]){
+        const available=(old.levels?.[id]||0)>=previousLevel||(old.unlockedPerks?.[id]||[]).includes(key)||(old.purchasedPerks?.[id]||[]).includes(key);
+        perkEnabled[id]||={};if(!available)perkEnabled[id][key]=true;
+      }
+      if(perkEnabled.max)delete perkEnabled.max['western-munchkin'];
+      const clean=field=>({...old[field],max:(old[field]?.max||[]).filter(id=>id!=='western-munchkin')});
+      return {...document,schemaVersion:42,state:{...old,perkEnabled,unlockedPerks:clean('unlockedPerks'),purchasedPerks:clean('purchasedPerks')}};
+    },
+    40(document){
+      const old=record(document.state,'旧セーブ'),perkEnabled=structuredClone(old.perkEnabled||{});
+      // Newly initial perks turn on for characters who had not unlocked them.
+      // Previously available perks preserve the player's explicit ON/OFF choice.
+      for(const [id,key,previousLevel]of [['meta','mohican-slayer',25],['richter','z-bom',10],['waku','deceptive-hitbox',10]]){
+        const available=(old.levels?.[id]||0)>=previousLevel||(old.unlockedPerks?.[id]||[]).includes(key)||(old.purchasedPerks?.[id]||[]).includes(key);
+        perkEnabled[id]||={};if(!available)perkEnabled[id][key]=true;
+      }
+      return {...document,schemaVersion:41,state:{...old,perkEnabled}};
+    },
+    39(document){
+      const old=record(document.state,'旧セーブ'),state={...old,previousRunsEarned:0};
+      const convert=(battle,id)=>{
+        const base=D.sessions.find(q=>q.id===id);if(!base)throw new Error('未対応のクエストです。');
+        const level=number(old.questActiveLevels?.[id]??old.questLevels?.[id]??1,'旧挑戦Lv',1,Number.MAX_SAFE_INTEGER,true);
+        // Freeze schema 39's HP/strength curve, including its floating rounding.
+        const oldMax=E.hpFromStrength(base.hp,level-1),q=E.sessionAtLevel(base,level);
+        // Schema 40 used the pre-durability HP curve. Schema 48 upgrades it later.
+        q.hp=Math.max(1,N.floor(Math.min(1e100,base.hp*N.curveValue(100,level-1,{initial:1.025,terminal:1.012,transition:100})/100)));
+        const resize=hp=>{
+          number(hp,'旧エネミーHP',0,oldMax);if(!Number.isInteger(hp))throw new Error('旧エネミーHPが正しくありません。');
+          return hp>0?Math.max(1,Math.min(q.hp,N.floor(hp/oldMax*q.hp))):0;
+        };
+        const delta=Math.log(q.strength)-Math.log(E.T.value(level-1));
+        const enemies=battle.enemies?.map(e=>{
+          const next=e.kind==='kogumo'?{...e}:{...e,hp:resize(e.hp)};
+          // Preserve the queued action and defender snapshot; only replace the
+          // attacking enemy's strength contribution with the new curve.
+          if(e.pendingAttack?.profile){
+            const p=e.pendingAttack.profile;
+            next.pendingAttack={...e.pendingAttack,profile:{...p,
+              hitLogRatio:(p.hitLogRatio||0)+delta,damageLogRatio:(p.damageLogRatio||0)+delta,
+              damageScaleLog:(p.damageScaleLog||0)+delta/2}};
+          }
+          return next;
+        })??null;
+        const target=battle.enemies?.find(e=>e.id===battle.focusedEnemyId&&e.hp>0)||battle.enemies?.find(e=>e.hp>0);
+        const hp=target?.kind==='kogumo'?battle.hp:resize(battle.hp);
+        return {...battle,hp,enemies,batchHpFraction:0};
+      };
+      Object.assign(state,convert(state,state.sessionId));
+      state.sessionStates=Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,b])=>[id,convert(b,id)]));
+      return {...document,schemaVersion:40,state};
+    },
+    38(document){
+      const old=record(document.state,'旧セーブ'),state={...old,viewingMemories:false,health:{...old.health}};
+      for(const c of D.characters){
+        const h=state.health[c.id];if(!h)continue;
+        const max=E.maxHP(state,c),hp=Math.min(h.hp,max);
+        const next=hp===max&&h.status!=='active'?Math.max(1,max-1):hp;
+        state.health[c.id]={...h,hp:next,regenSeconds:next===max?0:h.regenSeconds};
+      }
+      return {...document,schemaVersion:39,state};
+    },
+    37(document){
+      const old=record(document.state,'旧セーブ'),levels={},health={},concentration={};let refund=0;
+      const oldLevels=record(old.levels,'旧攻撃育成');
+      for(const c of D.characters){
+        const power=number(oldLevels[c.id]??0,'旧レベル',0,Number.MAX_SAFE_INTEGER,true);
+        const tracks=[[c.powerCost,Math.max(0,power-1)],[c.actionCost,old.actionLevels?.[c.id]??0],...D.statUpgrades.map(t=>[c.powerCost,old[t.field]?.[c.id]??0])];
+        let budget=0;
+        for(const [base,count]of tracks){
+          number(count,'旧育成Lv',0,Number.MAX_SAFE_INTEGER,true);
+          if(!power&&count)throw new Error('未雇用の旧育成が正しくありません。');
+          if(count&&N.geometric(base,1.125,count-1)>1e100)throw new Error('旧育成費が計算範囲外です。');
+          for(let i=0;i<count;i++)budget+=N.geometric(base,1.125,i);
+        }
+        let purchases=0,spent=0;
+        if(power)while(true){const cost=N.geometric(c.powerCost,1.125,purchases);if(!Number.isFinite(cost)||cost>1e100||spent+cost>budget)break;spent+=cost;purchases++;}
+        levels[c.id]=power?purchases+1:0;refund+=Math.max(0,N.floor(budget-spent));
+        concentration[c.id]=Object.fromEntries(D.concentration.map(t=>[t.id,0]));
+        const oldMax=E.hpFromStrength(c.maxHP,old.vitalityLevels?.[c.id]??0),newMax=Math.max(1,N.floor(c.maxHP*(E.T.personalValue(purchases)/D.strength.strengthBase)));
+        const h=old.health?.[c.id]??{hp:oldMax,status:'active',regenSeconds:0};record(h,'旧HP');
+        const hp=number(h.hp,'旧HP',-1e100,oldMax);if(!Number.isInteger(hp))throw new Error('旧HPが正しくありません。');
+        let next=N.floor(Math.max(-1e100,Math.min(newMax,hp/oldMax*newMax)));
+        if(hp>0)next=Math.max(1,next);
+        if(hp<oldMax&&next===newMax&&(h.status!=='active'||h.regenSeconds))next=Math.max(1,newMax-1);
+        health[c.id]={...h,hp:next};
+      }
+      const gain=Math.min(refund,1e100-number(old.factors,'所持因子'));
+      const state={...old,levels,health,concentration,factors:old.factors+gain,incomeTotals:{...old.incomeTotals,migrationRefund:Math.min(1e100,(old.incomeTotals?.migrationRefund||0)+gain)}};
+      delete state.actionLevels;for(const t of D.statUpgrades)delete state[t.field];
+      // Keep queued rolls/timers, but use the migrated defender's shared strength.
+      const convert=(battle,id)=>({...battle,enemies:battle.enemies?.map(e=>{
+        const p=e.pendingAttack?.profile,c=D.characters.find(c=>c.id===e.pendingAttack?.targetId);if(!p||!c)return e;
+        const ctx=E.battleContext(state,id),q=E.getSession(ctx),attack=E.T.value(q.strengthLevel),defense=q.ignoreDefense&&!(c.traits||[]).includes('penetrationImmune')?D.strength.strengthBase:E.strengthValue(ctx,c,'armor');
+        return {...e,pendingAttack:{...e.pendingAttack,profile:{...p,hitLogRatio:E.T.relativeLog(attack,E.strengthValue(ctx,c,'evasion')),damageLogRatio:E.T.relativeLog(attack,defense),damageScaleLog:E.T.absoluteLog(attack,defense)}}};
+      })??null});
+      Object.assign(state,convert(state,state.sessionId));state.sessionStates=Object.fromEntries(Object.entries(state.sessionStates||{}).map(([id,b])=>[id,convert(b,id)]));
+      return {...document,schemaVersion:38,state};
+    },
+    36(document){
+      const old=record(document.state,'旧セーブ'),levels=record(old.vitalityLevels??{},'旧HP育成'),health={...record(old.health??{},'旧HP')};
+      for(const c of D.characters){
+        const level=number(levels[c.id]??0,'旧HP育成Lv',0,Number.MAX_SAFE_INTEGER,true);
+        // Freeze the old linear rule; current balancing must not change this ratio.
+        const oldMax=N.training(c.maxHP,.1,level),newMax=E.hpFromStrength(c.maxHP,level),h=health[c.id];
+        if(h===undefined)continue;
+        record(h,'旧味方状態');const hp=number(h.hp,'旧味方HP',-1e100,oldMax);
+        if(!Number.isInteger(hp))throw new Error('旧味方HPが正しくありません。');
+        const scaled=N.floor(Math.max(-1e100,Math.min(newMax,(hp/oldMax)*newMax)));
+        health[c.id]={...h,hp:hp>0?Math.max(1,scaled):scaled};
+      }
+      // Pending attacks keep their original ratio/defender snapshot while gaining
+      // the same absolute scale as attacks newly started after loading.
+      const convert=(battle,id)=>{
+        const level=number(old.questActiveLevels?.[id]??old.questLevels?.[id]??1,'旧挑戦Lv',1,Number.MAX_SAFE_INTEGER,true)-1;
+        const q=D.sessions.find(q=>q.id===id),oldMax=q?N.geometric(q.hp,1.1,level):0,newMax=q?E.hpFromStrength(q.hp,level):0;
+        // Equivalent exponential formulas can differ by a final integer at huge
+        // levels. Clamp only old-valid overflow; never heal or alter summons.
+        const clampHP=hp=>Number.isInteger(hp)&&hp>newMax&&hp<=oldMax?newMax:hp;
+        const enemies=battle.enemies?.map(e=>{
+          const next=e.kind==='kogumo'?e:{...e,hp:clampHP(e.hp)};
+          if(!e.pendingAttack?.profile)return next;
+          const profile=record(e.pendingAttack.profile,'旧予約攻撃'),ratio=number(profile.damageLogRatio??0,'旧ダメージ比率',-1e100,1e100);
+          return {...next,pendingAttack:{...e.pendingAttack,profile:{...profile,damageScaleLog:level*Math.log(D.strength.strengthGrowth)-ratio/2}}};
+        })??null;
+        const target=battle.enemies?.find(e=>e.id===battle.focusedEnemyId&&e.hp>0)||battle.enemies?.find(e=>e.hp>0);
+        const hp=target?(target.kind!=='kogumo'&&battle.hp===target.hp?clampHP(battle.hp):battle.hp):clampHP(battle.hp);
+        return {...battle,hp,enemies};
+      };
+      return {...document,schemaVersion:37,state:{...convert(old,old.sessionId),health,sessionStates:Object.fromEntries(Object.entries(old.sessionStates||{}).map(([id,b])=>[id,convert(b,id)]))}};
+    },
     35(document){
       const old=record(document.state,'旧セーブ'),upgrades={...record(old.upgrades,'旧全体強化')};
       const count=number(upgrades.sedation??0,'旧鎮静調律Lv',0,Number.MAX_SAFE_INTEGER,true);
@@ -123,7 +298,7 @@
       const max=owned.max??[];
       if(!Array.isArray(max)||new Set(max).size!==max.length)throw new Error('購入済みパークの値が正しくありません。');
       const refund=max.includes('gm')?100000:0;
-      if(refund)number(record(old.levels,'旧威力レベル').max,'マックスの威力レベル',1,E.MAX_LEVEL,true);
+      if(refund)number(record(old.levels,'旧威力レベル').max,'マックスの威力レベル',1,200,true);
       return {...document,schemaVersion:20,state:{...old,factors:number(old.factors,'所持因子')+refund,
         purchasedPerks:{...owned,max:max.filter(id=>id!=='gm')}}};
     },
@@ -255,7 +430,7 @@
       if(Object.keys(owned).some(id=>!Object.hasOwn(legacy,id)&&(!D.characters.some(c=>c.id===id)||!Array.isArray(owned[id])||owned[id].length)))throw new Error('未対応の購入済みパークです。');
       const purchasedPerks={};let refund=0;
       for(const c of D.characters){
-        const level=number(old.levels?.[c.id]??0,'旧威力レベル',0,E.MAX_LEVEL,true),ids=owned[c.id]??[];
+        const level=number(old.levels?.[c.id]??0,'旧威力レベル',0,200,true),ids=owned[c.id]??[];
         if(!Array.isArray(ids)||new Set(ids).size!==ids.length)throw new Error('旧パークの形式が正しくありません。');
         purchasedPerks[c.id]=[];
         for(const id of ids){
@@ -306,7 +481,8 @@
   function validateState(input) {
     const raw = record(input, 'セーブ');
     const result = E.createState();
-    for (const key of ['factors', 'earned', 'totalDamage']) { result[key] = number(raw[key], key); if(!Number.isInteger(result[key]))throw new Error(`${key}は整数で指定してください。`); }
+    result.runNumber=number(raw.runNumber,'周回数',1,Number.MAX_SAFE_INTEGER,true);
+    for (const key of ['factors', 'earned', 'previousRunsEarned', 'totalDamage']) { result[key] = number(raw[key], key); if(!Number.isInteger(result[key]))throw new Error(`${key}は整数で指定してください。`); }
     for (const key of ['kills', 'clicks']) {
       result[key] = number(raw[key], key);
       if (!Number.isInteger(result[key])) throw new Error(`${key}の値が正しくありません。`);
@@ -329,12 +505,6 @@
     const activeLevels=raw.questActiveLevels===undefined?{}:record(raw.questActiveLevels,'挑戦Lv');
     if(Object.keys(activeLevels).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応の挑戦クエストです。');
     result.questActiveLevels=Object.fromEntries(Object.entries(activeLevels).map(([id,level])=>[id,number(level,'挑戦Lv',1,result.questLevels[id],true)]));
-    const allocation=raw.concentration===undefined?{}:record(raw.concentration,'コンセントレイション');
-    if(Object.keys(allocation).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト配分です。');
-    for(const q of D.sessions){
-      const value=allocation[q.id]===undefined?result.concentration[q.id]:record(allocation[q.id],'配分');
-      if(!E.setConcentration(result,q.id,value))throw new Error('配分は合計10点以内、防御は5点以内の整数で指定してください。');
-    }
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
     result.respawnSeconds=number(raw.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(result));
@@ -350,6 +520,10 @@
     if(result.respawnSeconds>0?result.batchHpFraction!==0||result.poisonDamage!==0:result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>(E.getSession(result).summons?1e100:E.getSession(result).hp))throw new Error('放置計算のHPが正しくありません。');
     if (typeof raw.paused !== 'boolean') throw new Error('一時停止状態が正しくありません。');
     result.paused = raw.paused;
+    if(raw.viewingMemories!==undefined&&typeof raw.viewingMemories!=='boolean')throw new Error('追憶の表示状態が正しくありません。');
+    if(raw.memoriesUnlocked!==undefined&&typeof raw.memoriesUnlocked!=='boolean')throw new Error('追憶の解放状態が正しくありません。');
+    result.memoriesUnlocked=raw.memoriesUnlocked===true||E.isMemoriesUnlocked(result);
+    result.viewingMemories=!!raw.viewingMemories&&result.memoriesUnlocked;
     const options = raw.options === undefined ? {} : record(raw.options, '表示設定');
     for(const [key,defaultValue] of Object.entries(D.displayDefaults)){
       const value=options[key]===undefined?defaultValue:options[key];
@@ -358,18 +532,18 @@
     }
     result.actionClock = number(raw.actionClock, 'APの加算周期', 0, 1);
     if (result.actionClock >= 1) throw new Error('APの加算周期が正しくありません。');
-    for (const field of ['levels', 'actionLevels', 'actionPoints', 'upgrades', 'purchasedPerks']) record(raw[field], field);
-    for (const field of ['levels', 'actionLevels', 'actionPoints', 'purchasedPerks']) {
+    for (const field of ['levels', 'actionPoints', 'upgrades', 'purchasedPerks']) record(raw[field], field);
+    for (const field of ['levels', 'actionPoints', 'purchasedPerks']) {
       if (Object.keys(raw[field]).some(id => !D.characters.some(c => c.id === id))) throw new Error('未対応のキャラクターが含まれています。ゲームを更新してください。');
     }
     if (Object.keys(raw.upgrades).some(id => !D.upgrades.some(u => u.id === id))) throw new Error('未対応の強化が含まれています。');
     for (const c of D.characters) {
       // Missing new character IDs default to unowned, allowing content additions.
-      result.levels[c.id] = number(raw.levels[c.id] ?? 0, c.name, 0, E.MAX_LEVEL, true);
-      result.actionLevels[c.id] = number(raw.actionLevels[c.id] ?? 0, '行動力の強化レベル', 0, Number.MAX_SAFE_INTEGER, true);
-      result.actionPoints[c.id] = number(raw.actionPoints[c.id] ?? 0, 'AP', 0, 1e100);
-      if(!Number.isInteger(result.actionPoints[c.id]))throw new Error('APは整数で指定してください。');
-      if (!result.levels[c.id] && (result.actionLevels[c.id] || result.actionPoints[c.id])) throw new Error('未雇用キャラクターの行動力・APが正しくありません。');
+      result.levels[c.id] = number(raw.levels[c.id] ?? 0, c.name, 0, Number.MAX_SAFE_INTEGER, true);
+      // Older live battles could spend a fractional expected action cost.
+      // Validate the range first, then remove only that fractional remainder.
+      result.actionPoints[c.id] = Math.floor(number(raw.actionPoints[c.id] ?? 0, 'AP', 0, 1e100));
+      if (!result.levels[c.id] && result.actionPoints[c.id]) throw new Error('未雇用キャラクターの行動力・APが正しくありません。');
       const purchased = raw.purchasedPerks[c.id] ?? [];
       if (!Array.isArray(purchased) || new Set(purchased).size !== purchased.length || purchased.some(id => {
         const perk = (c.perks || []).find(p => p.id === id);
@@ -377,15 +551,12 @@
       })) throw new Error('購入済みパークの値が正しくありません。');
       result.purchasedPerks[c.id] = [...purchased];
     }
-    for(const t of D.statUpgrades){
-      const values=record(raw[t.field],t.name+'の育成');
-      if(Object.keys(values).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応の能力値育成です。');
-      result[t.field]={};for(const c of D.characters){
-        const lv=number(values[c.id]??0,t.name+'のLv',0,Number.MAX_SAFE_INTEGER,true);
-        if(lv&&!result.levels[c.id])throw new Error('未雇用キャラクターは強化できません。');
-        if(lv&&!Number.isFinite(E.statCost({...result,[t.field]:{[c.id]:lv-1}},c,t.id)))throw new Error('能力値育成が計算範囲外です。');
-        result[t.field][c.id]=lv;
-      }
+    const allocation=raw.concentration===undefined?{}:record(raw.concentration,'コンセントレイション');
+    if(Object.keys(allocation).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応のキャラクター配分です。');
+    for(const c of D.characters){
+      if(result.levels[c.id]>1&&!Number.isFinite(E.hireCost({...result,levels:{...result.levels,[c.id]:result.levels[c.id]-1}},c)))throw new Error('育成費が計算範囲外です。');
+      const value=allocation[c.id]??result.concentration[c.id];
+      if(!E.setConcentration(result,c.id,value))throw new Error('配分は保有フリーpt以内の整数で指定してください。');
     }
     const enabled=raw.perkEnabled===undefined?{}:record(raw.perkEnabled,'パーク切替'),unlocked=raw.unlockedPerks===undefined?{}:record(raw.unlockedPerks,'解放済みパーク');
     if(raw.perkRefunded!==undefined&&typeof raw.perkRefunded!=='boolean')throw new Error('返還状態が正しくありません。');
@@ -421,7 +592,11 @@
       const hp=number(h.hp,'味方HP',-1e100,E.maxHP(result,c)),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
       if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===E.maxHP(result,c)&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==E.maxHP(result,c)||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
       result.health[c.id]={hp,status:h.status,regenSeconds};
+      for(const key of ['stunTurns','blastTurns','blastEvasion','magicLevel'])if(h[key]!==undefined)result.health[c.id][key]=number(h[key],key,0,key==='stunTurns'?5:key==='blastTurns'?1:key==='magicLevel'?6:30,true);
+      if(h.blastEvasion&&!h.blastTurns)throw new Error('爆風効果の持続時間が正しくありません。');
     }
+    const rows=raw.formationRows===undefined?{}:record(raw.formationRows,'前衛・後衛');
+    for(const c of D.characters){const row=rows[c.id]??'front';if(!['front','rear'].includes(row))throw new Error('前衛・後衛が正しくありません。');result.formationRows[c.id]=row;}
     const formations=raw.formations===undefined?{}:record(raw.formations,'部隊編成');
     if(Object.keys(formations).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト編成です。');
     for(const q of D.sessions){
@@ -456,28 +631,36 @@
         const summonMaxHP=summon?number(e.maxHP,'コグモ最大HP',creationDamage,1e100,true):0;
         if(summon&&respawnSeconds)throw new Error('コグモは自動再出現しません。');
         const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:maxHP),poisonDamage=e.poisonDamage;
-        const actionPoints=number(e.actionPoints,'敵のAP',0,1e100,true);
+        const actionPoints=Math.floor(number(e.actionPoints,'敵のAP',0,1e100));
         if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
         const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
         const evasionFailure=e.evasionFailure??false;if(typeof evasionFailure!=='boolean'||respawnSeconds&&evasionFailure)throw new Error('回避自動失敗の状態が正しくありません。');
         const evasionPenalty=number(e.evasionPenalty??0,'回避低下',0,6,true),evasionPenaltyTurns=number(e.evasionPenaltyTurns??0,'回避低下の残り手番',0,2,true);
         if(![0,6].includes(evasionPenalty)||!!evasionPenalty!==!!evasionPenaltyTurns||respawnSeconds&&(evasionPenalty||evasionPenaltyTurns))throw new Error('回避低下の状態が正しくありません。');
         if(![0,3].includes(defensePenalty)||![0,15].includes(accuracyPenalty)||respawnSeconds&&(defensePenalty||accuracyPenalty))throw new Error('敵の弱体効果が正しくありません。');
+        const tauntId=e.tauntId??null;
+        const queenCancels=number(e.queenCancels??0,'女王の迎撃回数',0,4,true);
+        if(tauntId!==null&&!D.characters.some(c=>c.id===tauntId))throw new Error('挑発対象が正しくありません。');
+        const slowSeconds=number(e.slowSeconds??0,'行動力低下の残り秒',0,5),actionPenalty=number(e.actionPenalty??0,'行動力低下',0,4,true);
+        if(![0,4].includes(actionPenalty)||!!slowSeconds!==!!actionPenalty||respawnSeconds&&(tauntId||slowSeconds))throw new Error('行動力低下の状態が正しくありません。');
         let pendingAttack=null;
         if(e.pendingAttack!=null){
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx));
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
           const kind=p.kind||'attack';if(!['attack','flash','absorb'].includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
           pendingAttack={targetId:p.targetId,remaining,count:number(p.count??1,'攻撃回数',1,1e100,true),...(p.kind?{kind}:{})};
+          if(p.taunted!==undefined){if(typeof p.taunted!=='boolean')throw new Error('挑発予約が正しくありません。');pendingAttack.taunted=p.taunted;}
+          if(p.apCost!==undefined)pendingAttack.apCost=number(p.apCost,'予約攻撃の消費AP',1,1e100);
           if(p.profile!==undefined){
             const profile=record(p.profile,'予約攻撃');
             const walk=(v,depth=0)=>{if(depth>4)throw new Error('予約攻撃が複雑すぎます。');if(typeof v==='number'){number(v,'予約攻撃の数値',-1e100,1e100);return;}if(typeof v==='boolean'||v===null)return;if(typeof v==='object'&&!Array.isArray(v)){for(const x of Object.values(v))walk(x,depth+1);return;}throw new Error('予約攻撃が正しくありません。');};walk(profile);
             for(const key of ['accuracySpec','evasionDice','attack']){const spec=record(profile[key],'予約ロール');number(spec.dice,'ダイス',0,100,true);number(spec.flat,'固定値',-1e100,1e100);}
-            for(const key of ['reduction','postReduction','shield','hitLogRatio','damageLogRatio'])number(profile[key]??0,'予約補正',-1e100,1e100);
+            for(const key of ['reduction','postReduction','shield','hitLogRatio','damageLogRatio','damageScaleLog'])number(profile[key]??0,'予約補正',-1e100,1e100);
             pendingAttack.profile=structuredClone(profile);
           }
         }
-        ids.add(id);return {...(summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure};
+        const row=e.row??'front';if(!['front','rear'].includes(row))throw new Error('敵の前衛・後衛が正しくありません。');
+        ids.add(id);return {row,...(summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
       });
       if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
@@ -568,9 +751,13 @@
       }
       storage.setItem(KEY, text);
       return { ok: true };
-    } catch (error) { return { ok: false, error: `自動保存できませんでした。セーブを書き出してください。${error.name === 'QuotaExceededError' ? ' 保存容量が不足しています。' : ''}` }; }
+    } catch (error) {
+      const reason=error.name==='QuotaExceededError'?'保存容量が不足しています。':error.name==='SecurityError'?'ブラウザが保存を許可していません。':error.message||'原因を取得できませんでした。';
+      return {ok:false,error:'自動保存できませんでした。セーブを書き出してください。 原因：'+reason};
+    }
   }
   const api = { KEY, BACKUP_KEY, VERSION, MAX_BYTES, encode, decode, validateState, load, persist };
   if (commonJS) module.exports = api;
   else root.YggSave = api;
 })(typeof window !== 'undefined' ? window : globalThis);
+

@@ -1,0 +1,12 @@
+YggClicker v0.60.0 — 追憶
+Mode: built-in image_gen (transparent_background: true)
+Reference: C:/Users/user/Downloads/monolis-oligin.png
+Final asset (repository relative): img/memory-monolith-v1.png
+Original generated output: C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-45429160-b1e0-48ae-8be3-932f4d60fe61.png
+
+Prompt:
+Use case: stylized-concept. Create a game prop asset, a single mysterious upright rectangular monolith, based closely on the attached reference. Keep its tall narrow proportions (height about twice width), flat front, pale clouded silver-white stone, subtle gray cloudy marbling, small smooth white human theatrical mask embedded in the upper third with empty black eyeholes and a small serene closed mouth. Full slab visible, very slight depth at right edge, front-facing. Refined softly painted eerie ethereal game illustration matching the reference, high quality silhouette. Do not add a pedestal, inscriptions, symbols, scenery or text. Entire area outside the rectangular slab must be transparent. Slab fully framed with generous transparent margin. This will stand at the center of a softly lit blue-violet space / underwater scene.
+
+Background asset: img/memory-nebula-v1.png
+Source: user attachment codex-clipboard-19d24e01-9efa-4ed1-a642-377d83c13882.png, copied unchanged.
+Animation: CSS translation, scale, light layers and particles in memories.css. No external assets or network dependency at runtime.

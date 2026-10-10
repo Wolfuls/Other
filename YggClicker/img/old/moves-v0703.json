@@ -1,0 +1,1871 @@
+﻿[
+    {
+        "Path":  "img/gamer-throne-atlas-v1.png",
+        "Destination":  "img/old/gamer-throne-atlas-v1.png",
+        "Hash":  "8ede119b567dc0fbefe9656cad5d6190dc7a97f372d61c36d9971856b3e04f75",
+        "Bytes":  256286,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-atlas-v2.png",
+        "Destination":  "img/old/gamer-throne-atlas-v2.png",
+        "Hash":  "a3e51a06bfd3dbce30c7b79f124088c51e5f373969caf9eaeab9e668cf7dbb86",
+        "Bytes":  83138,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-atlas-v3.png",
+        "Destination":  "img/old/gamer-throne-atlas-v3.png",
+        "Hash":  "1c33d622f60e0b7c10e11f609955957cde91053a4d4feaba9893930256fe2d68",
+        "Bytes":  148516,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-atlas-v4.png",
+        "Destination":  "img/old/gamer-throne-atlas-v4.png",
+        "Hash":  "e163d2ab8f10320caaae5dd1730cabd1c3e379ec13be903fea82d1da89cd63fb",
+        "Bytes":  336080,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-atlas-v5.png",
+        "Destination":  "img/old/gamer-throne-atlas-v5.png",
+        "Hash":  "6c57122e12ed701475b809d67ce342cf7cfe7db06430f29e86b461618b8e150a",
+        "Bytes":  417989,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-atlas-v6.png",
+        "Destination":  "img/old/gamer-throne-atlas-v6.png",
+        "Hash":  "0ab6b02810567ca7165145dae404791dbd26e8dafd02ca044cf0fa42732503b6",
+        "Bytes":  354773,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v1.png",
+        "Destination":  "img/old/gamer-throne-attack-v1.png",
+        "Hash":  "30b975bd38c9783b32c04d53cbee551875ced5df5d4e80c1c7cda22fd4cc9d61",
+        "Bytes":  90392,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v2.png",
+        "Destination":  "img/old/gamer-throne-attack-v2.png",
+        "Hash":  "2694729e759bfea4f0a9457cb3bb7f470882c85f666c2a92a68edbaa5f64edf0",
+        "Bytes":  29842,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v3.png",
+        "Destination":  "img/old/gamer-throne-attack-v3.png",
+        "Hash":  "08daa4a7b021519d5763e516fa7fd73b782a660c678130caac0b909b2b4413a1",
+        "Bytes":  43714,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v4.png",
+        "Destination":  "img/old/gamer-throne-attack-v4.png",
+        "Hash":  "ace882fe6e45866574130a36331ceb3cdae0a332480c27077d22565cef531011",
+        "Bytes":  40975,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v5.png",
+        "Destination":  "img/old/gamer-throne-attack-v5.png",
+        "Hash":  "ada2df8351f657dd0a77e4deb570d2fa83f8ac989bb634f6afa2b75b27f3fa58",
+        "Bytes":  34283,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-attack-v6.png",
+        "Destination":  "img/old/gamer-throne-attack-v6.png",
+        "Hash":  "ccc5c8d27824db0af4e23d41721b4f4cdb4e70b1b4da9619d32b5227b1584f70",
+        "Bytes":  25815,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-enter-v1.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-enter-v1.png",
+        "Hash":  "7ed3a747640c562745e7ef3ffe4e8f19ba96ae6162eb588ae535e163f8ffe0b5",
+        "Bytes":  107181,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-enter-v2.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-enter-v2.png",
+        "Hash":  "9ef90f59380f12ea322cf4be717d6618a8ecfc0a278da30aef9aeb7cc773e993",
+        "Bytes":  96786,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-enter-v3.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-enter-v3.png",
+        "Hash":  "22d632c763d8e976d3ec9a286e65e661044bdc1c16fbe418e32e8e760dfa656c",
+        "Bytes":  96993,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-exit-v1.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-exit-v1.png",
+        "Hash":  "82ec22558342387aaeefa43a772f7ee09cf4dca8096cf54ddd86d680fb9c6f42",
+        "Bytes":  107336,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-exit-v2.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-exit-v2.png",
+        "Hash":  "03c2ea9d32463b0fc60b5e54c2a88655b5d6a45955fb16fe7397f240128c6bda",
+        "Bytes":  96899,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-exit-v3.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-exit-v3.png",
+        "Hash":  "a40749732a0e2d8df0f8262de018ee2f56dd771db28ed964a843ee9cad8889b5",
+        "Bytes":  97117,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-v1.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-v1.png",
+        "Hash":  "895ccc9e53c023449963980c348cc3c12995034e692b20339c458e152e532e19",
+        "Bytes":  39356,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-v2.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-v2.png",
+        "Hash":  "151f04e108445eb2590dbf70b9f3a76a7208dc4d718c6b6e77b954e3341ee8ae",
+        "Bytes":  36960,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-two-hands-v3.png",
+        "Destination":  "img/old/gamer-throne-burst-two-hands-v3.png",
+        "Hash":  "b19b0c678ce4fb55af7e62782ef7bd3ac2de42a7c250bcb63139ddc28eef3049",
+        "Bytes":  40227,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-v1.png",
+        "Destination":  "img/old/gamer-throne-burst-v1.png",
+        "Hash":  "b92febe49475d8a20d151794a932c5d137a93057ce0d427a8e7f1c5992c1401f",
+        "Bytes":  92566,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-v2.png",
+        "Destination":  "img/old/gamer-throne-burst-v2.png",
+        "Hash":  "2694729e759bfea4f0a9457cb3bb7f470882c85f666c2a92a68edbaa5f64edf0",
+        "Bytes":  29842,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-v3.png",
+        "Destination":  "img/old/gamer-throne-burst-v3.png",
+        "Hash":  "9c59eefc34f5a803d57617b0050bd4b24c7f23b8867226a7567017c191ea76ca",
+        "Bytes":  39438,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-v5.png",
+        "Destination":  "img/old/gamer-throne-burst-v5.png",
+        "Hash":  "437358feb26512a30ad8a761c912dc4158d08855d04a8831299f6c0529aabd98",
+        "Bytes":  33010,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-burst-v6.png",
+        "Destination":  "img/old/gamer-throne-burst-v6.png",
+        "Hash":  "2a3506e927dbfba6ffc1f29c4033bd8c1efd8c0de64a1f68dba7875a95b5c9ad",
+        "Bytes":  1264931,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v1.png",
+        "Destination":  "img/old/gamer-throne-idle-v1.png",
+        "Hash":  "ca3ac266ad580d731306900d420ceaa46030c46add5294b10ccd7f8874befae2",
+        "Bytes":  80590,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v2.png",
+        "Destination":  "img/old/gamer-throne-idle-v2.png",
+        "Hash":  "ffbcea28b39ae86f932b579d1c4cd63e7d01f8efed2b976fb0fe37eda8e31b51",
+        "Bytes":  25482,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v3.png",
+        "Destination":  "img/old/gamer-throne-idle-v3.png",
+        "Hash":  "bed579ffe005781d6e3fd8e3a5975149b68802c9d911cdb30e193b3b3465ab45",
+        "Bytes":  24062,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v4.png",
+        "Destination":  "img/old/gamer-throne-idle-v4.png",
+        "Hash":  "99cf017d8b7b18086547396de05ee395948d6dc26caa7cd55d7ab2833575dd69",
+        "Bytes":  21749,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v5.png",
+        "Destination":  "img/old/gamer-throne-idle-v5.png",
+        "Hash":  "a641f5cc865054f5399913500f7ccf864e001dff93414c45da2635a84dcaf993",
+        "Bytes":  19814,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-idle-v6.png",
+        "Destination":  "img/old/gamer-throne-idle-v6.png",
+        "Hash":  "97628565004d2153ff5fa520a86f6f666c1f5431962b1ba9587f79bcebe545c1",
+        "Bytes":  17359,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v1.png",
+        "Destination":  "img/old/gamer-throne-standing-v1.png",
+        "Hash":  "cafac26e9201cb7c0f35c79f23557b187c74ff6d929593d9993864f42406bc3d",
+        "Bytes":  22060,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v2.png",
+        "Destination":  "img/old/gamer-throne-standing-v2.png",
+        "Hash":  "a2559154254c5ad80a337de0580d8e205af89d694da28a0ffe0c008d3c8886e4",
+        "Bytes":  22829,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v3.png",
+        "Destination":  "img/old/gamer-throne-standing-v3.png",
+        "Hash":  "5edb8f44b2392d31aed3041fd7ac0069138146097cb3619e7d50d0278e4bf428",
+        "Bytes":  21803,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v4.png",
+        "Destination":  "img/old/gamer-throne-standing-v4.png",
+        "Hash":  "3e2bbe863858b7b1acae367525bc250f917264a819be910dc9d6dcea53662122",
+        "Bytes":  19721,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v5.png",
+        "Destination":  "img/old/gamer-throne-standing-v5.png",
+        "Hash":  "95202d4d07ceb8b509c51ed43cf6b2bf9e8ea646dad2505b0efa3f9d68c9c6d5",
+        "Bytes":  25703,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/gamer-throne-standing-v6.png",
+        "Destination":  "img/old/gamer-throne-standing-v6.png",
+        "Hash":  "18da32cdf7f8b6ad0f9bc11896e1294269c1e47ffdc7e8d6959fb00aa8d626b4",
+        "Bytes":  24740,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/geruhamto.png",
+        "Destination":  "img/old/geruhamto.png",
+        "Hash":  "d6c46d47b64c598ecf824b5cadf1a283b38f945284c7aff28f108a0ec95ea912",
+        "Bytes":  201115,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-afterimages-v11.png",
+        "Destination":  "img/old/jewel-afterimages-v11.png",
+        "Hash":  "8487409eb00ca37f3633843c1ab845851317b5dacbfa208cb93800a6c4cb32b4",
+        "Bytes":  1497199,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v1.png",
+        "Destination":  "img/old/jewel-animation-v1.png",
+        "Hash":  "e7b5d9dd4e309c9c1cf314b6c7fa81f501dd799c740666fa04be5473c7559224",
+        "Bytes":  1414045,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v10.png",
+        "Destination":  "img/old/jewel-animation-v10.png",
+        "Hash":  "512c004f6b652eb441333416692439c72c268ddac538ec7974261a18142446b6",
+        "Bytes":  3733130,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v2.png",
+        "Destination":  "img/old/jewel-animation-v2.png",
+        "Hash":  "609a4097b67992324ee0306dcd67072db81e0814b0fad34019fa0a9288ac9b11",
+        "Bytes":  1874635,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v3.png",
+        "Destination":  "img/old/jewel-animation-v3.png",
+        "Hash":  "b62437b4847b72a5fc0699a7ef44effc6eee617163a948328037ac27ab05085b",
+        "Bytes":  1768168,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v4.png",
+        "Destination":  "img/old/jewel-animation-v4.png",
+        "Hash":  "575ae24ec7d334a7e26e54b74914d6e8eb9a824a8463850f42522aefb0b58409",
+        "Bytes":  1769598,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v5.png",
+        "Destination":  "img/old/jewel-animation-v5.png",
+        "Hash":  "f6fe7cd36928ce1742ff04d412ab724eb29be936b818aa18275017761bd20753",
+        "Bytes":  1688641,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v6.png",
+        "Destination":  "img/old/jewel-animation-v6.png",
+        "Hash":  "98012685ff4ff2382199ad120e5ef807ccd7933c073fc30e99ef73cbaa06cd9e",
+        "Bytes":  1713310,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v7.png",
+        "Destination":  "img/old/jewel-animation-v7.png",
+        "Hash":  "0e876b354fedae51602ac6cc72a4e5de4da50296a91609d470067d316d009de5",
+        "Bytes":  2565904,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v8.png",
+        "Destination":  "img/old/jewel-animation-v8.png",
+        "Hash":  "c5b1db9ba1e73a587d4c9c05eb6a22bc0ecd3f9fb2714c4319de10ad0180bbd5",
+        "Bytes":  3010917,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-animation-v9.png",
+        "Destination":  "img/old/jewel-animation-v9.png",
+        "Hash":  "cca8d822c56f4246b21c94833ca526de7ebcd7142b1a3b5e59965254efcfe7a7",
+        "Bytes":  3880526,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-design-reference-v8.png",
+        "Destination":  "img/old/jewel-design-reference-v8.png",
+        "Hash":  "21b1e0d7d89e17feb4ef13050c5f61b989ae5ecec2e93c5d0c5c23019bdd6d98",
+        "Bytes":  875874,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-down-v1.png",
+        "Destination":  "img/old/jewel-down-v1.png",
+        "Hash":  "afb7616dffd6c2bc27484c137ffe29e2df97e22b2ad3dbcbd5940c5f086bb7b8",
+        "Bytes":  48182,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-down-v2.png",
+        "Destination":  "img/old/jewel-down-v2.png",
+        "Hash":  "4868075640e8da419587a0ab43761b66af5e356120446f80e21108a8ef8d159e",
+        "Bytes":  48191,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-down-v3.png",
+        "Destination":  "img/old/jewel-down-v3.png",
+        "Hash":  "30afb8a8b3f4b84fe7a66f4389f52382453e205acdbe557f43b01de615ecc48a",
+        "Bytes":  52678,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-down-v7.png",
+        "Destination":  "img/old/jewel-down-v7.png",
+        "Hash":  "dd7cdbfc2fbfb7aebf68065b24988871d0dbfbb7c9dd0aa12e4eacf853d2ad68",
+        "Bytes":  62257,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v1.png",
+        "Destination":  "img/old/jewel-standing-v1.png",
+        "Hash":  "c3cc1befba11e092cf279da588d6dba6cb173069942b889a1f0ee56d7fa578e8",
+        "Bytes":  113190,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v2.png",
+        "Destination":  "img/old/jewel-standing-v2.png",
+        "Hash":  "8ea22ea66e5c9bcf07084d35c2e507c208b592237e791052b1fedd2aa8cdb448",
+        "Bytes":  93376,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v3.png",
+        "Destination":  "img/old/jewel-standing-v3.png",
+        "Hash":  "ccc6ee8f001b70c87df3f81c4eccb46ee75137481b1b0146bd9264d95ea27473",
+        "Bytes":  83866,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v4.png",
+        "Destination":  "img/old/jewel-standing-v4.png",
+        "Hash":  "c09e8f5c722e12d65e311c25791721491ba0a822cb786aa461a40bc3ee837df1",
+        "Bytes":  84184,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v5.png",
+        "Destination":  "img/old/jewel-standing-v5.png",
+        "Hash":  "e73ce891a2da5edf1df493c4dca0c854da8def77822342153df3b9efd6904d6f",
+        "Bytes":  77622,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v6.png",
+        "Destination":  "img/old/jewel-standing-v6.png",
+        "Hash":  "b39ffb465d2a0151e4f68888f8a72c26646658e8970020949be2da44ee3ae730",
+        "Bytes":  78849,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/jewel-standing-v7.png",
+        "Destination":  "img/old/jewel-standing-v7.png",
+        "Hash":  "cd02174caaae9948465dff0fd1648c1997b30e21246a989a90c1a6d12fb65fe5",
+        "Bytes":  80358,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/lower-lockdown-v1.png",
+        "Destination":  "img/old/lower-lockdown-v1.png",
+        "Hash":  "29d38c25fbc8dc377e018d71a240f72df572374026a7e47ccc8fec395aba009e",
+        "Bytes":  1964468,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/max-down-v1.png",
+        "Destination":  "img/old/max-down-v1.png",
+        "Hash":  "8dafd8624f12dfdf176a0248812e0f02633145269ee53ab70f96b05d8f6d29f3",
+        "Bytes":  74942,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/megumin-animation-v1.png",
+        "Destination":  "img/old/megumin-animation-v1.png",
+        "Hash":  "875fa8ea87f9daf1cfe2bed5d8f293e68d595b12e41aeef30576ce059fc95254",
+        "Bytes":  2010794,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/megumin-charge-v1.png",
+        "Destination":  "img/old/megumin-charge-v1.png",
+        "Hash":  "dd98d67d570e71881b8966bbee0695198005b48c96cfd971c702875a9fdcc578",
+        "Bytes":  136807,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/megumin-circle-v1.svg",
+        "Destination":  "img/old/megumin-circle-v1.svg",
+        "Hash":  "71dc3065cdcfd68aff751f8aba0edb6a01c3f6cc7eb25038c60a32f27b622ac4",
+        "Bytes":  3189,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/memory-monolith-v1.png",
+        "Destination":  "img/old/memory-monolith-v1.png",
+        "Hash":  "2501a733b3278bf27fa0a33f6425d3a629d6cca8ea807b67690a100af10dc7e0",
+        "Bytes":  1502889,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/memory-nebula-v1.png",
+        "Destination":  "img/old/memory-nebula-v1.png",
+        "Hash":  "3d695588c9237f2d3c422487d054e207006c243186f2834116cb4f15554b8238",
+        "Bytes":  318674,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/memory-nebula-v2.png",
+        "Destination":  "img/old/memory-nebula-v2.png",
+        "Hash":  "24ca5a850f271b5b6e7f365616d27aad75ef018449be1621ac99429c67f5ab5b",
+        "Bytes":  1805783,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-burst-v10.png",
+        "Destination":  "img/old/meta-burst-v10.png",
+        "Hash":  "bc543823b7276be99e2719f2f5cf42bd6a74ee4517e25d905d95292cc48f77fc",
+        "Bytes":  461014,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-burst-v6.png",
+        "Destination":  "img/old/meta-burst-v6.png",
+        "Hash":  "9149d34b196c035fa4dbab3608dfdccf9c751da974e57b4a61d714d4c7658715",
+        "Bytes":  37415,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-burst-v7.png",
+        "Destination":  "img/old/meta-burst-v7.png",
+        "Hash":  "08e22247bcb00792d399c7be3e2c2e2d48611a846b29dba0215045a31e81759a",
+        "Bytes":  35631,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-burst-v8.png",
+        "Destination":  "img/old/meta-burst-v8.png",
+        "Hash":  "9f905ea264385ea194084444491d47b02e8cf5ad094a5c808ae73187242abdab",
+        "Bytes":  32798,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-burst-v9.png",
+        "Destination":  "img/old/meta-burst-v9.png",
+        "Hash":  "7a8032baa783826f7d854c5babbe011645b9105b6595999123291d4107ca98bb",
+        "Bytes":  426186,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-poses-v3.png",
+        "Destination":  "img/old/meta-poses-v3.png",
+        "Hash":  "59dc69ef13b01f0902fb516af59161fd044c132004806ce8707515498c7d60ef",
+        "Bytes":  35390,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-poses-v4.png",
+        "Destination":  "img/old/meta-poses-v4.png",
+        "Hash":  "1d865e68cb86e6148523c6b4b905f88e7d0b2d7dd33816a0063074cbb3d92a3d",
+        "Bytes":  33873,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-poses-v5.png",
+        "Destination":  "img/old/meta-poses-v5.png",
+        "Hash":  "b6d3131ef5e60157bbb7905ae028e45592137c625f911d8856ef3bf9fd60b983",
+        "Bytes":  32662,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-poses-v6.png",
+        "Destination":  "img/old/meta-poses-v6.png",
+        "Hash":  "7cd2c0d2b8bc9f0c49f239d08493bf7f287d342ab599a450daff7278bf7435db",
+        "Bytes":  344040,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-standing-v3.png",
+        "Destination":  "img/old/meta-standing-v3.png",
+        "Hash":  "fd1a323bb3557eeb89a579c6eae4502753b42f6d99f881f95311151f7209d51d",
+        "Bytes":  13669,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-standing-v4.png",
+        "Destination":  "img/old/meta-standing-v4.png",
+        "Hash":  "6c66298eda50ba84daf8ada314293558964a03d933c768b0fd8d1289ed02f15e",
+        "Bytes":  13123,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-standing-v5.png",
+        "Destination":  "img/old/meta-standing-v5.png",
+        "Hash":  "45a6e838473f4f6a92f98663992eb88a654b21fdd65443186aa37c85939ddb46",
+        "Bytes":  12689,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/meta-standing-v6.png",
+        "Destination":  "img/old/meta-standing-v6.png",
+        "Hash":  "ecb833688dbc1eb6328fc28e6a3f4e2ea80c75f2a6b4314eef4251c8a63877eb",
+        "Bytes":  87178,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/queen-animation-v1.png",
+        "Destination":  "img/old/queen-animation-v1.png",
+        "Hash":  "fa957b12d9ca5184b7fdfc16abfef13fe2467f5978e6a6fc9063f431410dd000",
+        "Bytes":  2365948,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/queen-animation-v2.png",
+        "Destination":  "img/old/queen-animation-v2.png",
+        "Hash":  "1a61cb4f8ba4172ea63af6670133e7d1efc1acf5d4053f988fb80928e8bc69e5",
+        "Bytes":  2310485,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/queen-down-v1.png",
+        "Destination":  "img/old/queen-down-v1.png",
+        "Hash":  "54128290d372364adbe3fe19134100f6b09653c2a76fdd38fa0efe133c320cf4",
+        "Bytes":  154681,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/queen-standing-v1.png",
+        "Destination":  "img/old/queen-standing-v1.png",
+        "Hash":  "673d2ae18cc72eb798d7eb8f3af5e312e3034b34350c8c3f8b4be5b8610897cc",
+        "Bytes":  140753,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-1-2-v1.png",
+        "Destination":  "img/old/richter-burst-between-1-2-v1.png",
+        "Hash":  "0cf86f188f15429d8cd268902c7043a5ab39791185f10561da2adea88c32e288",
+        "Bytes":  66280,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-1-2-v2.png",
+        "Destination":  "img/old/richter-burst-between-1-2-v2.png",
+        "Hash":  "e047fc512a9ed913dea35efd8aa725a58d43eae9bb6b8b8ed174caac7ef1ac75",
+        "Bytes":  61910,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-1-2-v3.png",
+        "Destination":  "img/old/richter-burst-between-1-2-v3.png",
+        "Hash":  "c9bc17d3e78bdf17b59b70ac6b8ebfc7aed51f203b48422df599f6adf82dc0c6",
+        "Bytes":  45406,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-3-4-v1.png",
+        "Destination":  "img/old/richter-burst-between-3-4-v1.png",
+        "Hash":  "001c2f9160761f2ee20988885db99163dc7937a7a3b22d25a170eddb6a1fc338",
+        "Bytes":  67924,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-3-4-v2.png",
+        "Destination":  "img/old/richter-burst-between-3-4-v2.png",
+        "Hash":  "bf5d86b9c2487cbb98ce0993a1c35b128816f2da4818c3e32104f1ec5881bfd6",
+        "Bytes":  59186,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-between-3-4-v3.png",
+        "Destination":  "img/old/richter-burst-between-3-4-v3.png",
+        "Hash":  "4f04fcf0e6a6ef28ba22c9d46bb7e866ff6745970ed694853fb309bc396f34a1",
+        "Bytes":  45198,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-inbetweens-v1.png",
+        "Destination":  "img/old/richter-burst-inbetweens-v1.png",
+        "Hash":  "be0d1e978b951a2011d03c9e6fb37e73b00f94f7109989b840fad073bee59cac",
+        "Bytes":  130571,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-inbetweens-v2.png",
+        "Destination":  "img/old/richter-burst-inbetweens-v2.png",
+        "Hash":  "7a3b11e305c9fe94edfcf8085694efe3bc2b104364f217f29798e8499c80b802",
+        "Bytes":  118107,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-inbetweens-v3.png",
+        "Destination":  "img/old/richter-burst-inbetweens-v3.png",
+        "Hash":  "a28713ad82eed57c6af7a5f69118400959bdc0986648189b6c7b286dc4def411",
+        "Bytes":  88491,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v10.png",
+        "Destination":  "img/old/richter-burst-v10.png",
+        "Hash":  "e770337012885cf36a151f503d4f47ea920a524ce47536c20cbd597de3436433",
+        "Bytes":  66555,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v11.png",
+        "Destination":  "img/old/richter-burst-v11.png",
+        "Hash":  "739f7caee4d70594cfbc1fc0a99eb4cd1a6554952b688027cd589f6fc0bece30",
+        "Bytes":  68952,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v12.png",
+        "Destination":  "img/old/richter-burst-v12.png",
+        "Hash":  "f6a95f5bd35d37931ec77c58b363da9d01018986e5d86b8d642abe435f904ad5",
+        "Bytes":  71738,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v13.png",
+        "Destination":  "img/old/richter-burst-v13.png",
+        "Hash":  "f75537ceaeaf218c2bd3ec148199bca51e4575d53015bb1f5390f7238f473590",
+        "Bytes":  73187,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v14.png",
+        "Destination":  "img/old/richter-burst-v14.png",
+        "Hash":  "ae904cf79387f67015b7c1e1b37d0be60da9c1c6c2d543d4e27f6498ff7241ba",
+        "Bytes":  135030,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v15.png",
+        "Destination":  "img/old/richter-burst-v15.png",
+        "Hash":  "408e256f7a71e66869298d768db20c51aabf1d05ef19ade052354c08e369111f",
+        "Bytes":  143591,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v16.png",
+        "Destination":  "img/old/richter-burst-v16.png",
+        "Hash":  "eebd72e08103351534829c7db2d6d6cf2b68c01c928ae5859460bf7166c07495",
+        "Bytes":  287336,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v17.png",
+        "Destination":  "img/old/richter-burst-v17.png",
+        "Hash":  "5e6ceecb0679c6e4b1b1ab1c273262f69931ce8784d12a552227c4388d0837e3",
+        "Bytes":  275563,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v18.png",
+        "Destination":  "img/old/richter-burst-v18.png",
+        "Hash":  "55e3d3402cda63a52510d69ddcc48d37055b834d842d116cf8b729b1ff1e5b14",
+        "Bytes":  244320,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v19.png",
+        "Destination":  "img/old/richter-burst-v19.png",
+        "Hash":  "bc9028ec8b4266d6e669c56961f227f137ef8f7f58eed42916a21ed49f180674",
+        "Bytes":  179136,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v20.png",
+        "Destination":  "img/old/richter-burst-v20.png",
+        "Hash":  "e2feb35545a0d6526afbea92179d8527a1b12f9ba5d99df3899e542f47bbc995",
+        "Bytes":  230459,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v21.png",
+        "Destination":  "img/old/richter-burst-v21.png",
+        "Hash":  "d8de28973215567826277e0219375c9b9eff34e5beae2b1ba1252a6bea403ee6",
+        "Bytes":  238014,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v22.png",
+        "Destination":  "img/old/richter-burst-v22.png",
+        "Hash":  "0fb3266ec8b17122ac45ed40fbf7dcd3fb17693bda28f16e7b3f5221d61c9efc",
+        "Bytes":  235855,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v8.png",
+        "Destination":  "img/old/richter-burst-v8.png",
+        "Hash":  "f878d94f962a15d1b3be722a63417014a6d06eaf1da101d94bbaf8a40e9ea220",
+        "Bytes":  82821,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-burst-v9.png",
+        "Destination":  "img/old/richter-burst-v9.png",
+        "Hash":  "e7e1f95e88890455a0403bdad428391554ce0d2b06c8653813b10e530e5ecf1a",
+        "Bytes":  77199,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-poses-v10.png",
+        "Destination":  "img/old/richter-poses-v10.png",
+        "Hash":  "327bc82a7f90dfa13c4ab2ba070d0574d9fccc986fb809ee3c592524f452ccb7",
+        "Bytes":  52694,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-poses-v7.png",
+        "Destination":  "img/old/richter-poses-v7.png",
+        "Hash":  "ebacbdd2f131eb6ee15e7583c075d5e3fb9f63e240173b1906cf283c3a623301",
+        "Bytes":  66867,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-poses-v8.png",
+        "Destination":  "img/old/richter-poses-v8.png",
+        "Hash":  "252a22f31d22ecc05096db8a9d9bcebbe616898bd39ce0538f14beb33dd69fca",
+        "Bytes":  63671,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-poses-v9.png",
+        "Destination":  "img/old/richter-poses-v9.png",
+        "Hash":  "86e0c48ada4a988ff776bd643c57be09161758ffaf4b4ca361436144f38ad2fa",
+        "Bytes":  51693,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-standing-v10.png",
+        "Destination":  "img/old/richter-standing-v10.png",
+        "Hash":  "0f3ef9f3831e1b07af2b06042ae71cfcbf475dd1bb72a4ddee36118b4173938b",
+        "Bytes":  19550,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-standing-v7.png",
+        "Destination":  "img/old/richter-standing-v7.png",
+        "Hash":  "985e43d8e87f0f3880b32bf65bc366b58c6e0c6c5d5ff7f54ea9403c4f5e1857",
+        "Bytes":  18295,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-standing-v8.png",
+        "Destination":  "img/old/richter-standing-v8.png",
+        "Hash":  "13e213aec82f4b84916fdb5f4d4a9d8bf630665f492497aec4439619ebffb653",
+        "Bytes":  17421,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/richter-standing-v9.png",
+        "Destination":  "img/old/richter-standing-v9.png",
+        "Hash":  "08f18c0b2af06e7764814b4a2457b3011522638add2c1b5968c3d8abeb122956",
+        "Bytes":  19398,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tarai-fall-v1.png",
+        "Destination":  "img/old/tarai-fall-v1.png",
+        "Hash":  "2813f755e88ffa42ee55109d80d13df8b90326850e65532c70c6cc15ef272434",
+        "Bytes":  9341,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tarai-impact-v1.png",
+        "Destination":  "img/old/tarai-impact-v1.png",
+        "Hash":  "8146fc59c0a6fb192b7135b19ec463dffa1fc3eed9328f193a53ee358489b698",
+        "Bytes":  9933,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-animation-v10.png",
+        "Destination":  "img/old/tordeliese-animation-v10.png",
+        "Hash":  "fc3c80e810d0d4ec695020635ac2ecdb32d86e3524bf57836220d960882e0713",
+        "Bytes":  2416897,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-animation-v11.png",
+        "Destination":  "img/old/tordeliese-animation-v11.png",
+        "Hash":  "d4962c6cfe5e6c212f6f86cc46054218e749cc11017a1055b18d1bdb4a8a8483",
+        "Bytes":  1333255,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-animation-v12.png",
+        "Destination":  "img/old/tordeliese-animation-v12.png",
+        "Hash":  "f82d187c438ee4c78cb3b7ab75df4228c59ca454ded5295fdfd5e9d442444482",
+        "Bytes":  1691498,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-animation-v8.png",
+        "Destination":  "img/old/tordeliese-animation-v8.png",
+        "Hash":  "85b5329c1f1ea50ed2056eb8b91af757b69efa26cb002c76e8e2c97714b06351",
+        "Bytes":  2341692,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-animation-v9.png",
+        "Destination":  "img/old/tordeliese-animation-v9.png",
+        "Hash":  "bd900ba1b3d0fcc81b163a76289fa4e2703538f040bbe5848ea82a43a7a48cba",
+        "Bytes":  2428254,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-1-v2.png",
+        "Destination":  "img/old/tordeliese-attack-1-v2.png",
+        "Hash":  "8f9f2aa88e22c9e7aa1e1734618453291dc062b4f91e752a2a6cb0a330b01a06",
+        "Bytes":  138318,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-1-v3.png",
+        "Destination":  "img/old/tordeliese-attack-1-v3.png",
+        "Hash":  "6403b4176fc9542508f18fc30a08eece581e1af1cafb3c9121df536bd7cb4c7b",
+        "Bytes":  51956,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-1-v4.png",
+        "Destination":  "img/old/tordeliese-attack-1-v4.png",
+        "Hash":  "3e88d487a5a4018cc4d4453b3e227c5f3d94496d46716db579d44753fe461d4b",
+        "Bytes":  60914,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-1-v5.png",
+        "Destination":  "img/old/tordeliese-attack-1-v5.png",
+        "Hash":  "76df64d2d940477c7e3a3d46e437ec18a4db53431274b350fce56189d6e4408c",
+        "Bytes":  121445,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-1-v6.png",
+        "Destination":  "img/old/tordeliese-attack-1-v6.png",
+        "Hash":  "48f3553f163bad0155ecfa5aedef645f877634ed042af32edeacb245001c1d6f",
+        "Bytes":  121917,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-2-v2.png",
+        "Destination":  "img/old/tordeliese-attack-2-v2.png",
+        "Hash":  "a7d9fd4441bf14074459b190ee8d19938a87313edf1d1e0e00792e39d19cba21",
+        "Bytes":  157279,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-2-v3.png",
+        "Destination":  "img/old/tordeliese-attack-2-v3.png",
+        "Hash":  "dded3643c4dce978903372a1345b6ff321471c815cf8a6f4ff2bc0a102b69134",
+        "Bytes":  51107,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-2-v4.png",
+        "Destination":  "img/old/tordeliese-attack-2-v4.png",
+        "Hash":  "296f5f5c6125ea2e6e0f37032ac5069327228c8c4a83107036305c697e82f514",
+        "Bytes":  60916,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-2-v5.png",
+        "Destination":  "img/old/tordeliese-attack-2-v5.png",
+        "Hash":  "fc18e2ac14aef5d48f119282a3976d30b80720d42638f4f5fab1a7e663eaed3b",
+        "Bytes":  118611,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-2-v6.png",
+        "Destination":  "img/old/tordeliese-attack-2-v6.png",
+        "Hash":  "8f60fd1f8fba153198afea8db9e8033f61e1ee8ada0b28f2b594f6c5e718e0bf",
+        "Bytes":  114787,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-3-v2.png",
+        "Destination":  "img/old/tordeliese-attack-3-v2.png",
+        "Hash":  "07357c1054f0f66d0245c8758fb17e385f65130be1fb41c63ba4190db1db6a42",
+        "Bytes":  146446,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-3-v3.png",
+        "Destination":  "img/old/tordeliese-attack-3-v3.png",
+        "Hash":  "2db04312a52355a6382630edaa02a3241667851787dc905843b8ed82fd02d4e6",
+        "Bytes":  59614,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-3-v4.png",
+        "Destination":  "img/old/tordeliese-attack-3-v4.png",
+        "Hash":  "ad441654d28e0a8c91fa75a12db24a6b3ba11b6f267d3d59892d9773f4469a44",
+        "Bytes":  69827,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-3-v5.png",
+        "Destination":  "img/old/tordeliese-attack-3-v5.png",
+        "Hash":  "c9b4e7e96983e66b0f027034332d7534a34e3b8bbcafb9f6fe95700054b79a9d",
+        "Bytes":  136055,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-3-v6.png",
+        "Destination":  "img/old/tordeliese-attack-3-v6.png",
+        "Hash":  "ed225067a998012c100f4df00951ea213f32a8be969346faa07b2f221434aac6",
+        "Bytes":  128221,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-4-v2.png",
+        "Destination":  "img/old/tordeliese-attack-4-v2.png",
+        "Hash":  "af379ec5acc8167af4df5e4726855efe5a10a64c30c598036a817658ace1cb9a",
+        "Bytes":  141212,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-4-v3.png",
+        "Destination":  "img/old/tordeliese-attack-4-v3.png",
+        "Hash":  "0d2410fd72bda6889937ae718883a21174c705ca673db80cdbc86a43ad630bab",
+        "Bytes":  58284,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-4-v4.png",
+        "Destination":  "img/old/tordeliese-attack-4-v4.png",
+        "Hash":  "84f2247631641d81b8f70ed044dda074753a17e0a19f7463c2abe2e235bc07b8",
+        "Bytes":  68081,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-4-v5.png",
+        "Destination":  "img/old/tordeliese-attack-4-v5.png",
+        "Hash":  "a2c725a19edc4bc1d9d52cd6b4afa9267d5d1e29dff7ef4be19adae03f925810",
+        "Bytes":  130179,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-4-v6.png",
+        "Destination":  "img/old/tordeliese-attack-4-v6.png",
+        "Hash":  "89e75a66b5cd47500a84b0b042b7e6daaf6def38ed42cd8d625f48039ad3669b",
+        "Bytes":  126943,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-5-v3.png",
+        "Destination":  "img/old/tordeliese-attack-5-v3.png",
+        "Hash":  "8a43dd0e1d8674385632b082a2e4fa057dd8a07707191a48f2b501702e021bf2",
+        "Bytes":  54077,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-5-v4.png",
+        "Destination":  "img/old/tordeliese-attack-5-v4.png",
+        "Hash":  "94aa57ae61a76f26d1394d34b94771b67650eedcbf5cec069ecbff4c4b549a61",
+        "Bytes":  66144,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-5-v5.png",
+        "Destination":  "img/old/tordeliese-attack-5-v5.png",
+        "Hash":  "4c85173a05f71287f34095f71ce32206b938e3299a7e7ed925a4def8cfb5a18a",
+        "Bytes":  129003,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-5-v6.png",
+        "Destination":  "img/old/tordeliese-attack-5-v6.png",
+        "Hash":  "40dc139b2f26e76879788f748abd506d50f4554aaed15ddce907c5f7bf50e37b",
+        "Bytes":  124991,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-6-v3.png",
+        "Destination":  "img/old/tordeliese-attack-6-v3.png",
+        "Hash":  "9d2113173ba0690464464ec7994d18a3789c162ca1a06eb429d5992efc8e2ce3",
+        "Bytes":  53824,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-6-v4.png",
+        "Destination":  "img/old/tordeliese-attack-6-v4.png",
+        "Hash":  "bfac9ee486f5e10b1246eec0b984510c3346543f7a6adc1ea9d9cad89e5ad4d1",
+        "Bytes":  61379,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-6-v5.png",
+        "Destination":  "img/old/tordeliese-attack-6-v5.png",
+        "Hash":  "9eeca231eb48b531329035fc696301c096b1f2b5e020541b5a06c6c783b64550",
+        "Bytes":  123179,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-attack-6-v6.png",
+        "Destination":  "img/old/tordeliese-attack-6-v6.png",
+        "Hash":  "3852be366a59c93bdb6711f6368031a756bc9ac7aca495002ec7af911ca64b39",
+        "Bytes":  122732,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v2.png",
+        "Destination":  "img/old/tordeliese-burst-1-v2.png",
+        "Hash":  "0fd699f9baa8125f0eef32a727d6d70b91af3c5ab7428c24605f0d465ae9705c",
+        "Bytes":  178378,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v3.png",
+        "Destination":  "img/old/tordeliese-burst-1-v3.png",
+        "Hash":  "6d34039877904ab034a226d752aa68b345c8c00aab882de1f1a32002152a7837",
+        "Bytes":  55962,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v4.png",
+        "Destination":  "img/old/tordeliese-burst-1-v4.png",
+        "Hash":  "a65584ac94e7ec4b2f5f1a4f66eaaa15f8f3d6a149ceb7e23d4e221410ff07d6",
+        "Bytes":  64069,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v5.png",
+        "Destination":  "img/old/tordeliese-burst-1-v5.png",
+        "Hash":  "70b51dd4509d9c6bf366637bb5d976d01367e356ebc19883bda339e2c5c53d3d",
+        "Bytes":  130777,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v6.png",
+        "Destination":  "img/old/tordeliese-burst-1-v6.png",
+        "Hash":  "c330b2c73c6044e4989ec4afaa6ecb54d6c86fe966cbbd597a38d3d7baa71670",
+        "Bytes":  118560,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-1-v7.png",
+        "Destination":  "img/old/tordeliese-burst-1-v7.png",
+        "Hash":  "73a749d62404c83bf320e501632eff2b772aa74c694c9d5321ce03e4ef6ee323",
+        "Bytes":  150156,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v2.png",
+        "Destination":  "img/old/tordeliese-burst-2-v2.png",
+        "Hash":  "062c8399bb05db83b52c2f408a9f964c099b052379944c1b891b1220c3060f60",
+        "Bytes":  178684,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v3.png",
+        "Destination":  "img/old/tordeliese-burst-2-v3.png",
+        "Hash":  "ee353139eef8511b18d8e6a7f9fc79ce5dccc705cdbf06ec5ab6a8486c81b55e",
+        "Bytes":  53698,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v4.png",
+        "Destination":  "img/old/tordeliese-burst-2-v4.png",
+        "Hash":  "14d01cb908881b0a0d5a6faeabf75f0123f9e2c5d992b5dd76e781edd7bb8982",
+        "Bytes":  64916,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v5.png",
+        "Destination":  "img/old/tordeliese-burst-2-v5.png",
+        "Hash":  "5ca51b2f23a9aa50ade478f1fe56bb2f8427e3ed928414b3739d53fe7cee2081",
+        "Bytes":  125554,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v6.png",
+        "Destination":  "img/old/tordeliese-burst-2-v6.png",
+        "Hash":  "4852a4c506e4ff786fcb2f13da4641c7cb2d5fc9574f88ccae56852c55af8e8c",
+        "Bytes":  119908,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-2-v7.png",
+        "Destination":  "img/old/tordeliese-burst-2-v7.png",
+        "Hash":  "2ed0d1dda653a4a9de7a9780fa391802ce3f8ee4d2e1d32bae852b005c1aea00",
+        "Bytes":  155823,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v2.png",
+        "Destination":  "img/old/tordeliese-burst-3-v2.png",
+        "Hash":  "a80b75e3810e95578a39a1e0c02280cf759f647cf22383b311f02d0153fc2a41",
+        "Bytes":  178991,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v3.png",
+        "Destination":  "img/old/tordeliese-burst-3-v3.png",
+        "Hash":  "33b44c5bce050f31cb5652988e2e8a15f31c6968b4b463d55ac7713029b11398",
+        "Bytes":  49308,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v4.png",
+        "Destination":  "img/old/tordeliese-burst-3-v4.png",
+        "Hash":  "b7729bf3871a8633f554e30655639684ec80441d8a9118dc0405d8b1d9c87418",
+        "Bytes":  60224,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v5.png",
+        "Destination":  "img/old/tordeliese-burst-3-v5.png",
+        "Hash":  "5dfe18e51da5f7e9cf98e7ac9d55c429e48f0222ba01f7ab373e3a91c30ca196",
+        "Bytes":  118307,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v6.png",
+        "Destination":  "img/old/tordeliese-burst-3-v6.png",
+        "Hash":  "afa82e9174165bc8c6ac6c231832d4e811dddb9bb87db977c8335b22197e9d96",
+        "Bytes":  111262,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-3-v7.png",
+        "Destination":  "img/old/tordeliese-burst-3-v7.png",
+        "Hash":  "a8594037939a9518e98b2e070f9a1df49809e6c9af0ab4cb08e71ff4233da973",
+        "Bytes":  141198,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v2.png",
+        "Destination":  "img/old/tordeliese-burst-4-v2.png",
+        "Hash":  "2d91767390972456cdc6ea97dc9b26da7a61b251e671bd915722b04471908b7d",
+        "Bytes":  177879,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v3.png",
+        "Destination":  "img/old/tordeliese-burst-4-v3.png",
+        "Hash":  "22b26aaacd1b0692f2c5c2751fdae91a05ea985e918001b1d99f75f233850317",
+        "Bytes":  59761,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v4.png",
+        "Destination":  "img/old/tordeliese-burst-4-v4.png",
+        "Hash":  "4c010cf02497cf59d481dc85cd53eb6f6a1c8f2cd00c8e583ad2efeece7bebce",
+        "Bytes":  73401,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v5.png",
+        "Destination":  "img/old/tordeliese-burst-4-v5.png",
+        "Hash":  "a724e4863db2ccea8bf81d7c2058c5f4d8546a8b9010ab8b7594aea7e8176090",
+        "Bytes":  136082,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v6.png",
+        "Destination":  "img/old/tordeliese-burst-4-v6.png",
+        "Hash":  "5fd12cac0c470ad589e65e8201fd6dea303f32d067197c47e08d6a4fcb169aa4",
+        "Bytes":  116448,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-4-v7.png",
+        "Destination":  "img/old/tordeliese-burst-4-v7.png",
+        "Hash":  "ba2300d83ac66fada9a6c91565c38f5e4b87c9541fdb8f47f1385ef082ce1c36",
+        "Bytes":  152083,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-5-v3.png",
+        "Destination":  "img/old/tordeliese-burst-5-v3.png",
+        "Hash":  "553d274d544ac7ed683223ee05ac811501c596f7f31526208f66b71f4f69d9a2",
+        "Bytes":  54671,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-5-v4.png",
+        "Destination":  "img/old/tordeliese-burst-5-v4.png",
+        "Hash":  "99fab91fd0c67e84cf43c552852ae30749bd439c46657b52aa15770407e86a47",
+        "Bytes":  67597,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-5-v5.png",
+        "Destination":  "img/old/tordeliese-burst-5-v5.png",
+        "Hash":  "5896d65f49633eb669aec56b1efecdfac6ec3832f26dc900c477aa9c6d2c8fca",
+        "Bytes":  131445,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-5-v6.png",
+        "Destination":  "img/old/tordeliese-burst-5-v6.png",
+        "Hash":  "8dbe1ae3842a49b8e57e7bca35276c35040fede99b8fba1ac3e66b6165046d73",
+        "Bytes":  111160,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-5-v7.png",
+        "Destination":  "img/old/tordeliese-burst-5-v7.png",
+        "Hash":  "6049ad23a25c01d3d26b14b7dc39bb7d1dd3285c03849fa29b9883412b82e2da",
+        "Bytes":  150506,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-6-v3.png",
+        "Destination":  "img/old/tordeliese-burst-6-v3.png",
+        "Hash":  "9b1cf781d443aaf812db242c5db4cb94d164801877b4e8c1c7f5231562e0a1aa",
+        "Bytes":  50894,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-6-v4.png",
+        "Destination":  "img/old/tordeliese-burst-6-v4.png",
+        "Hash":  "106f91d145ae28fa9eba60112005f7bcb7a34c6a4a6207a53b32c0ed54f5fbab",
+        "Bytes":  60998,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-6-v5.png",
+        "Destination":  "img/old/tordeliese-burst-6-v5.png",
+        "Hash":  "24336d84e5c8f8acd2c9e5fb190e76b75aa02e3b562aa3fb136a354018052c2e",
+        "Bytes":  124599,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-6-v6.png",
+        "Destination":  "img/old/tordeliese-burst-6-v6.png",
+        "Hash":  "2bb37c5cdc46339119b19dcf88e44e90ee4cb90ebc4108479b8932bdf87fcd61",
+        "Bytes":  113279,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-burst-6-v7.png",
+        "Destination":  "img/old/tordeliese-burst-6-v7.png",
+        "Hash":  "f1fec52a4a079ac6f66e04ae8e4a7bd13db7b374e39491dc1466ce34ac515749",
+        "Bytes":  153679,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-down-v1.png",
+        "Destination":  "img/old/tordeliese-down-v1.png",
+        "Hash":  "e61c5ad488e40f8b22443baa91cd6b71f0fe8fc13403b1d52d8e5d2fcf31cdf0",
+        "Bytes":  57367,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-1-v2.png",
+        "Destination":  "img/old/tordeliese-idle-1-v2.png",
+        "Hash":  "6894c0b20c62984a958d56c7c7df4cc4a8e8664c24608de7598d17282d59b394",
+        "Bytes":  142397,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-1-v3.png",
+        "Destination":  "img/old/tordeliese-idle-1-v3.png",
+        "Hash":  "e500fcefaf7b7b471c307049237b13bb465b9facae9e145a9848aba937642638",
+        "Bytes":  56631,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-1-v4.png",
+        "Destination":  "img/old/tordeliese-idle-1-v4.png",
+        "Hash":  "5031569560eb4f91cfc9ac3f58c000c905d8429f3e132e5cf194cd35e2d89ccc",
+        "Bytes":  61987,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-1-v5.png",
+        "Destination":  "img/old/tordeliese-idle-1-v5.png",
+        "Hash":  "6bc83daf56eb03d5fc413827e93012e31fa1fbf9c9831cc38d74c3b9e3093e1b",
+        "Bytes":  123574,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-1-v6.png",
+        "Destination":  "img/old/tordeliese-idle-1-v6.png",
+        "Hash":  "90c502eebe1a284950e901dd57eb578d9583f0794af9d3799d6559065c10c1d2",
+        "Bytes":  122966,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-2-v2.png",
+        "Destination":  "img/old/tordeliese-idle-2-v2.png",
+        "Hash":  "187dda3d8bd252edcaaf23cf3ba8c53993e60240bce1e3e1fb562edbc3ad90d3",
+        "Bytes":  140589,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-2-v3.png",
+        "Destination":  "img/old/tordeliese-idle-2-v3.png",
+        "Hash":  "38c31aace10953d891907abde59e7e8247ddea64bccd1ac4954b207fd6ac38ae",
+        "Bytes":  57585,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-2-v4.png",
+        "Destination":  "img/old/tordeliese-idle-2-v4.png",
+        "Hash":  "89e007adb4f8e04097a958a5504c7642efb210b4bf9c74caf07e52d0d1d0cc7a",
+        "Bytes":  62235,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-2-v5.png",
+        "Destination":  "img/old/tordeliese-idle-2-v5.png",
+        "Hash":  "330673304e7a87b9311c79952ef3d94d3dba7bb1bed7b6f19812b7e5350dceaa",
+        "Bytes":  124652,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-2-v6.png",
+        "Destination":  "img/old/tordeliese-idle-2-v6.png",
+        "Hash":  "489ea7c00a0d02b38f3537e2b5027a5c87aa0897244312d0997ef63c2bfea668",
+        "Bytes":  123849,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-3-v2.png",
+        "Destination":  "img/old/tordeliese-idle-3-v2.png",
+        "Hash":  "996da8fcab48c6d2578e1297851cdd7da170591a449fafe2d7ff588bec9e6965",
+        "Bytes":  141466,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-3-v3.png",
+        "Destination":  "img/old/tordeliese-idle-3-v3.png",
+        "Hash":  "4170133748883e2bbe72aefe6bf624661f8ee1984c0b581dd8bff6f34772977b",
+        "Bytes":  57610,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-3-v4.png",
+        "Destination":  "img/old/tordeliese-idle-3-v4.png",
+        "Hash":  "6bb322e6ded166988c37aa0f589cd80f0f384d301dc562868032c3cb8dbcf85a",
+        "Bytes":  62767,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-3-v5.png",
+        "Destination":  "img/old/tordeliese-idle-3-v5.png",
+        "Hash":  "7131c70ba899f39d356108e2d57112d9138ff2530d210b58181c6a60aa15b355",
+        "Bytes":  124092,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-3-v6.png",
+        "Destination":  "img/old/tordeliese-idle-3-v6.png",
+        "Hash":  "837d9298383c390a514dd9b8b7c375141c0a1502c97f909e755fc3b4be3df00b",
+        "Bytes":  123077,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-4-v2.png",
+        "Destination":  "img/old/tordeliese-idle-4-v2.png",
+        "Hash":  "f3a8644b671be9056c243337f1c2ac27be3e1d2ce2b21553df1eb3999cb58a34",
+        "Bytes":  141909,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-4-v3.png",
+        "Destination":  "img/old/tordeliese-idle-4-v3.png",
+        "Hash":  "33e1bb68d8fe79c9bfe9678eb717c971fb66726dfa59f7bfe0f43306bccc4c85",
+        "Bytes":  58297,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-4-v4.png",
+        "Destination":  "img/old/tordeliese-idle-4-v4.png",
+        "Hash":  "29079cf6ddba8e07deb44aec802df0d5dde4b854d3acd4f10a6568560deb7893",
+        "Bytes":  64541,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-4-v5.png",
+        "Destination":  "img/old/tordeliese-idle-4-v5.png",
+        "Hash":  "3047e6978b8887d4af7d8576e976d81b68646048af5041a9331374e94e90b525",
+        "Bytes":  124768,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-4-v6.png",
+        "Destination":  "img/old/tordeliese-idle-4-v6.png",
+        "Hash":  "180bad011d3233ff77838f7cb01663df5af70b0571fa06ee27a8b7f26bb4e061",
+        "Bytes":  123517,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-5-v3.png",
+        "Destination":  "img/old/tordeliese-idle-5-v3.png",
+        "Hash":  "93bd9fa4883245d63cbdb08d041dabb968f33c25b6295a321a5beafc51472e2a",
+        "Bytes":  57598,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-5-v4.png",
+        "Destination":  "img/old/tordeliese-idle-5-v4.png",
+        "Hash":  "2ac166b8964dc1a006195ddf255fe8be3e8f14af29be69ca568170a52d9473b7",
+        "Bytes":  63602,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-5-v5.png",
+        "Destination":  "img/old/tordeliese-idle-5-v5.png",
+        "Hash":  "9132ad529646495036cab41588db00413c0a9d65a6d474377c46dc0e60579808",
+        "Bytes":  124978,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-5-v6.png",
+        "Destination":  "img/old/tordeliese-idle-5-v6.png",
+        "Hash":  "24f8e70e21599ee90a8a72e35a61e912595446bf9f4a28c9f97c9667390f6d53",
+        "Bytes":  124095,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-6-v3.png",
+        "Destination":  "img/old/tordeliese-idle-6-v3.png",
+        "Hash":  "36df669c9ae072471eb805af7550b40d840744b87bea22320be2b0e51de3f91d",
+        "Bytes":  57133,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-6-v4.png",
+        "Destination":  "img/old/tordeliese-idle-6-v4.png",
+        "Hash":  "fe4f3a5820346dfa9ce5a47e35f89735f6b7ea4a3df26b52cbc048a80e5c90cc",
+        "Bytes":  63858,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-6-v5.png",
+        "Destination":  "img/old/tordeliese-idle-6-v5.png",
+        "Hash":  "d205d8afdf1783f37ca54644a8ce42d59254e833e3e7bae64340a87527d5b2c6",
+        "Bytes":  125680,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-idle-6-v6.png",
+        "Destination":  "img/old/tordeliese-idle-6-v6.png",
+        "Hash":  "2edc87980f3c4cc02a3d926ed9f095b7c2132bdb9f8704a5801410ae8be88459",
+        "Bytes":  123362,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-kick-v2.png",
+        "Destination":  "img/old/tordeliese-kick-v2.png",
+        "Hash":  "5d92380429f6e98515c55298d2906ad613d53f1c12090edf57e16b93abf5e30a",
+        "Bytes":  501958,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-kick-v3.png",
+        "Destination":  "img/old/tordeliese-kick-v3.png",
+        "Hash":  "e7e04dbf988596b8f837ba5e84ebda8a9bd1a2ac1e8b7d5707aca20ff9b64fdd",
+        "Bytes":  533252,
+        "Phase":  "after-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v1.png",
+        "Destination":  "img/old/tordeliese-poses-v1.png",
+        "Hash":  "2b0141c75645b9f06bc53dc204551747d4099c7bbbcba70f33c07e6c8fc3433f",
+        "Bytes":  1440943,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v2.png",
+        "Destination":  "img/old/tordeliese-poses-v2.png",
+        "Hash":  "488d830f70e933f948d58a37384bbf1ef57e5dba6f23f3dbf76e45b22d73fb60",
+        "Bytes":  1848515,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v3.png",
+        "Destination":  "img/old/tordeliese-poses-v3.png",
+        "Hash":  "b58c0bf062b98766dffe71f4b2748d7f8b43b426b2442d32ca480226e444c1af",
+        "Bytes":  986121,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v4.png",
+        "Destination":  "img/old/tordeliese-poses-v4.png",
+        "Hash":  "31b87f681549562f0178fe3ebfb003818d4739075f5e9a7834690876625b7167",
+        "Bytes":  1146810,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v5.png",
+        "Destination":  "img/old/tordeliese-poses-v5.png",
+        "Hash":  "00fb6dbfe887e9af51e6f1b35a2dc167266f94be9445cc130cff187b1e6b4327",
+        "Bytes":  2263864,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-poses-v6.png",
+        "Destination":  "img/old/tordeliese-poses-v6.png",
+        "Hash":  "ec4a04bde85f0eaac52315049767c158eefdc6c8be9be18ef0b867212295b250",
+        "Bytes":  2155618,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v1.png",
+        "Destination":  "img/old/tordeliese-standing-v1.png",
+        "Hash":  "be0bdecf01993398594f0a6613122747a3ec9501af31ddaec0ec2b2fec6172ee",
+        "Bytes":  110126,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v2.png",
+        "Destination":  "img/old/tordeliese-standing-v2.png",
+        "Hash":  "6894c0b20c62984a958d56c7c7df4cc4a8e8664c24608de7598d17282d59b394",
+        "Bytes":  142397,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v3.png",
+        "Destination":  "img/old/tordeliese-standing-v3.png",
+        "Hash":  "e500fcefaf7b7b471c307049237b13bb465b9facae9e145a9848aba937642638",
+        "Bytes":  56631,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v4.png",
+        "Destination":  "img/old/tordeliese-standing-v4.png",
+        "Hash":  "5031569560eb4f91cfc9ac3f58c000c905d8429f3e132e5cf194cd35e2d89ccc",
+        "Bytes":  61987,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v5.png",
+        "Destination":  "img/old/tordeliese-standing-v5.png",
+        "Hash":  "6bc83daf56eb03d5fc413827e93012e31fa1fbf9c9831cc38d74c3b9e3093e1b",
+        "Bytes":  123574,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-standing-v6.png",
+        "Destination":  "img/old/tordeliese-standing-v6.png",
+        "Hash":  "90c502eebe1a284950e901dd57eb578d9583f0794af9d3799d6559065c10c1d2",
+        "Bytes":  122966,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-1-v2.png",
+        "Destination":  "img/old/tordeliese-tendril-1-v2.png",
+        "Hash":  "f806b64001daa9d942c8890e1b0fc036e0f971b37726c242ef20c7c124c83d4f",
+        "Bytes":  26631,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-1-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-1-v3.png",
+        "Hash":  "96cb8dbc54d1b3b519f58a0e6e1fbf3fe675f3feabe4930eab75f3c424821fe8",
+        "Bytes":  22398,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-1-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-1-v4.png",
+        "Hash":  "b27ee5104ac422a87e9c42b4467149ec0d639af13405aaf4407704aa9f9f1804",
+        "Bytes":  26456,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-1-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-1-v5.png",
+        "Hash":  "26e9c1034f563e65df7c5e18d28c02977dbbb431628464ba4abd2ecba4792286",
+        "Bytes":  64689,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-2-v2.png",
+        "Destination":  "img/old/tordeliese-tendril-2-v2.png",
+        "Hash":  "34c30c4be5cf6a8c7f490566ce96e42e3c4ade345ba76bb871e5076b68c54dbc",
+        "Bytes":  34322,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-2-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-2-v3.png",
+        "Hash":  "30e4df9b0869978dca1a9511382934579ee27f4722adb778ffcbbfa92c0e860a",
+        "Bytes":  24605,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-2-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-2-v4.png",
+        "Hash":  "bf856938398d530a537f2736762aa3920ef00869c1b404c95a17cc4e26a9d97b",
+        "Bytes":  29480,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-2-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-2-v5.png",
+        "Hash":  "e00c060563161380ef44f7c89224fe1ce45d92f0a0a76dd4719ec9786377d08b",
+        "Bytes":  70379,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-3-v2.png",
+        "Destination":  "img/old/tordeliese-tendril-3-v2.png",
+        "Hash":  "7ba2a53a1e51428139425dea3454d9c3a19591abe2deed0be56222fc67cafd9d",
+        "Bytes":  35346,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-3-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-3-v3.png",
+        "Hash":  "5a846e93ffcbd212b460d784b0aaa57bf3bd19a8702145d438d145479f668234",
+        "Bytes":  31428,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-3-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-3-v4.png",
+        "Hash":  "bb03b6e4335ad1a88a8511a4b84e87af9a35dd4b63d22e9eb0fdc0756b638e43",
+        "Bytes":  36752,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-3-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-3-v5.png",
+        "Hash":  "7e8c12ab07870f6d619cda1c445c574273758a890c9695c4928dd6480ff63be4",
+        "Bytes":  89812,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-4-v2.png",
+        "Destination":  "img/old/tordeliese-tendril-4-v2.png",
+        "Hash":  "904663a20acb3eaa29357c3c91e4cd1a7e84384f3a38e52f5845e6187d220432",
+        "Bytes":  32825,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-4-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-4-v3.png",
+        "Hash":  "abc2483d8578882f147af9047d41a83c55340cc732ac97010fff73ea87d6d27e",
+        "Bytes":  30513,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-4-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-4-v4.png",
+        "Hash":  "a980fa44e79ceac7badae6d8f15545b9220c20d8be809d2b80fa8b2dad3229d5",
+        "Bytes":  31834,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-4-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-4-v5.png",
+        "Hash":  "b79b003639bb706d0c50beb8a30721d41dacf87ad7e578621b50eb23266060dc",
+        "Bytes":  75839,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-5-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-5-v3.png",
+        "Hash":  "9cdbd52c0d93d763edc77523bca6920f737f0e89a71ea119b7055e6491ece400",
+        "Bytes":  28050,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-5-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-5-v4.png",
+        "Hash":  "7f43c7e661ec461d6c25d00ade6086d5735b0cb7ec5f429ca8c805488dfb1524",
+        "Bytes":  30932,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-5-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-5-v5.png",
+        "Hash":  "05ab4bcc5fc62a8831dd9c542baebdb99d58e1012c944a3d0433aacf28604cd0",
+        "Bytes":  76988,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-6-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-6-v3.png",
+        "Hash":  "2f11c7c3525c526ac3dd091caafdf7592d7b51f248b30801cbf05ab0a14bdca6",
+        "Bytes":  23391,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-6-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-6-v4.png",
+        "Hash":  "e815064261c614567da7edf694c61ce4b2a7ce7a472bde3ccd2c7a9aeed44df9",
+        "Bytes":  25694,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-6-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-6-v5.png",
+        "Hash":  "793aef9f2283a2ab611295e8be9670990d6d2b32436d4740c777d176a2e8ff3f",
+        "Bytes":  71546,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-v1.png",
+        "Destination":  "img/old/tordeliese-tendril-v1.png",
+        "Hash":  "b6a8a52a2ead68945258e6d992d23cc4e8d0db852d87114e8bda76b8d22039ac",
+        "Bytes":  128335,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-v3.png",
+        "Destination":  "img/old/tordeliese-tendril-v3.png",
+        "Hash":  "8beb73b3fcd87e9910002e7417dcfcd78d2e3bafc284a344e2ee6379593a55f3",
+        "Bytes":  157976,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-v4.png",
+        "Destination":  "img/old/tordeliese-tendril-v4.png",
+        "Hash":  "1e66000d266e13c5d691de6d61ca10880bf6b3dc931b96b504d31c6981b5fd4c",
+        "Bytes":  178692,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/tordeliese-tendril-v5.png",
+        "Destination":  "img/old/tordeliese-tendril-v5.png",
+        "Hash":  "2adae19f09b2d73c2b8e71824da7c409b1ba8cb23607000462a99e42d6dd4e8e",
+        "Bytes":  447701,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/vishunal-poses-v1.png",
+        "Destination":  "img/old/vishunal-poses-v1.png",
+        "Hash":  "b43146d08da34ae102ff8f75023cedc8d45adfa0410a1c9f92bfbba90987cd1f",
+        "Bytes":  99656,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-burst-v1.png",
+        "Destination":  "img/old/waku-burst-v1.png",
+        "Hash":  "dabaf651941f4395c991f678978babbb648837d8809f1e02ca1305e6118c0eec",
+        "Bytes":  477850,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-burst-v2.png",
+        "Destination":  "img/old/waku-burst-v2.png",
+        "Hash":  "465dad1a44b240d8a77b887c5a7e603b389aeababadb665867cc0a8d9a239793",
+        "Bytes":  639364,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-poses-v1.png",
+        "Destination":  "img/old/waku-poses-v1.png",
+        "Hash":  "8329f6548103fb987f8ff3489d6a06fa2a21b9e81ff9f4b50b79c22b034d9dbf",
+        "Bytes":  400522,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-poses-v2.png",
+        "Destination":  "img/old/waku-poses-v2.png",
+        "Hash":  "b63d0b9be997c9bcc7aae70f60b2edae5405862c19a77339bd13c6a65a3dcf10",
+        "Bytes":  400529,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-stab-v2.png",
+        "Destination":  "img/old/waku-stab-v2.png",
+        "Hash":  "f8fcd91d9bf58e69c791dc629cdbd5a63d6cf2824fd973148729062fc4d48888",
+        "Bytes":  413898,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-stab-v3.png",
+        "Destination":  "img/old/waku-stab-v3.png",
+        "Hash":  "4d098ab097ec93e73b9ad092c8ee7bcbde1218068455c17c0d769c827e0dddf4",
+        "Bytes":  462176,
+        "Phase":  "after-rollback"
+    },
+    {
+        "Path":  "img/waku-standing-v1.png",
+        "Destination":  "img/old/waku-standing-v1.png",
+        "Hash":  "abaf602d014f37c302be163cfe2480c81a09c0989d94d6657ef196f9c9b8d93f",
+        "Bytes":  100252,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "img/waku-standing-v2.png",
+        "Destination":  "img/old/waku-standing-v2.png",
+        "Hash":  "577fd3b5934fb27a981b6bb55dfbcb2f3eedd451dae3c0ea33fa47abef5ef199",
+        "Bytes":  100259,
+        "Phase":  "before-rollback"
+    },
+    {
+        "Path":  "meta-poses.png",
+        "Destination":  "img/old/root-meta-poses.png",
+        "Hash":  "5700654353c1715cdbba8d9db05a0f9a46863c27f4fc4a10cc09912036edf3f6",
+        "Bytes":  32693,
+        "Phase":  "before-rollback"
+    }
+]

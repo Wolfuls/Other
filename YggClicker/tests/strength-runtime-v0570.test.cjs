@@ -30,26 +30,26 @@ test('zero and certain base wins can be crossed; huge levels never overflow',()=
  for(const lv of [1000,1e6,Number.MAX_SAFE_INTEGER]){assert.ok(Number.isFinite(T.value(lv)));for(const sign of [-1,1]){const r=T.damage({flat:0,dice:3},35,sign*T.logRatio(lv,0));assert.ok([r.mean,r.target,r.correction].every(Number.isFinite));}}
 });
 test('original stats remain constant across training and enemy levels; HP/action/reward still grow',()=>{
- const s=ready(['meta'],'dementor'),base=E.attackProfile(s,c('meta'));s.levels.meta=80;s.armorLevels.meta=s.accuracyLevels.meta=s.evasionLevels.meta=70;
+ const s=ready(['meta'],'dementor'),base=E.attackProfile(s,c('meta'));s.levels.meta=80;
  const p=E.attackProfile(s,c('meta'));assert.equal(p.dice,base.dice);assert.equal(p.flat,base.flat);assert.deepEqual(p.accuracy,base.accuracy);assert.equal(E.armor(s,c('meta')),2);
  s.questLevels.dementor=s.questActiveLevels.dementor=20;const q=E.getSession(s),original=D.sessions.find(x=>x.id==='dementor');assert.deepEqual(q.attack,original.attack);assert.deepEqual(q.ss,original.ss);assert.equal(q.defense,original.defense);assert.equal(q.resistance,original.resistance);assert.ok(q.hp>original.hp&&q.reward>original.reward&&q.actionMultiplier>1);
 });
-test('penetration retains defense intensity; mental damage uses resistance',()=>{
- const s=ready(['meta','max'],'dementor');s.levels.meta=50;E.togglePerk(s,'meta','metal-blade',true);s.questLevels.dementor=s.questActiveLevels.dementor=10;
- const p=E.attackProfile(s,c('meta'));assert.equal(p.defense,0);almost(p.damageLogRatio,T.logRatio(49,9));
- const incoming=E.enemyHitProfile(s,{},c('meta'));assert.equal(incoming.reduction,6);assert.ok(incoming.damageLogRatio>0);
+test('penetration preserves defense intensity; mental damage uses resistance',()=>{
+ const s=ready(['meta','max'],'dementor');s.levels.meta=75;E.togglePerk(s,'meta','metal-blade',true);s.questLevels.dementor=s.questActiveLevels.dementor=10;
+ const p=E.attackProfile(s,c('meta'));assert.equal(p.defense,0);almost(p.damageLogRatio,Math.log(248/T.enemyDurability(9,'armor')));
+ const incoming=E.enemyHitProfile(s,{},c('meta'));assert.equal(incoming.reduction,6);almost(incoming.damageLogRatio,Math.log(T.enemyDurability(9,'power')/E.strengthValue(s,c('meta'),'armor')));
  const max=E.attackProfile(s,c('max'));assert.equal(max.mental,true);assert.equal(max.defense,4);assert.equal(max.evasion.flat,17);
 });
 test('live allied and enemy judgments use adjusted totals for double hit and damage inverse correction',()=>{
- const s=ready(['meta'],'scarecrow');s.accuracyLevels.meta=50;s.selectedCharacterId='meta';
+ const s=ready(['meta'],'scarecrow');s.levels.meta=Math.max(s.levels.meta,51);s.selectedCharacterId='meta';
  const e=E.click(s,faces(3,3,3,3)).find(e=>e.type==='attack');assert.ok(e.accuracy.strengthCorrection>0);assert.equal(e.doubleHit,e.accuracy.total>=e.evasion.total*2);
  const p={accuracySpec:{flat:0,dice:0},evasionDice:{flat:10,dice:0},hitLogRatio:30,damageLogRatio:Math.log(2),attack:{flat:5,dice:0},reduction:0,shield:0};
  const hit=E.rollEnemyHit(p,faces(3));assert.equal(hit.hit,true);assert.ok(hit.damage>=10);
 });
 test('newly qualified perks are OFF, free toggles are immediate and survive save round trips',()=>{
- const s=ready();s.levels.meta=10;E.refreshPerkUnlocks(s);const balance=s.factors;assert.equal(E.perks(s,c('meta'))[0].owned,true);assert.equal(E.perks(s,c('meta'))[0].enabled,false);
- assert.equal(E.togglePerk(s,'meta','attack-plus'),true);assert.equal(s.factors,balance);assert.equal(E.stats(s,c('meta')).flat,4);
- let loaded=S.decode(S.encode(s));assert.equal(loaded.perkEnabled.meta['attack-plus'],true);E.togglePerk(loaded,'meta','attack-plus',false);assert.equal(E.stats(loaded,c('meta')).flat,0);
+ const s=ready();s.levels.meta=10;E.refreshPerkUnlocks(s);const balance=s.factors;assert.equal(E.perks(s,c('meta')).find(p=>p.id==='attack-plus').owned,true);assert.equal(E.perks(s,c('meta')).find(p=>p.id==='attack-plus').enabled,false);
+ assert.equal(E.togglePerk(s,'meta','attack-plus'),true);assert.equal(s.factors,balance);assert.equal(E.stats(s,c('meta')).flat,9);
+ let loaded=S.decode(S.encode(s));assert.equal(loaded.perkEnabled.meta['attack-plus'],true);E.togglePerk(loaded,'meta','attack-plus',false);assert.equal(E.stats(loaded,c('meta')).flat,5);
 });
 test('schema33 paid perks refund exactly once and remain ON even if under level',()=>{
  const s=ready();s.purchasedPerks.meta=['attack-plus','metal-blade'];delete s.perkRefunded;delete s.perkEnabled;delete s.unlockedPerks;
@@ -59,7 +59,7 @@ test('schema33 paid perks refund exactly once and remain ON even if under level'
 });
 test('OFF does not erase rainbow, enemy debuffs, protection or pending enemy profiles',()=>{
  const s=ready(['jewel','waku']);s.levels.jewel=100;E.togglePerk(s,'jewel','rainbow-armor',true);s.rainbowTurns=3;E.togglePerk(s,'jewel','rainbow-armor',false);assert.equal(E.rainbowActive(s),true);
- s.actionLevels.waku=25;E.togglePerk(s,'waku','floor-clip',true);s.floorClipTargetId='jewel';s.floorClipSeconds=10;E.togglePerk(s,'waku','floor-clip',false);E.enemyTargetCandidates(s);assert.equal(s.floorClipTargetId,'jewel');
+ s.levels.waku=Math.max(s.levels.waku,26);E.togglePerk(s,'waku','floor-clip',true);s.floorClipTargetId='jewel';s.floorClipSeconds=10;E.togglePerk(s,'waku','floor-clip',false);E.enemyTargetCandidates(s);assert.equal(s.floorClipTargetId,'jewel');
  s.enemies[0].evasionPenalty=6;s.enemies[0].evasionPenaltyTurns=2;s.enemies[0].pendingAttack={targetId:'waku',remaining:.5,count:1,profile:E.enemyHitProfile(s,s.enemies[0],c('waku'))};
  const loaded=S.decode(S.encode(s));assert.deepEqual(loaded.enemies[0].pendingAttack.profile,s.enemies[0].pendingAttack.profile);assert.equal(loaded.enemies[0].evasionPenalty,6);
 });
@@ -74,13 +74,13 @@ test('Jewel income uses current wallet, never triggers on clear, is gated by dep
 });
 test('offline Poisson event count is consistent with mean interval without per-second income draws',()=>{
  const old=D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds;D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=30;
- try{let count=0;for(let i=0;i<20;i++){const s=ready(['jewel'],'scarecrow');s.actionLevels.jewel=0;s.runaway.jewel.baseRunawayPressure=0;s.paused=false;const before=s.factors;E.advance(s,120,rng(9+i),true,true);const received=s.incomeTotals.jewelSideIncome||0;assert.ok(s.factors>=before);count+=Math.log1p(received/before)/Math.log(1.01);assert.equal(Object.keys(s).some(k=>/incomeAt|nextIncome/i.test(k)),false);}assert.ok(count>55&&count<105,'events '+count);}finally{D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=old;}
+ try{let count=0;for(let i=0;i<20;i++){const s=ready(['jewel'],'scarecrow');s.levels.jewel=Math.max(s.levels.jewel,1);s.runaway.jewel.baseRunawayPressure=0;s.paused=false;const before=s.factors;E.advance(s,120,rng(9+i),true,true);const received=s.incomeTotals.jewelSideIncome||0;assert.ok(s.factors>=before);count+=Math.log1p(received/before)/Math.log(1.01);assert.equal(Object.keys(s).some(k=>/incomeAt|nextIncome/i.test(k)),false);}assert.ok(count>55&&count<105,'events '+count);}finally{D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=old;}
 });
 test('activation stacks and original extra dice accumulate without changing intensity',()=>{
  const s=ready();for(const type of ['augment','reaction','sense','recovery','awakening']){s.runaway.meta.activationType=type;for(const [rate,stacks,dice]of [[49,0,0],[50,1,0],[60,2,0],[70,3,0],[80,3,1],[90,3,2]]){s.runaway.meta.runawayRate=rate;const a=E.activation(s,c('meta'));assert.equal(a.stacks,stacks);assert.equal(a.dice,dice);assert.equal(a.damage,type==='augment'?stacks:0);assert.equal(E.attackProfile(s,c('meta')).damageLogRatio,0);}}
 });
 test('runaway pressure is independent, stabilization works while incapacitated, recovery scales pressure/regen',()=>{
- const s=ready(['max']);s.actionLevels.max=10;const normal=E.runawayPressure(s,c('max'));s.runaway.max.runawayRate=70;almost(E.runawayPressure(s,c('max')),normal*.7);
+ const s=ready(['max']);s.levels.max=Math.max(s.levels.max,11);const normal=E.runawayPressure(s,c('max'));s.runaway.max.runawayRate=70;almost(E.runawayPressure(s,c('max')),normal*.7);
  s.health.max.hp=10;s.health.max.status='unconscious';s.upgrades.stabilization=18;almost(E.runawayPressure(s,c('max')),-.03);E.advance(s,6,()=>.6);assert.equal(s.health.max.hp,11);assert.ok(s.runaway.max.runawayRate<70);
 });
 test('thresholds fire only ascending and rearm ten points below, symptoms clear below70',()=>{
@@ -94,11 +94,11 @@ test('50/70 tables self damage and rises; all90 symptoms select from parity and 
  const before=s.runaway.meta.runawayRate;E.thresholdEvent(s,c('meta'),70,faces(4,2,3),[]);assert.equal(s.runaway.meta.runawayRate,before+5);
  for(const [series,n,symptom]of [[2,1,'control'],[2,2,'overload'],[2,3,'hearing'],[2,4,'vision'],[2,5,'body'],[1,1,'ability'],[1,2,'language'],[1,3,'memory'],[1,4,'mind'],[1,5,'oblivion'],[1,6,null]]){s.runaway.meta.runawayRate=90;E.symptomRoll(s,c('meta'),faces(series,n),[]);assert.equal(s.runaway.meta.runawaySymptom,symptom);}
 });
-test('critical reward precedes resolution, reserve absorbs positive pressure, 150 detaches without loss',()=>{
+test('critical reward precedes resolution, reserve absorbs positive pressure, 150 downs without detaching',()=>{
  const s=ready(),events=[];s.runaway.meta.runawayRate=109;s.health.meta.hp=1;
  E.changeRunaway(s,'meta',1,faces(6,3,4,2,3),events);assert.equal(s.runaway.meta.criticalReserve,5);assert.ok(s.health.meta.hp>1);
  E.changeRunaway(s,'meta',3,()=>.8,events);assert.equal(s.runaway.meta.runawayRate,110);assert.equal(s.runaway.meta.criticalReserve,2);
- s.runaway.meta.criticalReserve=0;s.runaway.meta.runawayRate=149;E.changeRunaway(s,'meta',1,()=>.8,events);assert.equal(s.runaway.meta.runawayCollapsed,true);assert.equal(E.formationOwner(s,'meta'),null);assert.equal(s.levels.meta,1);assert.equal(E.setFormation(s,s.sessionId,['meta']),false);
+ s.runaway.meta.criticalReserve=0;s.runaway.meta.runawayRate=149;E.changeRunaway(s,'meta',1,()=>.8,events);assert.equal(s.runaway.meta.runawayCollapsed,true);assert.equal(E.formationOwner(s,'meta'),s.sessionId);assert.equal(s.levels.meta,1);assert.equal(E.setFormation(s,s.sessionId,['meta']),true);
  E.changeRunaway(s,'meta',-51);assert.equal(E.setFormation(s,s.sessionId,['meta']),true);
 });
 test('runaway states persist over saves and quest changes; offline processes all crossings in order',()=>{
@@ -113,7 +113,7 @@ test('quest resets preserve ally wounds/runaway and other battle; concentration,
  s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),5);assert.equal(E.reward(s,{reward:45}),57);assert.equal(D.questGrowth.costGrowth,1.15);
 });
 test('forecasts share corrected hit chance and original values without mutation',()=>{
- const s=ready(['meta'],'dementor');s.accuracyLevels.meta=30;const before=JSON.stringify(s),row=F.party(s).rows[0],p=E.attackProfile(s,c('meta'));almost(row.hitRate,T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance);assert.ok(Number.isFinite(row.averageDamage));assert.equal(JSON.stringify(s),before);
+ const s=ready(['meta'],'dementor');s.levels.meta=Math.max(s.levels.meta,31);const before=JSON.stringify(s),row=F.party(s).rows[0],p=E.attackProfile(s,c('meta'));almost(row.hitRate,T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance);assert.ok(Number.isFinite(row.averageDamage));assert.equal(JSON.stringify(s),before);
 });
 test('all income and combat state serialize after concurrent offline encounters',()=>{
  const s=ready(['meta']);s.levels.jewel=s.levels.max=1;E.setFormation(s,'scarecrow',['jewel','max']);E.advance(s,3600,rng(),false,true);const loaded=S.decode(S.encode(s));assert.deepEqual(loaded.runaway,s.runaway);assert.equal(loaded.factors,s.factors);assert.ok(loaded.incomeTotals.questReward>0);

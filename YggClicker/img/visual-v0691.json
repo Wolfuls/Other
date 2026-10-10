@@ -1,0 +1,17 @@
+{
+  "version": "0.69.1",
+  "generationMode": "built-in image_gen",
+  "root": "img/",
+  "assets": [
+    {
+      "name": "ジュエル：奥へ捻るコマの拳残像",
+      "files": [
+        "jewel-animation-v11.png",
+        "jewel-afterimages-v11.png",
+        "jewel-afterimages-v11.json",
+        "jewel-afterimages-v11-prompt.txt"
+      ],
+      "prompt": "jewel-afterimages-v11-prompt.txt"
+    }
+  ]
+}

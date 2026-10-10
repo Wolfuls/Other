@@ -31,7 +31,7 @@ test('resize refreshes background bounds and combat coordinates without altering
  const s=combatFixture(1000);s.levels.meta=50;s.levels.richter=20;s.paused=true;const h=harness(s),arena=h.get('arena');
  assert.ok(arena.classList.contains('grounded'));
  const width=500;h.get('arena-viewport').clientWidth=width;h.resize();
- const l=UI.orbitLayout({grounded:true,width,richterHired:true,enemyCount:3,metaScale:E.weaponScale(s,'meta'),richterScale:E.weaponScale(s,'richter'),metaCount:1,richterCount:1});
+ const l=UI.orbitLayout({grounded:true,width,richterHired:true,enemyCount:3,metaScale:E.weaponScale(s,'meta'),richterScale:E.weaponScale(s,'richter'),metaCount:E.sawCount(s).visible,richterCount:E.bombCount(s).visible});
  assert.equal(arena.style.width,l.width+'px');assert.equal(h.get('meta-combatant').style.top,l.meta.y+'px');
  assert.equal(arena.style.getPropertyValue('--enemy-y'),l.enemyY+'px');
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--scene-width'),l.viewWidth+'px');

@@ -5,9 +5,9 @@ const {harness}=require('./app-harness.cjs');
 const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-9,`${a} != ${b}`);
 
 test('individual suppression prices all six training tracks, preserves wounds/reserve, and floors the rate',()=>{
- const s=ready(['meta','max']);s.levels.meta=2;s.actionLevels.meta=1;
- for(const t of D.statUpgrades)s[t.field].meta=1;
- assert.equal(E.trainingInvestment(s,c('meta')),50);
+ const s=ready(['meta','max']);s.levels.meta=2;s.levels.meta=Math.max(s.levels.meta,2);
+ 
+ assert.equal(E.trainingInvestment(s,c('meta')),8);
  s.runaway.meta.runawayRate=7;s.runaway.meta.criticalReserve=9;s.health.meta.hp=3;
  assert.deepEqual(E.suppressionQuote(s,'meta'),{targets:['meta'],cost:1,valid:true});
  const money=s.factors;assert.equal(E.suppressRunaway(s,'meta'),true);assert.equal(s.factors,money-1);
@@ -18,11 +18,11 @@ test('individual suppression prices all six training tracks, preserves wounds/re
 
 test('whole-party suppression is atomic and only charges members of the displayed party with a positive rate',()=>{
  const s=ready(['meta','max','jewel']);s.levels.waku=1;E.setFormation(s,'mohican-solo',['waku']);
- s.actionLevels.max=1;s.runaway.max.runawayRate=50;s.health.max.hp=1;s.health.max.status='unconscious';
+ s.levels.max=Math.max(s.levels.max,2);s.runaway.max.runawayRate=50;s.health.max.hp=1;s.health.max.status='unconscious';
  s.runaway.meta.runawayRate=20;s.runaway.waku.runawayRate=40;s.runaway.jewel.runawayRate=0;
- const q=E.suppressionQuote(s);assert.deepEqual(q.targets,['meta','max']);assert.equal(q.cost,30);
- s.factors=29;const before=structuredClone(s);assert.equal(E.suppressRunaway(s),false);assert.deepEqual(s,before);
- s.factors=30;assert.equal(E.suppressRunaway(s),true);assert.equal(s.factors,0);assert.equal(s.runaway.max.runawayRate,40);
+ const q=E.suppressionQuote(s);assert.deepEqual(q.targets,['meta','max']);assert.equal(q.cost,24);
+ s.factors=23;const before=structuredClone(s);assert.equal(E.suppressRunaway(s),false);assert.deepEqual(s,before);
+ s.factors=24;assert.equal(E.suppressRunaway(s),true);assert.equal(s.factors,0);assert.equal(s.runaway.max.runawayRate,40);
  assert.equal(s.runaway.meta.runawayRate,10);assert.equal(s.runaway.waku.runawayRate,40);
  assert.equal(s.health.max.status,'unconscious');
 });
@@ -31,7 +31,7 @@ test('suppression rearms thresholds and can clear symptoms without rejoining a c
  const s=ready(['meta']);E.changeRunaway(s,'meta',70,()=>.8,[]);s.runaway.meta.runawaySymptom='body';
  assert.equal(E.suppressRunaway(s,'meta'),true);assert.equal(s.runaway.meta.runawaySymptom,null);
  const events=[];E.changeRunaway(s,'meta',10,()=>.8,events);assert.ok(events.some(e=>e.threshold===70));
- s.actionLevels.meta=20;const before=E.suppressionQuote(s,'meta').cost;E.sell(s,'action','meta',10);
+ s.levels.meta=Math.max(s.levels.meta,21);const before=E.suppressionQuote(s,'meta').cost;E.sell(s,'level','meta',10);
  assert.ok(E.suppressionQuote(s,'meta').cost<before);
 });
 
@@ -61,7 +61,7 @@ test('Black Egg follows current player funds and not Jewel training investment',
 });
 
 test('character list suppression updates balance and labels without opening its ability window',()=>{
- const s=ready(['meta']);s.paused=true;s.actionLevels.meta=10;s.runaway.meta.runawayRate=25;const quote=E.suppressionQuote(s,'meta'),h=harness(s);
+ const s=ready(['meta']);s.paused=true;s.levels.meta=Math.max(s.levels.meta,11);s.runaway.meta.runawayRate=25;const quote=E.suppressionQuote(s,'meta'),h=harness(s);
  h.get('character-picker').listeners.get('click')({target:{closest:sel=>sel==='[data-suppress]'?{disabled:false,dataset:{suppress:'meta'}}:null}});
  assert.equal(h.saved().factors,s.factors-quote.cost);assert.equal(h.saved().runaway.meta.runawayRate,15);assert.equal(h.get('picker-runaway-meta').textContent,'暴走 15%');
  h.click('suppress-all');assert.equal(h.saved().runaway.meta.runawayRate,5);

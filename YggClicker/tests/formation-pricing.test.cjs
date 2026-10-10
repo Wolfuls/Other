@@ -12,7 +12,7 @@ test('character and global prices use separate exact growth rates before roundin
  const s=combatFixture();
  const reference=(base,n,numerator=1125n)=>{const den=1000n**BigInt(n);return Math.max(base+(n?1:0),Number(BigInt(base)*numerator**BigInt(n)/den));};
  for(let n=0;n<=60;n++){
-  for(const c of D.characters){s.levels[c.id]=n+1;s.actionLevels[c.id]=n;assert.equal(E.hireCost(s,c),reference(c.powerCost,n));assert.equal(E.actionCost(s,c),reference(c.actionCost,n));}
+  for(const c of D.characters){s.levels[c.id]=n+1;assert.equal(E.hireCost(s,c),reference(c.powerCost,n));assert.equal(E.actionCost(s,c),reference(c.powerCost,n));}
   if(n<25)for(const u of D.upgrades.filter(u=>u.max!==1)){s.upgrades[u.id]=n;assert.equal(E.upgradeCost(s,u),reference(u.cost,n,u.id==='stabilization'?1500n:1250n));}
  }
  s.upgrades.overkill=0;assert.equal(E.upgradeCost(s,D.upgrades.find(u=>u.id==='overkill')),200);

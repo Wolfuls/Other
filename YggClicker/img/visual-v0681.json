@@ -1,0 +1,26 @@
+{
+  "version": "0.68.1",
+  "generationMode": "built-in image_gen",
+  "root": "img/",
+  "assets": [
+    {
+      "name": "ジュエルの提供デザインと補完アニメーション",
+      "files": [
+        "jewel-animation-v8.png",
+        "jewel-standing-v8.png",
+        "jewel-down-v8.png",
+        "jewel-design-reference-v8.png",
+        "jewel-v8.json"
+      ],
+      "prompt": "jewel-v8-prompt.txt"
+    },
+    {
+      "name": "杖を構えたまま揺れるマント",
+      "files": [
+        "megumin-charge-v2.png",
+        "megumin-charge-v2.json"
+      ],
+      "prompt": "megumin-charge-v2-prompt.txt"
+    }
+  ]
+}

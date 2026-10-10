@@ -4,7 +4,7 @@ const {D,E,character:c,rng,faces,ready,enable,neutralHealth,roundTrip}=require('
 for(const q of D.sessions)test(`${q.id}: original stats, four intensities and independent HP/reward/action curves`,()=>{
  const s=ready(['meta'],q.id),base=E.getSession(s);s.questLevels[q.id]=100;E.setQuestLevel(s,q.id,30);const grown=E.getSession(s);
  for(const k of ['attack','accuracy','evasion','ss','defense','resistance'])assert.deepEqual(grown[k],base[k]);
- assert.equal(grown.strengthLevel,29);assert.ok(Math.abs(grown.hp/base.hp-1.1**29)<1/base.hp);assert.ok(Math.abs(grown.reward/base.reward-1.25**29)<1/base.reward);assert.equal(grown.actionMultiplier,1.05**29);
+ assert.equal(grown.strengthLevel,29);assert.ok(Math.abs(grown.hp/base.hp-E.T.enemyDurability(29,'vitality')/100)<1/base.hp);assert.ok(Math.abs(grown.reward/base.reward-1.04**29*(1+29/100)**(100*Math.log(1.28/1.04)))<1/base.reward);assert.equal(grown.actionMultiplier,E.T.enemyValue(29)/100);
  assert.deepEqual(E.formationIds(s),['meta']);assert.equal(roundTrip(s).questActiveLevels[q.id],30);
 });
 test('all quest unlocks remain after wallet falls, and the current roster/order are stable',()=>{
@@ -13,7 +13,7 @@ test('all quest unlocks remain after wallet falls, and the current roster/order 
 });
 test('formations move occupied characters atomically, keep five-unit cap and preserve explicit empty parties',()=>{
  const s=ready(D.characters.slice(0,5).map(c=>c.id));for(const char of D.characters)s.levels[char.id]=1;
- assert.equal(E.setFormation(s,'mohicans',D.characters.slice(0,6).map(c=>c.id)),false);assert.ok(E.setFormation(s,'mohicans',['meta','richter']));assert.deepEqual(E.formationIds(s,'scarecrow'),['vishunal','tordeliese','max']);
+ assert.equal(E.setFormation(s,'mohicans',D.characters.slice(0,6).map(c=>c.id)),false);assert.ok(E.setFormation(s,'mohicans',['meta','richter']));assert.deepEqual(E.formationIds(s,'scarecrow'),D.characters.slice(0,5).map(c=>c.id).filter(id=>!['meta','richter'].includes(id)));
  assert.ok(E.setFormation(s,'mohicans',[]));assert.deepEqual(E.formationIds(roundTrip(s),'mohicans'),[]);assert.equal(E.setFormation(s,'mohicans',['meta','meta']),false);
 });
 test('camera switches preserve independent enemy IDs, HP, AP, poison, focus and pending effects',()=>{
@@ -28,19 +28,21 @@ test('both wipes stop opposing AP; player manual attack remains possible against
  const s=ready(['meta'],'mohicans');s.selectedCharacterId=null;s.health.meta={hp:-1,status:'dying',regenSeconds:0};for(const e of s.enemies)e.actionPoints=50;E.advance(s,1,rng());assert.ok(s.enemies.every(e=>e.actionPoints===0));assert.ok(E.click(s,()=>.5).some(e=>e.hit));
  for(const e of s.enemies){e.hp=0;e.respawnSeconds=5;}s.hp=0;s.actionPoints.meta=20;E.advance(s,1,rng());assert.equal(s.actionPoints.meta,0);assert.deepEqual(E.click(s),[]);
 });
-test('AP uses lower median times two, excluding intrinsic zero actors and including down participants',()=>{
- const s=ready(['meta','richter'],'scarecrow');assert.equal(E.actionThreshold(s),28);s.health.richter={hp:-3,status:'dying',regenSeconds:0};assert.equal(E.actionThreshold(s),28);
+test('AP uses the maximum of median, mean and peak terms, excluding intrinsic zero actors and including down participants',()=>{
+ const s=ready(['meta','richter'],'scarecrow');assert.equal(E.actionThreshold(s),29);s.health.richter={hp:-3,status:'dying',regenSeconds:0};assert.equal(E.actionThreshold(s),29);
  E.setFormation(s,'scarecrow',['meta']);assert.equal(E.actionThreshold(s),30);assert.equal(E.enemyActionPower(s),0);
 });
 test('swarm individuals attack independently after their animation, die separately and return after five seconds',()=>{
- const s=neutralHealth(ready(['meta'],'mohicans'));for(const e of s.enemies)e.actionPoints=E.actionThreshold(s)-1;
+ const s=ready(['meta'],'mohicans');s.levels.meta=11;s.concentration.meta.vitality=10;s.health.meta.hp=E.maxHP(s,c('meta'));for(const e of s.enemies)e.actionPoints=E.actionThreshold(s)-1;
  const windups=E.advance(s,1,()=>.5).filter(e=>e.type==='enemyWindup');assert.equal(windups.length,3);const hp=s.health.meta.hp;E.advance(s,.2,()=>.5);assert.equal(s.health.meta.hp,hp);const impacts=E.advance(s,1,()=>.5).filter(e=>e.type==='enemyAttack');assert.equal(impacts.length,3);
- const e=s.enemies[1],neighbor=s.enemies[0].hp;s.selectedCharacterId=null;e.hp=1;E.selectEnemy(s,e.id);E.click(s,()=>.5);assert.equal(e.hp,0);assert.equal(s.enemies[0].hp,neighbor);E.advance(s,4.99,()=>.5);assert.equal(e.hp,0);E.advance(s,.02,()=>.5);assert.ok(e.hp>0);
+ s.health.meta.hp=E.maxHP(s,c('meta'));s.actionPoints.meta=0;const e=s.enemies[1],neighbor=s.enemies[0].hp;s.health.meta.status='active';s.selectedCharacterId=null;e.hp=1;e.respawnSeconds=0;E.selectEnemy(s,e.id);E.click(s,()=>.5);assert.equal(e.hp,0);assert.equal(s.enemies[0].hp,neighbor);E.advance(s,4.99,()=>.5);assert.equal(e.hp,0);E.advance(s,.02,()=>.5);assert.ok(e.hp>0);
 });
-test('concentration is local, constrained, free and still modifies original rolls',()=>{
- const s=ready(['meta']);const before=s.factors;assert.ok(E.setConcentration(s,'scarecrow',{attack:3,defense:5,reaction:1,action:1}));assert.equal(s.factors,before);assert.equal(E.attackProfile(s,c('meta')).flat,3);assert.equal(E.evasionSpec(s,c('meta')).flat,10);
- assert.equal(E.setConcentration(s,'scarecrow',{attack:0,defense:6,reaction:0,action:0}),false);assert.equal(E.setConcentration(s,'scarecrow',{attack:10,defense:0,reaction:1,action:0}),false);
+test('concentration belongs to the character, is free and cannot exceed earned points',()=>{
+ const s=ready(['meta','richter']);s.levels.meta=11;const before=s.factors,base=E.strengthValue(s,c('meta'),'armor'),other=E.strengthValue(s,c('richter'),'armor');
+ assert.ok(E.setConcentration(s,'meta',{power:3,armor:5,evasion:1,action:1,accuracy:0,vitality:0}));assert.equal(s.factors,before);assert.ok(E.strengthValue(s,c('meta'),'armor')>base);assert.equal(E.strengthValue(s,c('richter'),'armor'),other);assert.equal(E.attackProfile(s,c('meta')).flat,5);
+ assert.equal(E.setConcentration(s,'meta',{...s.concentration.meta,power:4}),false);E.setFormation(s,'mohicans',['meta']);assert.equal(s.concentration.meta.armor,5);
 });
+
 test('physical defense and mental resistance remain separate, minimum damage is one',()=>{
  for(const char of D.characters){const s=ready([char.id],'mohican-solo');const p=E.enemyHitProfile(s,s.enemies[0],char);assert.equal(p.reduction,char.defense);E.setFormation(s,'dementor',[char.id]);E.selectSession(s,'dementor');assert.equal(E.enemyHitProfile(s,E.ensureEnemies(s)[0],char).reduction,char.resistance);}
  const p={accuracySpec:{flat:100,dice:0},evasionDice:{flat:60,dice:0},attack:{flat:1,dice:0},reduction:999,shield:0};assert.equal(E.rollEnemyHit(p).damage,1);

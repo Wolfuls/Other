@@ -1,0 +1,145 @@
+{
+  "mode": "Deterministic foot registration; artwork unchanged",
+  "cell": [
+    512,
+    384
+  ],
+  "foot": [
+    192,
+    360
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "footBefore": [
+        134,
+        199
+      ],
+      "shift": [
+        26,
+        0
+      ]
+    },
+    {
+      "frame": 1,
+      "footBefore": [
+        156,
+        226
+      ],
+      "shift": [
+        1,
+        0
+      ]
+    },
+    {
+      "frame": 2,
+      "footBefore": [
+        156,
+        227
+      ],
+      "shift": [
+        1,
+        0
+      ]
+    },
+    {
+      "frame": 3,
+      "footBefore": [
+        157,
+        227
+      ],
+      "shift": [
+        0,
+        0
+      ]
+    },
+    {
+      "frame": 4,
+      "footBefore": [
+        157,
+        226
+      ],
+      "shift": [
+        1,
+        0
+      ]
+    },
+    {
+      "frame": 5,
+      "footBefore": [
+        154,
+        228
+      ],
+      "shift": [
+        1,
+        -1
+      ]
+    },
+    {
+      "frame": 6,
+      "footBefore": [
+        155,
+        229
+      ],
+      "shift": [
+        0,
+        0
+      ]
+    },
+    {
+      "frame": 7,
+      "footBefore": [
+        129,
+        201
+      ],
+      "shift": [
+        27,
+        0
+      ]
+    },
+    {
+      "frame": 8,
+      "footBefore": [
+        123,
+        195
+      ],
+      "shift": [
+        33,
+        0
+      ]
+    },
+    {
+      "frame": 9,
+      "footBefore": [
+        155,
+        227
+      ],
+      "shift": [
+        1,
+        0
+      ]
+    },
+    {
+      "frame": 10,
+      "footBefore": [
+        156,
+        227
+      ],
+      "shift": [
+        1,
+        0
+      ]
+    },
+    {
+      "frame": 11,
+      "footBefore": [
+        127,
+        200
+      ],
+      "shift": [
+        29,
+        0
+      ]
+    }
+  ]
+}

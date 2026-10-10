@@ -1,0 +1,2 @@
+Built-in imagegen edit, 2026-10-09. Reference: img/memory-nebula-v2.png
+Preserve the wide landscape composition, empty center, blue-violet cosmic/deep-underwater atmosphere, lavender wisps and pale white light from the top center. Refine overly chunky pixel art with smaller, more numerous pixel clusters and fine dithering (about one-third the old cluster size). Crisp detailed 2D pixel-game background, smooth cloud contours made from fine pixels. No blur, photography, monolith, objects, text or UI. Output: img/memory-nebula-v3.png.

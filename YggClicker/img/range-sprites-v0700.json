@@ -1,0 +1,203 @@
+[
+  {
+    "name": "mitsuru-spark-v1",
+    "mode": "built-in imagegen",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-0d4f2c8d-e2fa-4052-aa93-edb4f0b1ee42.png",
+    "prompt": "Electric ball: ready, draw palm back, charge electricity, thrust, release, recover",
+    "reference": "mitsuru-standing-v1.png",
+    "frames": 6,
+    "cell": [
+      512,
+      384
+    ],
+    "footAnchor": [
+      192,
+      360
+    ],
+    "sourceComponents": [
+      {
+        "id": 1,
+        "pixels": 76823,
+        "left": 13,
+        "top": 134,
+        "width": 298,
+        "height": 478
+      },
+      {
+        "id": 5,
+        "pixels": 79729,
+        "left": 358,
+        "top": 142,
+        "width": 340,
+        "height": 470
+      },
+      {
+        "id": 3,
+        "pixels": 84846,
+        "left": 707,
+        "top": 139,
+        "width": 351,
+        "height": 473
+      },
+      {
+        "id": 6,
+        "pixels": 90769,
+        "left": 1067,
+        "top": 142,
+        "width": 454,
+        "height": 470
+      },
+      {
+        "id": 4,
+        "pixels": 74775,
+        "left": 1485,
+        "top": 140,
+        "width": 356,
+        "height": 472
+      },
+      {
+        "id": 2,
+        "pixels": 76374,
+        "left": 1867,
+        "top": 134,
+        "width": 297,
+        "height": 478
+      }
+    ],
+    "scale": 0.606694560669456
+  },
+  {
+    "name": "waku-stab-v1",
+    "mode": "built-in imagegen",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-d2bb3ded-327e-498e-b7dc-2cdb8a3b5ce0.png",
+    "prompt": "Wooden sword: ready, prepare, step forward, straight thrust, retract, recover",
+    "reference": "waku-standing-v3.png",
+    "frames": 6,
+    "cell": [
+      512,
+      384
+    ],
+    "footAnchor": [
+      192,
+      360
+    ],
+    "sourceComponents": [
+      {
+        "id": 1,
+        "pixels": 63559,
+        "left": 32,
+        "top": 176,
+        "width": 315,
+        "height": 406
+      },
+      {
+        "id": 3,
+        "pixels": 61226,
+        "left": 376,
+        "top": 180,
+        "width": 292,
+        "height": 402
+      },
+      {
+        "id": 7,
+        "pixels": 62465,
+        "left": 698,
+        "top": 188,
+        "width": 443,
+        "height": 394
+      },
+      {
+        "id": 6,
+        "pixels": 63028,
+        "left": 1081,
+        "top": 187,
+        "width": 429,
+        "height": 395
+      },
+      {
+        "id": 4,
+        "pixels": 59315,
+        "left": 1496,
+        "top": 185,
+        "width": 275,
+        "height": 397
+      },
+      {
+        "id": 2,
+        "pixels": 62999,
+        "left": 1837,
+        "top": 176,
+        "width": 308,
+        "height": 406
+      }
+    ],
+    "scale": 0.7241379310344828
+  },
+  {
+    "name": "tordeliese-kick-v1",
+    "mode": "built-in imagegen",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-6df9bfc9-f4cc-4582-88e6-9f22e74526eb.png",
+    "prompt": "Roundhouse kick: ready, knee raised, torso pivot, kick right, retract, recover",
+    "reference": "tordeliese-standing-v7.png",
+    "frames": 6,
+    "cell": [
+      512,
+      384
+    ],
+    "footAnchor": [
+      192,
+      360
+    ],
+    "sourceComponents": [
+      {
+        "id": 6,
+        "pixels": 83572,
+        "left": 22,
+        "top": 182,
+        "width": 311,
+        "height": 427
+      },
+      {
+        "id": 4,
+        "pixels": 78082,
+        "left": 352,
+        "top": 169,
+        "width": 311,
+        "height": 440
+      },
+      {
+        "id": 3,
+        "pixels": 79164,
+        "left": 677,
+        "top": 168,
+        "width": 321,
+        "height": 441
+      },
+      {
+        "id": 2,
+        "pixels": 81663,
+        "left": 1034,
+        "top": 166,
+        "width": 450,
+        "height": 443
+      },
+      {
+        "id": 1,
+        "pixels": 81013,
+        "left": 1485,
+        "top": 163,
+        "width": 317,
+        "height": 447
+      },
+      {
+        "id": 5,
+        "pixels": 83089,
+        "left": 1834,
+        "top": 179,
+        "width": 316,
+        "height": 430
+      }
+    ],
+    "scale": 0.5995316159250585
+  }
+]

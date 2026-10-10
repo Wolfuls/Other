@@ -1,0 +1,26 @@
+{
+  "cell": [
+    640,
+    512
+  ],
+  "footAnchor": [
+    256,
+    480
+  ],
+  "preservedFrames": [
+    1,
+    3,
+    4,
+    7,
+    8
+  ],
+  "frame2": {
+    "source": "user supplied codex-clipboard-9df6ed1f-b6e6-418f-a9d2-bfab50ede489.png",
+    "operation": "alpha crop, nearest resize, foot registration"
+  },
+  "frames56": {
+    "mode": "built-in imagegen",
+    "source": "exec-7c3fc0de-96bf-465e-aab9-6f3358da56c9.png",
+    "prompt": "Keep fifth frame torso/head forward over support foot to match fourth frame; change near iris in fifth and sixth frames to cyan blue. Preserve costume and back-mounted tentacles."
+  }
+}

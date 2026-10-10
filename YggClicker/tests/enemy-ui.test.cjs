@@ -3,16 +3,16 @@ const combatFixture=require('./combat-fixture.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../js/engine'),{harness}=require('./app-harness.cjs');
 function party(quest='mohicans'){
- const s=combatFixture(1000);s.levels.meta=1;s.levels.richter=1;s.factors=1000;
+ const s=combatFixture(1000);s.levels.meta=1;s.levels.richter=1;s.factors=3000;
  E.setFormation(s,'mohicans',[]);E.setFormation(s,quest,['meta','richter']);E.selectSession(s,quest);E.selectCharacter(s,'meta');E.ensureEnemies(s);return s;
 }
 test('clicking a downed sprite offers revival without changing the manual actor, then charges once',()=>{
  const s=party();s.paused=true;s.health.richter={hp:-2,status:'dying',regenSeconds:0};const h=harness(s);
  assert.match(h.get('richter-select').getAttribute('aria-label'),/復活バースト/);
  h.click('richter-select');assert.equal(h.get('revive-dialog').open,true);assert.equal(h.saved().selectedCharacterId,'meta');
- assert.match(h.get('revive-cost').textContent,/100Rd/);h.click('cancel-revive');assert.equal(h.get('revive-dialog').open,false);assert.equal(h.saved().factors,1000);
- h.click('richter-select');h.click('confirm-revive');const after=h.saved();assert.equal(after.health.richter.hp,24);assert.equal(after.health.richter.status,'active');assert.equal(after.factors,900);assert.equal(after.selectedCharacterId,'meta');assert.equal(h.get('revive-dialog').open,false);
- h.click('confirm-revive');assert.equal(h.saved().factors,900);
+ assert.match(h.get('revive-cost').textContent,/2,500Rd/);h.click('cancel-revive');assert.equal(h.get('revive-dialog').open,false);assert.equal(h.saved().factors,3000);
+ h.click('richter-select');h.click('confirm-revive');const after=h.saved();assert.equal(after.health.richter.hp,24);assert.equal(after.health.richter.status,'active');assert.equal(after.factors,500);assert.equal(after.selectedCharacterId,'meta');assert.equal(h.get('revive-dialog').open,false);
+ h.click('confirm-revive');assert.equal(h.saved().factors,500);
 });
 test('rear enemy focus toggles through its own target button and can be cleared',()=>{
  const s=party();s.paused=true;const h=harness(s,undefined,{combatRandom:()=>.4}),rear=h.get('enemy-next-2'),button=rear.querySelector('.enemy-target');

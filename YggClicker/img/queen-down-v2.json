@@ -1,0 +1,51 @@
+{
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-6e60df9c-9f07-4dc8-8cb5-71fc21955acd.png",
+  "mode": "built-in imagegen; unchanged standing/attack atlas rows",
+  "registration": [
+    {
+      "col": 0,
+      "bounds": {
+        "left": 10,
+        "top": 143,
+        "width": 530,
+        "height": 496
+      },
+      "scale": 0.5342741935483871,
+      "ground": 360
+    },
+    {
+      "col": 1,
+      "bounds": {
+        "left": 9,
+        "top": 141,
+        "width": 531,
+        "height": 497
+      },
+      "scale": 0.5331991951710262,
+      "ground": 360
+    },
+    {
+      "col": 2,
+      "bounds": {
+        "left": 8,
+        "top": 143,
+        "width": 531,
+        "height": 495
+      },
+      "scale": 0.5353535353535354,
+      "ground": 360
+    },
+    {
+      "col": 3,
+      "bounds": {
+        "left": 8,
+        "top": 143,
+        "width": 531,
+        "height": 496
+      },
+      "scale": 0.5342741935483871,
+      "ground": 360
+    }
+  ],
+  "prompt": "queen-down-v2-prompt.txt"
+}

@@ -1,0 +1,16 @@
+{
+  "version": "0.69.0",
+  "generationMode": "built-in image_gen",
+  "root": "img/",
+  "assets": [
+    {
+      "name": "ジュエル：v0.68.1の髪型と両腕の捻りラッシュ",
+      "files": [
+        "jewel-animation-v10.png",
+        "jewel-barrage-v10.json",
+        "jewel-barrage-v10-prompt.txt"
+      ],
+      "prompt": "jewel-barrage-v10-prompt.txt"
+    }
+  ]
+}

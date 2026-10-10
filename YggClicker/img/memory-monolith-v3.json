@@ -1,0 +1,12 @@
+{
+  "mode": "built-in image_gen",
+  "intent": "style-transfer",
+  "reference": "C:/Users/user/Downloads/白銀髪の面と白花の黒曜碑.png",
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-4175d0e5-15ca-42ce-837d-ff514b540523.png",
+  "image": "memory-monolith-v3.png",
+  "prompt": "memory-monolith-v3-prompt.txt",
+  "width": 1122,
+  "height": 1402,
+  "alpha": true,
+  "eyes": "Dark in asset; CSS red illumination only during the confirmed outgoing dream transition."
+}

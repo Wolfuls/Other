@@ -1,0 +1,240 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-84f62e9c-f420-4634-907f-aa75c6635c0b.png",
+  "base": "jewel-animation-v8.png",
+  "preservedRows": [
+    0,
+    1,
+    4
+  ],
+  "replacedRows": [
+    2,
+    3
+  ],
+  "cell": [
+    512,
+    384
+  ],
+  "foot": [
+    192,
+    360
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "sourceFrame": 0,
+      "bounds": {
+        "id": 1,
+        "pixels": 37912,
+        "left": 35,
+        "top": 58,
+        "width": 232,
+        "height": 288
+      },
+      "foot": 150.5,
+      "scale": 1.0416666666666667,
+      "offset": [
+        72,
+        60
+      ]
+    },
+    {
+      "frame": 1,
+      "sourceFrame": 1,
+      "bounds": {
+        "id": 2,
+        "pixels": 59595,
+        "left": 372,
+        "top": 64,
+        "width": 343,
+        "height": 282
+      },
+      "foot": 492,
+      "scale": 1.0416666666666667,
+      "offset": [
+        67,
+        66
+      ]
+    },
+    {
+      "frame": 2,
+      "sourceFrame": 2,
+      "bounds": {
+        "id": 4,
+        "pixels": 38719,
+        "left": 773,
+        "top": 74,
+        "width": 264,
+        "height": 275
+      },
+      "foot": 921.5,
+      "scale": 1.0416666666666667,
+      "offset": [
+        37,
+        74
+      ]
+    },
+    {
+      "frame": 3,
+      "sourceFrame": 3,
+      "bounds": {
+        "id": 3,
+        "pixels": 55058,
+        "left": 1128,
+        "top": 70,
+        "width": 308,
+        "height": 276
+      },
+      "foot": 1255,
+      "scale": 1.0416666666666667,
+      "offset": [
+        60,
+        72
+      ]
+    },
+    {
+      "frame": 4,
+      "sourceFrame": 4,
+      "bounds": {
+        "id": 31,
+        "pixels": 36889,
+        "left": 33,
+        "top": 413,
+        "width": 234,
+        "height": 283
+      },
+      "foot": 150.5,
+      "scale": 1.0416666666666667,
+      "offset": [
+        70,
+        65
+      ]
+    },
+    {
+      "frame": 5,
+      "sourceFrame": 5,
+      "bounds": {
+        "id": 34,
+        "pixels": 58468,
+        "left": 370,
+        "top": 417,
+        "width": 341,
+        "height": 279
+      },
+      "foot": 492,
+      "scale": 1.0416666666666667,
+      "offset": [
+        65,
+        69
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceFrame": 6,
+      "bounds": {
+        "id": 41,
+        "pixels": 39334,
+        "left": 766,
+        "top": 429,
+        "width": 284,
+        "height": 268
+      },
+      "foot": 928,
+      "scale": 1.0416666666666667,
+      "offset": [
+        23,
+        81
+      ]
+    },
+    {
+      "frame": 7,
+      "sourceFrame": 7,
+      "bounds": {
+        "id": 40,
+        "pixels": 55063,
+        "left": 1114,
+        "top": 425,
+        "width": 328,
+        "height": 272
+      },
+      "foot": 1258,
+      "scale": 1.0416666666666667,
+      "offset": [
+        42,
+        77
+      ]
+    },
+    {
+      "frame": 8,
+      "sourceFrame": 8,
+      "bounds": {
+        "id": 65,
+        "pixels": 37675,
+        "left": 35,
+        "top": 753,
+        "width": 233,
+        "height": 290
+      },
+      "foot": 151.5,
+      "scale": 1.0416666666666667,
+      "offset": [
+        71,
+        58
+      ]
+    },
+    {
+      "frame": 9,
+      "sourceFrame": 9,
+      "bounds": {
+        "id": 67,
+        "pixels": 59767,
+        "left": 368,
+        "top": 760,
+        "width": 347,
+        "height": 283
+      },
+      "foot": 490.5,
+      "scale": 1.0416666666666667,
+      "offset": [
+        64,
+        65
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceFrame": 10,
+      "bounds": {
+        "id": 68,
+        "pixels": 38934,
+        "left": 783,
+        "top": 767,
+        "width": 261,
+        "height": 276
+      },
+      "foot": 924,
+      "scale": 1.0416666666666667,
+      "offset": [
+        45,
+        72
+      ]
+    },
+    {
+      "frame": 11,
+      "sourceFrame": 3,
+      "bounds": {
+        "id": 3,
+        "pixels": 55058,
+        "left": 1128,
+        "top": 70,
+        "width": 308,
+        "height": 276
+      },
+      "foot": 1255,
+      "scale": 1.0416666666666667,
+      "offset": [
+        60,
+        72
+      ]
+    }
+  ]
+}

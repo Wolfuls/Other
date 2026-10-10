@@ -12,7 +12,7 @@ test('retired calming upgrade refunds retained levels once without changing inve
  assert.equal(loaded.incomeTotals.migrationRefund,70+3812);assert.equal(loaded.upgrades.stabilization,7);
  assert.equal(loaded.levels.meta,8);assert.equal(loaded.health.meta.hp,5);assert.equal(loaded.runaway.meta.runawayRate,43);
  assert.equal(Object.hasOwn(loaded.upgrades,'sedation'),false);
- assert.deepEqual(roundTrip(loaded),loaded);assert.equal(JSON.parse(S.encode(loaded)).schemaVersion,36);
+ assert.deepEqual(roundTrip(loaded),loaded);assert.equal(JSON.parse(S.encode(loaded)).schemaVersion,S.VERSION);
 });
 
 test('zero/missing retired upgrade adds no refund, and invalid old levels are rejected promptly',()=>{

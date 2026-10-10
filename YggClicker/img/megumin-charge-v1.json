@@ -1,0 +1,25 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-e65de290-066d-4eb7-a950-a488b8bb79ce.png",
+  "prompt": "megumin-charge-v1-prompt.txt",
+  "processing": "Alpha-preserving crop, nearest-neighbor resize and foot registration only.",
+  "cell": [
+    512,
+    384
+  ],
+  "foot": [
+    192,
+    360
+  ],
+  "staffTip": {
+    "x": 408,
+    "y": 204
+  },
+  "bounds": {
+    "l": 33,
+    "t": 247,
+    "r": 1229,
+    "b": 1056
+  },
+  "scale": 0.37160493827160496
+}

@@ -1,0 +1,24 @@
+.mitsuru-combatant{position:absolute;width:224px;height:224px;transform:translate(-50%,-50%);z-index:3;--character-accent:#74dce4;--down-width:256px}
+.mitsuru-standing{position:absolute;display:block;left:-16px;top:-32px;width:341.333333px;height:256px;background:var(--mitsuru-sheet) 0 0/400% 400% no-repeat;animation:mitsuru-idle 2.4s steps(1,end) infinite}
+.mitsuru-combatant .meta-body{animation:none}
+.mitsuru-combatant .meta-ground{top:calc(50% + var(--body-foot,96px) - 5px);bottom:auto;background:#448d9733;border-color:#74dce455}
+.mitsuru-combatant .meta-select{left:56px;top:0;width:124px;height:206px}
+.mitsuru-combatant.attacking .mitsuru-standing{animation:mitsuru-strike .64s steps(1,end) both}
+.mitsuru-combatant.bursting .mitsuru-standing{animation:mitsuru-rush .48s steps(1,end) infinite}
+.mitsuru-combatant.is-paused *{animation-play-state:paused!important}
+.mitsuru-combatant.downed .meta-body{visibility:hidden}
+.mitsuru-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #74dce455}
+#mitsuru-effects{position:absolute;inset:0;pointer-events:none;z-index:6}
+.arena-viewport[data-hit-effects=translucent] #mitsuru-effects{opacity:.28}
+.arena-viewport[data-hit-effects=off] #mitsuru-effects,.arena-viewport[data-hit-effects=simple] #mitsuru-effects{display:none}
+.mitsuru-spark{position:absolute;width:56px;height:56px;margin:-28px;z-index:6;pointer-events:none;border:3px solid #b8ffff;box-shadow:0 0 0 4px #21bcd977,0 0 20px #24cfe0;clip-path:polygon(50% 0,60% 35%,100% 22%,73% 51%,100% 75%,62% 67%,49% 100%,36% 65%,0 79%,22% 48%,0 18%,39% 32%);background:#abffff99;animation:mitsuru-impact .27s .32s steps(4,end) both}
+@keyframes mitsuru-idle{0%,100%{background-position:0 0}35%{background-position:33.333333% 0}42%{background-position:66.666667% 0}70%{background-position:100% 0}}
+@keyframes mitsuru-strike{0%{background-position:0 33.333333%}23%{background-position:33.333333% 33.333333%}48%{background-position:66.666667% 33.333333%}78%,100%{background-position:100% 33.333333%}}
+@keyframes mitsuru-rush{0%{background-position:0 66.666667%}25%{background-position:33.333333% 66.666667%}50%{background-position:66.666667% 66.666667%}75%{background-position:100% 66.666667%}}
+@keyframes mitsuru-impact{0%{opacity:0;transform:scale(.2)}15%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.8) rotate(35deg)}}
+@media(prefers-reduced-motion:reduce){.mitsuru-combatant *{animation:none!important}.mitsuru-spark{display:none}}
+
+.mitsuru-combatant.range-motion .mitsuru-standing{left:-16px;top:-32px;width:341.333333px;height:256px;background-image:url('./img/mitsuru-spark-v1.png');background-size:600% 100%;animation:range-six .8s steps(1,end) both}
+
+.mitsuru-ball{position:absolute;z-index:6;pointer-events:none;width:48px;height:48px;border:4px solid #b5ffff;border-radius:50%;background:radial-gradient(circle,#fff 15%,#65ffff 35%,#149fb9 65%,transparent 70%);box-shadow:0 0 12px #7fffff,0 0 26px #00cfff;animation:mitsuru-ball-flight .56s .36s linear both}
+@keyframes mitsuru-ball-flight{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}8%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(calc(var(--travel) - 50%),calc(var(--rise) - 50%)) scale(1.3)}}

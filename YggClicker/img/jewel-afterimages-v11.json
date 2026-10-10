@@ -1,0 +1,65 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-dcd0b25d-298a-428b-9581-fb6c59d03c91.png",
+  "base": "jewel-animation-v10.png",
+  "changedBarrageFrames": [
+    2,
+    6,
+    10
+  ],
+  "unchangedFrames": 27,
+  "opaqueCharacterPixelsPreserved": true,
+  "frames": [
+    {
+      "frame": 2,
+      "sourceCrop": {
+        "left": 280,
+        "top": 65,
+        "width": 680,
+        "height": 400
+      },
+      "overlaySize": [
+        272,
+        160
+      ],
+      "offset": [
+        174,
+        86
+      ]
+    },
+    {
+      "frame": 6,
+      "sourceCrop": {
+        "left": 280,
+        "top": 577,
+        "width": 680,
+        "height": 400
+      },
+      "overlaySize": [
+        272,
+        160
+      ],
+      "offset": [
+        188,
+        92
+      ]
+    },
+    {
+      "frame": 10,
+      "sourceCrop": {
+        "left": 280,
+        "top": 1089,
+        "width": 680,
+        "height": 400
+      },
+      "overlaySize": [
+        272,
+        160
+      ],
+      "offset": [
+        181,
+        82
+      ]
+    }
+  ]
+}

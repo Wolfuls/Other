@@ -8,12 +8,12 @@
   let maintenanceBusy=false;
   let controlsKey = '', battleRender = null, combatGeometry = null;
   let managerTab = 'characters', inspectedCharacter = 'meta', noticeTimer;
-  let formationQuestId=null,formationDraft=[],concentrationDraft=null;
+  let formationQuestId=null,formationDraft=[],formationRowsDraft={};
   let abilityEdit=null,enemyInfoQuestId=null;
   const questInputDrafts=new Map();
   const shownPoison=new Map(),pendingCloudBirths=new Set(),pendingEnemyDefeats=new Set();
   const managerTabs = ['characters','quests','upgrades','stats','options'];
-  const displayControls = {'option-orbits':'showOrbits','option-hit-effects':'hitEffects',
+  const displayControls = {'option-simple-numbers':'simplifiedNumbers','option-orbits':'showOrbits','option-hit-effects':'hitEffects',
     'option-factor-rain':'showFactorRain','option-reward-dice':'showRewardDice',
     'option-damage-numbers':'showDamageNumbers','option-overflow-labels':'showOverflowLabels','option-defeat-labels':'showDefeatLabels'};
   let enemyVariantSession = '', revivalTarget=null;
@@ -26,12 +26,15 @@
   const RICHTER_EXPLOSION_MS = 640;
   let state = E.createState(), storage, readOnly = false, corruptSave = false;
   let importCandidate = null, lastTime = Date.now(), lastSave = Date.now(), initialized = false;
-  let storageError = false, importBackup = null;
+  let storageError = false, importBackup = null, saveErrorMessage = '';
   let shownSaws = -1, metaAttackTimer, lastMetaAttack = -Infinity, lastMetaShot = -Infinity;
   let displayedHP = null, visualHitId = 0, spawnTimer;
   const hitTimers=new Map();
   let shownBombs = -1, richterAttackTimer, lastRichterShot = -Infinity;
   let jewelAttackTimer,lastJewelShot=-Infinity;
+  let mitsuruAttackTimer,lastMitsuruShot=-Infinity;
+  let queenAttackTimer,lastQueenShot=-Infinity;
+  let meguminAttackTimer,meguminCastMagic=0;
   let wakuAttackTimer,lastWakuShot=-Infinity;
   let maxAttackTimer,lastMaxShot=-Infinity;
   let lastTordelieseShot=-Infinity,tordelieseAttackTimer,tordelieseLashIndex=0,tordelieseSpriteScale=1;
@@ -42,29 +45,29 @@
     deferVisual(() => { if (!playback.pending && hitId === visualHitId) { displayedHP = null; pendingEnemyDefeats.clear(); $('arena').classList.remove('combat-playing'); requestBattleRender(); } }, 200);
   } });
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const money = UI.currencyNumber;
-  const perkTrackName=p=>({action:'行動力',accuracy:'命中判定',armor:'防御＆抵抗',evasion:'回避判定',vitality:'最大HP'}[p.levelType]||'攻撃力');
-  const format = n => n < 1e6 ? Math.floor(n).toLocaleString('ja-JP') : n.toExponential(2);
-  const rateFormat = n => n < 1e6 ? n.toLocaleString('ja-JP', { maximumFractionDigits: 2 }) : n.toExponential(2);
+  const money = n=>UI.currencyNumber(n,state.options.simplifiedNumbers);
+  const fullNumber=n=>UI.fullNumber(n,state.options.simplifiedNumbers),incomeNumber=n=>UI.incomeNumber(n,state.options.simplifiedNumbers);
+  const format = fullNumber;
+  const rateFormat = incomeNumber;
 
-  const rollText=s=>s?UI.fullNumber(s.flat||0)+'＋'+UI.fullNumber(s.dice||0)+'D'+(s.sides||6):'—';
+  const rollText=s=>s?fullNumber(s.flat||0)+'＋'+fullNumber(s.dice||0)+'D'+(s.sides||6):'—';
   const signed=n=>(n>=0?'+':'')+rateFormat(n);
   const pressureNumber=new Intl.NumberFormat('ja-JP',{maximumFractionDigits:6});
   const pressureText=n=>pressureNumber.format(Math.abs(n)<1e-12?0:n);
   function renderPressureBreakdown(c){
     const b=E.runawayPressureBreakdown(state,c),minute=n=>pressureText(n*60),signedMinute=n=>(n>0?'+':'')+minute(n);
     setText('pressure-summary-'+c.id,'差引 '+signedMinute(b.net)+' / 分');
-    const trainingNames={power:'攻撃',action:'行動',accuracy:'命中',evasion:'回避',vitality:'HP',armor:'防御'};
-    const trainingParts=b.trainingLevels.map(t=>trainingNames[t.id]+' '+UI.fullNumber(t.level)).join(' ＋ ');
+    const trainingNames={level:'レベル',power:'攻撃',action:'行動',accuracy:'命中',evasion:'回避',vitality:'HP',armor:'防御'};
+    const trainingParts=b.trainingLevels.map(t=>trainingNames[t.id]+' '+fullNumber(t.level)).join(' ＋ ');
     const perkRows=b.perkEntries.map(p=>'<div class="'+(!p.enabled||!p.eligible?'pressure-inactive':'')+'"><dt>'+p.name+' <small>'+(!p.eligible?'Lv不足':p.enabled?'ON':'OFF')+'</small></dt><dd>'+minute(p.configured)+(!p.enabled||!p.eligible?' × 0':'')+' ＝ '+minute(p.pressure)+'</dd></div>').join('');
-    const calmingRows=b.calmingEntries.map(u=>'<div><dt>'+u.name+'</dt><dd>'+minute(u.perLevel)+' × Lv.'+UI.fullNumber(u.level)+' ＝ '+minute(u.pressure)+'</dd></div>').join('');
-    const status=b.active?(state.paused?'一時停止中・再開時の計算':'部隊参加中'):({collapsed:'暴走離脱中',down:'戦闘不能',undeployed:'未編成'}[b.inactiveReason]+'：暴走圧は停止、鎮静のみ適用');
+    const calmingRows=b.calmingEntries.map(u=>'<div><dt>'+u.name+'</dt><dd>'+minute(u.perLevel)+(u.source==='perk'?'（部隊効果）':' × Lv.'+fullNumber(u.level))+' ＝ '+minute(u.pressure)+'</dd></div>').join('');
+    const status=b.active?(state.paused?'一時停止中・再開時の計算':'部隊参加中'):({collapsed:'暴走ダウン中',down:'戦闘不能',undeployed:'未編成'}[b.inactiveReason]+'：暴走圧は停止、鎮静のみ適用');
     const equation='（'+[b.base,b.training,b.perkPressure,b.temporary].map(minute).join(' ＋ ')+'）× '+pressureText(b.recoveryMultiplier)+(b.active?'':' × 0')+' − '+minute(b.calming)+' ＝ 約 '+signedMinute(b.net)+' / 分';
     const html='<p class="pressure-caption">'+status+'<span>単位：暴走率のポイント / 分</span></p>'+
       '<div class="pressure-columns"><section><h4>暴走圧</h4><dl class="pressure-values">'+
       '<div><dt>基礎暴走圧</dt><dd>'+minute(b.base)+'</dd></div>'+
-      '<div><dt>育成暴走圧</dt><dd>'+minute(b.trainingScale)+' × log₂(1 ＋ '+UI.fullNumber(b.trainingTotal)+')<br>＝ 約 '+minute(b.training)+'</dd></div></dl>'+
-      '<p class="pressure-training">育成Lv合計：'+trainingParts+' ＝ '+UI.fullNumber(b.trainingTotal)+'<small>攻撃は雇用時のLv.1を除く</small></p>'+
+      '<div><dt>育成暴走圧</dt><dd>'+minute(b.trainingScale)+' × log₂(1 ＋ '+fullNumber(b.trainingTotal)+')<br>＝ 約 '+minute(b.training)+'</dd></div></dl>'+
+      '<p class="pressure-training">配分済みCP合計：'+trainingParts+' ＝ '+fullNumber(b.trainingTotal)+'<small>未使用CPは含まない</small></p>'+
       '<dl class="pressure-values"><div><dt>パーク合計</dt><dd>'+minute(b.perkPressure)+'</dd></div><div><dt>一時補正</dt><dd>'+minute(b.temporary)+'</dd></div>'+
       '<div><dt>回復型活性</dt><dd>×（1 − '+b.recoveryStacks+'段階 × '+pressureText(b.recoveryReduction)+'）<br>＝ ×'+pressureText(b.recoveryMultiplier)+'</dd></div>'+
       '<div class="pressure-subtotal"><dt>適用する暴走圧</dt><dd>約 '+minute(b.generated)+'</dd></div></dl></section>'+
@@ -74,13 +77,14 @@
     const node=$('pressure-content-'+c.id);if(node.innerHTML!==html)node.innerHTML=html;
   }
   function renderStrengthPreview(c,ctx){
-    const enemy=ctx.enemies?.find(e=>e.id===ctx.focusedEnemyId&&e.hp>0)||ctx.enemies?.find(e=>e.hp>0),p=E.attackProfile(ctx,c),hit=E.T.hit(p.accuracy,E.targetEvasion(p,enemy),p.hitLogRatio),damage=E.T.damage({dice:p.dice,flat:p.flat+p.bonus,resultScale:p.resultScale},E.targetDefense(p,enemy),p.damageLogRatio);
-    const node=$('strength-preview-'+c.id);const html='<h4>現在の対象への見込み</h4><dl class="strength-target"><div><dt>命中補正</dt><dd>'+signed(hit.correction)+'</dd></div><div><dt>推定命中率</dt><dd>'+((p.autoHitChance+(1-p.autoHitChance)*hit.chance)*100).toFixed(1)+'%</dd></div><div><dt>ダメージ補正</dt><dd>'+signed(damage.correction)+'</dd></div><div><dt>通常命中の平均ダメージ</dt><dd>'+rateFormat(p.areaAttack?Math.max(1,Math.floor(damage.mean/2)):damage.mean)+'</dd></div></dl>';
+    const enemy=ctx.enemies?.find(e=>e.id===ctx.focusedEnemyId&&e.hp>0)||ctx.enemies?.find(e=>e.hp>0),p=E.attackProfile(ctx,c),hit=E.T.hit(p.accuracy,E.targetEvasion(p,enemy),p.hitLogRatio),damage=E.T.damage({dice:p.dice,flat:p.flat+p.bonus,resultScale:p.resultScale},E.targetDefense(p,enemy),p.damageLogRatio,p.damageScaleLog||0);
+    const node=$('strength-preview-'+c.id);const html='<h4>現在の対象への見込み</h4><dl class="strength-target"><div><dt>命中補正</dt><dd>'+signed(hit.correction)+'</dd></div><div><dt>推定命中率</dt><dd>'+((p.autoHitChance+(1-p.autoHitChance)*hit.chance)*100).toFixed(1)+'%</dd></div><div><dt>ダメージ補正</dt><dd>'+signed(damage.correction)+'</dd></div><div><dt>'+(p.apAttack?'通常命中の平均AP減少':'通常命中の平均ダメージ')+'</dt><dd>'+(p.hiddenAttack&&!p.apAttack?'？？？':rateFormat(p.areaAttack&&!p.noAreaPenalty?Math.max(1,Math.floor(damage.mean/2)):damage.mean))+'</dd></div></dl>';
     if(node.innerHTML!==html)node.innerHTML=html;
   }
   const symptomName=id=>({control:'制御異常',overload:'過負荷',hearing:'聴覚異常',vision:'視覚異常',body:'身体異常',ability:'能力異常',language:'言語異常',memory:'記憶異常',mind:'精神異常',oblivion:'忘我'}[id]||'自制');
 
   function attackFormula(profile) {
+    if(profile.hiddenAttack&&!profile.apAttack)return "？？？";
     let text = `${profile.dice}D6 + ${profile.flat}${profile.bonus ? ` + ${profile.bonus}（特効）` : ''}`;
     const b = profile.breakdown, correction = 1 + b.upgrade.rate;
     if (correction !== 1 || b.levelMultiplier !== 1) {
@@ -91,8 +95,8 @@
     if(profile.extraAttackChance) text += ` / 追加攻撃${rateFormat(profile.extraAttackChance*100)}%`;
     if(profile.poisonDamage) text += ` / 猛毒${profile.poisonDamage}`;
     if(profile.penetrationBlocked) text += ' / 貫通無効';
-    if(profile.areaAttack) text += ' / 全体攻撃（防御後1/2 × 3体）';
-    return text;
+    if(profile.areaAttack) text += profile.noAreaPenalty?' / 全体攻撃（半減なし）':' / 全体攻撃（防御後1/2）';
+    return (profile.apAttack?'APへの精神攻撃：':'')+text;
   }
   function renderLevelNote(id,profile){
     const note=$(id);note.hidden=!profile.minimumLevelBonus;
@@ -106,6 +110,7 @@
   }
   function renderFormula(id, profile) {
     const b = profile.breakdown;
+    if(profile.hiddenAttack&&!profile.apAttack){for(const key of ['base','perk','upgrade','level','result'])setText('formula-'+id+'-'+key,'？？？');return;}
     $('formula-' + id + '-base').textContent = `${b.base.dice}D6 + ${b.base.flat}${b.base.source ? `（${b.base.source}適用後）` : ''}`;
     const perk = [];
     if (b.perk.dice) perk.push(`${b.perk.dice}D6`);
@@ -115,13 +120,18 @@
     const upgrade = [];
     if (b.upgrade.flat) upgrade.push(`${b.upgrade.flat}（コンセントレイション）`);
     $('formula-' + id + '-upgrade').textContent = upgrade.length ? `＋ ${upgrade.join(' + ')}` : '0';
-    const match=E.T.damage({dice:profile.dice,flat:profile.flat+profile.bonus,resultScale:profile.resultScale},profile.defense,profile.damageLogRatio||0);
+    const match=E.T.damage({dice:profile.dice,flat:profile.flat+profile.bonus,resultScale:profile.resultScale},profile.defense,profile.damageLogRatio||0,profile.damageScaleLog||0);
     $('formula-'+id+'-level').textContent=(match.correction>=0?'＋':'')+rateFormat(match.correction);
-    $('formula-'+id+'-result').textContent='通常命中の平均 '+rateFormat(match.mean)+' ダメージ'+(profile.ignoreDefense?'（防御力を無視、防御強度は有効）':'');
-    if(profile.areaAttack)$('formula-'+id+'-result').textContent+=' → 半減して3体に適用（各最低1）';
+    $('formula-'+id+'-result').textContent='通常命中の平均 '+rateFormat(match.mean)+(profile.apAttack?' AP減少':' ダメージ')+(profile.ignoreDefense?'（防御力・防御強度を無視）':'');
+    if(profile.areaAttack)$('formula-'+id+'-result').textContent+=profile.noAreaPenalty?' → 半減せず全体へ適用':' → 半減して全体に適用（各最低1）';
     renderLevelNote(`formula-${id}-note`,profile);
   }
   const blocked = () => readOnly || corruptSave || maintenanceBusy;
+  const battleHUD=window.YggBattleHUD.create({get:$,setText,format:fullNumber});
+  const sceneView=window.YggSceneView.create({get:$,setText,data:D,engine:E,display:UI,money,reducedMotion,blocked,startNextRun,schedule:setTimeout,cancel:clearTimeout});
+  const questView=window.YggQuestView.create({get:$,setText,data:D,engine:E,matchup:window.YggMatchup,money,fullNumber,rateFormat,incomeNumber,blocked,tradeControls,renderTrades,questInputDrafts,
+    renderEnemyInfoIfOpen:(ctx,id)=>{if(enemyInfoQuestId===id&&$('enemy-info-dialog').open)renderEnemyInfo(ctx,$('enemy-info-content'));}
+  });
   function notice(text, error = false) {
     clearTimeout(noticeTimer);
     $('notice').textContent = text;
@@ -145,10 +155,7 @@
   function build() {
     for(const c of D.characters){
       const actor=$(c.id+'-combatant'),down=document.createElement('img');down.src=c.downSprite;down.alt=c.name+'：ダウン';down.className='ally-down-sprite pixel-art';down.style.setProperty('--down-bottom-gap',((c.downContact.height-c.downContact.bottom)/c.downContact.height*100)+'%');actor.append(down);
-      const vitals=document.createElement('div');vitals.className='ally-vitals';
-      const hp=document.createElement('span');hp.id='ally-hp-'+c.id;hp.className='ally-health';
-      const runaway=document.createElement('span');runaway.id='ally-runaway-'+c.id;runaway.className='ally-runaway';
-      vitals.append(hp,runaway);actor.append(vitals);
+      battleHUD.mount(c,actor,document);
     }
 
     // Allocate a fixed pool once; CSS animates it independently of game ticks.
@@ -170,6 +177,17 @@
       node.style.setProperty('--die-pips',die.pips);
       $('reward-rain').append(node);
     }
+    $('megumin-standing').style.setProperty('--megumin-sheet',`url("${D.meguminVisual.sheet}")`);
+    $('megumin-standing').style.setProperty('--megumin-charge',`url("${D.meguminVisual.charge}")`);
+    $('explosions').style.setProperty('--megumin-explosion-sheet',`url("${D.meguminVisual.explosion}")`);
+    const chargeAxis=$('megumin-charge-axis');
+    for(let i=0;i<6;i++){
+      const ring=document.createElement('span'),glyph=document.createElement('img');
+      ring.className='megumin-charge-ring';ring.style.setProperty('--ring-index',i);ring.hidden=true;
+      glyph.src=D.meguminVisual.circle;glyph.alt='';ring.append(glyph);chargeAxis.append(ring);
+    }
+    $('queen-standing').style.setProperty('--queen-sheet',`url("${D.queenVisual.sheet}")`);
+    $('mitsuru-standing').style.setProperty('--mitsuru-sheet',`url("${D.mitsuruVisual.sheet}")`);
     $('jewel-standing').style.setProperty('--jewel-sheet',`url("${D.jewelVisual.sheet}")`);
     $('meta-standing').style.setProperty('--meta-normal-sheet', `url("${D.metaVisual.sheet}")`);
     $('meta-standing').style.setProperty('--meta-burst-sheet', `url("${D.metaVisual.burstSheet}")`);
@@ -187,69 +205,81 @@
     $('party-capacity').textContent = `/ ${E.MAX_PARTY_SIZE}`;
     $('manual-formula').innerHTML = formulaPanel('manual', true);
     $('character-picker').innerHTML = charactersByHireCost.map(c=>`<div class="picker-entry"><button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-copy"><span class="picker-name" id="picker-name-${c.id}"></span><span class="picker-hp" id="picker-hp-${c.id}"></span><span class="picker-runaway" id="picker-runaway-${c.id}"></span></span></button><button type="button" class="suppress-button" id="suppress-${c.id}" data-suppress="${c.id}"><span>暴走抑制</span><small id="suppress-cost-${c.id}"></small></button></div>`).join('');
-    for (const src of [D.jewelVisual.sheet,'./img/gamer-throne-standing-v7.png','./img/gamer-throne-attack-v7.png','./img/gamer-throne-burst-v7.png','./img/tarai-v1.png',...D.sessions.flatMap(s=>[s.background,s.nightBackground,s.dawnBackground,s.duskBackground,s.sheet,s.attackSheet,s.absorbSheet,s.summon?.sheet,s.summon?.attackSheet,s.defeatSheet].filter(Boolean)),D.tordelieseVisual.sheet,...D.characters.map(c=>c.downSprite),...D.tordelieseVisual.tendrilFrames,D.vishunalVisual.sheet,D.vishunalVisual.missile,D.metaVisual.sheet,D.metaVisual.burstSheet,D.wakuVisual.sheet,D.wakuVisual.attackSheet,D.wakuVisual.burstSheet, D.richterVisual.burstSheet, D.richterVisual.bomb,D.richterVisual.idleSheet, D.richterVisual.explosionSheet,...D.sessions.flatMap(s=>(s.variants||[]).flatMap(v=>[v.sheet||v.image,v.defeatSheet].filter(Boolean)))]) { const preload = new Image(); preload.src = src; }
+    for (const src of [D.meguminVisual.sheet,D.meguminVisual.charge,D.meguminVisual.circle,D.meguminVisual.explosion,D.queenVisual.sheet,D.mitsuruVisual.sheet,D.jewelVisual.sheet,'./img/gamer-throne-standing-v7.png','./img/gamer-throne-attack-v7.png','./img/gamer-throne-burst-v7.png','./img/tarai-v1.png',...D.sessions.flatMap(s=>[s.background,s.nightBackground,s.dawnBackground,s.duskBackground,s.sheet,s.attackSheet,s.absorbSheet,s.summon?.sheet,s.summon?.attackSheet,s.defeatSheet].filter(Boolean)),D.tordelieseVisual.sheet,...D.characters.map(c=>c.downSprite),...D.tordelieseVisual.tendrilFrames,D.vishunalVisual.sheet,D.vishunalVisual.missile,D.metaVisual.sheet,D.metaVisual.burstSheet,D.wakuVisual.sheet,D.wakuVisual.attackSheet,D.wakuVisual.burstSheet, D.richterVisual.burstSheet, D.richterVisual.bomb,D.richterVisual.idleSheet, D.richterVisual.explosionSheet,...D.sessions.flatMap(s=>(s.variants||[]).flatMap(v=>[v.sheet||v.image,v.defeatSheet].filter(Boolean)))]) { const preload = new Image(); preload.src = src; }
     $('character-list').innerHTML = charactersByHireCost.map(c => `<article class="character-card compact-character" id="card-${c.id}" role="tabpanel" aria-labelledby="inspect-${c.id}" style="--char-color:${c.color}">
       <button class="character-select" data-select-character="${c.id}" aria-label="${c.name}を手動攻撃に選択" aria-pressed="false" title="クリックで手動攻撃の担当に選択"><span class="avatar ${c.portrait ? 'sprite-avatar' : ''}" aria-hidden="true">${c.portraitSheet ? `<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>` : c.portrait ? `<img class="pixel-art" src="${c.portrait}" alt="">` : c.initials}</span><strong class="character-identity" id="identity-${c.id}">${c.name}</strong></button>
       <div class="character-vitals" id="vitals-${c.id}"><span id="health-${c.id}"></span><button class="button secondary revive-button" id="revive-${c.id}" data-revive="${c.id}"></button></div>
       <button class="button secondary ability-open" id="ability-open-${c.id}" data-ability="${c.id}">能力値レベルアップ</button>${abilityDialog(c)}
       <p class="current-attack"><span>攻撃力の現在式</span><strong id="stats-${c.id}"></strong><small class="level-correction-note" id="stats-note-${c.id}" hidden></small></p></article>`).join('');
 
-    $('formation-concentration').innerHTML=D.sessions.map(q=>'<div id="formation-concentration-'+q.id+'" hidden>'+concentrationControls(q)+'</div>').join('');
-    $('quest-list').innerHTML = D.sessions.map(s=>`<article class="quest-card" id="quest-card-${s.id}"><div class="quest-title"><h3><small class="quest-number">No.${Number(s.code)}</small> ${s.name}</h3></div><p class="quest-lock" id="quest-lock-${s.id}" hidden></p><div class="quest-actions"><button type="button" class="button secondary quest-select" id="quest-select-${s.id}" data-session="${s.id}"></button><button type="button" class="button secondary enemy-info-toggle" data-enemy-info="${s.id}" id="enemy-info-toggle-${s.id}" aria-haspopup="dialog" aria-controls="enemy-info-dialog">敵の能力</button><button type="button" class="button secondary formation-open" id="formation-open-${s.id}" data-formation-open="${s.id}">部隊編成</button><button type="button" class="button secondary quest-enhance-toggle" id="quest-enhance-toggle-${s.id}" data-quest-details="${s.id}" aria-expanded="false" aria-controls="quest-enhancement-${s.id}">クエスト強化</button></div><div class="quest-progress"><p class="quest-live-status" id="quest-live-${s.id}"></p><p class="quest-live-income" id="quest-income-${s.id}"></p></div><section class="quest-enhancement" id="quest-enhancement-${s.id}" hidden><strong id="quest-level-${s.id}"></strong><div class="quest-level-choice"><label for="quest-active-${s.id}">挑戦Lv<input id="quest-active-${s.id}" type="number" min="1" step="1" inputmode="numeric"></label><button type="button" class="button secondary" data-quest-level="${s.id}" id="quest-apply-${s.id}">このLvで挑戦</button></div><div class="quest-columns"><span>能力の期待値</span><span>購入済みLv → 次のLv</span></div><dl class="quest-values"><div><dt>各戦闘強度</dt><dd id="quest-strength-${s.id}"></dd></div><div><dt>エネミーHP</dt><dd id="quest-hp-${s.id}"></dd></div><div><dt>防御</dt><dd id="quest-defense-${s.id}"></dd></div><div><dt>抵抗</dt><dd id="quest-resistance-${s.id}"></dd></div><div><dt>攻撃力</dt><dd id="quest-damage-${s.id}"></dd></div><div><dt>命中判定</dt><dd id="quest-accuracy-${s.id}"></dd></div><div><dt>回避判定</dt><dd id="quest-evasion-${s.id}"></dd></div><div><dt>SS</dt><dd id="quest-ss-${s.id}"></dd></div><div><dt>行動力</dt><dd id="quest-action-${s.id}"></dd></div><div><dt>クリア報酬</dt><dd id="quest-reward-${s.id}"></dd></div></dl><button type="button" class="button quest-buy" id="quest-buy-${s.id}" data-quest="${s.id}"><span>クエストを強化</span><strong id="quest-cost-${s.id}"></strong></button>${tradeControls('quest',s.id)}</section></article>`).join('');
+    questView.build();
+    sceneView.mount();
     $('upgrade-list').innerHTML = D.upgrades.map(u => `<article class="upgrade-card"><span class="upgrade-icon" aria-hidden="true">${u.icon}</span><span class="upgrade-level" id="upgrade-level-${u.id}">Lv.0</span><h3>${u.name}</h3><p>${u.label}</p><div class="upgrade-purchase"><button class="button secondary" data-upgrade="${u.id}" aria-label="${u.name}を購入"><span id="upgrade-cost-${u.id}"></span></button>${u.id === 'reward' ? `<span class="enhancement-bonus"><small>報酬補正</small><strong id="${u.id}-bonus"></strong></span>` : ''}</div>${tradeControls('upgrade',u.id,u.max!==1)}</article>`).join('');
   }
+  const rangeText=range=>range[0]===range[1]?String(range[0]):range.join('～');
   function perkPanel(c){
-    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.initial?'初期パーク':perkTrackName(p)+'Lv.'+p.level)+'</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
+    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.awakeningLevel?'覚醒Lv.'+p.awakeningLevel:p.initial?'初期パーク':'Lv.'+p.level)+'</span><span class="perk-pressure">暴走圧 '+pressureText((p.runawayPressure||0)*60)+'%/分</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+((p.attackRange||p.effectRange)?'['+(p.attackRange?'攻撃':'付加')+'：'+rangeText(p.attackRange||p.effectRange)+'] ':'')+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
+  }
+  function focusControls(c,track){
+    return '<div class="allocation-controls"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="-1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を減らす">−</button><input type="number" min="0" step="1" id="focus-'+track+'-'+c.id+'" data-focus-input="'+c.id+'" data-focus-stat="'+track+'" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を増やす">＋</button><small id="focus-bonus-'+track+'-'+c.id+'"></small></div>';
   }
   function abilityDialog(c){
-    const tracks=[{id:'action',name:'行動力',base:'基礎行動力'},{id:'accuracy',name:'命中強度',base:'命中力'},{id:'evasion',name:'回避強度',base:'回避力'},{id:'power',name:'攻撃強度',base:'攻撃力'},{id:'vitality',name:'最大HP',base:'基礎HP'},{id:'armor',name:'防御強度',base:'防御 / 抵抗'}];
-    return '<dialog class="ability-dialog" id="ability-dialog-'+c.id+'" aria-labelledby="ability-title-'+c.id+'"><div class="ability-head"><div><small>能力・パーク</small><h2 id="ability-title-'+c.id+'">'+c.name+'</h2></div><button class="button secondary" data-ability-close="'+c.id+'" aria-label="変更を取り消して閉じる">×</button></div><div class="ability-content"><div class="ability-rows">'+tracks.map(t=>{
-      const prefix=t.id==='power'?'hire':t.id,attribute=t.id==='power'?'data-hire':t.id==='action'?'data-action':'data-stat="'+t.id+'" data-stat-character';
-      return '<section class="ability-row ability-'+t.id+'"><div class="ability-base"><span>'+t.base+'</span><strong id="ability-base-'+t.id+'-'+c.id+'"></strong></div><div class="ability-main"><div class="ability-label"><span>'+t.name+'</span><small id="ability-level-'+t.id+'-'+c.id+'"></small></div><strong id="ability-value-'+t.id+'-'+c.id+'"></strong></div><div class="ability-actions"><button class="button secondary" '+attribute+'="'+c.id+'"><span id="'+prefix+'-label-'+c.id+'">+1</span><small id="'+prefix+'-cost-'+c.id+'"></small></button>'+tradeControls(t.id,c.id,true,true).replace('10回購入','+10').replace('1Lv売却','−1')+'</div></section>';
-    }).join('')+'</div><details class="pressure-breakdown" id="pressure-breakdown-'+c.id+'"><summary>暴走圧・鎮静圧の計算 <span id="pressure-summary-'+c.id+'"></span></summary><div id="pressure-content-'+c.id+'"></div></details>'+perkPanel(c)+'<section class="strength-preview" id="strength-preview-'+c.id+'"></section></div><div class="ability-footer" role="group" aria-label="変更内容の確定"><span id="ability-changes-'+c.id+'"></span><div class="ability-confirm"><p id="ability-factors-'+c.id+'"></p><button class="button" data-ability-confirm="'+c.id+'">確定</button></div></div></dialog>';
+    const rows=window.YggAbilityView.rows({
+      baseCell:t=>'<strong id="ability-base-'+t.id+'-'+c.id+'"></strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+(c.id==='waku'?'剣 1 ／ 発砲 2～3':rangeText(c.attackRange))+'</small>':'')+(c.statFlavor?'<small class="stat-flavor">'+(t.id==='armor'?'防御：'+c.statFlavor.defense+'<br>抵抗：'+c.statFlavor.resistance:c.statFlavor[t.id]||'')+'</small>':''),
+      valueCell:t=>'<strong id="ability-value-'+t.id+'-'+c.id+'"></strong>',
+      controls:t=>focusControls(c,t.id),
+      hp:'<small class="ability-hp" id="ability-maxhp-'+c.id+'"></small>',
+      ss:'<strong id="ability-base-ss-'+c.id+'"></strong>'+(c.statFlavor?'<small class="stat-flavor">'+c.statFlavor.ss+'</small>':'')
+    });
+    return '<dialog class="ability-dialog" id="ability-dialog-'+c.id+'" aria-labelledby="ability-title-'+c.id+'"><div class="ability-head"><div><small>能力・パーク</small><h2 id="ability-title-'+c.id+'">'+c.name+'</h2></div><button class="button secondary" data-ability-close="'+c.id+'" aria-label="変更を取り消して閉じる">×</button></div><div class="ability-content"><section class="unified-training"><div><small>キャラクターレベル</small><strong id="character-level-'+c.id+'"></strong></div><div class="ability-actions"><button class="button secondary" data-hire="'+c.id+'"><span id="hire-label-'+c.id+'">+1</span><small id="hire-cost-'+c.id+'"></small></button>'+tradeControls('level',c.id,true,true).replace('10回購入','+10').replace('1Lv売却','−1')+'</div></section><div class="focus-heading"><div><h3>コンセントレイション</h3><p>未使用CPを配分できます。振り直しは有料です。</p></div><strong id="focus-remaining-'+c.id+'"></strong><button class="button secondary" id="focus-reset-'+c.id+'" data-focus-reset="'+c.id+'">振り直す</button></div><div class="ability-rows">'+rows+'</div>'+(c.magicPower?'<p class="magic-summary" id="magic-summary-'+c.id+'"></p>':'')+'<details class="pressure-breakdown" id="pressure-breakdown-'+c.id+'"><summary>暴走圧・鎮静圧の計算 <span id="pressure-summary-'+c.id+'"></span></summary><div id="pressure-content-'+c.id+'"></div></details>'+perkPanel(c)+'<section class="strength-preview" id="strength-preview-'+c.id+'"></section></div><div class="ability-footer" role="group" aria-label="変更内容の確定"><span id="ability-changes-'+c.id+'"></span><div class="ability-confirm"><p id="ability-factors-'+c.id+'"></p><button class="button" data-ability-confirm="'+c.id+'">確定</button></div></div></dialog>';
   }
-  const trainingTracks=[{id:'power',field:'levels'},{id:'action',field:'actionLevels'},...D.statUpgrades];
-  const trainingTargets=()=>Object.fromEntries(trainingTracks.map(t=>[t.id,state[t.field][abilityEdit.id]]));
-  function proposedTraining(kind,step){
-    const targets=trainingTargets();targets[kind]+=step;
-    const key=JSON.stringify([targets,state.perkEnabled,state.unlockedPerks]);
+  function focusMinimum(id,track){return abilityEdit?.id===id&&!abilityEdit.focusReset?E.concentration(abilityEdit.original,id)[track]:0;}
+  function proposedTraining(step){
+    const id=abilityEdit.id,targets={level:state.levels[id]+step},key=JSON.stringify([targets,state.perkEnabled,state.unlockedPerks,state.concentration,abilityEdit.focusReset]);
     if(!abilityEdit.cache.has(key)){
-      // Reprice from the original levels, while retaining this dialog's perk edits.
       const base={...abilityEdit.original,perkEnabled:structuredClone(state.perkEnabled),unlockedPerks:structuredClone(state.unlockedPerks)};
-      abilityEdit.cache.set(key,E.trainingPlan(base,abilityEdit.id,targets));
+      const plan=E.trainingPlan(base,id,targets);
+      if(plan.valid){
+        if(!E.setConcentration(plan.state,id,E.concentration(state,id)))plan.valid=false;
+        if(abilityEdit.focusReset){const fee=E.concentrationResetCost(plan.state,id);if(plan.state.factors<fee)plan.valid=false;else {plan.state.factors-=fee;plan.cost+=fee;}}
+        plan.state.health[id].hp=Math.min(abilityEdit.original.health[id].hp,E.maxHP(plan.state,D.characters.find(c=>c.id===id)));E.clampHealth(plan.state,id);
+      }
+      abilityEdit.cache.set(key,plan);
     }
     return abilityEdit.cache.get(key);
   }
   function openAbility(id){
-    sync();save();resetCombatVisuals();abilityEdit={id,original:state,cache:new Map()};state=structuredClone(state);controlsKey='';render();$('ability-dialog-'+id).showModal();
+    sync();save();resetCombatVisuals();abilityEdit={id,original:state,cache:new Map(),focusReset:false,returnTab:managerTab,returnCharacter:inspectedCharacter};switchManager("characters");inspectCharacter(id);state=structuredClone(state);controlsKey='';render();$('ability-dialog-'+id).showModal();
   }
   function finishAbility(confirm=false){
     if(!abilityEdit||confirm&&blocked())return;
-    const {id,original}=abilityEdit;if(!confirm)state=original;
-    abilityEdit=null;lastTime=Date.now();$('ability-dialog-'+id).close();controlsKey='';save();render();
+    const {id,original,returnTab,returnCharacter}=abilityEdit;if(!confirm)state=original;
+    abilityEdit=null;lastTime=Date.now();$('ability-dialog-'+id).close();switchManager(returnTab);inspectCharacter(returnCharacter);controlsKey='';save();render();if(formationQuestId)renderFormationDraft();
   }
   function renderDraftControls(c){
     if(abilityEdit?.id!==c.id)return;
-    const difference=abilityEdit.original.factors-state.factors;
+    const current=proposedTraining(0),difference=current.cost-current.refund;
     setText('ability-changes-'+c.id,difference>0?'確定時に '+money(difference)+' Rd消費':difference<0?'確定時に '+money(-difference)+' Rd返還':'因子の増減なし');
-    for(const t of trainingTracks)for(const step of [1,10,-1,-10]){
-      const prefix=t.id==='power'?'hire':t.id;
-      const button=step===1?document.querySelector(t.id==='power'?'[data-hire="'+c.id+'"]':t.id==='action'?'[data-action="'+c.id+'"]':'[data-stat="'+t.id+'"][data-stat-character="'+c.id+'"]'):$(step===10?'buy10-'+t.id+'-'+c.id:(step===-1?'sell-':'sell10-')+t.id+'-'+c.id);
-      const plan=proposedTraining(t.id,step),delta=plan.valid?state.factors-plan.state.factors:0;
-      button.disabled=blocked()||!plan.valid;
+    for(const step of [1,10,-1,-10]){
+      const button=step===1?document.querySelector('[data-hire="'+c.id+'"]'):$(step===10?'buy10-level-'+c.id:(step===-1?'sell-level-':'sell10-level-')+c.id);
+      const plan=proposedTraining(step),delta=plan.valid?(plan.cost-plan.refund)-difference:0;button.disabled=blocked()||!plan.valid;
       const text=plan.valid?(delta<0?'返還 ':'')+money(Math.abs(delta))+' Rd':step>0?'購入不可':'売却不可';
-      if(step===1)setText(prefix+'-cost-'+c.id,text);else button.querySelector('small').textContent=text;
-      button.title=(t.name||(t.id==='power'?'攻撃力':'行動力'))+' '+(step>0?'+':'')+step+' · '+text;
-      button.setAttribute('aria-label',(t.name|| (t.id==='power'?'攻撃力':'行動力'))+' '+(step>0?'+':'')+step+' · '+text);
+      if(step===1)setText('hire-cost-'+c.id,text);else button.querySelector('small').textContent=text;
+      button.setAttribute('aria-label','レベル '+(step>0?'+':'')+step+' · '+text);
+      button.title='レベル '+(step>0?'+':'')+step+' · '+text;
     }
   }
   function adjustTraining(event){
     if(!abilityEdit)return false;
-    const trade=event.target.closest('[data-trade]'),stat=event.target.closest('[data-stat]'),single=event.target.closest('[data-hire], [data-action]');
-    const button=trade||stat||single;if(!button)return false;if(button.disabled||blocked())return true;
-    const kind=trade?trade.dataset.kind:stat?stat.dataset.stat:single.dataset.action?'action':'power';
+    const trade=event.target.closest('[data-trade]'),single=event.target.closest('[data-hire]'),button=trade||single;if(!button)return false;if(button.disabled||blocked())return true;
     const step=trade?(trade.dataset.trade==='sell'?-Number(trade.dataset.count||1):10):1;
-    const plan=proposedTraining(kind,step);if(plan.valid){state=structuredClone(plan.state);render();}return true;
+    const plan=proposedTraining(step);if(plan.valid){state=structuredClone(plan.state);render();}return true;
+  }
+  function changeFocus(id,track,value){
+    if(blocked()||abilityEdit?.id!==id)return;
+    const allocation={...E.concentration(state,id)},total=E.concentrationPoints(state,id),other=Object.entries(allocation).reduce((n,[k,v])=>n+(k===track?0:v),0);
+    if(!Number.isSafeInteger(value))return;
+    allocation[track]=Math.max(focusMinimum(id,track),Math.min(total-other,value));if(E.setConcentration(state,id,allocation)){state.health[id]=structuredClone(abilityEdit.original.health[id]);E.clampHealth(state,id);abilityEdit.cache.clear();controlsKey='';render();}
   }
   function renderAbility(c,ctx,profile){
     const level=state.levels[c.id],open=$('ability-open-'+c.id),cost=E.hireCost(state,c);
@@ -257,25 +287,29 @@
     setText('ability-factors-'+c.id,(abilityEdit?.id===c.id?'確定後の所持因子 ':'所持因子 ')+money(state.factors)+'Rd');
     renderStrengthPreview(c,ctx);
     renderPressureBreakdown(c);
-    const dice=spec=>UI.fullNumber(spec.flat)+'＋'+UI.fullNumber(spec.dice)+'D6';
+    const dice=spec=>fullNumber(spec.flat)+'＋'+fullNumber(spec.dice)+'D6';
     const support=E.isDeployed(ctx,c.id)?E.activeCharacters(ctx).flatMap(a=>E.perks(ctx,a).filter(p=>p.unlocked)):[];
-    const act=E.activation(ctx,c),ownAction=E.perks(ctx,c).filter(p=>p.unlocked).reduce((n,p)=>n+(p.actionBonus||0),0);
+    const act=E.activation(ctx,c),ownAction=E.ownActionBonus(ctx,c);
     const actionSpec={flat:c.actionDice.flat+act.action+ownAction+support.reduce((n,p)=>n+(p.partyAction||0),0),dice:c.actionDice.dice+act.dice+support.reduce((n,p)=>n+(p.partyActionDice||0),0)};
-    const values={power:E.T.value(Math.max(0,E.effectivePowerLevel(ctx,c)-1)),action:E.actionPower(ctx,c,c.action,true),vitality:E.maxHP(state,c),armor:E.T.value(E.statLevel(state,c,'armor')),accuracy:E.T.value(E.statLevel(state,c,'accuracy')),evasion:E.T.value(E.statLevel(state,c,'evasion'))};
-    const base={power:dice({dice:profile.dice,flat:profile.flat+profile.bonus}),action:dice(actionSpec),vitality:UI.fullNumber(c.maxHP),armor:UI.fullNumber(E.armor(ctx,c))+' / '+UI.fullNumber(E.armor(ctx,c,true)),accuracy:(c.attackType==='mental'?'SS ':'')+dice(E.accuracySpec(ctx,c)),evasion:dice(E.evasionSpec(ctx,c))+' / SS '+dice(E.evasionSpec(ctx,c,true))};
-    for(const t of [{id:'power',field:'levels'},{id:'action',field:'actionLevels'},...D.statUpgrades]){
-      const lv=state[t.field][c.id]||0,price=t.id==='power'?cost:t.id==='action'?E.actionCost(state,c):E.statCost(state,c,t.id);
-      setText('ability-level-'+t.id+'-'+c.id,'Lv.'+UI.fullNumber(lv));
-      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);
-      setText('ability-value-'+t.id+'-'+c.id,UI.fullNumber(values[t.id]));
-      const prefix=t.id==='power'?'hire':t.id;setText(prefix+'-cost-'+c.id,Number.isFinite(price)?money(price)+' Rd':'購入不可');
-      const sale10=$('sell10-'+t.id+'-'+c.id),quote10=E.saleQuote(state,t.id,c.id,10);sale10.disabled=blocked()||!quote10.valid;sale10.querySelector('small').textContent=quote10.valid?'返還 '+money(quote10.refund)+' Rd':'売却不可';sale10.setAttribute('aria-label',c.name+' 10Lv売却 · '+(quote10.valid?money(quote10.refund)+'Rd返還':'売却不可'));
-      if(D.statUpgrades.some(u=>u.id===t.id)){
-        const button=document.querySelector('[data-stat="'+t.id+'"][data-stat-character="'+c.id+'"]');
-        button.disabled=blocked()||!level||!Number.isFinite(price)||state.factors<price;button.title=c.name+'の'+t.name+'を強化 · '+money(price)+'Rd';
-        renderTrades(t.id,c.id,true,!level);
-      }
+    const allocation=E.concentration(state,c.id),total=E.concentrationPoints(state,c.id),used=Object.values(allocation).reduce((n,v)=>n+v,0);
+    const cpMultipliers=Object.fromEntries(D.concentration.map(t=>[t.id,E.T.focusMultiplier(allocation[t.id],total,t.id)]));
+    const values=Object.fromEntries(D.concentration.map(t=>[t.id,t.id==='action'?E.actionPower(ctx,c,c.action,true):window.YggAbilityView.strengthLevel(E.strengthValue(state,c,t.id),D.strength)]));
+    if(c.magicPower){const m=E.magicState(ctx,c);setText('magic-summary-'+c.id,'魔力 Lv.'+m.current+' / '+m.maximum+' · 攻撃力・命中力 ＋'+(m.current*c.magicPower)+(m.current<m.maximum?' · あと'+(m.maximum-m.current)+'手番詠唱、その次に攻撃':' · 次の行動で攻撃'));}
+    setText('ability-maxhp-'+c.id,'最大HP '+fullNumber(E.maxHP(state,c)));
+    const base={power:c.hiddenAttack?'？？？':dice({dice:profile.dice,flat:profile.flat+profile.bonus}),action:dice(actionSpec),vitality:fullNumber(c.maxHP),armor:fullNumber(E.armor(ctx,c))+' / '+fullNumber(E.armor(ctx,c,true)),accuracy:dice(E.accuracySpec(ctx,c,false)),evasion:dice(E.evasionSpec(ctx,c))};
+    setText('ability-base-ss-'+c.id,dice(c.ss));setText('character-level-'+c.id,'Lv.'+fullNumber(level));
+    setText('focus-remaining-'+c.id,'残り '+fullNumber(total-used)+' / '+fullNumber(total)+' CP');
+    for(const t of D.concentration){
+      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):incomeNumber(values[t.id]));
+      const input=$('focus-'+t.id+'-'+c.id);if(document.activeElement!==input)input.value=allocation[t.id];input.min=focusMinimum(c.id,t.id);input.max=total-used+allocation[t.id];input.disabled=blocked()||!level;
+      setText('focus-bonus-'+t.id+'-'+c.id,'配分 ×'+incomeNumber(cpMultipliers[t.id]));
+      if(t.id!=='action')$('ability-value-'+t.id+'-'+c.id).title='内部強度をCP未配分の味方Lv相当へ換算（小数3桁まで）';
+      for(const step of [-1,1]){const button=document.querySelector('[data-focus="'+c.id+'"][data-focus-stat="'+t.id+'"][data-step="'+step+'"]');button.disabled=blocked()||!level||(step<0?allocation[t.id]<=focusMinimum(c.id,t.id):used>=total);}
     }
+    const reset=$('focus-reset-'+c.id),paid=abilityEdit?.id===c.id&&abilityEdit.focusReset,committed=abilityEdit?.id===c.id&&Object.values(E.concentration(abilityEdit.original,c.id)).some(n=>n>0),fee=E.concentrationResetCost(state,c.id);
+    reset.textContent=paid?'配分をクリア（振り直し代は計上済み）':committed?'振り直す · '+money(fee)+' Rd':'配分をクリア';
+    reset.disabled=blocked()||!level||!used||committed&&!paid&&state.factors<fee;
+    setText('hire-cost-'+c.id,Number.isFinite(cost)?money(cost)+' Rd':'購入不可');
   }
   function tradeControls(kind,id,ten=true,sellTen=false) {
     return `<div class="trade-controls" id="trade-controls-${kind}-${id}">${ten?`<button type="button" class="trade-button" id="buy10-${kind}-${id}" data-trade="buy" data-kind="${kind}" data-id="${id}"><span>10回購入</span><small></small></button>`:''}<button type="button" class="trade-button sell-button" id="sell-${kind}-${id}" data-trade="sell" data-kind="${kind}" data-id="${id}"><span>1Lv売却</span><small></small></button>${sellTen?`<button type="button" class="trade-button sell-button" id="sell10-${kind}-${id}" data-trade="sell" data-count="10" data-kind="${kind}" data-id="${id}"><span>−10</span><small></small></button>`:''}</div>`;
@@ -295,32 +329,37 @@
       log(`${c?.name||u?.name||q?.name}：${trade==='sell'?count+'段階売却しました。':'10段階購入しました。'}`);save();render();}
     return true;
   }
-  function manualReady(){const selected=E.selectedCharacter(state);return selected?E.canAct(state,selected.id):true;}
+  function manualReady(){if(state.viewingMemories)return false;const selected=E.selectedCharacter(state);return selected?E.canAct(state,selected.id)&&!E.isStunned(state,selected.id)&&E.hasReachableTarget(state,selected):true;}
   function renderHealth(){
+    const contexts=new Map(),thresholds=new Map();
     for(const c of D.characters){
-      const h=E.healthOf(state,c.id),down=h.status!=='active',actor=$(c.id+'-combatant'),status=h.status==='dying'?'瀕死':down?'気絶':'戦闘可能';
-      const hired=state.levels[c.id]>0,runaway=E.runawayOf(state,c.id);
-      setText('picker-hp-'+c.id,hired?'HP '+UI.fullNumber(h.hp)+' / '+UI.fullNumber(E.maxHP(state,c)):'未雇用');
-      setText('picker-runaway-'+c.id,hired?'暴走 '+UI.fullNumber(runaway.runawayRate)+'%'+(runaway.runawayCollapsed?'・離脱':''):'');
-      actor.classList.toggle('downed',down);
+      const h=E.healthOf(state,c.id),runaway=E.runawayOf(state,c.id),hpDown=h.status!=='active',collapsed=runaway.runawayCollapsed,down=hpDown||collapsed;
+      const actor=$(c.id+'-combatant'),status=collapsed?'暴走ダウン':h.status==='dying'?'瀕死':hpDown?'気絶':'戦闘可能';
+      const hired=state.levels[c.id]>0,maxHP=E.maxHP(state,c);
+      const owner=E.formationOwner(state,c.id);
+      if(!contexts.has(owner))contexts.set(owner,owner?E.battleContext(state,owner):state);
+      const ctx=contexts.get(owner),ev=E.evasionSpec(ctx,c),ss=E.evasionSpec(ctx,c,true);
+      if(!thresholds.has(owner))thresholds.set(owner,E.actionThreshold(ctx));
+      const threshold=thresholds.get(owner);
+      setText('picker-hp-'+c.id,hired?'HP '+fullNumber(h.hp)+' / '+fullNumber(maxHP):'未雇用');
+      setText('picker-runaway-'+c.id,hired?'暴走 '+fullNumber(runaway.runawayRate)+'%'+(runaway.runawayCollapsed?'・暴走ダウン':''):'');
+      actor.classList.toggle('downed',down);actor.classList.toggle('stunned',E.isStunned(state,c.id));actor.classList.toggle('charging',!down&&!E.isStunned(state,c.id)&&E.magicState(ctx,c).current>0);
+      if(c.id==='megumin'){
+        const magic=actor.classList.contains('spell-casting')?meguminCastMagic:E.magicState(ctx,c).current;
+        for(const [i,ring] of Array.from($('megumin-charge-axis').children).entries())ring.hidden=i>=magic;
+      }
       const selector=$(c.id+'-select');
-      selector.setAttribute('aria-label',c.name+(down?'の復活バーストを選択':'を手動攻撃に選択'));
-      selector.title=down?'クリックして復活バーストを選択':'クリックして手動攻撃の担当にする';
-      if(down)actor.classList.remove('attacking','bursting');
+      selector.setAttribute('aria-label',c.name+(collapsed?'：暴走ダウン中':hpDown?'の復活バーストを選択':'を手動攻撃に選択'));
+      selector.title=collapsed?'暴走率100%未満で復帰。仲間タブの暴走抑制や因子安定化で鎮静できます。':hpDown?'クリックして復活バーストを選択':'クリックして手動攻撃の担当にする';
+      if(down)actor.classList.remove('attacking','bursting','spell-casting');
       const quote=E.suppressionQuote(state,c.id),suppress=$('suppress-'+c.id);
       suppress.hidden=!hired;suppress.disabled=blocked()||!!abilityEdit||!quote.valid||state.factors<quote.cost;
       setText('suppress-cost-'+c.id,money(quote.cost)+' Rd');suppress.setAttribute('aria-label',c.name+'の暴走率を10抑制 · '+money(quote.cost)+'Rd');
-      $('ally-hp-'+c.id).hidden=!E.isDeployed(state,c.id);
-      $('ally-runaway-'+c.id).hidden=!E.isDeployed(state,c.id);
-      setText('ally-runaway-'+c.id,'暴走率 '+UI.fullNumber(runaway.runawayRate)+'%');
-      $('ally-runaway-'+c.id).classList.toggle('critical',runaway.runawayRate>=100);
-      setText('ally-hp-'+c.id,(down?status+' ':'')+'HP '+UI.fullNumber(h.hp)+' / '+E.maxHP(state,c));
-      $('ally-hp-'+c.id).style.setProperty('--hp-ratio',Math.max(0,h.hp/E.maxHP(state,c))*100+'%');
+      battleHUD.render(c.id,{row:E.formationRow(state,c.id),waiting:!down&&!E.hasReachableTarget(ctx,c),hp:h.hp,maxHP,actionPoints:state.actionPoints[c.id]||0,actionThreshold:threshold,runawayRate:runaway.runawayRate,status:[down?status:E.isStunned(state,c.id)?'スタン '+h.stunTurns+'R':'',runaway.runawaySymptom?symptomName(runaway.runawaySymptom):''].filter(Boolean).join(' · '),deployed:E.isDeployed(state,c.id),magic:c.magicPower?E.magicState(ctx,c):null});
       $('vitals-'+c.id).hidden=!state.levels[c.id];
-      const owner=E.formationOwner(state,c.id),ctx=owner?E.battleContext(state,owner):state,ev=E.evasionSpec(ctx,c),ss=E.evasionSpec(ctx,c,true);
-      setText('health-'+c.id,'HP '+UI.fullNumber(h.hp)+' / '+E.maxHP(state,c)+' · 防御 '+E.armor(ctx,c)+' / 抵抗 '+E.armor(ctx,c,true)+' · AP '+UI.fullNumber(state.actionPoints[c.id]||0)+' / '+E.actionThreshold(ctx)+' · 命中 '+(c.attackType==='mental'?'SS ':'')+E.accuracySpec(ctx,c).flat+'＋'+E.accuracySpec(ctx,c).dice+'D6 '+' · 回避 '+ev.flat+'＋'+ev.dice+'D6 · SS '+ss.flat+'＋'+ss.dice+'D6'+(down?' · '+status+'（全回復で復帰）':'')+(c.id==='jewel'?' · 所持因子 '+money(state.factors)+'Rd'+(ctx.rainbowTurns?' · 虹の装甲 '+ctx.rainbowTurns+'R':''):''));
-      const revive=$('revive-'+c.id);revive.hidden=!down;
-      if(down){const cost=E.revivalCost(state,c.id);revive.disabled=blocked()||!Number.isFinite(cost)||state.factors<cost;setText('revive-'+c.id,'復活バースト · '+(Number.isFinite(cost)?money(cost)+'Rd':'計算範囲外'));}
+      setText('health-'+c.id,'HP '+fullNumber(h.hp)+' / '+fullNumber(maxHP)+' · 防御 '+E.armor(ctx,c)+' / 抵抗 '+E.armor(ctx,c,true)+' · AP '+fullNumber(state.actionPoints[c.id]||0)+' / '+fullNumber(threshold)+' · 命中 '+E.accuracySpec(ctx,c,false).flat+'＋'+E.accuracySpec(ctx,c,false).dice+'D6 '+' · 回避 '+ev.flat+'＋'+ev.dice+'D6 · SS '+ss.flat+'＋'+ss.dice+'D6'+(down?' · '+status+(collapsed?'（暴走率100%未満で復帰）':'（全回復で復帰）'):E.isStunned(state,c.id)?' · スタン '+h.stunTurns+'R':'')+(c.magicPower?' · 魔力 Lv.'+E.magicState(ctx,c).current+' / '+E.magicState(ctx,c).maximum:'')+(c.id==='jewel'?' · 所持因子 '+money(state.factors)+'Rd'+(ctx.rainbowTurns?' · 虹の装甲 '+ctx.rainbowTurns+'R':''):''));
+      const revive=$('revive-'+c.id);revive.hidden=!hpDown;
+      if(hpDown){const cost=E.revivalCost(state,c.id);revive.disabled=blocked()||!Number.isFinite(cost)||state.factors<cost;setText('revive-'+c.id,'復活バースト · '+(Number.isFinite(cost)?money(cost)+'Rd':'計算範囲外'));}
       $('inspect-'+c.id).classList.toggle('downed',down);
     }
     const all=E.suppressionQuote(state);$('suppress-all').disabled=blocked()||!!abilityEdit||!all.valid||state.factors<all.cost;
@@ -336,7 +375,17 @@
       const button=node.querySelector('.enemy-target');
       if(button){button.disabled=!e||e.hp<=0||!!e.respawnSeconds||blocked();button.setAttribute('aria-pressed',String(!!e&&state.focusedEnemyId===e.id));}
       if(e&&!playback.pending)shownPoison.set(e.id,e.poisonDamage);
-      if(bar){bar.hidden=!e;if(e){const text=e.respawnSeconds?'再出現 '+e.respawnSeconds.toFixed(1)+'秒':'HP '+UI.fullNumber(e.hp)+' / '+UI.fullNumber(max)+' · AP '+UI.fullNumber(e.actionPoints||0)+((shownPoison.get(e.id)??e.poisonDamage)?' · 猛毒':'')+(e.defensePenalty?' · 防御−'+e.defensePenalty:'')+(e.accuracyPenalty?' · 次の命中−'+e.accuracyPenalty:'')+(e.evasionPenalty?' · 回避−6 '+e.evasionPenaltyTurns+'R':'')+(e.evasionFailure?' · 次の回避失敗':'');if(bar.textContent!==text)bar.textContent=text;bar.style.setProperty('--hp-ratio',e.hp/max*100+'%');}}
+      if(bar){bar.hidden=!e;if(e){const text=e.respawnSeconds?'再出現 '+e.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(e.hp)+' / '+fullNumber(max)+' · AP '+fullNumber(e.actionPoints||0);if(bar.textContent!==text)bar.textContent=text;bar.style.setProperty('--hp-ratio',e.hp/max*100+'%');}}
+      const conditions=node.querySelector('.enemy-status');
+      if(conditions){
+        const labels=!e||e.hp<=0||e.respawnSeconds?[]:[
+          (shownPoison.get(e.id)??e.poisonDamage)?'猛毒':'',
+          e.defensePenalty?'防御−'+e.defensePenalty:'',e.accuracyPenalty?'次の命中−'+e.accuracyPenalty:'',
+          e.evasionPenalty?'回避−6 '+e.evasionPenaltyTurns+'R':'',e.evasionFailure?'次の回避失敗':'',
+          e.tauntId?'挑発 ミツル':'',e.slowSeconds?'行動−'+e.actionPenalty+' '+e.slowSeconds.toFixed(1)+'秒':''
+        ].filter(Boolean);
+        const text=labels.join(' · ');conditions.hidden=!text;if(conditions.textContent!==text)conditions.textContent=text;
+      }
       const emptyAbsorb=e?.pendingAttack?.kind==='absorb'&&!enemies.some(x=>x.kind==='kogumo'&&x.hp>0);
       if(emptyAbsorb)stopEnemyAttack(e.id);
       if(e?.pendingAttack&&!emptyAbsorb&&!state.paused&&!enemyAttackVisuals.has(e.id))startEnemyAttack({enemyId:e.id,targetSlot:i,targetId:e.pendingAttack.targetId,duration:E.enemyAttackDuration(state,e),remaining:e.pendingAttack.remaining,kind:e.pendingAttack.kind});
@@ -418,14 +467,14 @@
   function showCloudAbsorb(e){
     stopEnemyAttack(e.enemyId);renderEnemy(E.getSession(state));
     if(!document.hidden&&state.options.showDamageNumbers){const text=document.createElement('span'),g=readCombatGeometry().enemySlots[0];
-      text.className='damage-float cloud-heal';text.textContent='吸収 ＋'+UI.fullNumber(e.amount);text.style.left=g.x+'px';text.style.top=(g.y-60)+'px';$('damage-floats').append(text);deferVisual(()=>text.remove(),950);}
-    log('オズモーンがコグモを吸収。HP ＋'+UI.fullNumber(e.amount));
+      text.className='damage-float cloud-heal';text.textContent='吸収 ＋'+fullNumber(e.amount);text.style.left=g.x+'px';text.style.top=(g.y-60)+'px';$('damage-floats').append(text);deferVisual(()=>text.remove(),950);}
+    log('オズモーンがコグモを吸収。HP ＋'+fullNumber(e.amount));
   }
   function renderRevivalDialog(){
     if(!revivalTarget)return;
     const c=D.characters.find(c=>c.id===revivalTarget),h=E.healthOf(state,c.id),cost=E.revivalCost(state,c.id);
     setText('revive-title',c.name+'の復活バースト');
-    setText('revive-description','HP '+UI.fullNumber(h.hp)+' / '+E.maxHP(state,c)+' → '+E.maxHP(state,c)+' / '+E.maxHP(state,c)+'。全回復して戦闘へ復帰します。');
+    setText('revive-description','HP '+fullNumber(h.hp)+' / '+fullNumber(E.maxHP(state,c))+' → '+fullNumber(E.maxHP(state,c))+' / '+fullNumber(E.maxHP(state,c))+(E.runawayOf(state,c.id).runawayCollapsed?'。HPを全回復します。暴走ダウンは暴走率100%未満で復帰します。':'。全回復して戦闘へ復帰します。'));
     setText('revive-cost','必要因子 '+(Number.isFinite(cost)?money(cost)+'Rd':'計算範囲外')+' ／ 所持 '+money(state.factors)+'Rd');
     $('confirm-revive').disabled=blocked()||h.status==='active'||!Number.isFinite(cost)||state.factors<cost;
     setText('revive-hint',h.status==='active'?'すでに復帰しています。':state.factors<cost?'因子が不足しています。自然回復でもHP満タンになると復帰します。':'雇用費＋現在の育成投資額の1%。');
@@ -439,13 +488,10 @@
     $('respawn-notice').hidden=!waiting;
     if(waiting)setText('respawn-notice','再出現まで '+state.respawnSeconds.toFixed(1)+' 秒');
     $('attack').disabled=blocked()||state.paused||waiting||!manualReady();
-    for(const q of D.sessions){
-      const ctx=E.battleContext(state,q.id),members=E.formationIds(state,q.id).length;
-      setText('quest-live-'+q.id,(state.paused?'全体一時停止':members?'自動周回中':'部隊未編成')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?'再出現まで '+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+UI.fullNumber(ctx.hp)+' / '+UI.fullNumber(E.getSession(ctx).hp)));
-    }
+    questView.renderLive(state);
     const factors = money(state.factors);
     for (const id of ['factors', 'factors-pinned', 'factors-save', 'factors-help','factors-formation']) setText(id, factors);
-    setText('kills', UI.fullNumber(state.kills));
+    setText('kills', fullNumber(state.kills));
     setText('hp-text', `${format(Math.ceil(hp))} / ${format(displayMax)}`);
     const width = `${hp / displayMax * 100}%`;
     if ($('hp-fill').style.width !== width) $('hp-fill').style.width = width;
@@ -460,10 +506,10 @@
   function render() {
     E.refreshQuestUnlocks(state);E.refreshPerkUnlocks(state);
     renderBattleHUD();
-    renderScene(E.getSession(state));
+    sceneView.render(state,E.getSession(state));
     // Action-clock fractions and visual HP do not change cards, formulas or prices.
-    const key = JSON.stringify([state.factors, state.sessionId, state.selectedCharacterId,
-      state.formations,state.rainbowTurns,state.focusedEnemyId,state.enemies?.map(e=>[e.id,e.evasionPenaltyTurns]),D.characters.map(c=>E.healthOf(state,c.id).status),Math.ceil(state.respawnSeconds||0),state.levels, state.actionLevels, D.statUpgrades.map(t=>state[t.field]), state.upgrades, state.purchasedPerks,state.perkEnabled,D.characters.map(c=>[Math.floor(E.runawayOf(state,c.id).runawayRate),E.runawayOf(state,c.id).runawaySymptom,E.runawayOf(state,c.id).runawayCollapsed,E.runawayOf(state,c.id).baseRunawayPressure,E.runawayOf(state,c.id).temporaryRunawayPressure,E.runawayOf(state,c.id).criticalReserve]), state.questLevels,state.questUnlocks,state.concentration,
+    const key = JSON.stringify([state.factors, state.sessionId, state.viewingMemories, state.memoriesUnlocked, state.selectedCharacterId,
+      state.formations,state.formationRows,state.rainbowTurns,state.focusedEnemyId,state.enemies?.map(e=>[e.id,e.evasionPenaltyTurns]),D.characters.map(c=>E.healthOf(state,c.id).status),Math.ceil(state.respawnSeconds||0),state.levels, state.upgrades, state.purchasedPerks,state.perkEnabled,D.characters.map(c=>[Math.floor(E.runawayOf(state,c.id).runawayRate),E.runawayOf(state,c.id).runawaySymptom,E.runawayOf(state,c.id).runawayCollapsed,E.runawayOf(state,c.id).baseRunawayPressure,E.runawayOf(state,c.id).temporaryRunawayPressure,E.runawayOf(state,c.id).criticalReserve]), state.questLevels,state.questUnlocks,state.concentration,
       state.questActiveLevels, state.paused, state.options, blocked()]);
     if (key === controlsKey) return;
     controlsKey = key;
@@ -471,15 +517,15 @@
     $('dps').textContent = rateFormat(E.totalDps(state));
     const income = E.totalIncome(state);
     renderFactorRain(income.factorsPerSecond);
-    setText('income-rate', UI.incomeNumber(income.factorsPerSecond));
+    setText('income-rate', incomeNumber(income.factorsPerSecond));
     setText('income-context', `${income.sessions.length}セッション合計 / ${state.paused ? '再開時の見込み' : '同時進行'}`);
-    setText('income-formula',income.sessions.map(q=>q.name+'：約'+UI.incomeNumber(q.factorsPerSecond)+'Rd/秒（'+money(q.reward)+'Rd/周）').join(' ＋ ')+' ＝ 約'+UI.incomeNumber(income.factorsPerSecond)+'Rd/秒。単体エネミーは再出現待ち5秒を含む平均値。');
+    setText('income-formula',income.sessions.map(q=>q.name+'：約'+incomeNumber(q.factorsPerSecond)+'Rd/秒（'+money(q.reward)+'Rd/周）').join(' ＋ ')+' ＝ 約'+incomeNumber(income.factorsPerSecond)+'Rd/秒。単体エネミーは再出現待ち5秒を含む平均値。');
     setText('income-condition','全員回復後の自動戦闘を基準とした目安です。手動攻撃・復活バーストは含みません。');
     $('party-count').textContent = D.characters.filter(c=>E.formationOwner(state,c.id)).length;
     setText('party-capacity','人 / '+income.sessions.length+'セッション');
     renderEnemy(session);
     $('battle-area').textContent = session.area;
-    $('session-code').textContent = `SESSION ${session.code} / ${session.name} / Lv.${UI.fullNumber(session.level)}`;
+    $('session-code').textContent = state.viewingMemories?'追憶':`SESSION ${session.code} / ${session.name} / Lv.${fullNumber(session.level)}`;
     $('session-description').textContent = session.description;
     $('enemy-rules').textContent = `防御 ${E.enemyDefense(session)} / 属性：${(session.traits || []).map(t => D.enemyTraits[t] || t).join('・') || 'なし'}`;
     $('reward').textContent = `◇ ${money(E.reward(state))}Rd`;
@@ -487,7 +533,8 @@
     $('manual-actor').textContent = `手動攻撃：${selected ? selected.name : 'あなた'}`;
     $('select-self').hidden = !selected;
     $('select-self').disabled = blocked();
-    $('attack').setAttribute('aria-label', `${selected ? selected.name : 'あなた'}で攻撃する`);
+    const magic=E.magicState(state,selected),actionLabel=magic.current<magic.maximum?'詠唱する':'攻撃する';
+    setText('attack-action',actionLabel);$('attack').setAttribute('aria-label', `${selected ? selected.name : 'あなた'}で${actionLabel}`);
     const manualProfile = E.attackProfile(state, selected, true);
     $('click-formula').textContent = attackFormula(manualProfile);
     renderLevelNote('click-level-note',manualProfile);
@@ -509,7 +556,7 @@
       card.classList.toggle('obscured', obscured);
       card.classList.toggle('manual-selected', state.selectedCharacterId === c.id);
       setText('identity-'+c.id,obscured?'？？？':c.name);
-      setText('picker-name-'+c.id,obscured?'？？？':c.id==='meta'?'メタ':c.id==='richter'?'ゲルハムト':c.id==='vishunal'?'ビシュナル':c.id==='tordeliese'?'トルデリーゼ':c.name);
+      setText('picker-name-'+c.id,obscured?'？？？':c.shortName|| (c.id==='meta'?'メタ':c.id==='richter'?'ゲルハムト':c.id==='vishunal'?'ビシュナル':c.id==='tordeliese'?'トルデリーゼ':c.name));
       $('inspect-'+c.id).classList.toggle('obscured',obscured);
       $('inspect-'+c.id).setAttribute('aria-label',obscured?`未公開の仲間・${money(cost)}Rdの詳細`:`${c.name}の詳細`);
       const selectButton = document.querySelector(`[data-select-character="${c.id}"]`);
@@ -527,27 +574,22 @@
       $('stats-' + c.id).textContent = attackFormula(profile);
       renderLevelNote('stats-note-'+c.id,profile);
       renderAbility(c,characterState,profile);
-      $('hire-label-' + c.id).textContent = level>=E.MAX_LEVEL?'MAX':'+1';
-      const button = document.querySelector(`[data-hire="${c.id}"]`);
-      button.disabled = blocked() || state.factors < cost || level >= E.MAX_LEVEL;
-      button.setAttribute('aria-label', obscured ? `未公開の仲間 · 因子${money(cost)}Rd` : `${c.name}${level ? 'の攻撃力を強化' : 'を雇用'}（現在Lv.${UI.fullNumber(level)}） · 因子${money(cost)}Rd`);
-      const actionCost = E.actionCost(state, c), actionButton = document.querySelector(`[data-action="${c.id}"]`);
-      $('action-label-' + c.id).textContent = '+1';
-      actionButton.disabled = blocked() || !level || state.factors < actionCost || !Number.isSafeInteger(state.actionLevels[c.id] + 1);
-      actionButton.setAttribute('aria-label', `${c.name}の行動力を強化（現在Lv.${UI.fullNumber(state.actionLevels[c.id])}） · 因子${Number.isFinite(actionCost)?money(actionCost)+'Rd':'計算範囲外'}`);
-      renderTrades('power',c.id,true,!level);renderTrades('action',c.id,true,!level);renderDraftControls(c);
+      $('hire-label-' + c.id).textContent='+1';
+      const button=document.querySelector('[data-hire="'+c.id+'"]');button.disabled=blocked()||!Number.isFinite(cost)||state.factors<cost;
+      button.setAttribute('aria-label',c.name+'のレベルを上げる · '+money(cost)+' Rd');
+      renderTrades('level',c.id,true,!level);renderDraftControls(c);
       if (c.perks) {
         const perks=E.perks(characterState,c);
         $('perk-summary-'+c.id).textContent=perks.filter(p=>p.enabled&&p.owned).length+' ON / '+perks.filter(p=>p.owned).length+' 解放';
         for(const p of perks){
           const row=$('perk-'+c.id+'-'+p.id),button=row.querySelector('[data-perk]');row.classList.toggle('unlocked',p.unlocked);
-          row.querySelector('.perk-status').textContent=p.unlocked?'有効':p.enabled&&p.owned?'ON・休止中':p.owned?'OFF':'未解放';
-          button.hidden=false;button.disabled=blocked()||!p.owned;button.textContent=p.owned?(p.enabled?'ON':'OFF'):perkTrackName(p)+'Lv.'+p.level+'で解放';
-          button.setAttribute('aria-pressed',String(p.enabled&&p.owned));button.setAttribute('aria-label',c.name+'の'+p.name+'を'+(p.enabled?'OFF':'ON'));
+          row.querySelector('.perk-status').textContent=p.unlocked?'有効':p.awakeningLevel?'覚醒待機中':p.enabled&&p.owned?'ON・休止中':p.owned?'OFF':'未解放';
+          button.hidden=false;button.disabled=blocked()||!p.owned||!!p.awakeningLevel;button.textContent=p.awakeningLevel?(p.unlocked?'覚醒中':'覚醒Lv.'+p.awakeningLevel+'で発動'):p.owned?(p.enabled?'ON':'OFF'):'Lv.'+p.level+'で解放';
+          button.setAttribute('aria-pressed',String(p.awakeningLevel?p.unlocked:p.enabled&&p.owned));button.setAttribute('aria-label',c.name+'の'+p.name+(p.awakeningLevel?'：覚醒Lv.'+p.awakeningLevel+'で自動発動':'を'+(p.enabled?'OFF':'ON')));
         }
       }
     }
-    renderQuests();
+    questView.render(state);
     for (const u of D.upgrades) {
       const maxed = u.max != null && state.upgrades[u.id] >= u.max, cost=E.upgradeCost(state,u);
       $('upgrade-level-' + u.id).textContent = u.max === 1 ? (maxed ? '解放済' : '未解放') : `Lv.${state.upgrades[u.id]}`;
@@ -555,7 +597,6 @@
       $('upgrade-cost-' + u.id).textContent = maxed ? (u.max === 1 ? '解放済' : 'MAX') : Number.isFinite(cost)?`購入 · ◇ ${money(cost)}Rd`:'計算範囲外';
       document.querySelector(`[data-upgrade="${u.id}"]`).disabled = blocked() || maxed || !Number.isFinite(cost) || !Number.isSafeInteger(state.upgrades[u.id]+1) || state.factors < cost;
     }
-    renderConcentration();
     $('reward-bonus').textContent = `＋${rateFormat(state.upgrades.reward * D.balance.rewardPerLevel * 100)}%`;
     renderMeta();
     const richter = D.characters.find(c => c.id === 'richter'), hired = E.isDeployed(state,'richter');
@@ -568,7 +609,7 @@
     $('richter-select').setAttribute('aria-pressed', state.selectedCharacterId === 'richter');
     renderRichterOrbits();
     renderVishunal();
-    renderTordeliese();renderMax();renderWaku();renderJewel();
+    renderTordeliese();renderMax();renderWaku();renderJewel();renderMitsuru();renderQueen();renderMegumin();
     renderOrbitSpacing();
     for(const [id,key] of Object.entries(displayControls)){
       const control=$(id);
@@ -608,68 +649,6 @@
       remaining--;launched++;
     }
   }
-  function renderScene(session) {
-    const viewport=$('arena-viewport');
-    viewport.classList.toggle('four-phase',!!session.dawnBackground);
-    let background=session.background||'',night=session.nightBackground||'',phase=UI.scenePhase(state.sceneSeconds,D.sceneCycle);
-    if(session.dawnBackground&&session.duskBackground){
-      const outdoor=UI.outdoorPhase(state.sceneSeconds,D.sceneCycle),images={dawn:session.dawnBackground,day:background,dusk:session.duskBackground,night};
-      background=images[outdoor.from];night=images[outdoor.to];phase={label:outdoor.label,night:outdoor.blend};
-    }
-    const key=background+'|'+night;
-    if(viewport.dataset.scene!==key){
-      viewport.dataset.scene=key;
-      viewport.classList.toggle('has-scene',!!background);
-      viewport.style.setProperty('--session-background',background?'url("'+background+'")':'none');
-      viewport.style.setProperty('--session-night-background',night?'url("'+night+'")':'none');
-    }
-    const opacity=night?phase.night.toFixed(3):'0';
-    if(viewport.style.getPropertyValue('--night-opacity')!==opacity)viewport.style.setProperty('--night-opacity',opacity);
-    $('scene-phase').hidden=true;
-  }
-  function renderQuests() {
-    for(const base of D.sessions){
-      const unlocked=E.isQuestUnlocked(state,base.id);
-      const quest=E.getSession(state,base.id),cost=E.questCost(state,base.id),available=Number.isFinite(cost);
-      const owned=state.questLevels[base.id],purchased=E.sessionAtLevel(base,owned),next=available?E.sessionAtLevel(base,owned+1):null;
-      const input=$('quest-active-'+base.id);input.max=owned;input.disabled=blocked()||!unlocked;
-      if(!questInputDrafts.has(base.id))input.value=quest.level;
-      $('quest-apply-'+base.id).disabled=blocked()||!unlocked;
-      const selected=state.sessionId===base.id,select=$('quest-select-'+base.id);
-      setText('formation-open-'+base.id,'部隊編成 '+E.formationIds(state,base.id).length+' / '+E.MAX_PARTY_SIZE+'人');
-      $('formation-open-'+base.id).disabled=blocked()||!unlocked;
-      $('quest-enhance-toggle-'+base.id).disabled=blocked()||!unlocked;
-      $('quest-lock-'+base.id).hidden=unlocked;
-      setText('quest-lock-'+base.id,'解放条件：所持因子 '+money(base.unlockFactors||0)+' Rd（一度達成すると解放を維持）');
-      $('quest-card-'+base.id).classList.toggle('locked',!unlocked);
-      $('quest-income-'+base.id).hidden=!unlocked;
-      $('quest-live-'+base.id).hidden=!unlocked;
-      $('quest-card-'+base.id).classList.toggle('current',selected);
-      setText('quest-select-'+base.id,!unlocked?'未解放':selected?'表示中':'戦闘を表示');
-      select.disabled=blocked()||selected||!unlocked;select.setAttribute('aria-pressed',String(selected));
-      select.setAttribute('aria-label',base.name+(selected?'を表示中':'の戦闘を表示'));
-      const ctx=E.battleContext(state,base.id),income=E.expectedIncome(ctx);
-      setText('quest-income-'+base.id,'DPS '+rateFormat(E.dps(ctx))+' · 因子 約'+UI.incomeNumber(income.factorsPerSecond)+'Rd/秒'+(E.respawnDelay(ctx)?'（再出現待ち5秒込み）':''));
-      setText('quest-strength-'+base.id,rateFormat(E.T.value(purchased.strengthLevel))+' → '+(next?rateFormat(E.T.value(next.strengthLevel)):'—'));
-      setText('quest-defense-'+base.id,UI.fullNumber(purchased.defense));
-      setText('quest-level-'+base.id,`購入済み Lv.${UI.fullNumber(owned)} ／ 挑戦中 Lv.${UI.fullNumber(quest.level)}`);
-      setText('quest-hp-'+base.id,`${UI.fullNumber(purchased.hp)} → ${next?UI.fullNumber(next.hp):'—'}`);
-      setText('quest-reward-'+base.id,`${money(E.reward(state,purchased))} → ${next?money(E.reward(state,next)):'—'} Rd`);
-
-      const ownedStats=purchased,nextStats=next;
-      setText('quest-resistance-'+base.id,UI.fullNumber(ownedStats.resistance));
-      for(const [label,key]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])setText('quest-'+label+'-'+base.id,rateFormat(window.YggMatchup.expectedRoll(ownedStats[key],key!=='attack')));
-      const actionMean=q=>window.YggMatchup.expectedRoll({...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0,multiplier:q.actionMultiplier},false);
-      setText('quest-action-'+base.id,rateFormat(actionMean(purchased))+' → '+(next?rateFormat(actionMean(next)):'—'));
-      $('enemy-info-toggle-'+base.id).disabled=!unlocked;
-      if(enemyInfoQuestId===base.id&&$('enemy-info-dialog').open)renderEnemyInfo(ctx,$('enemy-info-content'));
-      const button=$('quest-buy-'+base.id);
-      button.disabled=blocked()||!unlocked||!available||state.factors<cost;
-      renderTrades('quest',base.id);
-      setText('quest-cost-'+base.id,available?`◇ ${money(cost)}Rd`:'計算範囲外');
-      button.setAttribute('aria-label',`${base.name}のクエストを強化（購入済みLv.${UI.fullNumber(owned)}） · 因子${available?money(cost)+'Rd':'計算範囲外'}`);
-    }
-  }
   function setEnemyAppearance(node, appearance, role) {
     node.setAttribute('role','img');
     node.setAttribute('aria-label',role+appearance.name);
@@ -691,7 +670,7 @@
     sprite.style.setProperty('--foot-shift',((211-(appearance.footY??211))/224*100)+'%');
   }
   function renderEnemy(session) {
-    renderScene(session);$('enemy-name').hidden=!!session.variants;
+    sceneView.render(state,session);$('enemy-name').hidden=!!session.variants;
     const enemies=E.ensureEnemies(state),variants=session.variants||[],formation=session.summons?session.traits.includes('swarm'):enemies.length>1;
     if(enemyVariantSession!==session.id){enemyVariantSession=session.id;enemyAppearances.clear();}
     const used=new Set(enemies.map(e=>enemyAppearances.get(e.id)?.variant).filter(v=>v!=null));
@@ -707,6 +686,7 @@
       if(!button){button=document.createElement('button');button.type='button';button.className='enemy-target';node.append(button);
         button.addEventListener('click',()=>{if(blocked())return;sync();const current=E.ensureEnemies(state)[i];if(current&&E.selectEnemy(state,state.focusedEnemyId===current.id?null:current.id)){save();render();}});}
       button.hidden=!formation||e.hp<=0;button.setAttribute('aria-label',enemyAppearances.get(e.id).name+'（'+(i+1)+'体目）を集中狙い');
+      if(!node.querySelector('.enemy-status')){const label=document.createElement('span');label.className='enemy-status';label.hidden=true;node.append(label);}
       if(!node.querySelector('.enemy-health')){const bar=document.createElement('span');bar.className='enemy-health';node.append(bar);}
       if(!i)setText('enemy-name',enemyAppearances.get(e.id).name);
     }
@@ -719,8 +699,8 @@
   function renderOrbitSpacing(width = arenaViewportWidth) {
     arenaViewportWidth = width || $('arena-viewport').clientWidth || 300;
     const options = {metaScale:E.weaponScale(state,'meta'),richterScale:E.weaponScale(state,'richter'),metaCount:state.options.showOrbits?E.sawCount(state).visible:0,richterCount:state.options.showOrbits?E.bombCount(state).visible:0,
-      availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
-      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
+      formationRows:state.formationRows,availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
+      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
     const key = JSON.stringify(options);
     if (key === orbitLayoutKey) return;
     orbitLayoutKey = key;
@@ -728,6 +708,7 @@
     arena.classList.toggle('grounded',options.grounded);
     arena.style.width = `${layout.width}px`; arena.style.height = `${layout.height}px`;
     arena.style.transform = `translateX(${layout.offsetX}px) scale(${layout.zoom})`;
+    arena.style.setProperty('--head-ui-scale',String(Math.min(2,1/layout.zoom)));
     viewport.style.height = `${layout.viewHeight}px`;
     viewport.style.setProperty('--scene-width',`${layout.viewWidth}px`);
     viewport.style.setProperty('--rain-distance',`${layout.viewHeight+100}px`);
@@ -747,13 +728,74 @@
     }
     $('arena-zoom').hidden = layout.zoom >= .999;
     setText('arena-zoom', `自動ズーム ${Math.round(layout.zoom * 100)}%`);
+    const mit=layout.mitsuru;if(mit&&E.isDeployed(state,'mitsuru')){const a=$('mitsuru-combatant');a.style.left=mit.x+'px';a.style.top=mit.y+'px';a.style.setProperty('--body-foot',mit.footOffset+'px');}
+    const que=layout.queen;if(que&&E.isDeployed(state,'queen')){const a=$('queen-combatant');a.style.left=que.x+'px';a.style.top=que.y+'px';a.style.setProperty('--body-foot',que.footOffset+'px');a.style.setProperty('--queen-size',que.spriteSize+'px');}
+    const meg=layout.megumin;if(meg&&E.isDeployed(state,'megumin')){
+      const a=$('megumin-combatant'),scale=meg.spriteSize/D.meguminVisual.cellHeight;
+      a.style.left=meg.x+'px';a.style.top=meg.y+'px';a.style.setProperty('--body-foot',meg.footOffset+'px');
+      a.style.setProperty('--megumin-size',meg.spriteSize+'px');
+      a.style.setProperty('--staff-x',D.meguminVisual.staffTip.x*scale+'px');
+      a.style.setProperty('--staff-y',D.meguminVisual.staffTip.y*scale+'px');
+    }
     const j=layout.jewel;if(j&&E.isDeployed(state,'jewel')){const a=$('jewel-combatant');a.style.left=j.x+'px';a.style.top=j.y+'px';a.style.setProperty('--body-foot',j.footOffset+'px');}
     const w=layout.waku;if(w&&E.isDeployed(state,'waku')){const a=$('waku-combatant');a.style.left=w.x+'px';a.style.top=w.y+'px';a.style.setProperty('--body-foot',w.footOffset+'px');}
     const m=layout.max;if(m&&E.isDeployed(state,'max')){const a=$('max-combatant');a.style.left=m.x+'px';a.style.top=m.y+'px';a.style.setProperty('--body-foot',(m.footOffset+m.hoverHeight)+'px');a.style.setProperty('--down-foot',(m.footOffset+m.hoverHeight)+'px');a.style.setProperty('--max-size',m.spriteSize+'px');}
     const t=layout.tordeliese;if(t&&E.isDeployed(state,'tordeliese')){const actor=$('tordeliese-combatant');actor.style.left=t.x+'px';actor.style.top=t.y+'px';actor.style.setProperty('--body-foot',t.footOffset+'px');actor.style.setProperty('--tordeliese-size',t.spriteSize+'px');tordelieseSpriteScale=t.spriteSize/256;}
     const dog=layout.vishunal;
     if(dog && E.isDeployed(state,'vishunal')){const actor=$('vishunal-combatant');actor.style.left=dog.x+'px';actor.style.top=dog.y+'px';actor.style.setProperty('--body-foot',dog.footOffset+'px');vishunalSpriteScale=dog.spriteScale;actor.style.setProperty('--vishunal-scale',vishunalSpriteScale);}
+    for(const c of D.characters){const p=layout[c.id];if(p)$(c.id+'-combatant').style.setProperty('--head-offset', ((c.id==='meta'||c.id==='richter')?112:(p.spriteSize||p.extentY||224)/2)+'px');}
     combatGeometry = null;
+  }
+  function renderMitsuru(){
+    const hired=E.isDeployed(state,'mitsuru'),actor=$('mitsuru-combatant');actor.hidden=!hired;
+    actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='mitsuru');
+    $('mitsuru-select').disabled=blocked()||!hired;$('mitsuru-select').setAttribute('aria-pressed',state.selectedCharacterId==='mitsuru');
+  }
+  function animateMitsuruAttack(count=1,volley=1,slot=0,hit=true,motion='normal'){
+    if(!E.canAct(state,'mitsuru')||reducedMotion.matches||document.hidden)return 0;
+    const actor=$('mitsuru-combatant'),now=performance.now(),burst=count>1||volley>1||now-lastMitsuruShot<280;
+    lastMitsuruShot=now;cancelVisual(mitsuruAttackTimer);actor.classList.remove('range-motion');
+    if(motion==='spark'){
+      actor.classList.remove('attacking','bursting');actor.classList.add('range-motion');restartAnimation($('mitsuru-standing'),'range-six');
+      mitsuruAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),800);
+      const g=targetedGeometry(slot),layer=$('mitsuru-effects');
+      if(layer.children.length<12){const ball=document.createElement('span');ball.className='mitsuru-ball';ball.style.left=(g.mitsuruX+72)+'px';ball.style.top=(g.mitsuruY-30)+'px';ball.style.setProperty('--travel',(g.enemyX-g.mitsuruX-72)+'px');ball.style.setProperty('--rise',(g.enemyY-g.mitsuruY+30)+'px');layer.append(ball);deferVisual(()=>ball.remove(),1000);}
+      return 360;
+    }
+    if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');}
+    else{actor.classList.add('attacking');restartAnimation($('mitsuru-standing'),'mitsuru-strike');mitsuruAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),640);}
+    const g=targetedGeometry(slot),layer=$('mitsuru-effects');
+    if(hit!==false&&layer.children.length<12){const spark=document.createElement('span');spark.className='mitsuru-spark';spark.style.left=g.enemyX+'px';spark.style.top=g.enemyY+'px';layer.append(spark);deferVisual(()=>spark.remove(),650);}
+    return actor.classList.contains('bursting')?640:560;
+  }
+  function renderMegumin(){
+    const hired=E.isDeployed(state,'megumin'),actor=$('megumin-combatant');actor.hidden=!hired;
+    actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='megumin');
+    $('megumin-select').disabled=blocked()||!hired;$('megumin-select').setAttribute('aria-pressed',state.selectedCharacterId==='megumin');
+  }
+  function animateMeguminAttack(count=1,volley=1,slot=0,hit=true,magicLevel=0){
+    if(!E.canAct(state,'megumin')||reducedMotion.matches||document.hidden)return 0;
+    const actor=$('megumin-combatant');cancelVisual(meguminAttackTimer);
+    meguminCastMagic=Math.max(0,Math.min(6,Math.floor(magicLevel)));
+    actor.classList.add('spell-casting','attacking');actor.classList.remove('bursting');
+    for(const [i,ring]of Array.from($('megumin-charge-axis').children).entries())ring.hidden=i>=meguminCastMagic;
+    restartAnimation($('megumin-standing'),'megumin-release');
+    restartAnimation($('megumin-charge-axis'),'megumin-circles-release');
+    meguminAttackTimer=deferVisual(()=>{actor.classList.remove('spell-casting','attacking','bursting');meguminCastMagic=0;requestBattleRender();},1400);
+    return 1400;
+  }
+  function renderQueen(){
+    const hired=E.isDeployed(state,'queen'),actor=$('queen-combatant');actor.hidden=!hired;
+    actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='queen');
+    $('queen-select').disabled=blocked()||!hired;$('queen-select').setAttribute('aria-pressed',state.selectedCharacterId==='queen');
+  }
+  function animateQueenAttack(count=1,volley=1,slot=0,hit=true){
+    if(!E.canAct(state,'queen')||reducedMotion.matches||document.hidden)return 0;
+    const actor=$('queen-combatant'),now=performance.now(),burst=count>1||volley>1||now-lastQueenShot<280;
+    lastQueenShot=now;cancelVisual(queenAttackTimer);
+    if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');queenAttackTimer=deferVisual(()=>actor.classList.remove('bursting'),800);}
+    else{actor.classList.add('attacking');restartAnimation($('queen-standing'),'queen-strike');queenAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),800);}
+    return actor.classList.contains('bursting')?800:560;
   }
   function renderJewel(){
     const hired=E.isDeployed(state,'jewel'),actor=$('jewel-combatant');actor.hidden=!hired;
@@ -773,13 +815,14 @@
     actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='waku');
     $('waku-select').disabled=blocked()||!hired;$('waku-select').setAttribute('aria-pressed',state.selectedCharacterId==='waku');
   }
-  function animateWakuAttack(count=1,volleyCount=1,summarized=false,targetSlot=0){
+  function animateWakuAttack(count=1,volleyCount=1,summarized=false,targetSlot=0,motion='shoot'){
     if(!E.canAct(state,'waku')||reducedMotion.matches||document.hidden)return 0;
     const actor=$('waku-combatant'),now=performance.now(),burst=count>1||volleyCount>1||now-lastWakuShot<280;
     lastWakuShot=now;cancelVisual(wakuAttackTimer);
-    if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');}
-    else{actor.classList.add('attacking');restartAnimation($('waku-standing'),'waku-fire');wakuAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),560);}
-    const layer=$('waku-projectiles'),g=targetedGeometry(targetSlot),melee=actor.classList.contains('bursting'),groups=FX.projectileGroups(count,Math.floor((24-layer.children.length)/(melee?1:2)),summarized);
+    if(burst){actor.classList.remove('range-motion','attacking');actor.classList.add('bursting');wakuAttackTimer=deferVisual(()=>actor.classList.remove('bursting'),600);}
+    else if(motion==='stab'){actor.classList.remove('bursting','attacking');actor.classList.add('range-motion');restartAnimation($('waku-standing'),'waku-melee');wakuAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),880);}
+    else{actor.classList.remove('range-motion','bursting');actor.classList.add('attacking');restartAnimation($('waku-standing'),'waku-fire');wakuAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),560);}
+    const layer=$('waku-projectiles'),g=targetedGeometry(targetSlot),melee=motion==='stab',groups=FX.projectileGroups(count,Math.floor((24-layer.children.length)/(melee?1:2)),summarized);
     groups.forEach((amount,i)=>{const delay=110+i*45,bullet=document.createElement('span');bullet.className=melee?'waku-slash':'waku-bullet';bullet.dataset.attackCount=amount;
       bullet.style.left=(melee?g.enemyX:g.wakuX+82)+'px';bullet.style.top=(melee?g.enemyY:g.wakuY-22)+'px';bullet.style.setProperty('--travel',(g.enemyX-g.wakuX-82)+'px');bullet.style.setProperty('--rise',(g.enemyY-g.wakuY+22)+'px');bullet.style.setProperty('--launch-delay',(delay+(melee?FX.PROJECTILE_FLIGHT_MS-180:0))+'ms');bullet.style.setProperty('--slash-angle',(i%2?40:-35)+'deg');
       layer.append(bullet);deferVisual(()=>bullet.remove(),delay+FX.PROJECTILE_FLIGHT_MS+20);
@@ -817,7 +860,7 @@
     if (!state.options.showOrbits) count.visible = 0;
     orbits.hidden = !state.options.showOrbits;
     orbits.style.setProperty('--weapon-scale', E.weaponScale(state, 'richter'));
-    orbits.title = `行動力強化Lv.${format(state.actionLevels.richter)} / 浮遊数${format(count.total)}（表示${count.visible}）`;
+    orbits.title = `Lv.${format(state.levels.richter)} / 浮遊数${format(count.total)}（表示${count.visible}）`;
     const scale=E.weaponScale(state,'richter'),mobile=window.matchMedia('(max-width: 600px)').matches;
     const key=[count.visible,scale,mobile].join('|');
     if (shownBombs === key) return;
@@ -850,7 +893,7 @@
     if (!state.options.showOrbits) count.visible = 0;
     $('meta-orbits').hidden = !state.options.showOrbits;
     $('meta-orbits').style.setProperty('--weapon-scale', E.weaponScale(state, 'meta'));
-    $('meta-orbits').title = `行動力強化Lv.${format(state.actionLevels.meta)} / 浮遊数${format(count.total)}（表示${count.visible}）`;
+    $('meta-orbits').title = `Lv.${format(state.levels.meta)} / 浮遊数${format(count.total)}（表示${count.visible}）`;
     $('meta-combatant').classList.toggle('unhired', count.total === 0);
     $('meta-combatant').hidden = !E.isDeployed(state,'meta');
     $('meta-combatant').classList.toggle('is-paused', state.paused || blocked());
@@ -1046,10 +1089,11 @@
     });
     return delay;
   }
-  function animateTordelieseAttack(count,volleyCount=count,summarized=false,targetSlot=0){
+  function animateTordelieseAttack(count,volleyCount=count,summarized=false,targetSlot=0,motion='normal'){
     if(!E.canAct(state,'tordeliese')||reducedMotion.matches||document.hidden)return 0;
     const actor=$('tordeliese-combatant'),now=performance.now(),burst=volleyCount>1||count>1||now-lastTordelieseShot<280;
-    lastTordelieseShot=now;cancelVisual(tordelieseAttackTimer);
+    lastTordelieseShot=now;cancelVisual(tordelieseAttackTimer);actor.classList.remove('range-motion');
+    if(motion==='kick'){actor.classList.remove('attacking','bursting');actor.classList.add('range-motion');restartAnimation($('tordeliese-standing'),'tordeliese-melee');tordelieseAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),880);return 360;}
     if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');}
     else{actor.classList.add('attacking');restartAnimation($('tordeliese-standing'),'tordeliese-strike');tordelieseAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),800);}
     const layer=$('tordeliese-tendrils'),groups=FX.projectileGroups(count,24-layer.children.length,summarized),g=targetedGeometry(targetSlot);
@@ -1070,6 +1114,8 @@
     return last+520;
   }
   function resetCombatVisuals(resetRoll = false) {
+    for(const id of ['mitsuru','waku','tordeliese'])$(id+'-combatant').classList.remove('range-motion');
+    for(const c of D.characters)$('ally-rolls-'+c.id).replaceChildren();
     playback.reset();shownPoison.clear();pendingCloudBirths.clear();pendingEnemyDefeats.clear();
     for(const id of enemyAttackVisuals.keys())stopEnemyAttack(id);
     $('enemy-effects').replaceChildren();
@@ -1077,6 +1123,9 @@
     for (const id of visualTimers) clearTimeout(id); visualTimers.clear();
     clearTimeout(metaAttackTimer);
     $('jewel-combatant').classList.remove('attacking','bursting');lastJewelShot=-Infinity;
+    $('mitsuru-combatant').classList.remove('attacking','bursting');$('mitsuru-effects').replaceChildren();lastMitsuruShot=-Infinity;
+    $('queen-combatant').classList.remove('attacking','bursting');lastQueenShot=-Infinity;
+    $('megumin-combatant').classList.remove('attacking','bursting','spell-casting');$('megumin-effects').replaceChildren();meguminCastMagic=0;
     $('waku-combatant').classList.remove('attacking','bursting');$('waku-projectiles').replaceChildren();lastWakuShot=-Infinity;
     $('max-combatant').classList.remove('attacking','bursting');$('max-tubs').replaceChildren();lastMaxShot=-Infinity;
     $('tordeliese-combatant').classList.remove('attacking','bursting');$('tordeliese-tendrils').replaceChildren();lastTordelieseShot=-Infinity;tordelieseLashIndex=0;
@@ -1101,7 +1150,7 @@
     const target=$(frame.targetSlot?'enemy-next-'+frame.targetSlot:'enemy-art'),ghost=target.cloneNode(true);
     const position=readCombatGeometry().enemySlots[frame.targetSlot||0];ghost.style.left=position.x+'px';ghost.style.top=position.y+'px';
     const previous=enemyAppearances.get(frame.enemyId);if(previous)setEnemyAppearance(ghost,previous,'');
-    ghost.querySelector('.enemy-health')?.remove();ghost.querySelector('.enemy-target')?.remove();ghost.classList.remove('enemy-absent','focused-enemy','enemy-attacking','enemy-absorbing','cloud-emerging');ghost.hidden=false;
+    ghost.querySelector('.enemy-status')?.remove();ghost.querySelector('.enemy-health')?.remove();ghost.querySelector('.enemy-target')?.remove();ghost.classList.remove('enemy-absent','focused-enemy','enemy-attacking','enemy-absorbing','cloud-emerging');ghost.hidden=false;
     ghost.removeAttribute('id'); ghost.removeAttribute('aria-label'); ghost.setAttribute('aria-hidden', 'true');
     ghost.classList.add('enemy-defeat'); ghost.dataset.clearCount = frame.clears;
     ghost.dataset.reason = frame.knockouts === frame.clears ? 'knockout' : 'hp';
@@ -1144,13 +1193,16 @@
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate,frame.targetSlot||0) : 0;
     const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0) : 0;
     const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0):0;
-    const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0):0;
+    const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
+    const mitsuru=frame.mitsuruAttacks?animateMitsuruAttack(frame.mitsuruAttacks,frame.volleyMitsuruCount,frame.targetSlot||0,frame.hit,frame.motion):0;
+    const queen=frame.queenAttacks?animateQueenAttack(frame.queenAttacks,frame.volleyQueenCount,frame.targetSlot||0,frame.hit):0;
+    const megumin=frame.meguminAttacks?animateMeguminAttack(frame.meguminAttacks,frame.volleyMeguminCount,frame.targetSlot||0,frame.hit,frame.magicLevel):0;
     const jewel=frame.jewelAttacks?animateJewelAttack(frame.jewelAttacks,frame.volleyJewelCount):0;
-    const waku=frame.wakuAttacks?animateWakuAttack(frame.wakuAttacks,frame.volleyWakuCount,frame.approximate,frame.targetSlot||0):0;
+    const waku=frame.wakuAttacks?animateWakuAttack(frame.wakuAttacks,frame.volleyWakuCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
     const maxActions=(frame.maxAttacks||0)+(frame.maxTransfers||0);
     const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
-    return {meta,richter,vishunal,tordeliese,max,waku,jewel,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
+    return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
   }
   function showImpact(frame) {
     if(frame.summons?.length)for(const e of frame.summons)showCloudCreation(e);
@@ -1159,7 +1211,7 @@
     const impactTarget=$(frame.targetSlot?'enemy-next-'+frame.targetSlot:'enemy-art'),position=readCombatGeometry().enemySlots[frame.targetSlot||0],impactX=position.x,impactY=position.y;
     visualHitId++;
     const motion = FX.impactMotion();
-    const hitMode=state.options.hitEffects;
+    const hitMode=frame.apDamage?'off':state.options.hitEffects;
     if(frame.hit!==false&&hitMode!=='off'){
       const sparks=$('hit-effects');
       while(sparks.children.length>=32)sparks.firstElementChild.remove();
@@ -1168,20 +1220,26 @@
       spark.style.setProperty('--spark-angle',motion.recoilAngle*3+'deg');
       sparks.append(spark);deferVisual(()=>spark.remove(),320);
     }
-    if (frame.hit!==false && (hitMode==='normal'||hitMode==='translucent') && (frame.actorId === 'richter' || frame.richterAttacks || frame.actorId === 'vishunal' || frame.vishunalAttacks)) {
+    if (frame.hit!==false && (hitMode==='normal'||hitMode==='translucent') && (frame.actorId === 'richter' || frame.richterAttacks || frame.actorId === 'vishunal' || frame.vishunalAttacks || frame.actorId==='megumin'||frame.meguminAttacks)) {
       const layer = $('explosions');
       // Keep each ordinary impact independent, including overflow targets.
       // At extreme rates bound the number of lingering smoke animations.
       while (layer.children.length >= FX.MAX_STEPS) layer.firstElementChild.remove();
       const blast = document.createElement('span'); blast.className = `richter-explosion${frame.continuation ? ' chain-explosion' : ''}`;
+      const isMegumin=frame.actorId==='megumin'||frame.meguminAttacks;
+      if(isMegumin){
+        blast.className='megumin-explosion';blast.dataset.magicLevel=String(frame.magicLevel||0);
+        blast.style.setProperty('--explosion-size',FX.meguminExplosionSize(frame.magicLevel)+'px');
+      }
       blast.dataset.impactId = visualHitId;blast.style.left=impactX+'px';blast.style.top=impactY+'px';
+      if(isMegumin)blast.style.top=FX.meguminExplosionY(impactY,impactTarget.offsetHeight)+'px';
       blast.style.marginLeft = `${motion.x}px`; blast.style.marginTop = `${motion.y}px`;
-      const fireball = document.createElement('span'); fireball.className = 'blast-fireball pixel-art';
-      const sparks = document.createElement('span'); sparks.className = 'blast-sparks';
+      const fireball = document.createElement('span'); fireball.className = isMegumin?'megumin-fireball pixel-art':'blast-fireball pixel-art';
+      const sparks = document.createElement('span'); sparks.className = isMegumin?'megumin-shockwave':'blast-sparks';
       blast.append(fireball, sparks);
-      layer.append(blast); deferVisual(() => blast.remove(), RICHTER_EXPLOSION_MS);
+      layer.append(blast); deferVisual(() => blast.remove(), isMegumin?1600:RICHTER_EXPLOSION_MS);
     }
-    if (Number.isFinite(frame.frontHP)) displayedHP=frame.frontHP;else if(!frame.targetSlot&&Number.isFinite(frame.hpAfter))displayedHP=frame.hpAfter;
+    if (!frame.apDamage&&Number.isFinite(frame.frontHP)) displayedHP=frame.frontHP;else if(!frame.apDamage&&!frame.targetSlot&&Number.isFinite(frame.hpAfter))displayedHP=frame.hpAfter;
     const details=[];
     if(state.options.showDamageNumbers&&!frame.poisonTick){if(frame.doubleHit)details.push('倍差命中');if(frame.smashCritical)details.push('スマッシュクリティカル'+(frame.smashCritical>1?' ×'+frame.smashCritical:''));}
     if(frame.continuation&&state.options.showOverflowLabels)details.push('全体攻撃');
@@ -1192,7 +1250,7 @@
       if(frame.poisonTick)floating.classList.add('poison-damage');
       floating.style.left=impactX+'px';floating.style.top=impactY+'px';floating.dataset.attackCount = frame.count;
       floating.dataset.impactId = visualHitId;
-      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':`${frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}`;
+      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':`${frame.apDamage?'AP −':frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}`;
       floating.style.marginLeft = `${motion.x}px`; floating.style.marginTop = `${motion.y-(frame.poisonTick?84:0)}px`;
       floating.style.setProperty('--float-drift', `${motion.driftX}px`);
       floating.style.setProperty('--float-rise', `${-motion.floatRise}px`);
@@ -1205,7 +1263,7 @@
       $('damage-floats').append(floating);
       deferVisual(() => floating.remove(), 850);
     }
-    $('last-roll').textContent = `${frame.actor} / ${frame.hit===false?'MISS':format(frame.damage)+' DMG'}${frame.continuation ? '・全体攻撃' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
+    $('last-roll').textContent = `${frame.actor} / ${frame.hit===false?'MISS':format(frame.damage)+(frame.apDamage?' AP減少':' DMG')}${frame.continuation ? '・全体攻撃' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
     cancelVisual(hitTimers.get(impactTarget));hitTimers.delete(impactTarget);impactTarget.classList.remove('enemy-hit');
     if (frame.hit!==false&&!frame.clears) {
       const target = impactTarget;
@@ -1225,33 +1283,48 @@
     }
     requestBattleRender();
   }
+  function showRunawayResult(event, result) {
+    if (!result || document.hidden || !E.isDeployed(state,event.actorId)) return;
+    const layer=$('ally-rolls-'+event.actorId), node=document.createElement('span');
+    // Bound catch-up bursts; each displayed result is taken from the engine event.
+    while(layer.children.length>=3)layer.firstElementChild.remove();
+    node.className='runaway-result'+(reducedMotion.matches?' reduced-motion':'');
+    node.textContent='暴走：'+result;
+    node.style.setProperty('--roll-slot',String(layer.children.length));
+    layer.append(node);deferVisual(()=>node.remove(),1800);
+  }
   function showEvents(events, automatic = false) {
+    if(state.viewingMemories)return;
     const otherClears=events.filter(e=>e.type==='clear'&&e.sessionId&&e.sessionId!==state.sessionId);
-    if(otherClears.length)log('別セッションで '+UI.fullNumber(otherClears.reduce((n,e)=>n+(e.count||1),0))+'周。因子 +'+money(otherClears.reduce((n,e)=>n+e.reward,0))+'Rd');
+    if(otherClears.length)log('別セッションで '+fullNumber(otherClears.reduce((n,e)=>n+(e.count||1),0))+'周。因子 +'+money(otherClears.reduce((n,e)=>n+e.reward,0))+'Rd');
     events=events.filter(e=>!e.sessionId||e.sessionId===state.sessionId);
     if(!document.hidden&&!reducedMotion.matches)for(const event of events)if(event.type==='clear'||event.type==='enemyRemoved')pendingEnemyDefeats.add(event.enemyId);
     for(const event of events){
-      if(event.type==='enemyWindup')startEnemyAttack(event);
+      if(event.type==='queenIntercept'){animateQueenAttack(1,1,event.targetSlot,event.hit);if(event.hit)log('クイーン：「この無礼者」 — 攻撃を中断させた');}
+      else if(event.type==='enemyWindup')startEnemyAttack(event);
       else if(event.type==='enemyAttack')showEnemyAttack(event);
       else if(event.type==='enemyAbsorb')showCloudAbsorb(event);
       else if(event.type==='enemySummon'){if(event.created&&!document.hidden&&!reducedMotion.matches)pendingCloudBirths.add(event.enemyId);}
       else if(event.type==='enemyRemoved')renderEnemy(E.getSession(state));
       else if(event.type==='runawayDamage')showEnemyAttack({...event,hit:true,mental:true});
       else if(event.type==='runawayThreshold')log(D.characters.find(c=>c.id===event.actorId).name+'：暴走率'+event.threshold+'%');
-      else if(event.type==='runawaySymptom')log(D.characters.find(c=>c.id===event.actorId).name+'：'+symptomName(event.symptom));
+      else if(event.type==='runawaySymptom'){showRunawayResult(event,symptomName(event.symptom));log(D.characters.find(c=>c.id===event.actorId).name+'：'+symptomName(event.symptom));}
+      else if(event.type==='runawayRoll')showRunawayResult(event,{selfDamage:'自傷',rise:'高揚',chain:'連鎖',control:'自制',misfire:'暴発',criticalRecovery:'臨界回復'}[event.outcome]);
       else if(event.type==='perkIncome')log(event.perk+'：因子 +'+money(event.amount)+'Rd');
       else if(event.type==='enemyCancel')stopEnemyAttack(event.enemyId);
       else if(event.type==='enemyRespawn')renderEnemy(E.getSession(state));
     }
     for(const event of events)if(event.type==='attack'&&event.poisonBefore!==undefined&&!shownPoison.has(event.enemyId))shownPoison.set(event.enemyId,event.poisonBefore);
     const attacks = events.filter(e => e.type === 'attack'), clears = events.filter(e => e.type === 'clear');
-    if ((attacks.length || events.some(e=>e.type==='support')) && !document.hidden && !reducedMotion.matches) playback.enqueue(events,{sustainedActors:automatic ? ['meta','richter','vishunal','tordeliese','max','waku','jewel'].filter(continuousBurst) : []});
+    if ((attacks.length || events.some(e=>e.type==='support')) && !document.hidden && !reducedMotion.matches) playback.enqueue(events,{sustainedActors:automatic ? ['meta','richter','vishunal','tordeliese','max','waku','jewel','mitsuru','queen','megumin'].filter(continuousBurst) : []});
     else if (attacks.length) {
       const last = attacks[attacks.length - 1];
       const totalAttacks = attacks.reduce((sum, e) => sum + (e.count || 1), 0);
-      const totalDamage = attacks.reduce((sum, e) => sum + e.damage, 0);
+      const totalDamage = attacks.reduce((sum, e) => sum + (e.apDamage?0:e.damage), 0);
+      const totalAP = attacks.reduce((sum, e) => sum + (e.apDamage?e.damage:0), 0);
+      const results = [attacks.some(e=>!e.apDamage)?`${format(totalDamage)} DMG`:null,attacks.some(e=>e.apDamage)?`${format(totalAP)} AP減少`:null].filter(Boolean).join(' / ');
       const actor = new Set(attacks.map(e => e.actor)).size === 1 ? last.actor : 'パーティ';
-      $('last-roll').textContent = `${actor} / ${format(totalDamage)} DMG${totalAttacks > 1 ? `・${format(totalAttacks)}回` : ''}`;
+      $('last-roll').textContent = `${actor} / ${results}${totalAttacks > 1 ? `・${format(totalAttacks)}回` : ''}`;
     }
     if (clears.length) {
       if(document.hidden||reducedMotion.matches)renderEnemy(E.getSession(state),clears.reduce((n,e)=>n+(e.count||1),0));
@@ -1260,14 +1333,27 @@
       log(`${E.getSession(state).name} クリア${count > 1 ? ` ×${format(count)}` : ''}${knockouts ? `（気絶 ${format(knockouts)}回）` : ''}。因子 +${money(clears.reduce((n, e) => n + e.reward, 0))}Rd`);
     }
   }
+  function startNextRun(){
+    if(blocked()||abilityEdit)return false;
+    const next=E.nextRun(state,Date.now());if(!next)return false;
+    // Persist the complete replacement before releasing the previous in-memory run.
+    const result=storage?S.persist(storage,next):{ok:false,error:'保存できないため周回を開始できません。'};
+    if(!result.ok){notice(result.error,true);return false;}
+    state=next;lastTime=lastSave=Date.now();storageError=false;
+    questInputDrafts.clear();formationQuestId=null;formationDraft=[];revivalTarget=null;enemyInfoQuestId=null;
+    controlsKey='';battleRender=null;orbitLayoutKey='';inspectedCharacter='meta';
+    $('activity-log').replaceChildren();resetCombatVisuals(true);
+    switchManager('characters');inspectCharacter('meta');render();
+    setText('save-status','保存済み');log('第'+state.runNumber+'周を開始しました。');return true;
+  }
   function sync() {
     const now = Date.now();
-    if (!blocked()&&!abilityEdit) {
+    if (!blocked()&&!abilityEdit&&!sceneView.transitioning) {
       const elapsed = Math.max(0, (now - lastTime) / 1000);
       if (elapsed > 5) {
         const before = state.factors, oldKills = state.kills;
         E.advance(state, elapsed, Math.random, false);
-        if (state.kills > oldKills) log(`離席中に${UI.fullNumber(state.kills - oldKills)}周。因子 +${money(state.factors - before)}Rd`);
+        if (state.kills > oldKills) log(`離席中に${fullNumber(state.kills - oldKills)}周。因子 +${money(state.factors - before)}Rd`);
       } else showEvents(E.advance(state, elapsed), true);
       state.savedAt = now;
     }
@@ -1281,7 +1367,8 @@
     lastSave = Date.now();
     storageError = !result.ok;
     $('save-status').textContent = result.ok ? `保存済み ${new Date(lastSave).toLocaleTimeString('ja-JP')}` : '自動保存不可 · 書き出しで保存してください';
-    if (!result.ok) notice(result.error, true);
+    if (!result.ok) {saveErrorMessage=result.error;notice(result.error,true);}
+    else {if(saveErrorMessage&&$('notice').textContent===saveErrorMessage)notice('自動保存が復旧しました。');saveErrorMessage='';}
     return result.ok;
   }
   function exportText() { sync(); return S.encode(state); }
@@ -1291,7 +1378,7 @@
     try {
       const parsed = S.decode(text);
       importCandidate = parsed;
-      $('import-summary').textContent = `所持因子 ${money(parsed.factors)}Rd / 累計クリア ${UI.fullNumber(parsed.kills)}\n参加 ${D.characters.filter(c => parsed.levels[c.id]).length}人 / ${E.getSession(parsed).name}\n保存日時 ${new Date(parsed.savedAt).toLocaleString('ja-JP')}\n読み込むと現在の進行を置き換えます。`;
+      $('import-summary').textContent = `所持因子 ${money(parsed.factors)}Rd / 累計クリア ${fullNumber(parsed.kills)}\n参加 ${D.characters.filter(c => parsed.levels[c.id]).length}人 / ${E.getSession(parsed).name}\n保存日時 ${new Date(parsed.savedAt).toLocaleString('ja-JP')}\n読み込むと現在の進行を置き換えます。`;
       $('import-preview').hidden = false;
       message('形式を確認しました。内容を確認してから読み込んでください。');
     } catch (error) { message(error.message, true); }
@@ -1314,9 +1401,9 @@
       $('card-'+c.id).hidden=!selected;
     }
   }
-  function bindTabs(ids, prefix, activate) {
+  function bindTabs(ids, prefix, activate, clickActivate=activate) {
     ids.forEach((id,index)=>{
-      $(prefix+id).addEventListener('click',()=>activate(id));
+      $(prefix+id).addEventListener('click',()=>clickActivate(id));
       $(prefix+id).addEventListener('keydown',event=>{
         let next=event.key==='ArrowRight'?(index+1)%ids.length:event.key==='ArrowLeft'?(index+ids.length-1)%ids.length:event.key==='Home'?0:event.key==='End'?ids.length-1:null;
         if(next===null)return;
@@ -1324,35 +1411,19 @@
       });
     });
   }
-  function concentrationControls(q){
-    return '<section class="concentration-panel" aria-label="'+q.name+'のコンセントレイション"><div class="concentration-heading"><h4>コンセントレイション</h4><strong id="concentration-total-'+q.id+'"></strong></div><p class="quest-note">部隊専用・合計10点まで。再配分は無料です。</p>'+D.concentration.map(c=>'<div class="concentration-row"><label for="concentration-'+q.id+'-'+c.id+'">'+c.name+'<small>'+c.effect+'</small></label><button type="button" data-concentration="'+q.id+'" data-stat="'+c.id+'" data-step="-1" aria-label="'+q.name+'の'+c.name+'配分を減らす">−</button><input id="concentration-'+q.id+'-'+c.id+'" type="range" min="0" max="'+c.max+'" step="1" data-concentration="'+q.id+'" data-stat="'+c.id+'"><output id="concentration-value-'+q.id+'-'+c.id+'" for="concentration-'+q.id+'-'+c.id+'"></output><button type="button" data-concentration="'+q.id+'" data-stat="'+c.id+'" data-step="1" aria-label="'+q.name+'の'+c.name+'配分を増やす">＋</button></div>').join('')+'</section>';
-  }
   function renderEnemyInfo(ctx,node){
     const F=window.YggMatchup,q=E.getSession(ctx),forecast=F.party(ctx),attack=E.enemyAttackSpec(forecast.state);
-    const strength=UI.fullNumber(E.T.value(q.strengthLevel)),action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
-    const rowsOfStats=[['action','基礎行動力',rollText(action),'行動力',UI.fullNumber(F.expectedRoll({...action,multiplier:q.actionMultiplier},false))],['accuracy','命中力',rollText(q.attackType==='mental'?q.ss:q.accuracy)+(q.attackType==='mental'?'（SS）':''),'命中強度',strength],['evasion','回避力',rollText(q.evasion)+' / SS '+rollText(q.ss),'回避強度',strength],['power','攻撃力',rollText(attack),'攻撃強度',strength],['vitality','基礎HP',UI.fullNumber(D.sessions.find(s=>s.id===q.id).hp),'最大HP',UI.fullNumber(q.hp)],['armor','防御 / 抵抗',UI.fullNumber(q.defense)+' / '+UI.fullNumber(q.resistance),'防御強度',strength]];
-    const stats='<div class="enemy-ability-rows">'+rowsOfStats.map(([id,label,base,trained,value])=>'<section class="ability-row ability-'+id+'"><div class="ability-base"><span>'+label+'</span><strong>'+base+'</strong></div><div class="ability-main"><div class="ability-label"><span>'+trained+'</span></div><strong>'+value+'</strong></div></section>').join('')+'</div>';
+    const strength=kind=>incomeNumber(window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength)),action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
+    const bases={action:rollText(action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
+    const stats='<div class="enemy-ability-rows">'+window.YggAbilityView.rows({
+      enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+'</small>':''),
+      valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength)):strength(t.id))+'</strong>',
+      hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'
+    })+'</div>';
     const percent=v=>(v*100).toFixed(1)+'%',finite=v=>Number.isFinite(v)?'約'+rateFormat(v)+'回':'—';
-    const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">約'+percent(r.hitRate)+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+rateFormat(r.averageDamage)+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':finite(r.endurance))+'</td></tr>').join('');
+    const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">'+(r.reachable?'約'+percent(r.hitRate):'射程外')+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+(r.apAttack?'AP −'+rateFormat(r.averageAPDamage):rateFormat(r.averageDamage))+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':!r.enemyReachable?'敵の射程外':finite(r.endurance))+'</td></tr>').join('');
     const html='<div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
     if(node.innerHTML!==html)node.innerHTML=html;
-  }
-  function renderConcentration(){
-    for(const q of D.sessions){
-      const values=formationQuestId===q.id&&concentrationDraft?concentrationDraft:E.concentration(state,q.id),used=Object.values(values).reduce((n,v)=>n+v,0);
-      setText('concentration-total-'+q.id,used+' / 10点');
-      for(const c of D.concentration){
-        const input=$('concentration-'+q.id+'-'+c.id);input.value=values[c.id];input.disabled=blocked()||!E.isQuestUnlocked(state,q.id);input.setAttribute('aria-valuetext',values[c.id]+'点、残り'+(10-used)+'点');
-        setText('concentration-value-'+q.id+'-'+c.id,values[c.id]);
-        for(const step of [-1,1]){const button=document.querySelector('[data-concentration="'+q.id+'"][data-stat="'+c.id+'"][data-step="'+step+'"]');button.disabled=blocked()||!E.isQuestUnlocked(state,q.id)||(step<0?values[c.id]===0:values[c.id]>=c.max||used>=10);}
-      }
-    }
-  }
-  function changeConcentration(q,stat,value){
-    if(blocked()||!E.isQuestUnlocked(state,q)||!D.concentration.some(c=>c.id===stat))return;sync();
-    const values={...(formationQuestId===q&&concentrationDraft?concentrationDraft:E.concentration(state,q))},others=Object.entries(values).reduce((n,[k,v])=>n+(k===stat?0:v),0),spec=D.concentration.find(c=>c.id===stat);
-    values[stat]=Math.max(0,Math.min(spec.max,10-others,Math.floor(value)));
-    if(formationQuestId===q&&concentrationDraft){concentrationDraft=values;renderConcentration();renderFormationDraft();}
   }
   function renderFormationDraft(){
     const quest=E.getSession(state,formationQuestId);if(!quest)return;
@@ -1361,34 +1432,41 @@
     const hired=charactersByHireCost.filter(c=>state.levels[c.id]>0);
     $('formation-members').innerHTML=hired.map(c=>{
       const selected=formationDraft.includes(c.id),owner=E.formationOwner(state,c.id),elsewhere=owner&&owner!==formationQuestId;
-      const label=selected?(elsewhere?'移籍予定 − 外す':'編成中 − 外す'):elsewhere?E.getSession(state,owner).name+'から移籍 ＋':'控え ＋ 加える';
-      return '<button type="button" class="formation-member" data-formation-member="'+c.id+'" aria-pressed="'+selected+'" '+(E.runawayOf(state,c.id).runawayCollapsed||!selected&&formationDraft.length>=E.MAX_PARTY_SIZE?'disabled':'')+'><span>'+c.name+'</span><small>'+label+'</small></button>';
+      const label=selected?(elsewhere?'移籍予定':'編成中'):elsewhere?E.getSession(state,owner).name+'に所属':'控え';
+      const full=!selected&&formationDraft.length>=E.MAX_PARTY_SIZE;
+      return '<div class="formation-entry" data-formation-entry="'+c.id+'"><button type="button" class="formation-member" data-formation-member="'+c.id+'" aria-pressed="'+selected+'" '+(full?'disabled':'')+'><span>'+c.name+'</span><small>'+label+(E.runawayOf(state,c.id).runawayCollapsed?' · 暴走ダウン':'')+'</small></button><div class="formation-row-choice" role="group" aria-label="'+c.name+'の配置">'+['front','rear'].map(row=>'<button type="button" data-formation-row="'+row+'" data-formation-character="'+c.id+'" aria-pressed="'+(selected&&(formationRowsDraft[c.id]||'front')===row)+'" '+(full?'disabled':'')+'>'+(row==='front'?'前衛':'後衛')+'</button>').join('')+'</div><small class="formation-range">基本射程 '+rangeText(c.attackRange)+'</small>'+(selected?'<button type="button" class="formation-remove" data-formation-remove="'+c.id+'" aria-label="'+c.name+'を部隊から外す">外す</button>':'')+'</div>';
     }).join('');
     $('formation-empty').hidden=hired.length>0;
     const ctx=E.battleContext(state,formationQuestId);
-    const draft={...ctx,concentration:{...state.concentration,[formationQuestId]:concentrationDraft||E.concentration(state,formationQuestId)},formations:Object.fromEntries(D.sessions.map(q=>[q.id,q.id===formationQuestId?formationDraft:E.formationIds(state,q.id).filter(id=>!formationDraft.includes(id))])),selectedCharacterId:formationDraft.includes(ctx.selectedCharacterId)?ctx.selectedCharacterId:null};
+    const draft={...ctx,formationRows:formationRowsDraft,formations:Object.fromEntries(D.sessions.map(q=>[q.id,q.id===formationQuestId?formationDraft:E.formationIds(state,q.id).filter(id=>!formationDraft.includes(id))])),selectedCharacterId:formationDraft.includes(ctx.selectedCharacterId)?ctx.selectedCharacterId:null};
     renderEnemyInfo(draft,$('formation-enemy-info'));
-    setText('formation-preview','編成時のDPS '+rateFormat(E.dps(draft))+' ／ 因子 約'+UI.incomeNumber(E.expectedIncome(draft).factorsPerSecond)+'Rd/秒');
+    setText('formation-preview','編成時のDPS '+rateFormat(E.dps(draft))+' ／ 因子 約'+incomeNumber(E.expectedIncome(draft).factorsPerSecond)+'Rd/秒');
   }
   function openFormation(id){
     if(blocked()||!D.sessions.some(q=>q.id===id))return;
-    formationQuestId=id;formationDraft=[...E.formationIds(state,id)];concentrationDraft={...E.concentration(state,id)};for(const q of D.sessions)$('formation-concentration-'+q.id).hidden=q.id!==id;renderConcentration();renderFormationDraft();$('formation-dialog').showModal();
+    formationQuestId=id;formationDraft=[...E.formationIds(state,id)];formationRowsDraft={...state.formationRows};renderFormationDraft();$('formation-dialog').showModal();
   }
   function applySuppression(id=null){
     if(blocked()||abilityEdit)return;sync();
     if(E.suppressRunaway(state,id)){log(id?D.characters.find(c=>c.id===id).name+'の暴走率を抑制しました。':'部隊全体の暴走率を抑制しました。');save();controlsKey='';render();}
     else notice('抑制対象がいないか、因子が不足しています。');
   }
+  function chooseQuest(id){
+    if(blocked())return;
+    sync();
+    const changed=id==='memories'?E.selectMemories(state):E.selectSession(state,id);
+    if(changed){resetCombatVisuals(true);save();render();}
+  }
   function bind() {
     $('character-picker').addEventListener('click',event=>{const button=event.target.closest('[data-suppress]');if(button&&!button.disabled)applySuppression(button.dataset.suppress);});
     $('suppress-all').addEventListener('click',()=>applySuppression());
-    $('quest-list').addEventListener('input',event=>{const input=event.target;if(input.id?.startsWith('quest-active-'))questInputDrafts.set(input.id.slice('quest-active-'.length),input.value);});
+    $('quest-list').addEventListener('input',event=>{const input=event.target;if(input.id?.startsWith('quest-active-')){const id=input.id.slice('quest-active-'.length);questInputDrafts.set(id,input.value);questView.renderPreview(state,id);}});
     $('enemy-info-close').addEventListener('click',()=>$('enemy-info-dialog').close());
     $('enemy-info-dialog').addEventListener('close',()=>{enemyInfoQuestId=null;});
     for(const c of D.characters){const dialog=$('ability-dialog-'+c.id);dialog.addEventListener('cancel',event=>{event.preventDefault?.();finishAbility(false);});dialog.addEventListener('close',()=>{if(abilityEdit?.id===c.id)finishAbility(false);});}
     switchManager(managerTab);inspectCharacter(inspectedCharacter);
     bindTabs(managerTabs,'tab-',switchManager);
-    bindTabs(charactersByHireCost.map(c=>c.id),'inspect-',id=>inspectCharacter(id));
+    bindTabs(charactersByHireCost.map(c=>c.id),'inspect-',id=>inspectCharacter(id),id=>{if(id===inspectedCharacter&&state.levels[id]>0&&!blocked())openAbility(id);else inspectCharacter(id);});
     for(const [id,key] of Object.entries(displayControls))$(id).addEventListener('change',()=>{
       if(blocked())return;
       const value=key==='hitEffects'?$(id).value:$(id).checked;
@@ -1401,6 +1479,7 @@
       if(key==='showDefeatLabels'&&!value)for(const node of Array.from($('enemy-defeats').children))if(node.classList.contains('defeat-label'))node.remove();
       save();render();
     });
+
     $('option-save').addEventListener('click',()=>$('save-dialog').showModal());
     $('option-help').addEventListener('click',()=>$('help-dialog').showModal());
     window.addEventListener('resize', () => { combatGeometry = null; renderOrbitSpacing($('arena-viewport').clientWidth); });
@@ -1416,15 +1495,10 @@
       if (blocked()) return;
       sync();
       if(id&&E.healthOf(state,id).status!=='active'){openRevivalDialog(id);return;}
+      if(id&&E.runawayOf(state,id).runawayCollapsed){notice('暴走ダウン中です。暴走率100%未満で復帰します。');return;}
       if (E.selectCharacter(state, id)) { save(); render(); }
     };
-    $('meta-select').addEventListener('click', () => chooseCharacter('meta'));
-    $('richter-select').addEventListener('click', () => chooseCharacter('richter'));
-    $('jewel-select').addEventListener('click',()=>chooseCharacter('jewel'));
-    $('waku-select').addEventListener('click', () => chooseCharacter('waku'));
-    $('vishunal-select').addEventListener('click', () => chooseCharacter('vishunal'));
-    $('max-select').addEventListener('click',()=>chooseCharacter('max'));
-    $('tordeliese-select').addEventListener('click', () => chooseCharacter('tordeliese'));
+    for(const c of D.characters)$(c.id+'-select').addEventListener('click',()=>chooseCharacter(c.id));
     $('select-self').addEventListener('click', () => chooseCharacter(null));
     $('character-list').addEventListener('click', event => {
       const close=event.target.closest('[data-ability-close]');if(close){finishAbility(false);return;}
@@ -1434,9 +1508,11 @@
         if(!state.levels[id]){if(E.hire(state,id)){save();render();}}else openAbility(id);return;
       }
       if(adjustTraining(event))return;
-      const stat=event.target.closest('[data-stat]');if(stat){
-        if(blocked()||stat.disabled)return;sync();if(E.buyStat(state,stat.dataset.statCharacter,stat.dataset.stat)){save();render();}return;
-      }
+      const focus=event.target.closest('[data-focus]');if(focus){if(!focus.disabled)changeFocus(focus.dataset.focus,focus.dataset.focusStat,E.concentration(state,focus.dataset.focus)[focus.dataset.focusStat]+Number(focus.dataset.step));return;}
+      const reset=event.target.closest('[data-focus-reset]');if(reset&&abilityEdit?.id===reset.dataset.focusReset){if(reset.disabled)return;
+        if(!abilityEdit.focusReset&&Object.values(E.concentration(abilityEdit.original,abilityEdit.id)).some(n=>n>0)){if(!E.resetConcentration(state,abilityEdit.id))return;abilityEdit.focusReset=true;}
+        else E.setConcentration(state,abilityEdit.id,Object.fromEntries(D.concentration.map(t=>[t.id,0])));
+        state.health[abilityEdit.id]=structuredClone(abilityEdit.original.health[abilityEdit.id]);E.clampHealth(state,abilityEdit.id);abilityEdit.cache.clear();controlsKey='';render();return;}
       const revive=event.target.closest('[data-revive]');
       if(revive?.dataset.revive){if(revive.disabled||blocked())return;sync();openRevivalDialog(revive.dataset.revive);return;}
       if(handleTrade(event))return;
@@ -1454,20 +1530,15 @@
       }
       const selectButton = event.target.closest('[data-select-character]');
       if (selectButton) { if (!selectButton.disabled) chooseCharacter(selectButton.dataset.selectCharacter); return; }
-      const button = event.target.closest('[data-hire], [data-action]');
+      const button = event.target.closest('[data-hire]');
       if (!button) return;
       if (!button || blocked()) return;
       sync();
-      if (button.dataset.action) {
-        const c = D.characters.find(c => c.id === button.dataset.action);
-        if (E.buyAction(state, c.id)) { for(const p of E.perks(state,c))if(p.levelType==='action'&&p.level===state.actionLevels[c.id])notice(`${c.name}：特性【${p.name}】が解放されました。`); log(`${c.name}の行動力を${rateFormat(E.actionPower(state, c))}に強化。`); save(); render(); }
-        return;
-      }
       if (E.hire(state, button.dataset.hire)) {
         const c = D.characters.find(c => c.id === button.dataset.hire);
-        log(`${c.name} ${state.levels[c.id] === 1 ? 'が参加しました。' : `の威力をLv.${state.levels[c.id]}に強化。`}`);
-        for (const p of c.perks || []) if (p.levelType!=='action' && p.level === state.levels[c.id]) {
-          const text = `${c.name}：特性【${p.name}】が解放されました。因子${money(p.cost)}Rdで解放できます。`;
+        log(`${c.name} ${state.levels[c.id] === 1 ? 'が参加しました。' : `のレベルをLv.${state.levels[c.id]}に強化。`}`);
+        for (const p of c.perks || []) if (p.level === state.levels[c.id]) {
+          const text = `${c.name}：特性【${p.name}】が解放されました。能力・パーク画面でONにできます。`;
           log(text); notice(text);
         }
         save(); render();
@@ -1481,28 +1552,32 @@
       if (E.buyUpgrade(state, button.dataset.upgrade)) { log(`${D.upgrades.find(u => u.id === button.dataset.upgrade).name}を強化。`); save(); render(); }
     });
     $('formation-members').addEventListener('click',event=>{
-      const button=event.target.closest('[data-formation-member]');if(!button||button.disabled||blocked())return;
-      const id=button.dataset.formationMember;
-      if(!D.characters.some(c=>c.id===id&&state.levels[id]>0))return;
-      if(formationDraft.includes(id))formationDraft=formationDraft.filter(x=>x!==id);
-      else if(formationDraft.length<E.MAX_PARTY_SIZE&&!E.runawayOf(state,id).runawayCollapsed)formationDraft.push(id);
+      if(blocked())return;
+      const remove=event.target.closest('[data-formation-remove]');
+      if(remove){formationDraft=formationDraft.filter(id=>id!==remove.dataset.formationRemove);renderFormationDraft();return;}
+      const row=event.target.closest('[data-formation-row]'),entry=event.target.closest('[data-formation-entry]');
+      const id=row?.dataset.formationCharacter||entry?.dataset.formationEntry;
+      if(!id||!D.characters.some(c=>c.id===id&&state.levels[id]>0)||row?.disabled)return;
+      const selected=formationDraft.includes(id);
+      if(!selected){if(formationDraft.length>=E.MAX_PARTY_SIZE)return;formationDraft.push(id);}
+      if(row)formationRowsDraft[id]=row.dataset.formationRow;
+      else if(selected){openAbility(id);return;}
       renderFormationDraft();
     });
     for(const id of ['formation-close','formation-cancel'])$(id).addEventListener('click',()=>$('formation-dialog').close());
     $('formation-save').addEventListener('click',()=>{
       if(blocked())return;sync();
-      if(E.setFormation(state,formationQuestId,formationDraft)){
-        E.setConcentration(state,formationQuestId,concentrationDraft);concentrationDraft=null;
+      if(E.setFormation(state,formationQuestId,formationDraft,formationRowsDraft)){
         resetCombatVisuals(true);
         save();render();$('formation-dialog').close();notice(E.getSession(state,formationQuestId).name+'の部隊編成を保存しました。');
       }
     });
-    $('formation-dialog').addEventListener('input',event=>{
-      const input=event.target;if(input.dataset.concentration&&input.type==='range')changeConcentration(input.dataset.concentration,input.dataset.stat,Number(input.value));
-    });
-    $('formation-dialog').addEventListener('close',()=>{concentrationDraft=null;formationQuestId=null;});
-    $('formation-dialog').addEventListener('click',event=>{const b=event.target.closest('[data-step][data-concentration]');if(b&&!b.disabled)changeConcentration(b.dataset.concentration,b.dataset.stat,concentrationDraft[b.dataset.stat]+Number(b.dataset.step));});
+    $('formation-dialog').addEventListener('close',()=>{formationQuestId=null;});
+    $('character-list').addEventListener('input',event=>{const input=event.target;if(input.dataset.focusInput&&input.value!=='')changeFocus(input.dataset.focusInput,input.dataset.focusStat,Number(input.value));});
+    $('character-list').addEventListener('change',event=>{const input=event.target;if(input.dataset.focusInput){changeFocus(input.dataset.focusInput,input.dataset.focusStat,Number(input.value));input.value=E.concentration(state,input.dataset.focusInput)[input.dataset.focusStat];}});
+    $('quest-list').addEventListener('keydown',event=>{const id=window.YggQuestView.cardSelection(event);if(id)chooseQuest(id);});
     $('quest-list').addEventListener('click',event=>{
+      const memories=event.target.closest('[data-memories]');if(memories){if(!memories.disabled)chooseQuest('memories');return;}
       const info=event.target.closest('[data-enemy-info]');
       if(info&&!info.disabled){enemyInfoQuestId=info.dataset.enemyInfo;const ctx=E.battleContext(state,enemyInfoQuestId);setText('enemy-info-quest',E.getSession(ctx).name);renderEnemyInfo(ctx,$('enemy-info-content'));if(!$('enemy-info-dialog').open)$('enemy-info-dialog').showModal();return;}
       const details=event.target.closest('[data-quest-details]');
@@ -1523,19 +1598,16 @@
       if(formation?.dataset.formationOpen){openFormation(formation.dataset.formationOpen);return;}
       if(handleTrade(event))return;
       const choose=event.target.closest('[data-session]');
-      if(choose&&choose.dataset.session){
-        if(choose.disabled||blocked())return;
-        sync();
-        if(E.selectSession(state,choose.dataset.session)){resetCombatVisuals(true);log(E.getSession(state).name+'の戦闘を表示。ほかの部隊も進行を続けます。');save();render();}
-        return;
-      }
+      if(choose){if(!choose.disabled)chooseQuest(choose.dataset.session);return;}
+      const cardId=window.YggQuestView.cardSelection(event);
+      if(cardId){chooseQuest(cardId);return;}
       const button=event.target.closest('[data-quest]');
       if(!button||button.disabled||blocked())return;
       sync();
       if(E.buyQuest(state,button.dataset.quest)){
         if(state.sessionId===button.dataset.quest)resetCombatVisuals();
         const quest=E.getSession(state,button.dataset.quest);
-        log(`${quest.name}をLv.${UI.fullNumber(quest.level)}に強化。`);
+        log(`${quest.name}をLv.${fullNumber(quest.level)}に強化。`);
         save();render();
       }
     });
@@ -1612,7 +1684,7 @@
       $('import-preview').hidden = true;
       message(persisted ? 'セーブを読み込みました。移動先でも続きから遊べます。' : '読み込みました。ブラウザに保存できないため、終了前に書き出してください。', !persisted);
       if (persisted) notice('セーブを引き継ぎました。');
-      log(`セーブを読み込みました。${result.kills ? `離席中に${UI.fullNumber(result.kills)}周。` : ''}`);
+      log(`セーブを読み込みました。${result.kills ? `離席中に${fullNumber(result.kills)}周。` : ''}`);
     });
     $('restore-import').addEventListener('click', () => {
       let backup = importBackup;
@@ -1620,7 +1692,7 @@
       if (!backup) { message('読み込み前のバックアップはまだありません。'); return; }
       $('save-text').value = backup; preview(backup);
     });
-    document.addEventListener('visibilitychange', () => { enemyMotionState(); if (document.hidden) { save(); resetCombatVisuals(); } else { sync(); render(); } });
+    document.addEventListener('visibilitychange', () => { sceneView.setMotionPaused(document.hidden); enemyMotionState(); if (document.hidden) { save(); resetCombatVisuals(); } else { sync(); render(); } });
     reducedMotion.addEventListener('change', () => { resetCombatVisuals(); enemyMotionState(); render(); });
     window.addEventListener('pagehide', save);
     window.addEventListener('storage', event => {
@@ -1641,7 +1713,7 @@
     else if (loaded.warning) notice(loaded.warning, !!(loaded.blocked || loaded.unavailable));
     if (!blocked()) {
       const report = E.catchUp(state);
-      if (report.kills) { log(`離席中に${UI.fullNumber(report.kills)}周。因子 +${money(report.factors)}Rd`); if (!loaded.warning) notice(`おかえりなさい。離席中に${UI.fullNumber(report.kills)}周クリアし、因子を${money(report.factors)}Rd獲得しました。（最大8時間）`); }
+      if (report.kills) { log(`離席中に${fullNumber(report.kills)}周。因子 +${money(report.factors)}Rd`); if (!loaded.warning) notice(`おかえりなさい。離席中に${fullNumber(report.kills)}周クリアし、因子を${money(report.factors)}Rd獲得しました。（最大8時間）`); }
       save();
     } else $('save-status').textContent = '保存を停止しています';
     render();
@@ -1654,5 +1726,3 @@
     }).catch(() => initialize(true));
   } else initialize(true);
 })();
-
-

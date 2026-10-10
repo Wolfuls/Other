@@ -1,0 +1,228 @@
+{
+  "mode": "built-in imagegen",
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-bc07a1b5-c616-46e1-9e0b-245c9df97673.png",
+  "base": "jewel-animation-v8.png",
+  "preservedRows": [
+    0,
+    1,
+    4
+  ],
+  "replacedRows": [
+    2,
+    3
+  ],
+  "cell": [
+    512,
+    384
+  ],
+  "foot": [
+    192,
+    360
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "bounds": {
+        "id": 1,
+        "pixels": 52345,
+        "left": 37,
+        "top": 49,
+        "width": 327,
+        "height": 294
+      },
+      "foot": 164,
+      "scale": 1.0204081632653061,
+      "offset": [
+        62,
+        60
+      ]
+    },
+    {
+      "frame": 1,
+      "bounds": {
+        "id": 2,
+        "pixels": 49396,
+        "left": 387,
+        "top": 49,
+        "width": 334,
+        "height": 294
+      },
+      "foot": 514.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        62,
+        60
+      ]
+    },
+    {
+      "frame": 2,
+      "bounds": {
+        "id": 3,
+        "pixels": 52837,
+        "left": 743,
+        "top": 49,
+        "width": 335,
+        "height": 294
+      },
+      "foot": 871,
+      "scale": 1.0204081632653061,
+      "offset": [
+        61,
+        60
+      ]
+    },
+    {
+      "frame": 3,
+      "bounds": {
+        "id": 4,
+        "pixels": 51691,
+        "left": 1111,
+        "top": 49,
+        "width": 318,
+        "height": 294
+      },
+      "foot": 1235.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        65,
+        60
+      ]
+    },
+    {
+      "frame": 4,
+      "bounds": {
+        "id": 41,
+        "pixels": 52628,
+        "left": 37,
+        "top": 404,
+        "width": 330,
+        "height": 292
+      },
+      "foot": 163.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        63,
+        62
+      ]
+    },
+    {
+      "frame": 5,
+      "bounds": {
+        "id": 42,
+        "pixels": 50793,
+        "left": 388,
+        "top": 405,
+        "width": 327,
+        "height": 291
+      },
+      "foot": 517.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        60,
+        63
+      ]
+    },
+    {
+      "frame": 6,
+      "bounds": {
+        "id": 43,
+        "pixels": 51983,
+        "left": 744,
+        "top": 405,
+        "width": 334,
+        "height": 292
+      },
+      "foot": 872,
+      "scale": 1.0204081632653061,
+      "offset": [
+        61,
+        62
+      ]
+    },
+    {
+      "frame": 7,
+      "bounds": {
+        "id": 44,
+        "pixels": 52928,
+        "left": 1108,
+        "top": 405,
+        "width": 322,
+        "height": 291
+      },
+      "foot": 1236.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        61,
+        63
+      ]
+    },
+    {
+      "frame": 8,
+      "bounds": {
+        "id": 87,
+        "pixels": 51477,
+        "left": 33,
+        "top": 749,
+        "width": 328,
+        "height": 295
+      },
+      "foot": 161,
+      "scale": 1.0204081632653061,
+      "offset": [
+        61,
+        59
+      ]
+    },
+    {
+      "frame": 9,
+      "bounds": {
+        "id": 88,
+        "pixels": 52310,
+        "left": 390,
+        "top": 749,
+        "width": 328,
+        "height": 296
+      },
+      "foot": 517.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        62,
+        58
+      ]
+    },
+    {
+      "frame": 10,
+      "bounds": {
+        "id": 84,
+        "pixels": 51958,
+        "left": 745,
+        "top": 748,
+        "width": 334,
+        "height": 297
+      },
+      "foot": 874.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        60,
+        57
+      ]
+    },
+    {
+      "frame": 11,
+      "bounds": {
+        "id": 85,
+        "pixels": 51432,
+        "left": 1109,
+        "top": 748,
+        "width": 319,
+        "height": 297
+      },
+      "foot": 1237.5,
+      "scale": 1.0204081632653061,
+      "offset": [
+        61,
+        57
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,character:c,faces,ready,enable,neutralHealth}=require('./current-fixtures.cjs');
 function symptom(s,id,value){s.runaway[id].runawayRate=75;s.runaway[id].runawaySymptom=value;}
 test('assigned activation types and provisional pressure values match the roster',()=>{
- for(const [id,type,pressure]of [['meta','awakening',.02],['richter','awakening',.02],['jewel','awakening',.02],['vishunal','reaction',.01],['waku','reaction',.01],['tordeliese','recovery',.005],['max','recovery',.005]]){const s=ready([id]);assert.equal(s.runaway[id].activationType,type);assert.equal(E.runawayPressure(s,c(id)),pressure);}
+ for(const [id,type,pressure]of [['meta','awakening',.02],['richter','awakening',.02],['jewel','awakening',.02],['vishunal','reaction',.01],['waku','reaction',.01],['tordeliese','recovery',.005],['max','recovery',.005]]){const s=ready([id]);assert.equal(s.runaway[id].activationType,type);assert.equal(E.runawayPressure(s,c(id)),pressure+c(id).perks.filter(p=>p.initial).reduce((sum,p)=>sum+p.runawayPressure,0));}
 });
 test('oblivion skips actions, control substitutes a self/ally/enemy attack, overload follows the attack',()=>{
  const s=ready();symptom(s,'meta','oblivion');assert.equal(E.click(s,()=>.25)[0].type,'runawaySkip');assert.equal(s.hp,35);
@@ -25,7 +25,7 @@ test('GM recipient resolves its own overload and oblivion without spending its A
  for(const value of ['overload','oblivion']){const s=ready(['max','meta']);s.selectedCharacterId='meta';symptom(s,'meta',value);s.actionPoints.max=E.actionThreshold(s);const events=E.advance(s,1,()=>.25);assert.ok(events.some(e=>e.delegatedBy==='max'));assert.ok(events.some(e=>e.type===(value==='overload'?'runawayDamage':'runawaySkip')));assert.ok(s.actionPoints.meta<E.actionThreshold(s));assert.doesNotThrow(()=>S.encode(s));}
 });
 test('large stateful action queues retain AP and spawn minions without skipping effects',()=>{
- const s=ready(['meta'],'ozmorn');neutralHealth(s,1000);s.questLevels.ozmorn=100;E.setQuestLevel(s,'ozmorn',100);s.accuracyLevels.meta=200;s.actionPoints.meta=1e12;E.click(s,()=>.5);E.selectEnemy(s,s.enemies[0].id);
+ const s=ready(['meta'],'ozmorn');neutralHealth(s,1000);s.questLevels.ozmorn=400;E.setQuestLevel(s,'ozmorn',400);s.levels.meta=1001;s.concentration.meta.accuracy=600;s.actionPoints.meta=1e12;E.click(s,()=>.5);E.selectEnemy(s,s.enemies[0].id);
  const events=E.advance(s,1,()=>.5);assert.ok(s.actionPoints.meta>1e11);assert.equal(E.livingEnemies(s).length,3);assert.ok(events.some(e=>e.type==='enemySummon'));assert.ok(s.enemies.slice(1).every(e=>e.hp>0));assert.doesNotThrow(()=>S.encode(s));
 });
 test('floor protection selects current lowest HP every ten seconds and expires even with perk OFF',()=>{

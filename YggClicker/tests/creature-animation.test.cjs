@@ -9,7 +9,7 @@ test('sprite sheet has four cells and compact orbit chords and ring gaps clear t
  }
 });
 test('four-frame sprites keep independent phases, survive ordinary ticks, and disappear with orbit option',()=>{
- const s=combatFixture(1000);s.paused=true;s.levels.richter=2;s.actionLevels.richter=32;const h=harness(s),orbits=h.get('richter-orbits');
+ const s=combatFixture(1000);s.paused=true;s.levels.richter=2;s.levels.richter=Math.max(s.levels.richter,33);const h=harness(s),orbits=h.get('richter-orbits');
  const slots=orbits.children.flatMap(r=>r.children),sprites=slots.map(s=>s.firstElementChild.firstElementChild);assert.equal(sprites.length,33);assert.ok(sprites.every(s=>s.className.includes('richter-creature')));
  assert.ok(new Set(sprites.map(s=>s.style.getPropertyValue('--creature-idle-delay'))).size>4);h.advance(200);assert.equal(orbits.firstElementChild.children[0],slots[0]);
  h.get('option-orbits').checked=false;h.get('option-orbits').listeners.get('change')();assert.equal(orbits.children.length,0);

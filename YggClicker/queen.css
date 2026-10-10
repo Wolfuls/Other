@@ -1,0 +1,16 @@
+.queen-combatant{position:absolute;--queen-size:208px;width:var(--queen-size);height:var(--queen-size);transform:translate(-50%,-50%);z-index:3;--character-accent:#aca0f1;--down-width:var(--queen-size)}
+.queen-standing{position:absolute;display:block;left:0;top:0;width:calc(var(--queen-size) * 4 / 3);height:var(--queen-size);background:var(--queen-sheet) 0 0/400% 400% no-repeat;animation:queen-idle 2.4s steps(1,end) infinite}
+.queen-combatant .meta-body{animation:none}
+.queen-combatant .meta-ground{top:calc(50% + var(--body-foot,91px) - 5px);bottom:auto;background:#448d9733;border-color:#aca0f155}
+.queen-combatant .meta-select{left:12%;top:12%;width:76%;height:82%}
+.queen-combatant.attacking .queen-standing{animation:queen-strike .8s steps(1,end) both}
+.queen-combatant.bursting .queen-standing{animation:queen-rush .7s steps(1,end) infinite}
+.queen-combatant.is-paused *{animation-play-state:paused!important}
+.queen-combatant.downed .meta-body{visibility:hidden}
+.queen-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #aca0f155}
+@keyframes queen-idle{0%,100%{background-position:0 0}35%{background-position:33.333333% 0}42%{background-position:66.666667% 0}70%{background-position:100% 0}}
+@keyframes queen-strike{0%{background-position:0 33.333333%}23%{background-position:33.333333% 33.333333%}48%{background-position:66.666667% 33.333333%}78%,100%{background-position:100% 33.333333%}}
+@keyframes queen-rush{0%{background-position:0 66.666667%}25%{background-position:33.333333% 66.666667%}50%{background-position:66.666667% 66.666667%}75%{background-position:100% 66.666667%}}
+
+.stat-flavor{display:block;margin-top:5px;color:var(--muted);font-size:11px;line-height:1.5;font-weight:400}
+@media(prefers-reduced-motion:reduce){.queen-combatant *{animation:none!important}}

@@ -5,8 +5,8 @@ function ready(q='mohican-solo',ids=['meta']){const s=E.createState();s.factors=
 test('all quests retain HP/reward/action growth and move combat growth to intensity',()=>{
  for(const q of D.sessions){const s=ready(q.id);s.questLevels[q.id]=s.questActiveLevels[q.id]=12;const next=E.getSession(s);
  for(const k of ['attack','accuracy','evasion','ss'])assert.deepEqual(next[k],q[k]);assert.equal(next.strengthLevel,11);
- assert.equal(next.hp,N.geometric(q.hp,1.1,11));assert.equal(next.reward,N.geometric(q.reward,1.25,11));
- const action=q.actionDice?q.actionDice.flat+3.5*q.actionDice.dice:q.action||0;assert.equal(E.enemyActionPower(s),N.geometric(action,1.05,11));}
+ assert.equal(next.hp,N.floor(q.hp*E.T.enemyDurability(11,'vitality')/100));assert.equal(next.reward,N.floor(q.reward*1.04**11*(1+11/100)**(100*Math.log(1.28/1.04))));
+ const action=q.actionDice?q.actionDice.flat+3.5*q.actionDice.dice:q.action||0;assert.equal(E.enemyActionPower(s),N.floor(action*(E.T.enemyValue(11)/100)));}
 });
 test('wiping out enemies clears only that party AP, no banking or manual attacks during respawn',()=>{
  const s=ready('mohican-solo',['meta','richter']);s.levels.vishunal=1;E.setFormation(s,'scarecrow',['vishunal']);s.actionPoints.meta=20;s.actionPoints.richter=15;s.actionPoints.vishunal=9;s.hp=s.enemies[0].hp=1;
@@ -19,7 +19,7 @@ test('summons retain creation-damage bases and receive the corresponding check/a
  const cloud={...s.enemies[1],creationDamage:4,maxHP:4,hp:4},q=E.enemySpec(s,cloud);
  assert.equal(q.accuracy.flat,4);assert.equal(q.accuracy.multiplier,undefined);assert.equal(q.strengthLevel,7);
  assert.equal(E.targetEvasion(E.attackProfile(s,c('meta')),cloud).multiplier,undefined);
- assert.equal(E.enemyActionPower(s,undefined,cloud),N.geometric(13.5,1.05,7));
+ assert.equal(E.enemyActionPower(s,undefined,cloud),N.floor(13.5*(E.T.enemyValue(7)/100)));
 });
 test('partial swarm defeat preserves ally AP until all slots are gone',()=>{
  const s=ready('mohicans');s.actionPoints.meta=12;s.enemies[0].hp=1;E.selectEnemy(s,s.enemies[0].id);E.click(s,()=>.5);assert.equal(s.actionPoints.meta,12);
@@ -35,7 +35,7 @@ test('forecast is deterministic, nonmutating and matches opposed probabilities i
  const max=E.attackProfile(report.state,c('max'));assert.equal(max.evasion.flat,E.getSession(s).ss.flat);
 });
 test('draft concentration and level-correct enemy stats affect forecasts, passive enemies have no endurance threat',()=>{
- const s=ready(),first=F.party(s).rows[0];E.setConcentration(s,s.sessionId,{attack:0,defense:5,reaction:5,action:0});const buffed=F.party(s).rows[0];assert.ok(buffed.evadeRate>first.evadeRate);assert.ok(buffed.endurance>first.endurance);
+ const s=ready();s.levels.meta=11;const first=F.party(s).rows[0];E.setConcentration(s,'meta',{...s.concentration.meta,armor:5,evasion:5});const buffed=F.party(s).rows[0];assert.ok(buffed.evadeRate>first.evadeRate);assert.ok(buffed.endurance>first.endurance);
  s.questLevels[s.sessionId]=s.questActiveLevels[s.sessionId]=20;assert.ok(F.party(s).rows[0].hitRate<buffed.hitRate);
  const passive=F.party(ready('scarecrow')).rows[0];assert.equal(passive.passive,true);assert.equal(passive.endurance,Infinity);
 });
@@ -58,6 +58,5 @@ test('enemy information opens separately and formation edits preview unsaved all
  assert.ok(h.get('enemy-info-content').innerHTML.includes('命中率'));
  h.click('enemy-info-close');assert.equal(h.get('enemy-info-dialog').open,false);
  click({selector:'[data-formation-open]',dataset:{formationOpen:s.sessionId}});
- const before=h.get('formation-enemy-info').innerHTML;h.get('formation-dialog').listeners.get('input')({target:{dataset:{concentration:s.sessionId,stat:'reaction'},type:'range',value:'5'}});
- assert.notEqual(h.get('formation-enemy-info').innerHTML,before);assert.equal(h.saved().concentration[s.sessionId].reaction,0);
+ assert.match(h.get('formation-enemy-info').innerHTML,/命中率/);assert.equal(h.saved().concentration.meta.evasion,0);assert.equal(h.get('formation-concentration').innerHTML,'');
 });

@@ -1,0 +1,411 @@
+{
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-07f427d1-6726-4968-a404-58f70ee5fb1a.png",
+  "mode": "built-in imagegen; atlas slicing and foot registration only",
+  "cell": [
+    512,
+    384
+  ],
+  "registration": [
+    {
+      "row": 0,
+      "col": 0,
+      "crop": [
+        0,
+        0,
+        362,
+        340
+      ],
+      "bodyBounds": {
+        "left": 75,
+        "top": 25,
+        "width": 241,
+        "height": 301
+      },
+      "anchor": {
+        "x": 177,
+        "bottom": 322
+      },
+      "ground": 360,
+      "translation": [
+        15,
+        38
+      ]
+    },
+    {
+      "row": 0,
+      "col": 1,
+      "crop": [
+        362,
+        0,
+        383,
+        340
+      ],
+      "bodyBounds": {
+        "left": 70,
+        "top": 25,
+        "width": 240,
+        "height": 301
+      },
+      "anchor": {
+        "x": 170.5,
+        "bottom": 322
+      },
+      "ground": 360,
+      "translation": [
+        22,
+        38
+      ]
+    },
+    {
+      "row": 0,
+      "col": 2,
+      "crop": [
+        745,
+        0,
+        395,
+        340
+      ],
+      "bodyBounds": {
+        "left": 46,
+        "top": 26,
+        "width": 244,
+        "height": 300
+      },
+      "anchor": {
+        "x": 149,
+        "bottom": 321
+      },
+      "ground": 360,
+      "translation": [
+        43,
+        39
+      ]
+    },
+    {
+      "row": 0,
+      "col": 3,
+      "crop": [
+        1140,
+        0,
+        308,
+        340
+      ],
+      "bodyBounds": {
+        "left": 16,
+        "top": 26,
+        "width": 240,
+        "height": 300
+      },
+      "anchor": {
+        "x": 115.5,
+        "bottom": 321
+      },
+      "ground": 360,
+      "translation": [
+        77,
+        39
+      ]
+    },
+    {
+      "row": 1,
+      "col": 0,
+      "crop": [
+        0,
+        340,
+        362,
+        307
+      ],
+      "bodyBounds": {
+        "left": 55,
+        "top": 8,
+        "width": 254,
+        "height": 292
+      },
+      "anchor": {
+        "x": 186,
+        "bottom": 296
+      },
+      "ground": 360,
+      "translation": [
+        6,
+        64
+      ]
+    },
+    {
+      "row": 1,
+      "col": 1,
+      "crop": [
+        362,
+        340,
+        383,
+        307
+      ],
+      "bodyBounds": {
+        "left": 50,
+        "top": 29,
+        "width": 308,
+        "height": 272
+      },
+      "anchor": {
+        "x": 160,
+        "bottom": 297
+      },
+      "ground": 360,
+      "translation": [
+        32,
+        63
+      ]
+    },
+    {
+      "row": 1,
+      "col": 2,
+      "crop": [
+        745,
+        340,
+        395,
+        307
+      ],
+      "bodyBounds": {
+        "left": 20,
+        "top": 27,
+        "width": 319,
+        "height": 274
+      },
+      "anchor": {
+        "x": 132.5,
+        "bottom": 297
+      },
+      "ground": 360,
+      "translation": [
+        60,
+        63
+      ]
+    },
+    {
+      "row": 1,
+      "col": 3,
+      "crop": [
+        1140,
+        340,
+        308,
+        307
+      ],
+      "bodyBounds": {
+        "left": 20,
+        "top": 12,
+        "width": 238,
+        "height": 290
+      },
+      "anchor": {
+        "x": 122.5,
+        "bottom": 298
+      },
+      "ground": 360,
+      "translation": [
+        70,
+        62
+      ]
+    },
+    {
+      "row": 2,
+      "col": 0,
+      "crop": [
+        0,
+        647,
+        362,
+        313
+      ],
+      "bodyBounds": {
+        "left": 60,
+        "top": 16,
+        "width": 290,
+        "height": 284
+      },
+      "anchor": {
+        "x": 177,
+        "bottom": 296
+      },
+      "ground": 360,
+      "translation": [
+        15,
+        64
+      ]
+    },
+    {
+      "row": 2,
+      "col": 1,
+      "crop": [
+        362,
+        647,
+        383,
+        313
+      ],
+      "bodyBounds": {
+        "left": 69,
+        "top": 5,
+        "width": 236,
+        "height": 295
+      },
+      "anchor": {
+        "x": 186.5,
+        "bottom": 296
+      },
+      "ground": 360,
+      "translation": [
+        6,
+        64
+      ]
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "crop": [
+        745,
+        647,
+        395,
+        313
+      ],
+      "bodyBounds": {
+        "left": 20,
+        "top": 55,
+        "width": 351,
+        "height": 245
+      },
+      "anchor": {
+        "x": 136,
+        "bottom": 295
+      },
+      "ground": 360,
+      "translation": [
+        56,
+        65
+      ]
+    },
+    {
+      "row": 2,
+      "col": 3,
+      "crop": [
+        1140,
+        647,
+        308,
+        313
+      ],
+      "bodyBounds": {
+        "left": 21,
+        "top": 67,
+        "width": 222,
+        "height": 226
+      },
+      "anchor": {
+        "x": 115.5,
+        "bottom": 289
+      },
+      "ground": 360,
+      "translation": [
+        77,
+        71
+      ]
+    },
+    {
+      "row": 3,
+      "col": 0,
+      "crop": [
+        0,
+        960,
+        362,
+        126
+      ],
+      "bodyBounds": {
+        "left": 49,
+        "top": 12,
+        "width": 288,
+        "height": 94
+      },
+      "anchor": {
+        "x": 193,
+        "bottom": 106
+      },
+      "ground": 360,
+      "translation": [
+        -1,
+        254
+      ]
+    },
+    {
+      "row": 3,
+      "col": 1,
+      "crop": [
+        362,
+        960,
+        362,
+        126
+      ],
+      "bodyBounds": {
+        "left": 50,
+        "top": 12,
+        "width": 287,
+        "height": 95
+      },
+      "anchor": {
+        "x": 193.5,
+        "bottom": 107
+      },
+      "ground": 360,
+      "translation": [
+        -1,
+        253
+      ]
+    },
+    {
+      "row": 3,
+      "col": 2,
+      "crop": [
+        724,
+        960,
+        376,
+        126
+      ],
+      "bodyBounds": {
+        "left": 48,
+        "top": 12,
+        "width": 283,
+        "height": 94
+      },
+      "anchor": {
+        "x": 189.5,
+        "bottom": 106
+      },
+      "ground": 360,
+      "translation": [
+        3,
+        254
+      ]
+    },
+    {
+      "row": 3,
+      "col": 3,
+      "crop": [
+        1100,
+        960,
+        348,
+        126
+      ],
+      "bodyBounds": {
+        "left": 31,
+        "top": 11,
+        "width": 280,
+        "height": 96
+      },
+      "anchor": {
+        "x": 171,
+        "bottom": 107
+      },
+      "ground": 360,
+      "translation": [
+        21,
+        253
+      ]
+    }
+  ],
+  "prompt": "megumin-v1-prompt.txt"
+}

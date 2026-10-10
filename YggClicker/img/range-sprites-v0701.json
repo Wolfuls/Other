@@ -1,0 +1,153 @@
+[
+  {
+    "name": "waku-stab-v2",
+    "mode": "built-in imagegen",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-1ea909b3-a3f4-4cd5-8a35-88c9280432d7.png",
+    "prompt": "waku",
+    "reference": "waku-stab-v1.png",
+    "frames": 6,
+    "cell": [
+      640,
+      384
+    ],
+    "footAnchor": [
+      256,
+      360
+    ],
+    "sourceComponents": [
+      {
+        "id": 1,
+        "pixels": 18266,
+        "left": 30,
+        "top": 268,
+        "width": 175,
+        "height": 216
+      },
+      {
+        "id": 3,
+        "pixels": 18645,
+        "left": 353,
+        "top": 271,
+        "width": 215,
+        "height": 213
+      },
+      {
+        "id": 5,
+        "pixels": 18952,
+        "left": 778,
+        "top": 273,
+        "width": 299,
+        "height": 211
+      },
+      {
+        "id": 6,
+        "pixels": 19863,
+        "left": 1110,
+        "top": 273,
+        "width": 347,
+        "height": 211
+      },
+      {
+        "id": 4,
+        "pixels": 19168,
+        "left": 1506,
+        "top": 272,
+        "width": 299,
+        "height": 212
+      },
+      {
+        "id": 2,
+        "pixels": 18263,
+        "left": 1881,
+        "top": 269,
+        "width": 178,
+        "height": 215
+      }
+    ],
+    "scale": 1.3611111111111112,
+    "fullPrompt": "Use case: precise-object-edit. Edit target: attached six-frame pixel-art sprite sheet of Waku. Keep exactly the same boy, hair, cyan hoodie, navy shorts, pistol in other hand, facial features, pixel palette and six animation poses. Change ONLY his wooden sword (bokken): it is much too short, extend its wooden blade to approximately twice its current blade length, a proper long Japanese practice sword reaching well beyond his body during the thrust. Maintain a narrow wooden blade, rounded wooden tip, never a metal knife. Keep every frame isolated and complete with transparent padding, same six frames in one horizontal row, no labels or floor. Transparent background. Preserve body size and registration and original crisp pixel style."
+  },
+  {
+    "name": "tordeliese-kick-v2",
+    "mode": "built-in imagegen",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-206c8cc2-3da4-4703-8507-ce95a2a0918a.png",
+    "prompt": "tordeliese",
+    "reference": "tordeliese-kick-v1.png",
+    "frames": 6,
+    "cell": [
+      640,
+      384
+    ],
+    "footAnchor": [
+      256,
+      360
+    ],
+    "sourceComponents": [
+      {
+        "id": 6,
+        "pixels": 16182,
+        "left": 65,
+        "top": 297,
+        "width": 136,
+        "height": 187
+      },
+      {
+        "id": 1,
+        "pixels": 15139,
+        "left": 431,
+        "top": 288,
+        "width": 133,
+        "height": 196
+      },
+      {
+        "id": 2,
+        "pixels": 16298,
+        "left": 772,
+        "top": 288,
+        "width": 151,
+        "height": 196
+      },
+      {
+        "id": 4,
+        "pixels": 18087,
+        "left": 1127,
+        "top": 290,
+        "width": 233,
+        "height": 194
+      },
+      {
+        "id": 3,
+        "pixels": 16050,
+        "left": 1516,
+        "top": 288,
+        "width": 146,
+        "height": 196
+      },
+      {
+        "id": 5,
+        "pixels": 15905,
+        "left": 1929,
+        "top": 295,
+        "width": 135,
+        "height": 189
+      }
+    ],
+    "scale": 1.3689839572192513,
+    "fullPrompt": "Use case: precise-object-edit. Edit target: attached six-frame pixel art roundhouse kick sprite sheet. Preserve this exact white-haired girl, red hair stripe, glasses, white blouse, black pleated skirt, black boots and mechanical black/red segmented tentacles. Correct the leg anatomy in frame TWO from left: swap which anatomical leg is raised and which is planted so that the raised kicking leg continues coherently into the third and fourth frame roundhouse; two distinct legs only, hips and knee attachments anatomically coherent. In frames THREE and FOUR the tentacles must visibly emerge from the BACK of her torso/shoulder blades, curving out behind her before extending; never from her chest or waist front, skirt or thighs. Keep remaining frames (1,5,6) and all poses, face, costume, coloring as close to original as possible. Exactly six isolated complete frames in one horizontal row, ample transparent spacing, no labels, no floor; same crisp pixel art and character scale.",
+    "preservedFrames": [
+      1,
+      5,
+      6
+    ],
+    "frame2": {
+      "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-859a3c41-629f-4069-a1ea-f83f1f387d76.png",
+      "mode": "built-in imagegen",
+      "prompt": "Precise single-frame sprite edit. Change ONLY the legs below the skirt in this exact image. The current raised knee is on the RIGHT side of the image, and the planted leg is on the LEFT. REVERSE THIS: put the raised bent knee and hanging boot on the LEFT side of the image; put the straight weight-bearing planted leg and boot on the RIGHT side of the image. This is the opposite leg chambering the kick. Do not flip the whole image: preserve the face, red stripe on hair's right, torso, hands, clothing, mechanical tentacles and exact pixel art design. Keep entire character intact. Transparent background. Only one pose. Do not reproduce original leg positions.",
+      "height": 262,
+      "footAnchor": [
+        256,
+        360
+      ]
+    }
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-f720ab25-8a58-4b16-af21-07ea153d4942.png",
+  "mode": "built-in imagegen; crop/resize and foot registration",
+  "cell": [
+    512,
+    384
+  ],
+  "frames": [
+    {
+      "frame": 0,
+      "bounds": {
+        "left": 51,
+        "top": 87,
+        "width": 464,
+        "height": 526,
+        "bottom": 612
+      },
+      "sourceFoot": 275,
+      "scale": 0.5722433460076045,
+      "offset": [
+        64,
+        59
+      ]
+    },
+    {
+      "frame": 1,
+      "bounds": {
+        "left": 51,
+        "top": 87,
+        "width": 463,
+        "height": 526,
+        "bottom": 612
+      },
+      "sourceFoot": 275,
+      "scale": 0.5722433460076045,
+      "offset": [
+        64,
+        59
+      ]
+    },
+    {
+      "frame": 2,
+      "bounds": {
+        "left": 31,
+        "top": 87,
+        "width": 483,
+        "height": 526,
+        "bottom": 612
+      },
+      "sourceFoot": 275,
+      "scale": 0.5722433460076045,
+      "offset": [
+        52,
+        59
+      ]
+    },
+    {
+      "frame": 3,
+      "bounds": {
+        "left": 62,
+        "top": 87,
+        "width": 452,
+        "height": 526,
+        "bottom": 612
+      },
+      "sourceFoot": 275,
+      "scale": 0.5722433460076045,
+      "offset": [
+        70,
+        59
+      ]
+    }
+  ]
+}

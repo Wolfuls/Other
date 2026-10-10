@@ -18,7 +18,7 @@ test('all display preferences persist, missing fields default safely, and malfor
 test('hit modes retain the same single-target combat but change only their visual layers',()=>{
  let expected;
  for(const mode of D.hitEffectModes){
-  const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');const h=harness(s,undefined,{combatRandom:()=>.5});
+  const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');E.ensureEnemies(s)[0].hp=1;s.hp=1;const h=harness(s,undefined,{combatRandom:()=>.5});
   h.click('attack');h.advance(780);
   assert.equal(h.get('arena-viewport').dataset.hitEffects,mode);
   assert.equal(h.get('hit-effects').children.length,mode==='off'?0:1);
@@ -31,7 +31,7 @@ test('hit modes retain the same single-target combat but change only their visua
 });
 
 test('turning off visuals during a volley clears current effects, keeps projectiles and preserves all progress',()=>{
- const s=fighter();s.actionLevels.richter=200;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
+ const s=fighter();s.levels.richter=Math.max(s.levels.richter,201);s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
  const on=harness(s,undefined,{combatRandom:()=>.5}),off=harness(s,undefined,{combatRandom:()=>.5});
  for(const h of [on,off]){h.click("attack");h.advance(780);}
  assert.ok(off.get('explosions').children.length>0);
@@ -50,7 +50,7 @@ test('turning off visuals during a volley clears current effects, keeps projecti
 
 test('damage, overflow and defeat text have independent controls and include batched summaries',()=>{
  for(const key of ['showDamageNumbers','showOverflowLabels','showDefeatLabels']){
-  const s=fighter();s.actionLevels.richter=key==='showOverflowLabels'?100:1000000;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
+  const s=fighter();s.levels.richter=1001;s.concentration.richter.action=500;s.concentration.richter.power=500;s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
   for(const option of ['showDamageNumbers','showOverflowLabels','showDefeatLabels'])s.options[option]=option===key;
   const h=harness(s,undefined,{combatRandom:()=>.5});let seen=false;
   for(let i=0;i<80;i++){

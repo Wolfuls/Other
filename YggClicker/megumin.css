@@ -1,0 +1,47 @@
+.megumin-combatant{position:absolute;--megumin-size:200px;width:var(--megumin-size);height:var(--megumin-size);transform:translate(-50%,-50%);z-index:3;--character-accent:#f5673d;--down-width:var(--megumin-size)}
+.megumin-standing{position:absolute;display:block;left:0;top:0;width:calc(var(--megumin-size) * 4 / 3);height:var(--megumin-size);background:var(--megumin-sheet) 0 0/400% 100% no-repeat;animation:megumin-idle 1.6s steps(1,end) infinite;transform-origin:38% 94%}
+.megumin-combatant .meta-body{animation:none}
+.megumin-combatant .meta-ground{top:calc(50% + var(--body-foot,96px) - 5px);bottom:auto;background:#448d9733;border-color:#f5673d55}
+.megumin-combatant .meta-select{left:22%;top:15%;width:57%;height:80%}
+.megumin-combatant.is-paused *{animation-play-state:paused!important}
+.megumin-combatant.downed .meta-body{visibility:hidden}
+.megumin-combatant.manual-selected .meta-ground{border-color:var(--accent);box-shadow:0 0 14px #f5673d55}
+#megumin-effects{position:absolute;inset:0;pointer-events:none;z-index:6}
+.arena-viewport[data-hit-effects=translucent] #megumin-effects{opacity:.28}
+.arena-viewport[data-hit-effects=off] #megumin-effects,.arena-viewport[data-hit-effects=simple] #megumin-effects{display:none}
+@keyframes megumin-idle{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+
+.megumin-combatant.stunned:not(.spell-casting) .meta-body{visibility:hidden}
+.megumin-combatant.stunned:not(.spell-casting) .ally-down-sprite{display:block}
+@media(prefers-reduced-motion:reduce){.megumin-combatant *{animation:none!important}.megumin-explosion{display:none}}
+
+.ally-magic{position:absolute;left:50%;top:calc(50% + var(--body-foot,96px) - 22px);transform:translateX(-50%);padding:3px 7px;border:1px solid #efac6470;border-radius:4px;background:#2b1822e8;color:#ffdaa9;font:11px/1.2 var(--mono);white-space:nowrap;z-index:7;pointer-events:none}
+.magic-summary{padding:10px 12px;border-left:3px solid #ee8d4b;border-radius:4px;background:#4c2b242e;color:#edc7a2;font:12px/1.6 var(--mono)}
+.megumin-combatant.charging:not(.attacking):not(.bursting):not(.stunned) .megumin-standing{background-image:var(--megumin-charge);background-size:400% 100%;background-position:0 0;animation:megumin-cape 1.2s steps(1,end) infinite,megumin-charge-glow 2s ease-in-out infinite}
+.megumin-combatant.spell-casting .megumin-standing{background-image:var(--megumin-charge);background-size:400% 100%;background-position:0 0;animation:megumin-cape 1.2s steps(1,end) infinite,megumin-release 1.4s ease-out both}
+/* Every circle shares the staff gemstone's Y coordinate. Only X and radius grow. */
+.megumin-charge-axis{display:none;position:absolute;left:var(--staff-x);top:var(--staff-y);width:0;height:0;pointer-events:none;z-index:4}
+.megumin-combatant.charging:not(.attacking):not(.bursting):not(.stunned):not(.downed) .megumin-charge-axis{display:block}
+.megumin-combatant.spell-casting:not(.downed) .megumin-charge-axis{display:block;animation:megumin-circles-release 1.4s ease-out both}
+.megumin-charge-ring{position:absolute;--diameter:calc(var(--megumin-size) * (.39 + var(--ring-index) * .055));left:calc(var(--megumin-size) * var(--ring-index) * .12);top:0;width:var(--diameter);height:var(--diameter);transform:translate(-50%,-50%) scaleX(.38);animation:megumin-ring-arrive .36s ease-out both;filter:drop-shadow(0 0 2px #ff5400) drop-shadow(0 0 5px #ff872bcc)}
+.megumin-charge-ring[hidden]{display:none}
+.megumin-charge-ring img{display:block;width:100%;height:100%;image-rendering:pixelated;animation:megumin-glyph-turn 12s linear infinite;animation-delay:calc(var(--ring-index) * -1.7s);opacity:.9}
+.megumin-charge-ring:nth-child(even) img{animation-direction:reverse}
+.megumin-combatant.is-paused .megumin-charge-ring{animation:none}
+.arena-viewport[data-hit-effects=translucent] .megumin-charge-axis{opacity:.28}
+.arena-viewport[data-hit-effects=off] .megumin-charge-axis{visibility:hidden}
+.arena-viewport[data-hit-effects=simple] .megumin-charge-ring{filter:none;animation:none}
+.arena-viewport[data-hit-effects=simple] .megumin-charge-ring img{animation:none}
+@keyframes megumin-charge-glow{0%,100%{filter:drop-shadow(0 0 1px #ed732a33)}50%{filter:drop-shadow(0 0 3px #ee781b77)}}
+@keyframes megumin-cape{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@keyframes megumin-glyph-turn{to{transform:rotate(360deg)}}
+@keyframes megumin-ring-arrive{from{opacity:0;transform:translate(-50%,-50%) scale(.08,.6)}to{opacity:1;transform:translate(-50%,-50%) scale(.38,1)}}
+@keyframes megumin-release{0%,32%{transform:none;filter:none}48%{transform:translateX(-4px) rotate(-2deg);filter:brightness(1.25)}72%{transform:translateX(-2px) rotate(-1deg);filter:none}100%{transform:none;filter:none}}
+@keyframes megumin-circles-release{0%,30%{opacity:1;filter:none}48%{opacity:1;filter:brightness(2.4) drop-shadow(0 0 7px #fff0b5)}65%{opacity:.95;filter:brightness(1.6)}100%{opacity:0;filter:none}}
+/* Separate spell atlas and blast timing: never reuse the bomb/firearm explosion. */
+.megumin-explosion{position:absolute;width:var(--explosion-size,480px);height:var(--explosion-size,480px);transform:translate(-50%,-85.9375%);z-index:7;pointer-events:none;isolation:isolate}
+.megumin-fireball{position:absolute;inset:0;background:var(--megumin-explosion-sheet) 0 0/400% 200% no-repeat;animation:megumin-explosion-frames 1.6s steps(1,end) both,megumin-explosion-fade 1.6s linear both}
+.megumin-shockwave{position:absolute;left:50%;top:85.9375%;width:84%;height:25%;border:5px solid #ffd777;border-radius:50%;box-shadow:0 0 13px #ff650c,inset 0 0 11px #ffbd40;animation:megumin-shockwave 1s ease-out both}
+@keyframes megumin-explosion-frames{0%{background-position:0 0}9%{background-position:33.333333% 0}20%{background-position:66.666667% 0}32%{background-position:100% 0}47%{background-position:0 100%}62%{background-position:33.333333% 100%}78%{background-position:66.666667% 100%}90%,100%{background-position:100% 100%}}
+@keyframes megumin-explosion-fade{0%,76%{opacity:1}100%{opacity:0}}
+@keyframes megumin-shockwave{0%,15%{opacity:0;transform:translate(-50%,-50%) scale(.1)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.35)}}

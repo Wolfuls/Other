@@ -1,12 +1,26 @@
 (function(root){
   'use strict';
   const D=typeof module!=='undefined'&&module.exports?require('./data.js'):root.YggData;
+  const N=typeof module!=='undefined'&&module.exports?require('./numbers.js'):root.YggNumbers;
+  const enemyValue=level=>N.curveValue(D.strength.strengthBase,level,D.questGrowth.enemyCurve);
+  const enemyDurability=(level,kind)=>{
+    if(level<=0)return D.strength.strengthBase;
+    const c=D.questGrowth.durability,x=Math.max(0,level),exponent=kind==='vitality'?c.hpExponent:kind==='power'?-c.attackExponent:c.defenseExponent;
+    return Math.min(1e100,Math.exp(Math.min(Math.log(1e100),Math.log(D.strength.strengthBase)+N.curveLog(x,D.questGrowth.enemyCurve)+exponent*Math.log1p(x/c.transition))));
+  };
   const caches={distribution:new Map(),pair:new Map(),hit:new Map(),damage:new Map(),outcomes:new Map()};
   const memo=(cache,key,fn)=>{if(cache.has(key))return cache.get(key);const value=fn();if(cache.size>=256)cache.delete(cache.keys().next().value);cache.set(key,value);return value;};
   const config=()=>D.strength;
   const cap=x=>Math.max(-1e100,Math.min(1e100,x));
-  const value=level=>Math.exp(Math.min(Math.log(1e100),Math.log(config().strengthBase)+level*Math.log(config().strengthGrowth)));
+  const value=level=>Math.min(1e100,Math.exp(Math.min(Math.log(1e100),Math.log(config().strengthBase)+level*Math.log(config().strengthGrowth))));
   const logRatio=(left=0,right=0,other=0)=>(left-right)*Math.log(config().strengthGrowth)+other;
+  const scaleLog=(left=0,right=0)=>((left+right)/2)*Math.log(config().strengthGrowth);
+  const focusLog=(points,total=0)=>total>0?Math.log(config().focusGrowth)*Math.max(0,points)/(1+config().focusDiminishing*Math.max(0,points)/total):0;
+  const effectiveCP=(points,total=0)=>total>0?Math.max(0,points)/(1+config().focusDiminishing*Math.max(0,points)/total):0;
+  const focusMultiplier=(points,total=0,kind='power')=>kind==='action'?1+.08*effectiveCP(points,total):Math.exp(Math.min(Math.log(1e100),focusLog(points,total)));
+  const personalValue=(level,points=0,total=level,kind='power')=>{const linear=config().strengthBase*(1+config().personalGrowth*Math.max(0,level)),focus=kind==='action'?Math.log(focusMultiplier(points,total,kind)):focusLog(points,total);return Math.log(linear)+focus>=Math.log(1e100)?1e100:linear*Math.exp(focus);};
+  const relativeLog=(left,right)=>Math.log(left)-Math.log(right);
+  const absoluteLog=(left,right)=>(Math.log(left/config().strengthBase)+Math.log(right/config().strengthBase))/2;
   const transform=(v,s)=>Math.floor(v*(s.resultScale??1));
   // Enumerate rather than sample. The omitted exploding tail is bounded by
   // 6^-22 per die, below double-precision probability resolution. A critical
@@ -60,12 +74,12 @@
       return {base,target,chance:chance(correction),correction};
     });
   }
-  function damage(spec,defense=0,ratio=0){
-    const key=JSON.stringify([spec,defense,ratio,config()]);
+  function damage(spec,defense=0,ratio=0,scaleLog=0){
+    const key=JSON.stringify([spec,defense,ratio,scaleLog,config()]);
     return memo(caches.damage,key,()=>{
       const pmf=distribution(spec,false),mean=b=>pmf.reduce((n,[a,,p])=>n+Math.max(1,cap(a+b-defense))*p,0);
-      const base=mean(0),target=Math.exp(Math.min(Math.log(1e100),Math.max(0,Math.log(base)+ratio*config().damageStrengthExponent)));
-      const correction=ratio===0?0:nearest(mean,target,Math.min(-1,Math.floor(defense-Math.max(...pmf.map(x=>x[0])))),Math.max(1,Math.ceil(target+defense-Math.min(...pmf.map(x=>x[0])))));
+      const base=mean(0),target=Math.min(1e100,Math.exp(Math.min(Math.log(1e100),Math.max(0,Math.log(base)+scaleLog+ratio*config().damageStrengthExponent))));
+      const correction=ratio===0&&scaleLog===0?0:nearest(mean,target,Math.min(-1,Math.floor(defense-Math.max(...pmf.map(x=>x[0])))),Math.max(1,Math.ceil(target+defense-Math.min(...pmf.map(x=>x[0])))));
       return {base,target,mean:mean(correction),correction};
     });
   }
@@ -83,6 +97,6 @@
       return {chance,bonuses:[...bonuses],conditional:[...conditional].map(([k,p])=>[...k.split(',').map(Number),p])};
     });
   }
-  const api={value,logRatio,hit,damage,outcomes,distribution,nearest,cap};
+  const api={enemyDurability,enemyValue,value,personalValue,focusLog,effectiveCP,focusMultiplier,relativeLog,absoluteLog,logRatio,scaleLog,hit,damage,outcomes,distribution,nearest,cap};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggStrength=api;
 })(typeof window!=='undefined'?window:globalThis);

@@ -1,0 +1,49 @@
+{
+  "version": "0.68.0",
+  "generationMode": "built-in image_gen",
+  "root": "img/",
+  "assets": [
+    {
+      "name": "めぐみんの待機",
+      "files": [
+        "megumin-idle-v2.png",
+        "megumin-idle-v2.json"
+      ],
+      "prompt": "megumin-idle-v2-prompt.txt"
+    },
+    {
+      "name": "炎の魔法陣",
+      "files": [
+        "megumin-circle-v2.png"
+      ],
+      "prompt": "megumin-circle-v2-prompt.txt"
+    },
+    {
+      "name": "めぐみん専用爆発",
+      "files": [
+        "megumin-explosion-v1.png",
+        "megumin-explosion-v1.json"
+      ],
+      "prompt": "megumin-explosion-v1-prompt.txt"
+    },
+    {
+      "name": "ジュエル30コマ",
+      "files": [
+        "jewel-animation-v7.png",
+        "jewel-standing-v7.png",
+        "jewel-down-v7.png",
+        "jewel-v7.json"
+      ],
+      "prompt": "jewel-v7-prompt.txt"
+    },
+    {
+      "name": "クイーンの接地位置修正",
+      "files": [
+        "queen-animation-v3.png",
+        "queen-standing-v3.png",
+        "queen-registration-v3.json"
+      ],
+      "mode": "existing artwork; deterministic registration only"
+    }
+  ]
+}

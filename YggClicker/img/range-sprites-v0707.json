@@ -1,0 +1,148 @@
+{
+  "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-ea049fdd-6704-4965-b49d-da2d88d360f7.png",
+  "mode": "built-in imagegen",
+  "reference": "tordeliese-animation-v13.png idle frame1",
+  "prompt": "Match idle head/body ratio; reduce heads about15%, slightly lengthen slim torso; preserve 8 kick poses, front-three-quarter frame3 and cyan near eye.",
+  "cell": [
+    640,
+    512
+  ],
+  "registration": [
+    {
+      "crop": {
+        "left": 0,
+        "top": 0,
+        "width": 496,
+        "height": 410
+      },
+      "scale": 0.97,
+      "foot": [
+        236.5,
+        389
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 496,
+        "top": 0,
+        "width": 496,
+        "height": 410
+      },
+      "scale": 0.97,
+      "foot": [
+        236.5,
+        393
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 992,
+        "top": 0,
+        "width": 495,
+        "height": 410
+      },
+      "scale": 0.97,
+      "foot": [
+        231.5,
+        390
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 1487,
+        "top": 0,
+        "width": 496,
+        "height": 410
+      },
+      "scale": 0.97,
+      "foot": [
+        208.5,
+        391
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 0,
+        "top": 410,
+        "width": 496,
+        "height": 383
+      },
+      "scale": 0.97,
+      "foot": [
+        201.5,
+        336
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 496,
+        "top": 410,
+        "width": 496,
+        "height": 383
+      },
+      "scale": 0.97,
+      "foot": [
+        251.5,
+        339
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 992,
+        "top": 410,
+        "width": 495,
+        "height": 383
+      },
+      "scale": 0.97,
+      "foot": [
+        251.5,
+        336
+      ],
+      "target": [
+        256,
+        480
+      ]
+    },
+    {
+      "crop": {
+        "left": 1487,
+        "top": 410,
+        "width": 496,
+        "height": 383
+      },
+      "scale": 0.97,
+      "foot": [
+        256,
+        336
+      ],
+      "target": [
+        256,
+        480
+      ]
+    }
+  ]
+}

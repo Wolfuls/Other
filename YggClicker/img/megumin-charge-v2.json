@@ -1,0 +1,113 @@
+{
+  "mode": "built-in imagegen; individual sprite registration at shoes and staff orb",
+  "cell": [
+    512,
+    384
+  ],
+  "foot": [
+    192,
+    360
+  ],
+  "staffTip": {
+    "x": 368,
+    "y": 202
+  },
+  "frames": [
+    {
+      "frame": 0,
+      "bounds": {
+        "id": 2,
+        "pixels": 89270,
+        "left": 16,
+        "top": 152,
+        "width": 540,
+        "height": 407
+      },
+      "sourceFoot": 256,
+      "sourceOrb": [
+        493.0192131747484,
+        344.5288197621226
+      ],
+      "scale": [
+        0.7425558360546896,
+        0.7366957174607645
+      ],
+      "offset": [
+        14,
+        60
+      ]
+    },
+    {
+      "frame": 1,
+      "bounds": {
+        "id": 3,
+        "pixels": 86494,
+        "left": 565,
+        "top": 152,
+        "width": 518,
+        "height": 407
+      },
+      "sourceFoot": 785.5,
+      "sourceOrb": [
+        1020.2055045871559,
+        345.31100917431195
+      ],
+      "scale": [
+        0.7498758936633455,
+        0.7393923261535028
+      ],
+      "offset": [
+        27,
+        59
+      ]
+    },
+    {
+      "frame": 2,
+      "bounds": {
+        "id": 4,
+        "pixels": 86205,
+        "left": 1067,
+        "top": 152,
+        "width": 538,
+        "height": 407
+      },
+      "sourceFoot": 1300.5,
+      "sourceOrb": [
+        1539.7242948134667,
+        344.6050955414013
+      ],
+      "scale": [
+        0.735711229234617,
+        0.7369578134284017
+      ],
+      "offset": [
+        20,
+        60
+      ]
+    },
+    {
+      "frame": 3,
+      "bounds": {
+        "id": 1,
+        "pixels": 87544,
+        "left": 1618,
+        "top": 151,
+        "width": 542,
+        "height": 408
+      },
+      "sourceFoot": 1853,
+      "sourceOrb": [
+        2097.0741079597437,
+        344.3412625800549
+      ],
+      "scale": [
+        0.7210924643798288,
+        0.736052032631211
+      ],
+      "offset": [
+        23,
+        60
+      ]
+    }
+  ]
+}

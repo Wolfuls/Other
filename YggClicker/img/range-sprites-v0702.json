@@ -1,0 +1,46 @@
+[
+  {
+    "name": "waku-stab-v3",
+    "baseline": "v0.70.0 waku-stab-v1.png",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-06d7f088-802e-4e17-84d0-bb6d06ca1101.png",
+    "mode": "built-in imagegen",
+    "prompt": "Precise-object-edit on the supplied ORIGINAL six-frame Waku sprite strip. This is an animation repair, NOT a redraw. Preserve the exact original character pixels, orange hair, face proportions, hoodie, shorts, pose, body rotation, feet, size and every frame's timing/order. Extend only the wooden sword blade by about 60% in each frame, keeping the blade thickness unchanged; it should be a normal wooden sword, not an enormous staff. Leave its handle, hands, arms, body and pistol in exactly the same position. Especially keep the second frame winding up and the fifth retracting, not an extra forward thrust. Make the sword consistently the same physical length across all six poses. Keep SIX frames in the same horizontal row of six equal cells. Same transparent canvas and identical registrations. Preserve the original crisp low resolution pixel shading; no new chibi redesign, no extra details. The only changed pixels should be those needed to extend the wooden blade. Do not crop any blade tip.",
+    "editedFrames": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "preservedApprovedFrame": null,
+    "cell": [
+      512,
+      384
+    ],
+    "footAnchor": [
+      192,
+      360
+    ],
+    "normalization": "individual original frame height; original foot anchor; original frames reused elsewhere"
+  },
+  {
+    "name": "tordeliese-kick-v3",
+    "baseline": "v0.70.0 tordeliese-kick-v1.png",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-7eb89ef4-7f4d-47fa-9bf4-5ab115bd665e.png",
+    "mode": "built-in imagegen",
+    "prompt": "Precise-object-edit. Input is TWO original frames (frames 3 and 4 of a game roundhouse kick). Do NOT change the girl's silhouette, expression, hair, glasses, face, arms, legs, skirt, body size, pose, or camera angle. Retouch ONLY the mechanical black and red tentacles: their upper roots must emerge from the center of her upper BACK behind the shoulder blades, disappearing BEHIND her blouse. Both tentacles curve away behind the back before looping outward. Keep the original tentacle segmented design and colors and approximately the same outer silhouette. They are currently too far around the waist and front of the torso. Correct their root and overlap so the white back of her blouse is readable as foreground and the tentacles are behind. Exact original pixel art style, transparent background, two frames horizontally with same relative registration, no labels, no changes to character anatomy or pose.",
+    "editedFrames": [
+      3,
+      4
+    ],
+    "preservedApprovedFrame": "v0.70.1 frame 2",
+    "cell": [
+      512,
+      384
+    ],
+    "footAnchor": [
+      192,
+      360
+    ],
+    "normalization": "individual original frame height; original foot anchor; original frames reused elsewhere"
+  }
+]

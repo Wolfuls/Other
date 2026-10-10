@@ -1,0 +1,140 @@
+.viewing-memories .battle-heading,
+.viewing-memories .enemy-title h2,
+.viewing-memories #session-description,
+.viewing-memories #enemy-rules,
+.viewing-memories .hp-block,
+.viewing-memories .manual-selection,
+.viewing-memories .attack-controls { display:none!important; }
+.viewing-memories .enemy-title { padding:10px 0 12px; text-align:center; }
+.viewing-memories #session-code { font-size:16px; letter-spacing:.55em; color:#dce0f2; }
+.memory-scene {
+  position:relative; isolation:isolate; overflow:hidden; min-height:420px;
+  height:clamp(420px,62vh,640px); border:1px solid #858eb653; border-radius:5px;
+  background:#060e27; contain:layout paint;
+}
+.memory-scene[hidden] { display:none; }
+.memory-nebula {
+  position:absolute; inset:-18%; z-index:-3;
+  background:url('./img/memory-nebula-v3.png') center/cover;
+  image-rendering:pixelated; animation:memory-tide 12s steps(120,end) infinite alternate;
+}
+.memory-scene:before {
+  content:''; position:absolute; inset:0; pointer-events:none; z-index:-2;
+  background:linear-gradient(0deg,#030525a8,transparent 65%);
+}
+.memory-scene:after {
+  content:''; position:absolute; inset:-24%; pointer-events:none; z-index:-1;
+  background:url('./img/memory-nebula-v3.png') center/cover;
+  image-rendering:pixelated; opacity:.15; mix-blend-mode:screen;
+  animation:memory-current 18s steps(150,end) infinite alternate;
+}
+.memory-light {
+  position:absolute; inset:-20%; pointer-events:none; z-index:-1;
+  background:repeating-conic-gradient(from 172deg at 50% 0%,transparent 0 11deg,#cee3ff19 12deg 15deg,transparent 16deg 29deg);
+  animation:memory-rays 9s steps(90,end) infinite alternate;
+}
+.memory-particles { position:absolute; inset:0; pointer-events:none; }
+.memory-particles i {
+  position:absolute; left:var(--x); top:var(--y); width:var(--size); height:var(--size);
+  background:#d7efff; box-shadow:2px 2px #867bcc80;
+  animation:memory-dust var(--speed) steps(90,end) var(--delay) infinite;
+}
+.memory-monolith {
+  position:absolute; left:50%; top:48%; transform:translate(-50%,-50%);
+  width:auto; height:60%; aspect-ratio:1122/1402; max-width:90%; padding:0; border:0; background:none;
+  cursor:pointer; outline-offset:8px; border-radius:2px;
+}
+.memory-monolith img {
+  width:100%; height:100%; object-fit:contain; display:block; pointer-events:none;
+  image-rendering:pixelated;
+}
+.memory-monolith-sprite { position:relative; display:block; width:100%; height:100%; pointer-events:none; animation:memory-float 4.8s steps(48,end) infinite; }
+/* Eye coordinates share the sprite's 1122 x 1402 canvas and floating transform. */
+.memory-monolith-eyes { position:absolute; inset:0; opacity:0; filter:drop-shadow(0 0 3px #fa192c); transition:opacity 100ms linear; }
+.memory-monolith-eyes:before,.memory-monolith-eyes:after {
+  content:''; position:absolute; top:30.02%; width:3.03%; height:1.21%;
+  background:linear-gradient(#5b0710 0 25%,#d82a39 25% 65%,#ff8587 65% 80%,#9b1122 80%);
+  clip-path:polygon(0 35%,15% 35%,15% 15%,35% 15%,35% 0,75% 0,75% 20%,90% 20%,90% 45%,100% 45%,100% 65%,85% 65%,85% 85%,65% 85%,65% 100%,25% 100%,25% 80%,10% 80%,10% 60%,0 60%);
+}
+.memory-monolith-eyes:before { left:43.32%; }
+.memory-monolith-eyes:after { left:49.38%; transform:scaleX(-1); }
+.memory-monolith.dream-awakening .memory-monolith-eyes { opacity:1; }
+.memory-monolith { transition:none; }
+/* Do not replace the centering transform with the common button press offset. */
+.memory-monolith:not(:disabled):active { transform:translate(-50%,-50%); }
+.memory-monolith:focus-visible { outline:2px solid #d7e8ff; }
+.memory-inscription {
+  position:absolute; left:50%; bottom:18px; transform:translate(-50%,8px);
+  opacity:0; visibility:hidden; pointer-events:none; width:min(88%,450px);
+  padding:17px 18px; border:2px solid #9ba9d391; border-radius:2px; text-align:center;
+  background:#111b35f5; box-shadow:4px 4px #03081d99;
+  transition:opacity .2s,transform .2s,visibility .2s; color:#ecf0fa;
+}
+.memory-amount+ .memory-amount { margin-top:12px; padding-top:12px; border-top:1px solid #9ba9d340; }
+.memory-amount>span { display:block; font-size:11px; letter-spacing:.18em; color:#c1cde8; }
+.memory-inscription strong {
+  display:block; margin-top:5px; font:600 clamp(14px,1.8vw,22px)/1.4 var(--mono);
+  overflow-wrap:anywhere; font-variant-numeric:tabular-nums;
+}
+.memory-monolith:hover~.memory-inscription,
+.memory-monolith:focus-visible~.memory-inscription,
+.memory-scene.record-open .memory-inscription { opacity:1; visibility:visible; transform:translate(-50%,0); }
+.memory-quest { border-color:#8c92ba!important; background:linear-gradient(115deg,#343647,#142734)!important; }
+.memory-quest .quest-title h3 { color:#e8e7f5; }
+.memory-quest.current { box-shadow:inset 3px 0 #bdc8e8; }
+@keyframes memory-tide {
+  from { transform:translate(-4%,-3%) scale(1.02); }
+  to { transform:translate(4%,5%) scale(1.12); }
+}
+@keyframes memory-current {
+  from { transform:translate(7%,4%) scale(1.28); }
+  to { transform:translate(-7%,-5%) scale(1.08); }
+}
+@keyframes memory-rays {
+  from { transform:rotate(-10deg); opacity:.25; }
+  to { transform:rotate(12deg); opacity:.75; }
+}
+@keyframes memory-dust {
+  0% { transform:translate(0,160px); opacity:0; }
+  12%,70% { opacity:.8; }
+  100% { transform:translate(var(--drift),-390px); opacity:0; }
+}
+@keyframes memory-float {
+  0%,100% { transform:translateY(9px); }
+  50% { transform:translateY(-12px); }
+}
+.memory-scene.motion-paused *, .memory-scene.motion-paused:after { animation-play-state:paused!important; }
+@media(prefers-reduced-motion:reduce) {
+  .memory-scene *, .memory-scene:after { animation:none!important; transition:none!important; }
+}
+@media(max-width:650px) {
+  .memory-scene { min-height:390px; height:58vh; }
+  .memory-inscription { bottom:14px; padding:12px; }
+}
+
+.memory-quest[hidden] { display:none!important; }
+.dream-dialog { width:min(90vw,430px); padding:34px 28px 26px; text-align:center; color:#ebefff; border:1px solid #b6c4e08c; border-radius:4px; background:linear-gradient(150deg,#26334bec,#111c31f5); box-shadow:0 20px 90px #0008,inset 0 1px #eef6ff35; }
+.dream-dialog::backdrop { background:#060d21a8; backdrop-filter:blur(3px); }
+.dream-dialog h2 { margin:8px 0 30px; font-size:clamp(19px,4vw,24px); letter-spacing:.08em; }
+.dream-emblem { font-size:28px; color:#b1c7ec; text-shadow:0 0 24px #b5d6ff90; }
+.dream-choices { display:flex; justify-content:center; gap:14px; }
+.dream-choices .button { flex:1; min-height:44px; }
+.dream-transition { position:fixed; inset:0; width:100vw; height:100dvh; max-width:none; max-height:none; margin:0; padding:0; border:0; border-radius:0; background:transparent; overflow:hidden; outline:none; box-shadow:none; }
+.dream-transition::backdrop { background:transparent; }
+.dream-transition[open]::backdrop { animation:dream-dissolve var(--dream-duration) ease-in-out both; }
+.dream-glow { position:absolute; inset:-10%; opacity:0; pointer-events:none; background:radial-gradient(ellipse at 50% 44%,#c9d9ff60,transparent 50%); }
+.dream-transition[open] .dream-glow { animation:dream-bloom var(--dream-duration) ease-in-out both; }
+@keyframes dream-dissolve {
+  0%,100% { backdrop-filter:blur(0) saturate(1); background:#04091b00; }
+  32% { backdrop-filter:blur(18px) saturate(.65); background:#0c193366; }
+  48%,60% { backdrop-filter:blur(28px) saturate(.3); background:#04091b; }
+  78% { backdrop-filter:blur(9px) saturate(.8); background:#04091b80; }
+}
+@keyframes dream-bloom { 0%,100% { opacity:0; transform:scale(.9); } 28% { opacity:1; transform:scale(1.25); } 48%,65% { opacity:0; transform:scale(1.4); } }
+@media(prefers-reduced-motion:reduce) {
+  .dream-transition[open]::backdrop { animation-name:dream-fade; }
+  .dream-transition[open] .dream-glow { animation:none; }
+  @keyframes dream-fade { 0%,100% { background:#04091b00; } 45%,60% { background:#04091b; } }
+}
+
+.memory-run{display:block;margin-bottom:12px;color:#e8dcff;letter-spacing:.2em}.run-number{display:inline-block;margin-left:10px;font-size:13px;color:var(--accent);border:1px solid #789f8d;padding:3px 8px;border-radius:4px}

@@ -1,0 +1,304 @@
+[
+  {
+    "id": "waku",
+    "mode": "built-in imagegen, newly drawn using user design reference and v0.70.0 proportions",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-ebc99486-4c40-47ba-b9db-e859466a0ecb.png",
+    "frames": [
+      {
+        "crop": {
+          "left": 0,
+          "top": 0,
+          "width": 440,
+          "height": 475
+        },
+        "scale": 0.91,
+        "foot": [
+          183.5,
+          445
+        ],
+        "placement": [
+          89,
+          75
+        ]
+      },
+      {
+        "crop": {
+          "left": 440,
+          "top": 0,
+          "width": 360,
+          "height": 475
+        },
+        "scale": 0.91,
+        "foot": [
+          191.5,
+          446
+        ],
+        "placement": [
+          82,
+          74
+        ]
+      },
+      {
+        "crop": {
+          "left": 800,
+          "top": 0,
+          "width": 510,
+          "height": 475
+        },
+        "scale": 0.91,
+        "foot": [
+          217.5,
+          446
+        ],
+        "placement": [
+          58,
+          74
+        ]
+      },
+      {
+        "crop": {
+          "left": 1310,
+          "top": 0,
+          "width": 464,
+          "height": 475
+        },
+        "scale": 0.91,
+        "foot": [
+          147,
+          446
+        ],
+        "placement": [
+          122,
+          74
+        ]
+      },
+      {
+        "crop": {
+          "left": 0,
+          "top": 475,
+          "width": 380,
+          "height": 412
+        },
+        "scale": 0.91,
+        "foot": [
+          190,
+          363
+        ],
+        "placement": [
+          83,
+          150
+        ]
+      },
+      {
+        "crop": {
+          "left": 380,
+          "top": 475,
+          "width": 555,
+          "height": 412
+        },
+        "scale": 0.91,
+        "foot": [
+          171.5,
+          362
+        ],
+        "placement": [
+          100,
+          151
+        ]
+      },
+      {
+        "crop": {
+          "left": 935,
+          "top": 475,
+          "width": 385,
+          "height": 412
+        },
+        "scale": 0.91,
+        "foot": [
+          146.5,
+          362
+        ],
+        "placement": [
+          123,
+          151
+        ]
+      },
+      {
+        "crop": {
+          "left": 1320,
+          "top": 475,
+          "width": 454,
+          "height": 412
+        },
+        "scale": 0.91,
+        "foot": [
+          206.5,
+          362
+        ],
+        "placement": [
+          68,
+          151
+        ]
+      }
+    ],
+    "cell": [
+      640,
+      512
+    ],
+    "footAnchor": [
+      256,
+      480
+    ]
+  },
+  {
+    "id": "tordeliese",
+    "mode": "built-in imagegen, newly drawn using user design reference and v0.70.0 proportions",
+    "source": "C:/Users/user/.codex/generated_images/01a10130-349c-7870-a623-2dc6018f4d46/exec-adf39e82-660e-4f79-991b-bb7660e368b2.png",
+    "frames": [
+      {
+        "crop": {
+          "left": 0,
+          "top": 0,
+          "width": 380,
+          "height": 510
+        },
+        "scale": 0.81,
+        "foot": [
+          207.5,
+          468
+        ],
+        "placement": [
+          88,
+          101
+        ]
+      },
+      {
+        "crop": {
+          "left": 380,
+          "top": 0,
+          "width": 360,
+          "height": 510
+        },
+        "scale": 0.81,
+        "foot": [
+          162.5,
+          468
+        ],
+        "placement": [
+          124,
+          101
+        ]
+      },
+      {
+        "crop": {
+          "left": 740,
+          "top": 0,
+          "width": 360,
+          "height": 510
+        },
+        "scale": 0.81,
+        "foot": [
+          201.5,
+          468
+        ],
+        "placement": [
+          93,
+          101
+        ]
+      },
+      {
+        "crop": {
+          "left": 1100,
+          "top": 0,
+          "width": 436,
+          "height": 510
+        },
+        "scale": 0.81,
+        "foot": [
+          176,
+          468
+        ],
+        "placement": [
+          113,
+          101
+        ]
+      },
+      {
+        "crop": {
+          "left": 0,
+          "top": 510,
+          "width": 410,
+          "height": 514
+        },
+        "scale": 0.81,
+        "foot": [
+          229.5,
+          433
+        ],
+        "placement": [
+          70,
+          129
+        ]
+      },
+      {
+        "crop": {
+          "left": 410,
+          "top": 510,
+          "width": 345,
+          "height": 514
+        },
+        "scale": 0.81,
+        "foot": [
+          201,
+          433
+        ],
+        "placement": [
+          93,
+          129
+        ]
+      },
+      {
+        "crop": {
+          "left": 755,
+          "top": 510,
+          "width": 375,
+          "height": 514
+        },
+        "scale": 0.81,
+        "foot": [
+          218.5,
+          433
+        ],
+        "placement": [
+          79,
+          129
+        ]
+      },
+      {
+        "crop": {
+          "left": 1130,
+          "top": 510,
+          "width": 406,
+          "height": 514
+        },
+        "scale": 0.81,
+        "foot": [
+          223,
+          433
+        ],
+        "placement": [
+          75,
+          129
+        ]
+      }
+    ],
+    "cell": [
+      640,
+      512
+    ],
+    "footAnchor": [
+      256,
+      480
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "version": "0.68.2",
+  "generationMode": "built-in image_gen",
+  "root": "img/",
+  "assets": [
+    {
+      "name": "ジュエルの両腕による残像ラッシュ",
+      "files": [
+        "jewel-animation-v9.png",
+        "jewel-barrage-v9.json",
+        "jewel-barrage-v9-prompt.txt"
+      ],
+      "prompt": "jewel-barrage-v9-prompt.txt"
+    }
+  ]
+}

@@ -9,7 +9,7 @@ function ready(ids=['meta'],quest='scarecrow'){
  E.refreshQuestUnlocks(s);E.setFormation(s,quest,ids);E.selectSession(s,quest);E.ensureEnemies(s);s.selectedCharacterId=ids[0]||null;
  return s;
 }
-function enable(s,id,...ids){const c=character(id);for(const name of ids){const p=c.perks.find(p=>p.id===name);if(!p)throw Error(name);const field=p.levelType?p.levelType+'Levels':'levels';s[field][id]=Math.max(s[field][id]||0,p.level);E.togglePerk(s,id,name,true);}return s;}
-function neutralHealth(s,hp=100000){for(const id of E.formationIds(s)){const c=character(id);s.vitalityLevels[id]=Math.ceil(hp/(c.maxHP*.1));s.health[id]={hp:E.maxHP(s,c),status:'active',regenSeconds:0};}return s;}
+function enable(s,id,...ids){const c=character(id);for(const name of ids){const p=c.perks.find(p=>p.id===name);if(!p)throw Error(name);const field='levels';s[field][id]=Math.max(s[field][id]||0,p.level);E.togglePerk(s,id,name,true);}return s;}
+function neutralHealth(s,hp=100000){for(const id of E.formationIds(s)){const c=character(id);s.levels[id]=Math.max(s.levels[id],201);s.concentration[id].vitality=200;s.health[id]={hp:E.maxHP(s,c),status:'active',regenSeconds:0};}return s;}
 const roundTrip=s=>S.decode(S.encode(s));
 module.exports={D,E,S,character,rng,faces,ready,enable,neutralHealth,roundTrip};

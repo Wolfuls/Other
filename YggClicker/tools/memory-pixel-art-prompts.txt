@@ -1,0 +1,11 @@
+Mode: built-in image_gen, style-transfer.
+Background: img/memory-nebula-v2.png
+Reference: img/memory-nebula-v1.png
+Prompt: Edit the reference background into crisp 16-bit JRPG pixel art. Preserve the ethereal space / deep underwater atmosphere, violet and midnight blue clouds below, pale blue-white light from the upper center. Clearly visible small square pixel clusters, limited harmonious palette, stepped cloud silhouettes, selective ordered dithering, tiny square star particles. Open center for a separately layered monolith. No monolith, characters, UI, lettering or border. No photographic blur.
+
+Monolith: img/memory-monolith-v2.png
+Reference: img/memory-monolith-v1.png
+Prompt: Redraw the silver-white monolith as crisp 16-bit JRPG pixel art. Preserve the tall narrow rectangular slab, cloudy stone texture, shallow right depth, serene white mask in the upper third with empty black eyeholes. Deliberate square pixel clusters, crisp silhouette, blue-gray palette, selective dithering. Display around 120x300. Transparent outside, no halo, scenery, pedestal or text. Entire object visible with generous margin.
+
+Original generated outputs: exec-3a8f9326-6af6-4188-9a8f-2e051ab4e3d7.png, exec-3059d9b1-5684-40c3-a679-7f7c2997da48.png.
+No programmatic bitmap edits; animation is in memories.css.
