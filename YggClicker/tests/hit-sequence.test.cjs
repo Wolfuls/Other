@@ -23,7 +23,7 @@ test('HP 4 boundary rolls all six faces: exactly three knockouts, with a full cl
     const events=E.click(state,rolls((face-.5)/6)),hit=events[0];
     assert.equal(hit.hpBefore,5);assert.equal(hit.hpAfter,4);assert.equal(hit.knockoutRoll,face);
     assert.equal(hit.knockedOut,face%2===1);assert.equal(state.totalDamage,1,'unspent enemy HP is not dealt damage');
-    assert.equal(state.hp,face%2?20:4);assert.equal(state.kills,face%2?1:0);assert.equal(state.factors,face%2?3:0);
+    assert.equal(state.hp,face%2?20:4);assert.equal(state.kills,face%2?1:0);assert.equal(state.factors,face%2?2:0);
     if(face%2)assert.equal(events[1].reason,'knockout');
   }
 });

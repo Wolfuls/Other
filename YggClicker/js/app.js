@@ -181,7 +181,7 @@
     $('megumin-standing').style.setProperty('--megumin-charge',`url("${D.meguminVisual.charge}")`);
     $('explosions').style.setProperty('--megumin-explosion-sheet',`url("${D.meguminVisual.explosion}")`);
     const chargeAxis=$('megumin-charge-axis');
-    for(let i=0;i<6;i++){
+    for(let i=0;i<7;i++){
       const ring=document.createElement('span'),glyph=document.createElement('img');
       ring.className='megumin-charge-ring';ring.style.setProperty('--ring-index',i);ring.hidden=true;
       glyph.src=D.meguminVisual.circle;glyph.alt='';ring.append(glyph);chargeAxis.append(ring);
@@ -345,7 +345,7 @@
       setText('picker-runaway-'+c.id,hired?'暴走 '+fullNumber(runaway.runawayRate)+'%'+(runaway.runawayCollapsed?'・暴走ダウン':''):'');
       actor.classList.toggle('downed',down);actor.classList.toggle('stunned',E.isStunned(state,c.id));actor.classList.toggle('charging',!down&&!E.isStunned(state,c.id)&&E.magicState(ctx,c).current>0);
       if(c.id==='megumin'){
-        const magic=actor.classList.contains('spell-casting')?meguminCastMagic:E.magicState(ctx,c).current;
+        const magic=actor.classList.contains('spell-casting')?meguminCastMagic:down||E.isStunned(state,c.id)?0:E.magicState(ctx,c).current;
         for(const [i,ring] of Array.from($('megumin-charge-axis').children).entries())ring.hidden=i>=magic;
       }
       const selector=$(c.id+'-select');
@@ -776,7 +776,7 @@
   function animateMeguminAttack(count=1,volley=1,slot=0,hit=true,magicLevel=0){
     if(!E.canAct(state,'megumin')||reducedMotion.matches||document.hidden)return 0;
     const actor=$('megumin-combatant');cancelVisual(meguminAttackTimer);
-    meguminCastMagic=Math.max(0,Math.min(6,Math.floor(magicLevel)));
+    meguminCastMagic=Math.max(0,Math.min(7,Math.floor(magicLevel)));
     actor.classList.add('spell-casting','attacking');actor.classList.remove('bursting');
     for(const [i,ring]of Array.from($('megumin-charge-axis').children).entries())ring.hidden=i>=meguminCastMagic;
     restartAnimation($('megumin-standing'),'megumin-release');

@@ -17,27 +17,27 @@ test('Megumin keeps her base stats; six magic perks replace fixed bonuses and le
 });
 
 test('the highest enabled and eligible magic perk sets the cap without stacking; OFF clamps stored charge',()=>{
- const s=battle();assert.deepEqual(E.magicState(s,meg()),{current:0,maximum:0});enable(s,'megumin','crimson-flame','king-of-worlds','laws-of-heaven');
- s.health.megumin.magicLevel=3;assert.deepEqual(E.magicState(s,meg()),{current:3,maximum:3});
- E.togglePerk(s,'megumin','laws-of-heaven',false);assert.equal(s.health.megumin.magicLevel,2);
- E.togglePerk(s,'megumin','king-of-worlds',false);assert.equal(s.health.megumin.magicLevel,1);
- E.togglePerk(s,'megumin','crimson-flame',false);assert.equal(E.magicState(s,meg()).maximum,0);assert.equal(s.health.megumin.magicLevel,undefined);
- enable(s,'megumin','eternal-hammer');assert.equal(E.magicState(s,meg()).maximum,6);E.togglePerk(s,'megumin','explosion-girl',false);assert.equal(E.magicState(s,meg()).maximum,0);
+ const s=battle();assert.deepEqual(E.magicState(s,meg()),{current:1,maximum:1});enable(s,'megumin','crimson-flame','king-of-worlds','laws-of-heaven');
+ s.health.megumin.magicLevel=4;assert.deepEqual(E.magicState(s,meg()),{current:4,maximum:4});
+ E.togglePerk(s,'megumin','laws-of-heaven',false);assert.equal(s.health.megumin.magicLevel,3);
+ E.togglePerk(s,'megumin','king-of-worlds',false);assert.equal(s.health.megumin.magicLevel,2);
+ E.togglePerk(s,'megumin','crimson-flame',false);assert.equal(E.magicState(s,meg()).maximum,1);assert.equal(s.health.megumin.magicLevel,1);
+ enable(s,'megumin','eternal-hammer');assert.equal(E.magicState(s,meg()).maximum,7);E.togglePerk(s,'megumin','explosion-girl',false);assert.equal(E.magicState(s,meg()).maximum,0);
 });
 
 test('current magic adds exactly 11 per level to attack and physical accuracy, never to SS',()=>{
  const s=battle();enable(s,'megumin','eternal-hammer');
- for(let level=0;level<=6;level++){s.health.megumin.magicLevel=level;assert.deepEqual(E.stats(s,meg()),{dice:4,flat:1+level*11});assert.equal(E.accuracySpec(s,meg()).flat,13+level*11);assert.equal(E.accuracySpec(s,meg(),true).flat,14);}
+ for(let level=1;level<=7;level++){s.health.megumin.magicLevel=level;assert.deepEqual(E.stats(s,meg()),{dice:4,flat:1+level*11});assert.equal(E.accuracySpec(s,meg()).flat,13+level*11);assert.equal(E.accuracySpec(s,meg(),true).flat,14);}
 });
 
-test('manual actions charge Lv1, Lv2, Lv3 then attack on the fourth action and reset magic',()=>{
+test('manual actions charge Lv2, Lv3, Lv4 then attack on the fourth action and reset magic',()=>{
  const s=battle();enable(s,'megumin','laws-of-heaven');s.enemies[0].hp=1e8;const hp=s.enemies[0].hp;
- for(let level=1;level<=3;level++){const events=act(s);assert.equal(events.filter(e=>e.type==='magicCharge').length,1);assert.ok(!events.some(e=>e.type==='attack'));assert.equal(s.health.megumin.magicLevel,level);assert.equal(s.enemies[0].hp,hp);assert.equal(E.isStunned(s,'megumin'),false);}
+ for(let level=2;level<=4;level++){const events=act(s);assert.equal(events.filter(e=>e.type==='magicCharge').length,1);assert.ok(!events.some(e=>e.type==='attack'));assert.equal(s.health.megumin.magicLevel,level);assert.equal(s.enemies[0].hp,hp);assert.equal(E.isStunned(s,'megumin'),false);}
  assert.ok(act(s).some(e=>e.type==='attack'));assert.ok(s.enemies[0].hp<hp);assert.equal(s.health.megumin.magicLevel,undefined);assert.equal(s.health.megumin.stunTurns,5);
  assert.deepEqual(E.click(s,random),[]);assert.equal(s.health.megumin.stunTurns,5);
 });
 
-test('no enabled magic perk attacks immediately at magic zero and still rests five paid turns',()=>{
+test('no enabled magic perk attacks immediately at magic one and still rests five paid turns',()=>{
  const s=battle();assert.equal(cast(s).length,1);assert.equal(s.health.megumin.stunTurns,5);
  for(const remaining of [4,3,2,1,0]){const events=turn(s);assert.ok(events.some(e=>e.type==='stunSkip'&&e.remaining===remaining));assert.ok(!events.some(e=>e.type==='attack'&&e.actorId==='megumin'));}
  assert.ok(turn(s).some(e=>e.type==='attack'&&e.actorId==='megumin'));
@@ -45,10 +45,10 @@ test('no enabled magic perk attacks immediately at magic zero and still rests fi
 
 test('automatic paid turns implement the full three-charge, cast, five-rest cycle',()=>{
  const s=battle();enable(s,'megumin','laws-of-heaven');s.enemies[0].hp=1e8;
- for(let i=1;i<=3;i++){assert.ok(turn(s).some(e=>e.type==='magicCharge'&&e.magicLevel===i));assert.equal(s.health.megumin.magicLevel,i);}
+ for(let i=1;i<=3;i++){assert.ok(turn(s).some(e=>e.type==='magicCharge'&&e.magicLevel===i+1));assert.equal(s.health.megumin.magicLevel,i+1);}
  assert.ok(turn(s).some(e=>e.type==='attack'));assert.equal(s.health.megumin.stunTurns,5);
- for(const remaining of [4,3,2,1,0]){turn(s);assert.equal(s.health.megumin.stunTurns,remaining);assert.equal(E.magicState(s,meg()).current,0);}
- assert.ok(turn(s).some(e=>e.type==='magicCharge'&&e.magicLevel===1));
+ for(const remaining of [4,3,2,1,0]){turn(s);assert.equal(s.health.megumin.stunTurns,remaining);assert.equal(E.magicState(s,meg()).current,1);}
+ assert.ok(turn(s).some(e=>e.type==='magicCharge'&&e.magicLevel===2));
 });
 
 test('awakening transitions grant area at 50, ward at 60 and fast chanting at 70',()=>{
@@ -66,13 +66,13 @@ test('fast chanting is added before training scaling and follows suppression wit
 });
 
 test('ward uses consumed magic times five even on an all-miss attack and still rolls damage',()=>{
- const s=battle();enable(s,'megumin','laws-of-heaven');s.runaway.megumin.runawayRate=60;s.questLevels.scarecrow=10000;E.setQuestLevel(s,'scarecrow',10000);s.health.megumin.magicLevel=3;
- let calls=0;const events=E.click(s,()=>{calls++;return .4;});assert.equal(events.find(e=>e.type==='attack').hit,false);assert.equal(s.health.megumin.blastEvasion,15);assert.equal(s.health.megumin.blastTurns,1);assert.equal(s.health.megumin.magicLevel,undefined);assert.equal(s.health.megumin.stunTurns,5);
+ const s=battle();enable(s,'megumin','laws-of-heaven');s.runaway.megumin.runawayRate=60;s.questLevels.scarecrow=10000;E.setQuestLevel(s,'scarecrow',10000);s.health.megumin.magicLevel=4;
+ let calls=0;const events=E.click(s,()=>{calls++;return .4;});assert.equal(events.find(e=>e.type==='attack').hit,false);assert.equal(s.health.megumin.blastEvasion,20);assert.equal(s.health.megumin.blastTurns,1);assert.equal(s.health.megumin.magicLevel,undefined);assert.equal(s.health.megumin.stunTurns,5);
  assert.ok(calls>=6);assert.equal(s.health.megumin.blastReduction,undefined);
 });
 
 test('ward applies once and expires after one own turn, with stun failure taking priority',()=>{
- const s=battle();enable(s,'megumin','crimson-flame');s.runaway.megumin.runawayRate=60;cast(s);assert.equal(s.health.megumin.blastEvasion,5);
+ const s=battle();enable(s,'megumin','crimson-flame');s.runaway.megumin.runawayRate=60;cast(s);assert.equal(s.health.megumin.blastEvasion,10);
  const p=E.enemyHitProfile(s,s.enemies[0],meg()),hit=E.rollEnemyHit({...p,accuracySpec:{flat:-100,dice:0}},random);assert.ok(hit.hit&&hit.forcedFailure);assert.equal(F.matchup(s,meg()).evadeRate,0);
  const hp=s.health.megumin.hp;incoming(s,4);assert.equal(s.health.megumin.hp,hp-4);assert.equal(s.health.megumin.blastEvasion,undefined);
  const t=battle();enable(t,'megumin','crimson-flame');t.runaway.megumin.runawayRate=60;cast(t);turn(t);assert.equal(t.health.megumin.blastEvasion,undefined);assert.equal(t.health.megumin.blastTurns,undefined);assert.equal(t.health.megumin.stunTurns,4);
@@ -80,7 +80,7 @@ test('ward applies once and expires after one own turn, with stun failure taking
 
 test('area explosion grants one magic-based ward; the Lv200 attack still has the common half penalty',()=>{
  const s=battle(['megumin'],'mohicans');enable(s,'megumin','eternal-hammer');s.runaway.megumin.runawayRate=60;s.enemies.forEach(e=>e.hp=1e8);
- const p=E.attackForecastProfile(s,meg());assert.equal(p.noAreaPenalty,false);assert.equal(cast(s).length,3);assert.equal(s.health.megumin.blastEvasion,30);
+ const p=E.attackForecastProfile(s,meg());assert.equal(p.noAreaPenalty,false);assert.equal(cast(s).length,3);assert.equal(s.health.megumin.blastEvasion,35);
  const half=E.profileAverage(s,{...p,dice:0,flat:20,accuracy:null,defense:0,damageLogRatio:0,damageScaleLog:0});
  const full=E.profileAverage(s,{...p,dice:0,flat:20,accuracy:null,defense:0,noAreaPenalty:true,damageLogRatio:0,damageScaleLog:0});assert.equal(full,half*2);
 });
@@ -88,7 +88,7 @@ test('area explosion grants one magic-based ward; the Lv200 attack still has the
 test('GM donations progress one charge each and cannot bypass the rest after casting',()=>{
  const s=battle(['megumin','max']);enable(s,'megumin','king-of-worlds');s.enemies[0].hp=1e8;
  function donated(){s.actionPoints.max=E.actionThreshold(s);s.actionPoints.megumin=0;return E.advance(s,1,random);}
- for(let i=1;i<=2;i++){const ev=donated();assert.ok(ev.some(e=>e.type==='magicCharge'&&e.magicLevel===i&&e.delegatedBy==='max'));assert.ok(!ev.some(e=>e.type==='attack'&&e.actorId==='megumin'));}
+ for(let i=1;i<=2;i++){const ev=donated();assert.ok(ev.some(e=>e.type==='magicCharge'&&e.magicLevel===i+1&&e.delegatedBy==='max'));assert.ok(!ev.some(e=>e.type==='attack'&&e.actorId==='megumin'));}
  assert.ok(donated().some(e=>e.type==='attack'&&e.actorId==='megumin'));assert.equal(s.health.megumin.stunTurns,5);
  assert.ok(!donated().some(e=>e.type==='attack'&&e.actorId==='megumin'));assert.equal(s.health.megumin.stunTurns,5);
 });
@@ -100,16 +100,16 @@ test('free-action repeats never erase resting turns; huge AP banks retain the ch
 });
 
 test('damage and hit forecasts use the fully charged cast and include charge/rest time without state mutation',()=>{
- const s=battle();enable(s,'megumin','laws-of-heaven');const before=structuredClone(s.health),p=E.attackForecastProfile(s,meg());assert.equal(p.flat,34);assert.equal(p.accuracy.flat,46);assert.equal(E.attackProfile(s,meg()).flat,1);
+ const s=battle();enable(s,'megumin','laws-of-heaven');const before=structuredClone(s.health),p=E.attackForecastProfile(s,meg());assert.equal(p.flat,45);assert.equal(p.accuracy.flat,57);assert.equal(E.attackProfile(s,meg()).flat,12);
  assert.equal(E.averageAttackDamage(s,meg()),E.profileAverage(s,p));assert.ok(Math.abs(E.effectiveAttackRate(s,meg())-E.automaticActionRate(s,meg())/9)<1e-12);assert.deepEqual(s.health,before);
  assert.ok(Math.abs(F.matchup(s,meg()).hitRate-E.T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance)<1e-12);
 });
 
-test('charge, stun and new ward survive save/load and off-screen turns; quest reset clears them without healing',()=>{
- const s=battle();enable(s,'megumin','laws-of-heaven');act(s);delete s.forecast;const loaded=roundTrip(s);assert.equal(loaded.health.megumin.magicLevel,1);
- loaded.forecast=true;E.selectSession(loaded,'mohican-solo');loaded.actionPoints.megumin=E.actionThreshold(E.battleContext(loaded,'scarecrow'));E.advance(loaded,1,random);assert.equal(loaded.health.megumin.magicLevel,2);
+test('charge, stun and new ward survive save/load and off-screen turns; quest changes preserve them without healing',()=>{
+ const s=battle();enable(s,'megumin','laws-of-heaven');act(s);delete s.forecast;const loaded=roundTrip(s);assert.equal(loaded.health.megumin.magicLevel,2);
+ loaded.forecast=true;E.selectSession(loaded,'mohican-solo');loaded.actionPoints.megumin=E.actionThreshold(E.battleContext(loaded,'scarecrow'));E.advance(loaded,1,random);assert.equal(loaded.health.megumin.magicLevel,3);
  s.runaway.megumin.runawayRate=60;cast(s);assert.deepEqual(roundTrip(s).health.megumin,s.health.megumin);
- s.questLevels.scarecrow=2;const hp=s.health.megumin.hp;E.setQuestLevel(s,'scarecrow',2);assert.equal(s.health.megumin.magicLevel,undefined);assert.equal(s.health.megumin.stunTurns,undefined);assert.equal(s.health.megumin.blastEvasion,undefined);assert.equal(s.health.megumin.hp,hp);
+ s.questLevels.scarecrow=2;const before=structuredClone(s.health.megumin);E.setQuestLevel(s,'scarecrow',2);assert.deepEqual(s.health.megumin,before);
 });
 
 test('schema 46 migration retires old ward effects and perk IDs but preserves progress and stun',()=>{
@@ -121,11 +121,11 @@ test('schema 46 migration retires old ward effects and perk IDs but preserves pr
 test('new saves reject invalid charge or ward values and older saves still gain an unhired Megumin',()=>{
  const s=ready(['meta']);for(const k of ['levels','health','runaway','actionPoints','concentration','perkEnabled','purchasedPerks','unlockedPerks'])delete s[k].megumin;
  const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:45,state:s}));assert.equal(loaded.levels.megumin,0);assert.equal(loaded.factors,s.factors);
- const t=battle();for(const bad of [-1,7,1.5]){t.health.megumin.magicLevel=bad;assert.throws(()=>S.encode(t));}delete t.health.megumin.magicLevel;t.health.megumin.blastEvasion=5;assert.throws(()=>S.encode(t));
+ const t=battle();for(const bad of [-1,8,1.5]){t.health.megumin.magicLevel=bad;assert.throws(()=>S.encode(t));}delete t.health.megumin.magicLevel;t.health.megumin.blastEvasion=5;assert.throws(()=>S.encode(t));
 });
 
 test('UI shows magic/current attack, new awakening names, chant action and the charged pose',()=>{
  const s=battle();enable(s,'megumin','laws-of-heaven');s.health.megumin.magicLevel=2;s.paused=true;const h=harness(s);
- assert.equal(h.get('ally-magic-megumin').textContent,'魔力 Lv.2 / 3');assert.equal(h.get('attack-action').textContent,'詠唱する');assert.ok(h.get('megumin-combatant').classList.contains('charging'));assert.match(h.get('magic-summary-megumin').textContent,/魔力 Lv.2 \/ 3/);assert.match(h.get('character-list').innerHTML,/高速詠唱/);assert.doesNotMatch(h.get('character-list').innerHTML,/爆風防壁|各パークの攻撃力補正を2倍/);
+ assert.equal(h.get('ally-magic-megumin').textContent,'魔力 Lv.2 / 4');assert.equal(h.get('attack-action').textContent,'詠唱する');assert.ok(h.get('megumin-combatant').classList.contains('charging'));assert.match(h.get('magic-summary-megumin').textContent,/魔力 Lv.2 \/ 4/);assert.match(h.get('character-list').innerHTML,/高速詠唱/);assert.doesNotMatch(h.get('character-list').innerHTML,/爆風防壁|各パークの攻撃力補正を2倍/);
  const frames=FX.plan([{type:'magicCharge',actorId:'megumin',magicLevel:1,maximum:3},{type:'attack',actorId:'megumin',count:1,damage:100,hpBefore:200,hpAfter:100}]);assert.equal(frames.reduce((n,f)=>n+f.meguminAttacks,0),1);
 });

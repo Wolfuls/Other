@@ -27,7 +27,7 @@ test('the gang quest uses Utgard, hides the individual enemy title and includes 
  const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;const h=harness(s);
  assert.ok(h.get('enemy-name').hidden);assert.ok(h.get('arena-viewport').classList.contains('has-scene'));
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--session-background'),'url("'+mob.background+'")');
- assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','dementor','ozmorn']);
+ assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor']);
  assert.equal(moveTestParty(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 

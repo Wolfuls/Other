@@ -2,7 +2,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S}=require('./current-fixtures.cjs'),N=require('../js/numbers');
 test('new quest unlock boundaries include exact threshold and persist after spending',()=>{
- for(const [id,threshold]of [['mohicans',100],['dementor',800],['ozmorn',1000]]){
+ for(const [id,threshold]of [['mohicans',100],['dementor',2500],['ozmorn',1000]]){
   const s=E.createState(1000);s.factors=threshold-1;assert.equal(E.isQuestUnlocked(s,id),false);s.factors=threshold;assert.equal(E.isQuestUnlocked(s,id),true);E.refreshQuestUnlocks(s);s.factors=0;assert.equal(E.isQuestUnlocked(S.decode(S.encode(s)),id),true);
  }
 });

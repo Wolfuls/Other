@@ -69,5 +69,5 @@ test('explosion grounding moves 40 world pixels lower without changing magic sca
  const s=ready(['megumin']);s.enemies[0].evasionFailure=true;s.forecast=true;const h=harness(s,undefined,{combatRandom:()=>.4});h.click('attack');h.advance(800);
  const blast=h.get('explosions').children.find(e=>e.classList.contains('megumin-explosion'));assert.ok(blast);
  // The app harness's shared combat geometry anchors the enemy at offsetTop=150.
- assert.equal(blast.style.top,FX.meguminExplosionY(150,224)+'px');assert.equal(blast.style.getPropertyValue('--explosion-size'),'480px');
+ assert.equal(blast.style.top,FX.meguminExplosionY(150,224)+'px');assert.equal(blast.style.getPropertyValue('--explosion-size'),'600px');
 });

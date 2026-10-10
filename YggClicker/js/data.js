@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.73.0",
+  "version": "0.73.2",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",

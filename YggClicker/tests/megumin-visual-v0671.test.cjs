@@ -13,12 +13,12 @@ test('Megumin uses the same ground anchor as Meta and Tordeliese after shrinking
 });
 
 test('a loaded charge shows exactly one pooled circle per magic level and resize never duplicates them',()=>{
- for(let level=0;level<=6;level++){
+ for(let level=1;level<=7;level++){
   const s=ready(['megumin']);enable(s,'megumin','eternal-hammer');s.paused=true;s.health.megumin.magicLevel=level;
   const h=harness(s),rings=h.get('megumin-charge-axis').children;
-  assert.equal(rings.length,6);assert.equal(rings.filter(r=>!r.hidden).length,level);
+  assert.equal(rings.length,7);assert.equal(rings.filter(r=>!r.hidden).length,level);
   assert.equal(h.get('megumin-combatant').classList.contains('charging'),level>0);
-  h.resize();h.resize();h.advance(1000);assert.equal(h.get('megumin-charge-axis').children.length,6);
+  h.resize();h.resize();h.advance(1000);assert.equal(h.get('megumin-charge-axis').children.length,7);
  }
 });
 

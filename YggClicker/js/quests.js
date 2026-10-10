@@ -178,7 +178,7 @@
       "mohican",
       "swarm"
     ],
-    "reward": 3,
+    "reward": 2,
     "description": "倒しても次々に現れる、世紀末ファッションの雑魚たち。",
     "background": "./img/utgard-industrial-v1.png",
     "nightBackground": "./img/utgard-industrial-night-v1.png",
@@ -192,7 +192,7 @@
   {
     "id": "dementor",
     "code": "04",
-    "unlockFactors": 800,
+    "unlockFactors": 2500,
     "name": "旧き看守",
     "area": "下層 / ヘルヘイム・緊急封鎖区画（屋外）",
     "enemy": "ディメンター",
@@ -218,7 +218,7 @@
     "traits": [
       "swarm"
     ],
-    "reward": 10,
+    "reward": 70,
     "description": "非常事態宣言下のヘルヘイム、その封鎖された屋外を漂う幽鬼の群れ。",
     "background": "./img/lower-lockdown-v2.png",
     "sheet": "./img/enemy-dementor-idle-v1.png",
@@ -301,6 +301,8 @@
     }
   }
 ];
+  quests.sort((a,b)=>['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(a.id)-['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(b.id));
+  quests.forEach((q,i)=>q.code=String(i+1).padStart(2,'0'));
   for(const quest of quests){quest.row='front';quest.attackRange=['mohicans','mohican-solo'].includes(quest.id)?[1,1]:[1,3];}
   for(const quest of quests)if(quest.id==='mohicans'||quest.id==='mohican-solo')quest.variants=mohicanVariants;
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;

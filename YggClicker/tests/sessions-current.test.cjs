@@ -8,7 +8,7 @@ for(const q of D.sessions)test(`${q.id}: original stats, four intensities and in
  assert.deepEqual(E.formationIds(s),['meta']);assert.equal(roundTrip(s).questActiveLevels[q.id],30);
 });
 test('all quest unlocks remain after wallet falls, and the current roster/order are stable',()=>{
- const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','dementor','ozmorn']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
+ const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
  s.factors=1e6;E.refreshQuestUnlocks(s);s.factors=0;for(const q of D.sessions)assert.equal(E.isQuestUnlocked(roundTrip(s),q.id),true);
 });
 test('formations move occupied characters atomically, keep five-unit cap and preserve explicit empty parties',()=>{

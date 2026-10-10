@@ -57,7 +57,7 @@ test('schema39 preserves current earnings and migrates enemy HP ratios, summons,
    s.enemies[0].pendingAttack={targetId,remaining:.1,count:1,profile:{...current,hitLogRatio:current.hitLogRatio+Math.log(E.T.value(100)/E.getSession(s).strength),damageLogRatio:current.damageLogRatio+delta,damageScaleLog:current.damageScaleLog+delta/2}};
   }
  }
- delete s.previousRunsEarned;
+ E.selectSession(s,'ozmorn');delete s.previousRunsEarned;
  const migrated=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:39,state:s}));
  assert.deepEqual(E.incomeRecord(migrated),{currentRun:987654,allRuns:987654});
  assert.equal(migrated.health.meta.hp,9);assert.equal(migrated.actionPoints.meta,12);

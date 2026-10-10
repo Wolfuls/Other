@@ -58,8 +58,8 @@
   function turnEffects(state,id){const h=healthOf(state,id);return {stunned:isStunned(state,id),blastEvasion:h.blastTurns>0?h.blastEvasion||0:0};}
   function magicState(state,c){
     if(!c?.magicPower)return {current:0,maximum:0};
-    const active=activePerks(state,c),maximum=active.some(p=>p.magicCharge)?Math.max(0,...active.map(p=>p.magicLevel||0)):0;
-    return {current:Math.min(maximum,Math.max(0,Math.floor(state.health?.[c.id]?.magicLevel||0))),maximum};
+    const active=activePerks(state,c),maximum=active.some(p=>p.magicCharge)?1+Math.max(0,...active.map(p=>p.magicLevel||0)):0;
+    return {current:Math.min(maximum,Math.max(maximum?1:0,Math.floor(state.health?.[c.id]?.magicLevel||0))),maximum};
   }
   function normalizeMagic(state,c){if(c?.magicPower&&state.health?.[c.id]){const h=state.health[c.id],m=magicState(state,c);if(m.current)h.magicLevel=m.current;else delete h.magicLevel;}}
   function ownActionBonus(state,c){return activePerks(state,c).reduce((n,p)=>n+(p.actionBonus||0)+(p.runawayActionStep?Math.floor(runawayOf(state,c.id).runawayRate/p.runawayActionStep):0),0);}
@@ -349,10 +349,12 @@
     return [next.hp,next.reward,cost].every(v=>Number.isFinite(v)&&v<=1e100)?cost:Infinity;
   }
   function applyQuestLevel(state,id,level,ctx,oldHP){
+    const waits=(ctx.enemies||[]).map(e=>e.kind!=='kogumo'?(e.respawnSeconds||0):0);
     state.questActiveLevels={...state.questActiveLevels,[id]:level};ctx.questActiveLevels=state.questActiveLevels;
     const maximum=getSession(state,id).hp;
-    for(const actorId of formationIds(ctx)){state.actionPoints[actorId]=0;clearTurnEffects(state.health[actorId]);}
+    for(const actorId of formationIds(ctx)){state.actionPoints[actorId]=0;}
     ctx.enemies=null;ctx.hp=maximum;ctx.poisonDamage=0;ctx.respawnSeconds=0;ensureEnemies(ctx);
+    for(const [i,e]of ctx.enemies.entries())if(waits[i]>0){e.hp=0;e.respawnSeconds=waits[i];e.pendingAttack=null;}
     ctx.focusedEnemyId=null;ctx.floorClipTargetId=null;ctx.floorClipSeconds=0;ctx.rainbowTurns=0;
     syncFront(ctx);ctx.batchHpFraction=0;ctx.batchDamageFraction=0;
     if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};
@@ -425,7 +427,7 @@
     },0);
   }
   const effectiveAttackRate = (state,c) => !canAct(state,c.id)||!hasReachableTarget(state,c)||isActionDonor(state,c) ? 0 :
-    (automaticActionRate(state,c)+donatedActionRate(state,c))/(1-attackProfile(state,c).extraAttackChance)/(1+magicState(state,c).maximum+(attackProfile(state,c).afterAttackStun||0));
+    (automaticActionRate(state,c)+donatedActionRate(state,c))/(1-attackProfile(state,c).extraAttackChance)/(1+Math.max(0,magicState(state,c).maximum-1)+(attackProfile(state,c).afterAttackStun||0));
   function performAutomaticActionCore(state,c,random,events) {
     if(!isActionDonor(state,c)){performAttack(state,c,attackProfile(state,c),random,events);return;}
     const targets=transferTargets(state,c);
@@ -771,7 +773,7 @@
         if(events)events.push({type:'attack',actor,actorId,motion:profile.motion,distance:profile.distance,damage:apBefore-enemy.actionPoints,rolledDamage:damage,apDamage:true,apBefore,apAfter:enemy.actionPoints,hit:true,accuracy,evasion,...judgment,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,extraAttack});
         continue;
       }
-      if(judgment.doubleHit&&ps.some(p=>p.doubleHitIncome))grantPerkIncome(state,damage,'紅の拳',events);
+      if(judgment.doubleHit&&ps.some(p=>p.doubleHitIncome))grantPerkIncome(state,Math.min(enemy.hp,damage),'紅の拳',events);
       if(profile.poisonDamage)enemy.poisonDamage=Math.max(enemy.poisonDamage,profile.poisonDamage);
       const hit=(damage,poisonTick=false)=>{
         const before=enemy.hp;state.totalDamage+=Math.min(before,damage);enemy.hp=Math.max(0,before-damage);

@@ -180,7 +180,7 @@
       get pending() { return queue.length + inFlight; }
     };
   }
-  const meguminExplosionSize=magic=>480+Math.max(0,Math.min(6,Math.floor(Number(magic)||0)))*120;
+  const meguminExplosionSize=magic=>480+Math.max(0,Math.min(7,Math.floor(Number(magic)||0)))*120;
   const meguminExplosionY=(targetY,targetHeight)=>targetY+targetHeight*.42+40;
   const api = { meguminExplosionY, meguminExplosionSize, MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
