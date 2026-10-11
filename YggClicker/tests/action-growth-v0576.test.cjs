@@ -7,7 +7,7 @@ test('all ally action tracks use the linear two percent without an additive mini
  }}
 });
 test('all quests and summons use challenge level minus one, keeping zero-action actors at zero',()=>{
- for(const q of D.sessions){const s=ready(['meta'],q.id);for(const lv of [1,2,10,50,100]){
+ for(const q of D.sessions.filter(q=>!q.members)){const s=ready(['meta'],q.id);for(const lv of [1,2,10,50,100]){
   s.questLevels[q.id]=s.questActiveLevels[q.id]=lv;
   assert.equal(E.getSession(s).actionMultiplier,(E.T.enemyValue(lv-1)/100));
   for(const raw of [0,7,11,22])assert.equal(E.enemyActionPower(s,raw),N.floor(raw*(E.T.enemyValue(lv-1)/100)));

@@ -55,7 +55,7 @@ test('automatic off-screen 150 crossing keeps party and receives stabilization w
 });
 
 test('UI displays a deployed down sprite, actual HP, recovery reason and suppression; no revival for healthy special down',()=>{
- const s=ready(['jewel']);collapse(s,'jewel');s.paused=true;const h=harness(s);
+ const s=ready(['jewel']);collapse(s,'jewel');s.paused=true;const h=harness(s);h.click('inspect-jewel');
  assert.equal(h.get('jewel-combatant').hidden,false);assert.ok(h.get('jewel-combatant').classList.contains('downed'));
  assert.match(h.get('ally-status-jewel').textContent,/暴走ダウン/);assert.equal(h.get('ally-hp-jewel').hidden,false);
  assert.match(h.get('picker-runaway-jewel').textContent,/暴走ダウン/);assert.match(h.get('health-jewel').textContent,/100%未満で復帰/);

@@ -1,0 +1,296 @@
+{
+  "out": [
+    {
+      "kind": "single",
+      "name": "expectedIncome first call",
+      "count": 1,
+      "ms": 43.5126,
+      "perCall": 43.5126
+    },
+    {
+      "kind": "single",
+      "name": "totalIncome warm",
+      "count": 50,
+      "ms": 1.0884999999999962,
+      "perCall": 0.021769999999999925
+    },
+    {
+      "kind": "single",
+      "name": "totalDps warm",
+      "count": 50,
+      "ms": 14.012900000000002,
+      "perCall": 0.28025800000000006
+    },
+    {
+      "kind": "single",
+      "name": "advance 100ms",
+      "count": 100,
+      "ms": 14.2543,
+      "perCall": 0.142543
+    },
+    {
+      "kind": "single",
+      "name": "serialize+validate",
+      "count": 30,
+      "ms": 14.520300000000006,
+      "perCall": 0.4840100000000002
+    },
+    {
+      "kind": "single",
+      "name": "persist mock storage",
+      "count": 30,
+      "ms": 9.712000000000003,
+      "perCall": 0.32373333333333343
+    },
+    {
+      "kind": "single",
+      "name": "offline 600s",
+      "count": 1,
+      "ms": 163.4187,
+      "perCall": 163.4187
+    },
+    {
+      "kind": "single",
+      "name": "offline 3600s",
+      "count": 1,
+      "ms": 828.6578,
+      "perCall": 828.6578
+    },
+    {
+      "kind": "single",
+      "name": "offline 28800s",
+      "count": 1,
+      "ms": 3412.2668,
+      "perCall": 3412.2668
+    },
+    {
+      "kind": "multi",
+      "name": "expectedIncome first call",
+      "count": 1,
+      "ms": 0.030499999999847205,
+      "perCall": 0.030499999999847205
+    },
+    {
+      "kind": "multi",
+      "name": "totalIncome warm",
+      "count": 50,
+      "ms": 69.11180000000058,
+      "perCall": 1.3822360000000118
+    },
+    {
+      "kind": "multi",
+      "name": "totalDps warm",
+      "count": 50,
+      "ms": 41.28830000000016,
+      "perCall": 0.8257660000000032
+    },
+    {
+      "kind": "multi",
+      "name": "advance 100ms",
+      "count": 100,
+      "ms": 33.91120000000046,
+      "perCall": 0.33911200000000463
+    },
+    {
+      "kind": "multi",
+      "name": "serialize+validate",
+      "count": 30,
+      "ms": 16.63640000000032,
+      "perCall": 0.5545466666666774
+    },
+    {
+      "kind": "multi",
+      "name": "persist mock storage",
+      "count": 30,
+      "ms": 14.978500000000167,
+      "perCall": 0.4992833333333389
+    },
+    {
+      "kind": "multi",
+      "name": "offline 600s",
+      "count": 1,
+      "ms": 316.77750000000015,
+      "perCall": 316.77750000000015
+    },
+    {
+      "kind": "multi",
+      "name": "offline 3600s",
+      "count": 1,
+      "ms": 1752.826,
+      "perCall": 1752.826
+    },
+    {
+      "kind": "multi",
+      "name": "offline 28800s",
+      "count": 1,
+      "ms": 7601.8808,
+      "perCall": 7601.8808
+    },
+    {
+      "kind": "high",
+      "name": "expectedIncome first call",
+      "count": 1,
+      "ms": 25.140400000000227,
+      "perCall": 25.140400000000227
+    },
+    {
+      "kind": "high",
+      "name": "totalIncome warm",
+      "count": 50,
+      "ms": 0.6311000000005151,
+      "perCall": 0.012622000000010302
+    },
+    {
+      "kind": "high",
+      "name": "totalDps warm",
+      "count": 50,
+      "ms": 3.535200000000259,
+      "perCall": 0.07070400000000518
+    },
+    {
+      "kind": "high",
+      "name": "advance 100ms",
+      "count": 100,
+      "ms": 10.598799999999756,
+      "perCall": 0.10598799999999756
+    },
+    {
+      "kind": "high",
+      "name": "serialize+validate",
+      "count": 30,
+      "ms": 9.631900000000314,
+      "perCall": 0.3210633333333438
+    },
+    {
+      "kind": "high",
+      "name": "persist mock storage",
+      "count": 30,
+      "ms": 10.222399999998743,
+      "perCall": 0.34074666666662473
+    },
+    {
+      "kind": "high",
+      "name": "offline 600s",
+      "count": 1,
+      "ms": 138.0097999999998,
+      "perCall": 138.0097999999998
+    },
+    {
+      "kind": "high",
+      "name": "offline 3600s",
+      "count": 1,
+      "ms": 771.2633000000005,
+      "perCall": 771.2633000000005
+    },
+    {
+      "kind": "high",
+      "name": "offline 28800s",
+      "count": 1,
+      "ms": 2912.9762999999984,
+      "perCall": 2912.9762999999984
+    },
+    {
+      "kind": "duo",
+      "name": "expectedIncome first call",
+      "count": 1,
+      "ms": 47.87019999999757,
+      "perCall": 47.87019999999757
+    },
+    {
+      "kind": "duo",
+      "name": "totalIncome warm",
+      "count": 50,
+      "ms": 0.9606000000021595,
+      "perCall": 0.01921200000004319
+    },
+    {
+      "kind": "duo",
+      "name": "totalDps warm",
+      "count": 50,
+      "ms": 4.030899999997928,
+      "perCall": 0.08061799999995856
+    },
+    {
+      "kind": "duo",
+      "name": "advance 100ms",
+      "count": 100,
+      "ms": 16.39809999999852,
+      "perCall": 0.16398099999998522
+    },
+    {
+      "kind": "duo",
+      "name": "serialize+validate",
+      "count": 30,
+      "ms": 10.368299999998271,
+      "perCall": 0.34560999999994235
+    },
+    {
+      "kind": "duo",
+      "name": "persist mock storage",
+      "count": 30,
+      "ms": 10.37999999999738,
+      "perCall": 0.3459999999999127
+    },
+    {
+      "kind": "duo",
+      "name": "offline 600s",
+      "count": 1,
+      "ms": 78.09100000000035,
+      "perCall": 78.09100000000035
+    },
+    {
+      "kind": "duo",
+      "name": "offline 3600s",
+      "count": 1,
+      "ms": 405.89860000000044,
+      "perCall": 405.89860000000044
+    },
+    {
+      "kind": "duo",
+      "name": "offline 28800s",
+      "count": 1,
+      "ms": 3001.383099999999,
+      "perCall": 3001.383099999999
+    },
+    {
+      "kind": "single",
+      "name": "DOM harness 10s",
+      "ms": 151.2624999999971,
+      "metrics": {
+        "text": 787,
+        "formulas": 60,
+        "controls": 12,
+        "layout": 13
+      }
+    },
+    {
+      "kind": "multi",
+      "name": "DOM harness 10s",
+      "ms": 183.53940000000148,
+      "metrics": {
+        "text": 998,
+        "formulas": 70,
+        "controls": 14,
+        "layout": 13
+      }
+    },
+    {
+      "kind": "high",
+      "name": "DOM harness 10s",
+      "ms": 146.5838999999978,
+      "metrics": {
+        "text": 853,
+        "formulas": 65,
+        "controls": 13,
+        "layout": 13
+      }
+    }
+  ],
+  "memory": {
+    "rss": 147779584,
+    "heapTotal": 99811328,
+    "heapUsed": 53537984,
+    "external": 1984066,
+    "arrayBuffers": 154787
+  }
+}

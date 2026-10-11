@@ -13,6 +13,7 @@ test('crimson fist income never exceeds HP actually removed, including overkill'
  const events=E.click(s,()=>.5),hit=events.find(e=>e.type==='attack'&&e.actorId==='jewel'&&e.hit);assert.ok(hit.doubleHit);assert.equal(s.incomeTotals.jewelDoubleHitIncome,Math.min(hp,hit.damage));}
 });
 test('quest order, rewards, unlock and initial upgrade prices follow the new progression',()=>{
- const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor']);assert.deepEqual(D.sessions.map(q=>q.code),['01','02','03','04','05']);assert.equal(E.getSession(s,'mohicans').reward,2);assert.equal(E.getSession(s,'dementor').reward,70);assert.equal(E.questCost(s,'mohicans'),40);assert.equal(E.questCost(s,'dementor'),1400);
+ const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor','egg-or-chicken']);assert.deepEqual(D.sessions.map(q=>q.code),['01','02','03','04','05','06']);assert.equal(E.getSession(s,'mohicans').reward,2);assert.equal(E.getSession(s,'dementor').reward,70);assert.equal(E.questCost(s,'mohicans'),40);assert.equal(E.questCost(s,'dementor'),1400);
  s.factors=2499;assert.equal(E.isQuestUnlocked(s,'dementor'),false);s.factors=2500;assert.equal(E.isQuestUnlocked(s,'dementor'),true);
 });
+

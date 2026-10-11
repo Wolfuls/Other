@@ -5,18 +5,20 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 51;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 52;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    51(document){return {...document,schemaVersion:52};},
     50(document){const state=structuredClone(document.state),h=state.health?.megumin;if(h?.magicLevel!==undefined&&state.perkEnabled?.megumin?.['explosion-girl']!==false)h.magicLevel=number(h.magicLevel,'旧魔力',0,6,true)+1;return {...document,schemaVersion:51,state};},
     49(document){return {...document,schemaVersion:50,state:{...document.state,autoRest:Object.fromEntries(D.sessions.map(q=>[q.id,E.newAutoRest()]))}};},
     48(document){
       const old=record(document.state,'旧セーブ'),state={...old};
       const convert=(battle,id)=>{
         const base=D.sessions.find(q=>q.id===id);if(!base)throw new Error('未対応のクエストです。');
+        if(base.members)return battle;
         const level=number(old.questActiveLevels?.[id]??old.questLevels?.[id]??1,'旧挑戦Lv',1,Number.MAX_SAFE_INTEGER,true);
         const strength=N.curveValue(100,level-1,{initial:1.025,terminal:1.012,transition:100});
         const oldMax=Math.max(1,N.floor(Math.min(1e100,base.hp*strength/100))),q=E.sessionAtLevel(base,level);
@@ -79,6 +81,7 @@
       const old=record(document.state,'旧セーブ'),state={...old,previousRunsEarned:0};
       const convert=(battle,id)=>{
         const base=D.sessions.find(q=>q.id===id);if(!base)throw new Error('未対応のクエストです。');
+        if(base.members)return battle;
         const level=number(old.questActiveLevels?.[id]??old.questLevels?.[id]??1,'旧挑戦Lv',1,Number.MAX_SAFE_INTEGER,true);
         // Freeze schema 39's HP/strength curve, including its floating rounding.
         const oldMax=E.hpFromStrength(base.hp,level-1),q=E.sessionAtLevel(base,level);
@@ -536,7 +539,7 @@
     const options = raw.options === undefined ? {} : record(raw.options, '表示設定');
     for(const [key,defaultValue] of Object.entries(D.displayDefaults)){
       const value=options[key]===undefined?defaultValue:options[key];
-      if(key==='hitEffects'?!D.hitEffectModes.includes(value):typeof value!=='boolean')throw new Error('表示設定が正しくありません。');
+      if(key==='numberUnit'?!['western','japanese'].includes(value):key==='hitEffects'?!D.hitEffectModes.includes(value):typeof value!=='boolean')throw new Error('表示設定が正しくありません。');
       result.options[key]=value;
     }
     result.actionClock = number(raw.actionClock, 'APの加算周期', 0, 1);
@@ -635,13 +638,14 @@
         record(e,'エネミー');
         const id=number(e.id,'敵の識別番号',0),respawnSeconds=number(e.respawnSeconds,'個体の再出現待ち',0,E.respawnDelay(ctx));
         const summon=!!quest.summons&&slot>0;
-        if(summon?e.kind!=='kogumo':e.kind!==undefined)throw new Error('エネミー種別が正しくありません。');
+        if(quest.members?e.kind!==quest.members[slot].id:summon?e.kind!=='kogumo':e.kind!==undefined)throw new Error('エネミー種別が正しくありません。');
         const creationDamage=summon?number(e.creationDamage,'創造時ダメージ',0,1e100,true):0;
         const summonMaxHP=summon?number(e.maxHP,'コグモ最大HP',creationDamage,1e100,true):0;
         if(summon&&respawnSeconds)throw new Error('コグモは自動再出現しません。');
-        const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:maxHP),poisonDamage=e.poisonDamage;
+        const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:quest.members?E.enemyMaxHP(ctx,e):maxHP),poisonDamage=e.poisonDamage;
         const actionPoints=Math.floor(number(e.actionPoints,'敵のAP',0,1e100));
         if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
+        const wardSeconds=number(e.wardSeconds??0,'防御のおまじない残り秒',0,10);if(wardSeconds&&(!hp||respawnSeconds))throw new Error('ダウン中の防御強化です。');
         const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
         const evasionFailure=e.evasionFailure??false;if(typeof evasionFailure!=='boolean'||respawnSeconds&&evasionFailure)throw new Error('回避自動失敗の状態が正しくありません。');
         const evasionPenalty=number(e.evasionPenalty??0,'回避低下',0,6,true),evasionPenaltyTurns=number(e.evasionPenaltyTurns??0,'回避低下の残り手番',0,2,true);
@@ -654,10 +658,11 @@
         if(![0,4].includes(actionPenalty)||!!slowSeconds!==!!actionPenalty||respawnSeconds&&(tauntId||slowSeconds))throw new Error('行動力低下の状態が正しくありません。');
         let pendingAttack=null;
         if(e.pendingAttack!=null){
-          const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx));
+          const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx,e));
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
-          const kind=p.kind||'attack';if(!['attack','flash','absorb'].includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
+          const kind=p.kind||'attack';if(!(quest.members?E.enemySpec(ctx,e).attacks.map(a=>a.id):['attack','flash','absorb']).includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
           pendingAttack={targetId:p.targetId,remaining,count:number(p.count??1,'攻撃回数',1,1e100,true),...(p.kind?{kind}:{})};
+          if(p.charmApplied!==undefined){if(typeof p.charmApplied!=='boolean'||!['ward','revive'].includes(kind))throw new Error('おまじない状態が不正です。');pendingAttack.charmApplied=p.charmApplied;}
           if(p.taunted!==undefined){if(typeof p.taunted!=='boolean')throw new Error('挑発予約が正しくありません。');pendingAttack.taunted=p.taunted;}
           if(p.apCost!==undefined)pendingAttack.apCost=number(p.apCost,'予約攻撃の消費AP',1,1e100);
           if(p.profile!==undefined){
@@ -669,7 +674,7 @@
           }
         }
         const row=e.row??'front';if(!['front','rear'].includes(row))throw new Error('敵の前衛・後衛が正しくありません。');
-        ids.add(id);return {row,...(summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
+        ids.add(id);return {row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
       });
       if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];

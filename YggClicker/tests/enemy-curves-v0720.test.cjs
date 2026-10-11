@@ -64,7 +64,7 @@ test('schema48 rescales main and offscreen enemy HP once, preserves summons, wai
 
 test('enemy abilities and quest preview expose each actual strength without applying a draft',()=>{
  const s=ready(['waku'],'ozmorn');s.questLevels.ozmorn=200;s.questActiveLevels.ozmorn=170;s.paused=true;
- const h=harness(s),q=E.getSession(s),fmt=n=>UI.incomeNumber(A.strengthLevel(n,D.strength));
+ const h=harness(s),q=E.getSession(s),fmt=n=>UI.incomeNumber(A.strengthLevel(n,D.strength));h.click('tab-quests');
  for(const [key,value]of [['strength',q.attackStrength],['armor-strength',q.defenseStrength],['check-strength',q.strength],['hp-strength',q.hpStrength]])assert.equal(h.get('quest-'+key+'-ozmorn').textContent,fmt(value));
  const button={disabled:false,dataset:{enemyInfo:'ozmorn'}};
  h.get('quest-list').listeners.get('click')({target:{closest:selector=>selector==='[data-enemy-info]'?button:null}});

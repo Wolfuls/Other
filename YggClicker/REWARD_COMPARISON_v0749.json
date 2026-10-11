@@ -1,0 +1,823 @@
+{
+  "rows": [
+    {
+      "quest": "mohican-solo",
+      "Q": 1,
+      "rewardBefore": 2,
+      "rewardAfter": 2,
+      "changePct": 0,
+      "costBefore": 40,
+      "costAfter": 40,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 10,
+      "rewardBefore": 17,
+      "rewardAfter": 17,
+      "changePct": 0,
+      "costBefore": 140,
+      "costAfter": 140,
+      "killsBefore": 8.235294117647058,
+      "killsAfter": 8.235294117647058
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 30,
+      "rewardBefore": 1233,
+      "rewardAfter": 1233,
+      "changePct": 0,
+      "costBefore": 2303,
+      "costAfter": 2303,
+      "killsBefore": 1.867802108678021,
+      "killsAfter": 1.867802108678021
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 50,
+      "rewardBefore": 53912,
+      "rewardAfter": 53912,
+      "changePct": 0,
+      "costBefore": 37692,
+      "costAfter": 37692,
+      "killsBefore": 0.699139338180739,
+      "killsAfter": 0.699139338180739
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 100,
+      "rewardBefore": 155846438,
+      "rewardAfter": 155846438,
+      "changePct": 0,
+      "costBefore": 40845685,
+      "costAfter": 40845685,
+      "killsBefore": 0.2620893074245303,
+      "killsAfter": 0.2620893074245303
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 170,
+      "rewardBefore": 1267690921981,
+      "rewardAfter": 1267690921981,
+      "changePct": 0,
+      "costBefore": 724427638241,
+      "costAfter": 724427638241,
+      "killsBefore": 0.5714544655009036,
+      "killsAfter": 0.5714544655009036
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 300,
+      "rewardBefore": 745695422121142700,
+      "rewardAfter": 745695422121142700,
+      "changePct": 0,
+      "costBefore": 14913908442422845000,
+      "costAfter": 14913908442422845000,
+      "killsBefore": 19.99999999999999,
+      "killsAfter": 19.99999999999999
+    },
+    {
+      "quest": "mohican-solo",
+      "Q": 500,
+      "rewardBefore": 8.772178534351542e+24,
+      "rewardAfter": 8.772178534351542e+24,
+      "changePct": 0,
+      "costBefore": 1.7544357068703075e+26,
+      "costAfter": 1.7544357068703075e+26,
+      "killsBefore": 19.99999999999999,
+      "killsAfter": 19.99999999999999
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 1,
+      "rewardBefore": 10,
+      "rewardAfter": 10,
+      "changePct": 0,
+      "costBefore": 200,
+      "costAfter": 200,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 10,
+      "rewardBefore": 85,
+      "rewardAfter": 85,
+      "changePct": 0,
+      "costBefore": 703,
+      "costAfter": 703,
+      "killsBefore": 8.270588235294118,
+      "killsAfter": 8.270588235294118
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 30,
+      "rewardBefore": 6169,
+      "rewardAfter": 6169,
+      "changePct": 0,
+      "costBefore": 11515,
+      "costAfter": 11515,
+      "killsBefore": 1.8665910196142,
+      "killsAfter": 1.8665910196142
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 50,
+      "rewardBefore": 269564,
+      "rewardAfter": 269564,
+      "changePct": 0,
+      "costBefore": 188462,
+      "costAfter": 188462,
+      "killsBefore": 0.6991363831965692,
+      "killsAfter": 0.6991363831965692
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 100,
+      "rewardBefore": 779232190,
+      "rewardAfter": 779232190,
+      "changePct": 0,
+      "costBefore": 204228426,
+      "costAfter": 204228426,
+      "killsBefore": 0.26208930870784486,
+      "killsAfter": 0.26208930870784486
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 170,
+      "rewardBefore": 6338454609909,
+      "rewardAfter": 6338454609909,
+      "changePct": 0,
+      "costBefore": 3622138191208,
+      "costAfter": 3622138191208,
+      "killsBefore": 0.5714544655010162,
+      "killsAfter": 0.5714544655010162
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 300,
+      "rewardBefore": 3728477110605697000,
+      "rewardAfter": 3728477110605697000,
+      "changePct": 0,
+      "costBefore": 74569542212113900000,
+      "costAfter": 74569542212113900000,
+      "killsBefore": 19.999999999999993,
+      "killsAfter": 19.999999999999993
+    },
+    {
+      "quest": "scarecrow",
+      "Q": 500,
+      "rewardBefore": 4.386089267175752e+25,
+      "rewardAfter": 4.386089267175752e+25,
+      "changePct": 0,
+      "costBefore": 8.7721785343515e+26,
+      "costAfter": 8.7721785343515e+26,
+      "killsBefore": 19.999999999999993,
+      "killsAfter": 19.999999999999993
+    },
+    {
+      "quest": "mohicans",
+      "Q": 1,
+      "rewardBefore": 2,
+      "rewardAfter": 2,
+      "changePct": 0,
+      "costBefore": 40,
+      "costAfter": 40,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "mohicans",
+      "Q": 10,
+      "rewardBefore": 17,
+      "rewardAfter": 17,
+      "changePct": 0,
+      "costBefore": 140,
+      "costAfter": 140,
+      "killsBefore": 8.235294117647058,
+      "killsAfter": 8.235294117647058
+    },
+    {
+      "quest": "mohicans",
+      "Q": 30,
+      "rewardBefore": 1233,
+      "rewardAfter": 1218,
+      "changePct": -1.2165450121654486,
+      "costBefore": 2303,
+      "costAfter": 2303,
+      "killsBefore": 1.867802108678021,
+      "killsAfter": 1.8908045977011494
+    },
+    {
+      "quest": "mohicans",
+      "Q": 50,
+      "rewardBefore": 53912,
+      "rewardAfter": 52346,
+      "changePct": -2.904733640005941,
+      "costBefore": 37692,
+      "costAfter": 37692,
+      "killsBefore": 0.699139338180739,
+      "killsAfter": 0.7200550185305468
+    },
+    {
+      "quest": "mohicans",
+      "Q": 100,
+      "rewardBefore": 155846438,
+      "rewardAfter": 143833690,
+      "changePct": -7.7080670910168685,
+      "costBefore": 40845685,
+      "costAfter": 40845685,
+      "killsBefore": 0.2620893074245303,
+      "killsAfter": 0.28397856580054365
+    },
+    {
+      "quest": "mohicans",
+      "Q": 170,
+      "rewardBefore": 1267690921981,
+      "rewardAfter": 1089265135636,
+      "changePct": -14.074865036201167,
+      "costBefore": 724427638241,
+      "costAfter": 724427638241,
+      "killsBefore": 0.5714544655009036,
+      "killsAfter": 0.6650608878783413
+    },
+    {
+      "quest": "mohicans",
+      "Q": 300,
+      "rewardBefore": 745695422121142700,
+      "rewardAfter": 571635397520463740,
+      "changePct": -23.34197306798027,
+      "costBefore": 14913908442422845000,
+      "costAfter": 14913908442422845000,
+      "killsBefore": 19.99999999999999,
+      "killsAfter": 26.089896649356724
+    },
+    {
+      "quest": "mohicans",
+      "Q": 500,
+      "rewardBefore": 8.772178534351542e+24,
+      "rewardAfter": 5.878140659342292e+24,
+      "changePct": -32.9910963813185,
+      "costBefore": 1.7544357068703075e+26,
+      "costAfter": 1.7544357068703075e+26,
+      "killsBefore": 19.99999999999999,
+      "killsAfter": 29.846779935113226
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 1,
+      "rewardBefore": 45,
+      "rewardAfter": 50,
+      "changePct": 11.111111111111116,
+      "costBefore": 900,
+      "costAfter": 1000,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 10,
+      "rewardBefore": 383,
+      "rewardAfter": 425,
+      "changePct": 10.966057441253273,
+      "costBefore": 3166,
+      "costAfter": 3517,
+      "killsBefore": 8.266318537859007,
+      "killsAfter": 8.275294117647059
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 30,
+      "rewardBefore": 27762,
+      "rewardAfter": 30847,
+      "changePct": 11.112311793098485,
+      "costBefore": 51817,
+      "costAfter": 57575,
+      "killsBefore": 1.8664721561847128,
+      "killsAfter": 1.8664699970823744
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 50,
+      "rewardBefore": 1213039,
+      "rewardAfter": 1347821,
+      "changePct": 11.111101951379965,
+      "costBefore": 848079,
+      "costAfter": 942310,
+      "killsBefore": 0.6991358068454518,
+      "killsAfter": 0.6991358644805208
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 100,
+      "rewardBefore": 3506544858,
+      "rewardAfter": 3896160954,
+      "changePct": 11.111111130123174,
+      "costBefore": 919027917,
+      "costAfter": 1021142131,
+      "killsBefore": 0.26208930848361617,
+      "killsAfter": 0.26208930869543334
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 170,
+      "rewardBefore": 28523045744592,
+      "rewardAfter": 31692273049547,
+      "changePct": 11.11111111111227,
+      "costBefore": 16299621860439,
+      "costAfter": 18110690956043,
+      "killsBefore": 0.5714544655010914,
+      "killsAfter": 0.5714544655010748
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 300,
+      "rewardBefore": 16778146997725647000,
+      "rewardAfter": 18642385553028540000,
+      "changePct": 11.11111111111136,
+      "costBefore": 335562939954512700000,
+      "costAfter": 372847711060570540000,
+      "killsBefore": 19.999999999999986,
+      "killsAfter": 19.99999999999999
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 500,
+      "rewardBefore": 1.9737401702290895e+26,
+      "rewardAfter": 2.193044633587882e+26,
+      "changePct": 11.11111111111136,
+      "costBefore": 3.9474803404581765e+27,
+      "costAfter": 4.386089267175762e+27,
+      "killsBefore": 19.999999999999986,
+      "killsAfter": 19.99999999999999
+    },
+    {
+      "quest": "dementor",
+      "Q": 1,
+      "rewardBefore": 70,
+      "rewardAfter": 70,
+      "changePct": 0,
+      "costBefore": 1400,
+      "costAfter": 1400,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "dementor",
+      "Q": 10,
+      "rewardBefore": 596,
+      "rewardAfter": 599,
+      "changePct": 0.5033557046979942,
+      "costBefore": 4925,
+      "costAfter": 4925,
+      "killsBefore": 8.263422818791947,
+      "killsAfter": 8.2220367278798
+    },
+    {
+      "quest": "dementor",
+      "Q": 30,
+      "rewardBefore": 43185,
+      "rewardAfter": 45237,
+      "changePct": 4.75164987843002,
+      "costBefore": 80605,
+      "costAfter": 80605,
+      "killsBefore": 1.866504573347227,
+      "killsAfter": 1.7818378760748945
+    },
+    {
+      "quest": "dementor",
+      "Q": 50,
+      "rewardBefore": 1886949,
+      "rewardAfter": 2105048,
+      "changePct": 11.55828800884391,
+      "costBefore": 1319235,
+      "costAfter": 1319235,
+      "killsBefore": 0.6991365426410571,
+      "killsAfter": 0.6267006738088633
+    },
+    {
+      "quest": "dementor",
+      "Q": 100,
+      "rewardBefore": 5454625335,
+      "rewardAfter": 7370898527,
+      "changePct": 35.131160699601004,
+      "costBefore": 1429598983,
+      "costAfter": 1429598983,
+      "killsBefore": 0.26208930865093044,
+      "killsAfter": 0.19395179268352447
+    },
+    {
+      "quest": "dementor",
+      "Q": 170,
+      "rewardBefore": 44369182269366,
+      "rewardAfter": 78855957566599,
+      "changePct": 77.72686701292632,
+      "costBefore": 25354967338461,
+      "costAfter": 25354967338461,
+      "killsBefore": 0.5714544655010902,
+      "killsAfter": 0.32153521586554923
+    },
+    {
+      "quest": "dementor",
+      "Q": 300,
+      "rewardBefore": 26099339774239932000,
+      "rewardAfter": 72230897855342460000,
+      "changePct": 176.7537358421396,
+      "costBefore": 521986795484798300000,
+      "costAfter": 521986795484798300000,
+      "killsBefore": 19.999999999999986,
+      "killsAfter": 7.226641381783548
+    },
+    {
+      "quest": "dementor",
+      "Q": 500,
+      "rewardBefore": 3.0702624870230325e+26,
+      "rewardAfter": 1.4396322455866904e+27,
+      "changePct": 368.8954940079332,
+      "costBefore": 6.140524974046061e+27,
+      "costAfter": 6.140524974046061e+27,
+      "killsBefore": 19.999999999999986,
+      "killsAfter": 4.265342758798533
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 1,
+      "rewardBefore": 100000000,
+      "rewardAfter": 100000000,
+      "changePct": 0,
+      "costBefore": 2000000000,
+      "costAfter": 2000000000,
+      "killsBefore": 20,
+      "killsAfter": 20
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 10,
+      "rewardBefore": 851964462,
+      "rewardAfter": 851964462,
+      "changePct": 0,
+      "costBefore": 7035752583,
+      "costAfter": 7035752583,
+      "killsBefore": 8.258270029812582,
+      "killsAfter": 8.258270029812582
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 30,
+      "rewardBefore": 61694231592,
+      "rewardAfter": 61694231592,
+      "changePct": 0,
+      "costBefore": 115150907750,
+      "costAfter": 115150907750,
+      "killsBefore": 1.8664777042936997,
+      "killsAfter": 1.8664777042936997
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 50,
+      "rewardBefore": 2695642542598,
+      "rewardAfter": 2695642542598,
+      "changePct": 0,
+      "costBefore": 1884621637537,
+      "costAfter": 1884621637537,
+      "killsBefore": 0.6991363312290819,
+      "killsAfter": 0.6991363312290819
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 100,
+      "rewardBefore": 7792321908113880,
+      "rewardAfter": 7792321908113880,
+      "changePct": 0,
+      "costBefore": 2042284262087442,
+      "costAfter": 2042284262087442,
+      "killsBefore": 0.2620893087028246,
+      "killsAfter": 0.2620893087028246
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 170,
+      "rewardBefore": 63384546099095320000,
+      "rewardAfter": 63384546099095320000,
+      "changePct": 0,
+      "costBefore": 36221381912087440000,
+      "costAfter": 36221381912087440000,
+      "killsBefore": 0.5714544655010857,
+      "killsAfter": 0.5714544655010857
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 300,
+      "rewardBefore": 3.728477110605713e+25,
+      "rewardAfter": 3.728477110605713e+25,
+      "changePct": 0,
+      "costBefore": 7.456954221211421e+26,
+      "costAfter": 7.456954221211421e+26,
+      "killsBefore": 19.99999999999999,
+      "killsAfter": 19.99999999999999
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 500,
+      "rewardBefore": 4.386089267175739e+32,
+      "rewardAfter": 4.386089267175739e+32,
+      "changePct": 0,
+      "costBefore": 8.772178534351535e+33,
+      "costAfter": 8.772178534351535e+33,
+      "killsBefore": 20.000000000000128,
+      "killsAfter": 20.000000000000128
+    }
+  ],
+  "battles": [
+    {
+      "quest": "mohicans",
+      "Q": 1,
+      "seconds": 600,
+      "clears": 343,
+      "incomeBefore": 686,
+      "incomeAfter": 686,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 10,
+      "seconds": 600,
+      "clears": 343,
+      "incomeBefore": 5831,
+      "incomeAfter": 5831,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 30,
+      "seconds": 600,
+      "clears": 340,
+      "incomeBefore": 419220,
+      "incomeAfter": 414120,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 50,
+      "seconds": 600,
+      "clears": 339,
+      "incomeBefore": 18276168,
+      "incomeAfter": 17745294,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 100,
+      "seconds": 600,
+      "clears": 304,
+      "incomeBefore": 47377317152,
+      "incomeAfter": 43725441760,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 170,
+      "seconds": 600,
+      "clears": 232,
+      "incomeBefore": 294104293899592,
+      "incomeAfter": 252709511467552,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 300,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "mohicans",
+      "Q": 500,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 1,
+      "seconds": 600,
+      "clears": 339,
+      "incomeBefore": 23730,
+      "incomeAfter": 23730,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 10,
+      "seconds": 600,
+      "clears": 337,
+      "incomeBefore": 200852,
+      "incomeAfter": 201863,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 30,
+      "seconds": 600,
+      "clears": 339,
+      "incomeBefore": 14639715,
+      "incomeAfter": 15335343,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 50,
+      "seconds": 600,
+      "clears": 320,
+      "incomeBefore": 603823680,
+      "incomeAfter": 673615360,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 100,
+      "seconds": 600,
+      "clears": 311,
+      "incomeBefore": 1696388479185,
+      "incomeAfter": 2292349441897,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 170,
+      "seconds": 600,
+      "clears": 83,
+      "incomeBefore": 3682642128357378,
+      "incomeAfter": 6545044478027717,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 300,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "dementor",
+      "Q": 500,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 1,
+      "seconds": 600,
+      "clears": 98,
+      "incomeBefore": 4410,
+      "incomeAfter": 4900,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 10,
+      "seconds": 600,
+      "clears": 97,
+      "incomeBefore": 37151,
+      "incomeAfter": 41225,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 30,
+      "seconds": 600,
+      "clears": 98,
+      "incomeBefore": 2720676,
+      "incomeAfter": 3023006,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 50,
+      "seconds": 600,
+      "clears": 98,
+      "incomeBefore": 118877822,
+      "incomeAfter": 132086458,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 100,
+      "seconds": 600,
+      "clears": 96,
+      "incomeBefore": 336628306368,
+      "incomeAfter": 374031451584,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 170,
+      "seconds": 600,
+      "clears": 15,
+      "incomeBefore": 427845686168880,
+      "incomeAfter": 475384095743205,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 300,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "ozmorn",
+      "Q": 500,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 1,
+      "seconds": 600,
+      "clears": 87,
+      "incomeBefore": 8700000000,
+      "incomeAfter": 8700000000,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 10,
+      "seconds": 600,
+      "clears": 83,
+      "incomeBefore": 70713050346,
+      "incomeAfter": 70713050346,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 30,
+      "seconds": 600,
+      "clears": 77,
+      "incomeBefore": 4750455832584,
+      "incomeAfter": 4750455832584,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 50,
+      "seconds": 600,
+      "clears": 54,
+      "incomeBefore": 145564697300292,
+      "incomeAfter": 145564697300292,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 100,
+      "seconds": 600,
+      "clears": 14,
+      "incomeBefore": 109092506713594340,
+      "incomeAfter": 109092506713594340,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 170,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 300,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    },
+    {
+      "quest": "egg-or-chicken",
+      "Q": 500,
+      "seconds": 600,
+      "clears": 0,
+      "incomeBefore": 0,
+      "incomeAfter": 0,
+      "identicalCombat": true
+    }
+  ],
+  "compatibility": 48
+}

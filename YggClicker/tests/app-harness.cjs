@@ -1,6 +1,7 @@
 'use strict';
 // Minimal DOM/timer harness for app scheduling. Layout and pixels are checked in the browser.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const IncomeHistory=require('../js/income-history');
 const D=require('../js/data.js'),E=require('../js/engine.js'),S=require('../js/save.js'),FX=require('../js/combat-effects.js');
 function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8'),options={}){
   let visualSeed=81423,combatSeed=17581;
@@ -42,11 +43,12 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     requestAnimationFrame:fn=>schedule(fn,16),cancelAnimationFrame:id=>timers.delete(id),Image:class{},ResizeObserver:class{observe(){}},
     addEventListener:(type,fn)=>windowEvents.set(type,fn),matchMedia:()=>media,localStorage:storage,
     YggSceneView:require('../js/scene-view.js'),YggQuestView:require('../js/quest-view.js'),YggBattleHUD:require('../js/battle-hud.js'),YggAbilityView:require('../js/ability-view.js'),YggData:D,YggMatchup:require('../js/matchup.js'),YggNumbers:require('../js/numbers.js'),YggMaintenance:require('../js/maintenance.js'),YggEngine:{...E,catchUp:s=>E.catchUp(s,now),click:(s,rng=combatRandom)=>E.click(s,rng),advance:(s,seconds,rng=combatRandom,collect=true)=>E.advance(s,seconds,rng,collect)},YggSave:S,YggDisplay:require('../js/display.js'),YggCombatEffects:{...FX,createPlayback:options=>FX.createPlayback({...options,schedule:(fn,ms)=>schedule(fn,ms),cancel:id=>timers.delete(id)})}};
+  context.YggIncomeHistory=IncomeHistory;context.YggRecovery=options.recovery;
   context.window=context;vm.runInNewContext(source,context);
   function runTo(until,late=false){let budget=100000;while(timers.size){const [id,t]=[...timers].sort((a,b)=>a[1].at-b[1].at||a[0]-b[0])[0];if(t.at>until)break;if(!--budget)throw Error('Timer loop');now=late?until:t.at;timers.delete(id);t.fn();if(t.repeat)timers.set(id,{...t,at:now+t.repeat});}now=until;}
   const resetMetrics=()=>{for(const k in metrics)metrics[k]=0;};resetMetrics();
-  return {get,metrics,resetMetrics,media,document,get now(){return now;},advance:ms=>runTo(now+ms),stall:ms=>runTo(now+ms,true),resize:()=>windowEvents.get('resize')?.(),
-    click:id=>get(id).click(),visible:value=>{document.hidden=!value;documentEvents.get('visibilitychange')?.();},
+  return {income:()=>context.YggActualIncome(),openAbility:id=>get('character-list').listeners.get('click')({target:{closest:s=>s==='[data-ability]'?{disabled:false,dataset:{ability:id}}:null}}),closeAbility:()=>get('character-list').listeners.get('click')({target:{closest:s=>s==='[data-ability-close]'?{disabled:false,dataset:{}}:null}}),get,metrics,resetMetrics,media,document,get now(){return now;},advance:ms=>runTo(now+ms),stall:ms=>runTo(now+ms,true),resize:()=>windowEvents.get('resize')?.(),
+    click:id=>get(id).click(),visible:value=>{document.hidden=!value;documentEvents.get('visibilitychange')?.();},storageEvent:event=>windowEvents.get('storage')?.(event),
     saved:()=>S.decode(storage.getItem(S.KEY)),pending:()=>timers.size};
 }
 module.exports={harness};

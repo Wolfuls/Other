@@ -1,0 +1,15 @@
+Generator: built-in image_gen (not CLI).
+Saved assets:
+img/production-plant-v1.png
+img/eggra-actions-v1.png
+img/chikira-actions-v1.png
+Sprites use actual alpha transparency. Original generated images are retained. Atlas poses are rendered by js/duo-view.js.
+
+Background prompt:
+Pixel art background for a side-view JRPG battle, wide 1536x1024. Middle stratum industrial production plant interior in a dense underground megacity. Steel assembly lines, tanks, overhead pipes, conveyor machinery, cyan and warm amber industrial lighting, metal floor occupies bottom quarter and is clear for combatants. Strong perspective depth but side view battlefield. Crisp pixel-art clusters, limited palette, no blur. No characters, no text, no UI. Industrial working production facility, not ruined. Background only.
+
+Eggra prompt (reference: DQIVDS_-_Foo_Yung.webp):
+Create a game sprite sheet on genuinely TRANSPARENT background. Reference is the green hooded short round dual-scimitar enemy from supplied image. Exactly one horizontal row of SIX equal square cells, no borders. Each cell contains same LEFT-facing full-body pixel-art character at identical size and ground baseline. 1 idle crouched swords ready; 2 slash both scimitars left; 3 arm throwing a curved sword to left (other sword held); 4 mouth wide open blowing icy breath to LEFT, head leaned forward (no long breath FX in sprite); 5 defeated seated slump on ground; 6 half standing pushing himself up, swords held. Preserve green hood cape, red/orange striped tunic, green legs, short stout proportions and smug face. True pixel art with crisp dark outlines and limited-color clusters matching retro RPG sprites, not illustration. All entire swords within each cell; generous transparent margins. No background, aura, glow, checkerboard, labels, text or shadows outside characters. Sheet horizontal 1536x256 or equivalent 6:1 aspect ratio.
+
+Chikira prompt (reference: DQIVDS_-_Chow_Mein.webp):
+Create transparent background pixel-art SPRITE SHEET for red-mohawk muscular fighter in reference. Exactly SIX equally spaced frames horizontally, fixed cell widths; all feet same baseline, same scale. Character facing LEFT in every frame, black feather vest, bare muscular torso, yellow trousers, brown boots/gloves, red face markings. 1 idle fists ready; 2 left-facing punch extended; 3 opposite arm extended punching LEFT with torso twist; 4 both arms above head holding a HUGE rough grey boulder, ready to throw up-left; 5 defeated kneeling slumped low; 6 rising to his feet from kneeling. Keep full head hair and entire boulder within cell margins, even if all frames need scale reduced. Crisp retro JRPG pixel clusters dark outline, limited palette not smooth painting. Genuine transparent alpha background, NO background or glow or floor or labels. Source is design reference only. Horizontal sheet.

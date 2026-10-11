@@ -7,12 +7,12 @@ function selectMemory(h){h.get('quest-list').listeners.get('click')({target:{clo
 test('memory is invisible through exactly one million held factors and cannot be opened through the engine/UI',()=>{
  for(const factors of [0,999999,1000000]){const s=E.createState(1000);s.paused=true;s.factors=factors;s.earned=1e10;
   assert.equal(E.isMemoriesUnlocked(s),false);assert.equal(E.selectMemories(s),false);
-  const h=harness(s);assert.equal(h.get('quest-card-memories').hidden,true);assert.equal(h.get('quest-select-memories').disabled,true);selectMemory(h);assert.equal(h.saved().viewingMemories,false);h.click('memory-monolith');assert.ok(!h.get('dream-dialog').open);
+  const h=harness(s);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,true);assert.equal(h.get('quest-select-memories').disabled,true);selectMemory(h);assert.equal(h.saved().viewingMemories,false);h.click('memory-monolith');assert.ok(!h.get('dream-dialog').open);
  }
 });
 test('exceeding one million unlocks memory permanently, including across spending and saves',()=>{
  const s=E.createState(1000);s.factors=1000000;E.grantIncome(s,1,'questReward');assert.equal(s.memoriesUnlocked,true);s.factors=0;
- const loaded=roundTrip(s);assert.equal(E.isMemoriesUnlocked(loaded),true);assert.ok(E.selectMemories(loaded));loaded.paused=true;const h=harness(loaded);assert.equal(h.get('quest-card-memories').hidden,false);
+ const loaded=roundTrip(s);assert.equal(E.isMemoriesUnlocked(loaded),true);assert.ok(E.selectMemories(loaded));loaded.paused=true;const h=harness(loaded);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,false);
 });
 test('schema42 migration applies the current-wallet threshold without resetting any progress',()=>{
  for(const factors of [1000000,1000001]){const s=memoryState();s.factors=factors;delete s.memoriesUnlocked;const b=E.battleSnapshot(s);

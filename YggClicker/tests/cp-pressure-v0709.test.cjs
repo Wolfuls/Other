@@ -14,7 +14,7 @@ test('training pressure counts allocated CP only, independent of unspent levels 
 });
 test('pressure UI shows allocated CP and excludes unspent CP',()=>{
  const s=ready(['meta']);s.levels.meta=101;s.concentration.meta.power=7;
- const h=harness(s),html=h.get('pressure-content-meta').innerHTML;
+ const h=harness(s);h.openAbility('meta');const html=h.get('pressure-content-meta').innerHTML;
  assert.match(html,/配分済みCP合計/);assert.match(html,/攻撃 7/);assert.match(html,/未使用CPは含まない/);assert.doesNotMatch(html,/育成Lv合計/);
 });
 test('enemy and ally growth remain distinct at matching levels without CP',()=>{

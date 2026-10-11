@@ -22,7 +22,8 @@ test('new arrivals are random, keep visible reserves in order, and do not repeat
 test('character identity stays hidden below hire price, reveals at affordability and stays visible after hire',()=>{
  const s=combatFixture(1000);s.factors=2496;s.levels.meta=1;s.selectedCharacterId='meta';const h=harness(s);
  assert.ok(h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,'？？？');
- assert.equal(h.get('hire-cost-richter').textContent,'2,500 Rd');assert.equal(h.get('meta-combatant').hidden,false);
+ assert.equal(h.get('hire-cost-richter').textContent,''); // hidden detail is lazy
+assert.equal(h.get('meta-combatant').hidden,false);
  h.click('attack');assert.ok(h.get('card-richter').classList.contains('obscured'));
  h.click('attack');h.click('attack');h.click('attack');assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters.find(c=>c.id==='richter').name);
  buy(h,{hire:'richter'});assert.equal(h.saved().levels.richter,1);assert.ok(h.saved().factors<2500);assert.ok(!h.get('card-richter').classList.contains('obscured'));

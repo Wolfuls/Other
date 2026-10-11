@@ -55,7 +55,7 @@ test('old saves add unhired Queen without losing progress or changing run record
  for(const e of s.enemies)delete e.queenCancels;const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:44,state:s}));assert.equal(loaded.levels.queen,0);assert.equal(loaded.runNumber,7);assert.equal(loaded.previousRunsEarned,12345);assert.equal(loaded.factors,s.factors);assert.equal(loaded.enemies[0].queenCancels,0);assert.deepEqual(roundTrip(loaded),loaded);
 });
 test('Queen UI hides attack base, retains flavors, supports revival and bounded rapid animation',()=>{
- const s=encounter();s.paused=true;const h=harness(s);assert.equal(h.get('queen-combatant').hidden,false);assert.equal(h.get('ability-base-power-queen').textContent,'？？？');assert.equal(h.get('ability-base-ss-queen').textContent,'17＋2D6');assert.match(h.get('health-queen').textContent,/命中 8＋2D6/);
+ const s=encounter();s.paused=true;const h=harness(s);assert.equal(h.get('queen-combatant').hidden,false);h.openAbility('queen');assert.equal(h.get('ability-base-power-queen').textContent,'？？？');assert.equal(h.get('ability-base-ss-queen').textContent,'17＋2D6');assert.match(h.get('health-queen').textContent,/命中 8＋2D6/);
  const d=encounter();d.paused=true;d.health.queen={hp:-1,status:'dying',regenSeconds:0};const ui=harness(d);ui.click('queen-select');assert.ok(ui.get('revive-dialog').open);
  const frames=FX.plan([{type:'attack',actorId:'queen',apDamage:true,count:4,damage:32,hpBefore:20,hpAfter:20}]);assert.equal(frames.reduce((n,f)=>n+f.queenAttacks,0),4);assert.ok(frames.every(f=>f.volleyQueenCount===4&&f.apDamage));
 });

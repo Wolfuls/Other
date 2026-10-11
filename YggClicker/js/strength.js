@@ -8,6 +8,16 @@
     const c=D.questGrowth.durability,x=Math.max(0,level),exponent=kind==='vitality'?c.hpExponent:kind==='power'?-c.attackExponent:c.defenseExponent;
     return Math.min(1e100,Math.exp(Math.min(Math.log(1e100),Math.log(D.strength.strengthBase)+N.curveLog(x,D.questGrowth.enemyCurve)+exponent*Math.log1p(x/c.transition))));
   };
+  // Continuous growth stage (Q - 1), inferred from authored starting HP.
+  // Return the upper bound to avoid rounding a target integer HP down by one.
+  function enemyStageForHP(baseHP,initialHP){
+    if(!(baseHP>0)||!(initialHP>baseHP))return 0;
+    const target=Math.min(1e100,initialHP/baseHP*D.strength.strengthBase);
+    let low=0,high=1;
+    while(enemyDurability(high,'vitality')<target)high*=2;
+    for(let i=0;i<80;i++){const mid=(low+high)/2;if(enemyDurability(mid,'vitality')<target)low=mid;else high=mid;}
+    return high;
+  }
   const caches={distribution:new Map(),pair:new Map(),hit:new Map(),damage:new Map(),outcomes:new Map()};
   const memo=(cache,key,fn)=>{if(cache.has(key))return cache.get(key);const value=fn();if(cache.size>=256)cache.delete(cache.keys().next().value);cache.set(key,value);return value;};
   const config=()=>D.strength;
@@ -97,6 +107,6 @@
       return {chance,bonuses:[...bonuses],conditional:[...conditional].map(([k,p])=>[...k.split(',').map(Number),p])};
     });
   }
-  const api={enemyDurability,enemyValue,value,personalValue,focusLog,effectiveCP,focusMultiplier,relativeLog,absoluteLog,logRatio,scaleLog,hit,damage,outcomes,distribution,nearest,cap};
+  const api={enemyStageForHP,enemyDurability,enemyValue,value,personalValue,focusLog,effectiveCP,focusMultiplier,relativeLog,absoluteLog,logRatio,scaleLog,hit,damage,outcomes,distribution,nearest,cap};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggStrength=api;
 })(typeof window!=='undefined'?window:globalThis);

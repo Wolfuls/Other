@@ -55,18 +55,18 @@ test('all perk tracks unlock from the one character level',()=>{
  assert.ok(E.sell(s,'level','meta',1));assert.equal(E.perks(s,c('meta')).find(p=>p.id==='spinning-rush').unlocked,false);
 });
 test('pending level and HP-focus changes can be undone without healing or damaging the original',()=>{
- const s=ready();s.paused=true;s.levels.meta=51;s.health.meta.hp=35;const h=harness(s);click(h,'[data-ability]',{ability:'meta'});
+ const s=ready();s.paused=true;s.levels.meta=51;s.health.meta.hp=35;const h=harness(s);h.openAbility('meta');click(h,'[data-ability]',{ability:'meta'});
  click(h,'[data-trade]',{kind:'level',trade:'sell',id:'meta',count:'10'});click(h,'[data-trade]',{kind:'level',trade:'buy',id:'meta',count:'10'});
  click(h,'[data-focus]',{focus:'meta',focusStat:'vitality',step:'1'});assert.equal(h.saved().concentration.meta.vitality,0);
  click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});assert.equal(h.saved().levels.meta,51);assert.equal(h.saved().health.meta.hp,35);assert.equal(h.saved().factors,s.factors);assert.equal(h.saved().concentration.meta.vitality,1);
 });
 test('SS has its own base cell, no SS strength; training controls operate on one level',()=>{
- const s=ready();s.paused=true;const h=harness(s),html=h.get('character-list').innerHTML;
+ const s=ready();s.paused=true;const h=harness(s),html=h.get('character-list').innerHTML;h.openAbility('meta');
  assert.match(html,/ability-judgments/);assert.match(html,/ss-cell/);assert.equal(h.get('ability-base-ss-meta').textContent,'12＋1D6');assert.doesNotMatch(html,/SS強度|data-stat=|action-cost-meta/);
  assert.match(html,/buy10-level-meta/);assert.match(html,/sell10-level-meta/);
 });
 test('typed allocations update the draft immediately and persist only after confirmation',()=>{
- const s=ready();s.paused=true;s.levels.meta=32;s.health.meta.hp=17;const h=harness(s);
+ const s=ready();s.paused=true;s.levels.meta=32;s.health.meta.hp=17;const h=harness(s);h.openAbility('meta');
  const type=(track,value)=>h.get('character-list').listeners.get('input')({target:{dataset:{focusInput:'meta',focusStat:track},value:String(value)}});
  click(h,'[data-ability]',{ability:'meta'});type('vitality',12);type('power',19);
  assert.equal(h.get('focus-remaining-meta').textContent,'残り 0 / 31 CP');assert.equal(h.saved().concentration.meta.power,0);
@@ -81,6 +81,6 @@ test('large-number formatting is opt-in, changes units cleanly and keeps three d
 test('number preference and recollection use the same persisted amounts; expenses and refunds do not add earned income',()=>{
  const s=ready();s.factors=0;s.earned=0;E.grantIncome(s,1234567890,'questReward');E.buyMany(s,'level','meta',10);const total=s.earned;E.sell(s,'level','meta',10);E.grantIncome(s,500,'migrationRefund');assert.equal(s.earned,total);
  s.paused=true;const h=harness(s);assert.equal(h.get('memory-total').textContent,'1,234,567,890 Rd');
- const input=h.get('option-simple-numbers');input.checked=true;input.listeners.get('change')();assert.equal(h.get('memory-total').textContent,'1.235 billion Rd');assert.equal(h.saved().earned,total);assert.equal(h.saved().options.simplifiedNumbers,true);
- input.checked=false;input.listeners.get('change')();assert.equal(h.get('memory-total').textContent,'1,234,567,890 Rd');assert.equal(h.saved().factors,s.factors);
+ const input=h.get('option-simple-numbers');input.value='western';input.listeners.get('change')();assert.equal(h.get('memory-total').textContent,'1.235 billion Rd');assert.equal(h.saved().earned,total);assert.equal(h.saved().options.simplifiedNumbers,true);
+ input.value='normal';input.listeners.get('change')();assert.equal(h.get('memory-total').textContent,'1,234,567,890 Rd');assert.equal(h.saved().factors,s.factors);
 });

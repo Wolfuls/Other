@@ -68,6 +68,7 @@
   const quests = [
   {
     "id": "mohican-solo",
+    "rewardTransition": 100,
     "code": "01",
     "unlockFactors": 0,
     "formationCount": 1,
@@ -110,6 +111,7 @@
   },
   {
     "id": "scarecrow",
+    "rewardTransition": 100,
     "code": "02",
     "name": "バスターライラック内模擬戦闘訓練",
     "area": "バスターライラック",
@@ -148,6 +150,7 @@
   },
   {
     "id": "mohicans",
+    "rewardTransition": 98,
     "code": "03",
     "unlockFactors": 100,
     "formationCount": 3,
@@ -191,6 +194,7 @@
   },
   {
     "id": "dementor",
+    "rewardTransition": 108,
     "code": "04",
     "unlockFactors": 2500,
     "name": "旧き看守",
@@ -235,6 +239,7 @@
   },
   {
     "id": "ozmorn",
+    "rewardTransition": 100,
     "code": "05",
     "name": "ところにより雷が伴う見込みです",
     "unlockFactors": 1000,
@@ -270,7 +275,7 @@
     "formationCount": 1,
     "summons": true,
     "traits": [],
-    "reward": 45,
+    "reward": 50,
     "enemyScale": 1.7,
     "defeatStyle": "dissolve",
     "defeatSheet": "./img/enemy-ozmorn-defeat-v1.png",
@@ -305,6 +310,14 @@
   quests.forEach((q,i)=>q.code=String(i+1).padStart(2,'0'));
   for(const quest of quests){quest.row='front';quest.attackRange=['mohicans','mohican-solo'].includes(quest.id)?[1,1]:[1,3];}
   for(const quest of quests)if(quest.id==='mohicans'||quest.id==='mohican-solo')quest.variants=mohicanVariants;
+  const members=[
+    {id:'chikira',name:'チキーラ',enemy:'チキーラ',hp:120,initialHP:3200,attack:{dice:6,flat:0},defense:2,resistance:1,action:9,accuracy:{flat:24,dice:1},evasion:{flat:20,dice:1},ss:{flat:1,dice:1},sheet:'./img/chikira-actions-v2.png',spriteFrames:6,attackSeconds:2,
+      attacks:[{id:'fists',name:'拳の連打',range:[1,1],frame:1},{id:'boulder',name:'大岩投げ',range:[1,3],area:true,frame:3}]},
+    {id:'eggra',name:'エッグラ',enemy:'エッグラ',hp:90,initialHP:2800,attack:{dice:3,flat:5},defense:5,resistance:5,action:5,accuracy:{flat:21,dice:2},evasion:{flat:11,dice:2},ss:{flat:15,dice:2},sheet:'./img/eggra-actions-v2.png',spriteFrames:6,attackSeconds:1.4,
+      attacks:[{id:'slash',name:'曲剣斬り',range:[1,1],frame:1},{id:'boomerang',name:'曲剣投げ',range:[2,3],frame:2},{id:'ward',name:'防御のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'revive',name:'蘇生のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'blizzard',attackSeconds:3.2,name:'吹雪のブレス',range:[1,3],area:true,frame:3}]}
+  ];
+  quests.push({...members[0],id:'egg-or-chicken',rewardTransition:100,code:'06',name:'卵が先か鶏が先か',enemy:'チキーラ＆エッグラ',area:'中層 / 畜産プラント',description:'鶏と卵があふれる畜産プラントで待ち構える二人組。二人とも倒すと討伐完了。',unlockFactors:10000000,reward:100000000,formationCount:2,formationLayout:'staggered',members,sharedHP:false,reviveInPlace:true,traits:['swarm'],row:'front',attackRange:[1,3],background:'./img/poultry-plant-v2.png',enemyScale:1.4});
+  quests.pending=[];
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;
 })(typeof window!=='undefined'?window:globalThis);

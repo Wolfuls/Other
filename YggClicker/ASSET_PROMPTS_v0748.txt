@@ -1,0 +1,5 @@
+Mode: imagegen edit; opaque background.
+Input: img/poultry-plant-v1.png
+Output: img/poultry-plant-v2.png
+Prompt:
+Precisely repair this existing pixel-art poultry factory background, preserving composition, metal architecture, lighting, colors, conveyor, blank foreground battle floor. Correct EVERY chicken to clearly separate individual birds with exactly one head one beak one body and two legs. Reduce overcrowding: fewer distinct readable chickens in pens, no merged bird bodies, no humanlike limbs, no melted chicken faces, no double heads. Keep plentiful neatly separated eggs on shelves, no merged eggs. Crisp consistent pixel art, no smoothing or painterly wash. No characters in foreground. Same 3:2 landscape framing. Preserve fan at upper center and egg conveyors for subsequent animation.

@@ -25,6 +25,10 @@ test('loaded soul drain starts without damage and displays impact only after its
  assert.equal(h.get('damage-floats').children.filter(e=>e.classList.contains('ally-damage')).length,0);
  h.advance(400);assert.equal(rear.classList.contains('enemy-attacking'),true);assert.equal(h.get('damage-floats').children.filter(e=>e.classList.contains('ally-damage')).length,0);
  h.advance(250);assert.equal(rear.classList.contains('enemy-attacking'),false);assert.equal(h.get('enemy-effects').children.length,0);assert.ok(h.get('damage-floats').children.some(e=>e.classList.contains('ally-damage')));
+ const damage=h.get('damage-floats').children.find(e=>e.classList.contains('ally-damage'));
+ assert.ok(parseFloat(damage.style.top)<h.get('meta-combatant').offsetTop-100);
+ assert.equal(damage.style.getPropertyValue('--float-rise'),'-65px');
+ assert.ok(damage.style.getPropertyValue('--float-drift'));
 });
 test('pause cancels soul visuals while preserving the pending attack for resume',()=>{
  const s=party('dementor');s.enemies[0].pendingAttack={targetId:'meta',remaining:1.1};const h=harness(s);

@@ -14,11 +14,11 @@ test('perk edits survive draft repricing and commit together; closing restores b
 });
 test('picker and battle labels reflect current HP and runaway, including downed units',()=>{
  const s=ready();E.setFormation(s,s.sessionId,['meta']);s.health.meta.hp=-3;s.health.meta.status='dying';s.runaway.meta.runawayRate=108.75;
- const h=harness(s);assert.equal(h.get('picker-hp-meta').textContent,'HP -3 / 23');assert.equal(h.get('picker-runaway-meta').textContent,'暴走 108%');assert.equal(h.get('ally-runaway-meta').textContent,'暴走率 108%');assert.equal(h.get('ally-runaway-meta').hidden,false);assert.equal(h.get('ally-runaway-meta').classList.contains('critical'),true);assert.equal(h.get('ally-runaway-max').hidden,true);
+ const h=harness(s);h.openAbility('meta');assert.equal(h.get('picker-hp-meta').textContent,'HP -3 / 23');assert.equal(h.get('picker-runaway-meta').textContent,'暴走 108%');assert.equal(h.get('ally-runaway-meta').textContent,'暴走率 108%');assert.equal(h.get('ally-runaway-meta').hidden,false);assert.equal(h.get('ally-runaway-meta').classList.contains('critical'),true);assert.equal(h.get('ally-runaway-max').hidden,true);
  const c=D.characters.find(c=>c.id==='meta');assert.equal(h.get('ability-value-action-meta').textContent,UI.fullNumber(E.actionPower(s,c,c.action,true)));
 });
 test('cloud targeting and CSS positions put boss behind both minions',()=>{
- const s=ready();E.setFormation(s,'ozmorn',['meta']);E.selectSession(s,'ozmorn');const h=harness(s),style=h.get('arena').style;
+ const s=ready();E.setFormation(s,'ozmorn',['meta']);E.selectSession(s,'ozmorn');const h=harness(s),style=h.get('arena').style;h.openAbility('meta');
  const points=UI.cloudFormation(parseFloat(style.getPropertyValue('--enemy-x')),parseFloat(style.getPropertyValue('--enemy-y')));
  assert.ok(points[0].x>points[1].x);assert.ok(points[0].x>points[2].x);
  for(let i=0;i<3;i++){assert.equal(style.getPropertyValue('--cloud-'+i+'-x'),points[i].x+'px');assert.equal(style.getPropertyValue('--cloud-'+i+'-y'),points[i].y+'px');}

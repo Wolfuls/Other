@@ -1,0 +1,286 @@
+{
+  "rows": [
+    {
+      "kind": "single",
+      "seconds": 600,
+      "oldMs": 62.29129999999999,
+      "asyncMs": 44.6721,
+      "slices": 5,
+      "maxSlice": 8.2714,
+      "kills": 123,
+      "factors": 1000000000000246
+    },
+    {
+      "kind": "single",
+      "seconds": 3600,
+      "oldMs": 106.93700000000001,
+      "asyncMs": 112.56240000000003,
+      "slices": 14,
+      "maxSlice": 8.244000000000028,
+      "kills": 123,
+      "factors": 1000000000000246
+    },
+    {
+      "kind": "single",
+      "seconds": 28800,
+      "oldMs": 759.7439,
+      "asyncMs": 708.2539999999999,
+      "slices": 88,
+      "maxSlice": 8.4078999999997,
+      "kills": 513,
+      "factors": 1000000000001026
+    },
+    {
+      "kind": "multi",
+      "seconds": 600,
+      "oldMs": 294.53300000000036,
+      "asyncMs": 261.82040000000006,
+      "slices": 31,
+      "maxSlice": 10.014000000000124,
+      "kills": 235,
+      "factors": 1000000900012172
+    },
+    {
+      "kind": "multi",
+      "seconds": 3600,
+      "oldMs": 994.5419000000002,
+      "asyncMs": 1049.2844000000005,
+      "slices": 128,
+      "maxSlice": 8.794100000000071,
+      "kills": 501,
+      "factors": 1000004200048994
+    },
+    {
+      "kind": "multi",
+      "seconds": 28800,
+      "oldMs": 6618.5815,
+      "asyncMs": 7317.673499999997,
+      "slices": 889,
+      "maxSlice": 9.863199999999779,
+      "kills": 1031,
+      "factors": 1000012000086038
+    },
+    {
+      "kind": "high",
+      "seconds": 600,
+      "oldMs": 32.73029999999926,
+      "asyncMs": 31.728100000000268,
+      "slices": 4,
+      "maxSlice": 8.16059999999925,
+      "kills": 123,
+      "factors": 1000000000000246
+    },
+    {
+      "kind": "high",
+      "seconds": 3600,
+      "oldMs": 90.35020000000077,
+      "asyncMs": 93.62350000000151,
+      "slices": 12,
+      "maxSlice": 8.132300000001123,
+      "kills": 123,
+      "factors": 1000000000000246
+    },
+    {
+      "kind": "high",
+      "seconds": 28800,
+      "oldMs": 614.3686999999991,
+      "asyncMs": 641.9228000000003,
+      "slices": 80,
+      "maxSlice": 8.245599999998376,
+      "kills": 123,
+      "factors": 1000000000000246
+    },
+    {
+      "kind": "duo",
+      "seconds": 600,
+      "oldMs": 110.32069999999658,
+      "asyncMs": 121.06869999999981,
+      "slices": 15,
+      "maxSlice": 8.66729999999734,
+      "kills": 45,
+      "factors": 1010004523029200
+    },
+    {
+      "kind": "duo",
+      "seconds": 3600,
+      "oldMs": 297.7387000000017,
+      "asyncMs": 365.9275000000016,
+      "slices": 45,
+      "maxSlice": 8.61540000000241,
+      "kills": 60,
+      "factors": 1010006023055600
+    },
+    {
+      "kind": "duo",
+      "seconds": 28800,
+      "oldMs": 2030.0079000000005,
+      "asyncMs": 2544.4416999999958,
+      "slices": 313,
+      "maxSlice": 8.941199999993842,
+      "kills": 136,
+      "factors": 1010013623078400
+    }
+  ],
+  "distribution": [
+    {
+      "seed": 1,
+      "kills": 287,
+      "earned": 20105704083335
+    },
+    {
+      "seed": 2,
+      "kills": 338,
+      "earned": 10000000012152
+    },
+    {
+      "seed": 3,
+      "kills": 376,
+      "earned": 20104712071495
+    },
+    {
+      "seed": 4,
+      "kills": 492,
+      "earned": 20105417035533
+    },
+    {
+      "seed": 5,
+      "kills": 376,
+      "earned": 10001600047700
+    },
+    {
+      "seed": 6,
+      "kills": 532,
+      "earned": 20104819032699
+    },
+    {
+      "seed": 7,
+      "kills": 496,
+      "earned": 10001700062350
+    },
+    {
+      "seed": 8,
+      "kills": 290,
+      "earned": 10000000015808
+    },
+    {
+      "seed": 9,
+      "kills": 330,
+      "earned": 10003100050738
+    },
+    {
+      "seed": 10,
+      "kills": 295,
+      "earned": 15810
+    },
+    {
+      "seed": 11,
+      "kills": 282,
+      "earned": 10001600031715
+    },
+    {
+      "seed": 12,
+      "kills": 471,
+      "earned": 10006200069096
+    },
+    {
+      "seed": 13,
+      "kills": 288,
+      "earned": 10003100028682
+    },
+    {
+      "seed": 14,
+      "kills": 378,
+      "earned": 6400100980
+    },
+    {
+      "seed": 15,
+      "kills": 341,
+      "earned": 10003200047674
+    },
+    {
+      "seed": 16,
+      "kills": 454,
+      "earned": 10003000055950
+    },
+    {
+      "seed": 17,
+      "kills": 259,
+      "earned": 13378
+    },
+    {
+      "seed": 18,
+      "kills": 226,
+      "earned": 12980
+    },
+    {
+      "seed": 19,
+      "kills": 290,
+      "earned": 10100
+    },
+    {
+      "seed": 20,
+      "kills": 178,
+      "earned": 10003401052914
+    },
+    {
+      "seed": 21,
+      "kills": 176,
+      "earned": 10003600040962
+    },
+    {
+      "seed": 22,
+      "kills": 351,
+      "earned": 13962
+    },
+    {
+      "seed": 23,
+      "kills": 634,
+      "earned": 10007201046754
+    },
+    {
+      "seed": 24,
+      "kills": 499,
+      "earned": 10002900065674
+    },
+    {
+      "seed": 25,
+      "kills": 445,
+      "earned": 10002701043434
+    },
+    {
+      "seed": 26,
+      "kills": 366,
+      "earned": 10003100061396
+    },
+    {
+      "seed": 27,
+      "kills": 352,
+      "earned": 10002500024424
+    },
+    {
+      "seed": 28,
+      "kills": 530,
+      "earned": 25104
+    },
+    {
+      "seed": 29,
+      "kills": 375,
+      "earned": 10004601098288
+    },
+    {
+      "seed": 30,
+      "kills": 308,
+      "earned": 10002901065780
+    },
+    {
+      "seed": 31,
+      "kills": 323,
+      "earned": 11730
+    },
+    {
+      "seed": 32,
+      "kills": 285,
+      "earned": 10003401059056
+    }
+  ]
+}

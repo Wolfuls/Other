@@ -9,7 +9,7 @@ for(const kind of ['level'])test(kind+': sell ten matches ten singles, cannot cr
  E.buyMany(a,kind,'meta',10);E.sell(a,kind,'meta');const nine=structuredClone(a);assert.equal(E.saleQuote(a,kind,'meta',10).valid,false);assert.equal(E.sell(a,kind,'meta',10),false);assert.deepEqual(a,nine);
 });
 test('ability controls show prices, no gauge, separate original rolls and trained intensity, dispatch sell ten',()=>{
- const s=ready();E.buyMany(s,'level','meta',10);const h=harness(s,undefined,{combatRandom:()=>.5});
+ const s=ready();E.buyMany(s,'level','meta',10);const h=harness(s,undefined,{combatRandom:()=>.5});h.openAbility('meta');
  const html=h.get('character-list').innerHTML;assert.doesNotMatch(html,/ability-track|ability-fill|ability-price/);assert.match(html,/sell10-level-meta/);
  assert.equal(h.get('hire-cost-meta').textContent,E.hireCost(s,D.characters[0])+' Rd');
  assert.equal(h.get('ability-value-accuracy-meta').textContent,'11');assert.equal(h.get('ability-value-evasion-meta').textContent,'11');
@@ -17,6 +17,6 @@ test('ability controls show prices, no gauge, separate original rolls and traine
  assert.doesNotMatch(h.get('ability-value-accuracy-meta').textContent,/判定 ×/);
  const control={disabled:false,dataset:{kind:'level',id:'meta',trade:'sell',count:'10'}};
  h.get('character-list').listeners.get('click')({target:{closest:sel=>sel==='[data-trade]'?control:null}});
- assert.equal(h.saved().levels.meta,1);assert.equal(h.get('ability-value-accuracy-meta').textContent,'1');
+ assert.equal(h.get('ability-value-accuracy-meta').textContent,'1');h.get('character-list').listeners.get('click')({target:{closest:sel=>sel==='[data-ability-confirm]'?{dataset:{abilityConfirm:'meta'}}:null}});assert.equal(h.saved().levels.meta,1);
 });
 

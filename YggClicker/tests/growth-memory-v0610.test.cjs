@@ -3,14 +3,14 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character:c,rng,roundTrip}=require('./current-fixtures.cjs');
 const N=require('../js/numbers'),F=require('../js/matchup'),{harness}=require('./app-harness.cjs');
 const stat=x=>100*1.012**x*(1+x/100)**(100*Math.log(1.025/1.012));
-const prize=(base,x)=>base*1.04**x*(1+x/100)**(100*Math.log(1.28/1.04));
+const prize=(base,x,transition=100)=>base*1.04**x*(1+x/transition)**(transition*Math.log(1.28/1.04));
 const near=(a,b)=>assert.ok(Math.abs(a-b)<=1e-12*Math.max(1,Math.abs(b)),`${a} != ${b}`);
 
 test('all enemy strengths, HP, action and rewards follow the supplied curves at Q-1',()=>{
- for(const base of D.sessions)for(const level of [1,2,10,25,100,101,500,1000]){
+ for(const base of D.sessions.filter(q=>!q.members))for(const level of [1,2,10,25,100,101,500,1000]){
   const q=E.sessionAtLevel(base,level),x=level-1;
   near(q.strength,stat(x));near(q.hpStrength,E.T.enemyDurability(x,'vitality'));near(q.actionMultiplier,stat(x)/100);
-  near(q.hp,N.floor(base.hp*E.T.enemyDurability(x,'vitality')/100));near(q.reward,N.floor(prize(base.reward,x)));
+  near(q.hp,N.floor(base.hp*E.T.enemyDurability(x,'vitality')/100));near(q.reward,N.floor(prize(base.reward,x,base.rewardTransition)));
   for(const key of ['attack','accuracy','evasion','ss','defense','resistance'])assert.deepEqual(q[key],base[key]??0);
   if(level===1){assert.equal(q.strength,100);assert.equal(q.hp,base.hp);assert.equal(q.reward,base.reward);}
  }
@@ -26,7 +26,7 @@ test('growth gradually eases, stays monotone and caps finite values at extreme l
    assert.ok(ratio>curve.terminal&&ratio<previous);previous=ratio;
   }
  }
- for(const q of D.sessions)for(const level of [10000,1e6,Number.MAX_SAFE_INTEGER]){
+ for(const q of D.sessions.filter(q=>!q.members))for(const level of [10000,1e6,Number.MAX_SAFE_INTEGER]){
   const grown=E.sessionAtLevel(q,level);
   for(const key of ['strength','hpStrength','actionMultiplier','hp','reward'])assert.ok(Number.isFinite(grown[key])&&grown[key]>0&&grown[key]<=1e100,key);
  }
@@ -45,8 +45,8 @@ test('battle profiles and matchup estimates share current enemy strengths in bot
 test('schema39 preserves current earnings and migrates enemy HP ratios, summons, AP and queued actions',()=>{
  const s=ready(['meta'],'mohicans');s.earned=987654;s.health.meta.hp=9;s.actionPoints.meta=12;
  for(const char of D.characters)s.levels[char.id]=1;
- for(const [i,base]of D.sessions.entries())E.setFormation(s,base.id,[D.characters[i].id]);
- for(const base of D.sessions){
+ for(const [i,base]of D.sessions.filter(q=>!q.members).entries())E.setFormation(s,base.id,[D.characters[i].id]);
+ for(const base of D.sessions.filter(q=>!q.members)){
   s.questLevels[base.id]=101;s.questActiveLevels[base.id]=101;E.selectSession(s,base.id);s.enemies=null;E.ensureEnemies(s);
   const oldMax=E.hpFromStrength(base.hp,100);
   for(const enemy of s.enemies)if(enemy.kind!=='kogumo')enemy.hp=Math.floor(oldMax*.4);
@@ -61,7 +61,7 @@ test('schema39 preserves current earnings and migrates enemy HP ratios, summons,
  const migrated=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:39,state:s}));
  assert.deepEqual(E.incomeRecord(migrated),{currentRun:987654,allRuns:987654});
  assert.equal(migrated.health.meta.hp,9);assert.equal(migrated.actionPoints.meta,12);
- for(const base of D.sessions){
+ for(const base of D.sessions.filter(q=>!q.members)){
   const ctx=E.battleContext(migrated,base.id),max=E.getSession(ctx).hp,oldMax=E.hpFromStrength(base.hp,100);
   assert.equal(ctx.enemies[0].hp,Math.max(1,N.floor(N.floor(Math.floor(oldMax*.4)/oldMax*N.floor(base.hp*stat(100)/100))/N.floor(base.hp*stat(100)/100)*max)));
   assert.equal(ctx.enemies[0].actionPoints,7);assert.equal(ctx.enemies[0].poisonDamage,4);
@@ -104,7 +104,7 @@ test('simultaneous battles and offline gains feed the same run and all-run recor
 test('memory displays separate saved totals, including simplified number formatting',()=>{
  const s=ready();s.paused=true;s.viewingMemories=true;s.earned=2345678;s.previousRunsEarned=1000000000;
  const h=harness(s);assert.equal(h.get('memory-current').textContent,'2,345,678 Rd');assert.equal(h.get('memory-total').textContent,'1,002,345,678 Rd');
- const input=h.get('option-simple-numbers');input.checked=true;input.listeners.get('change')();
+ const input=h.get('option-simple-numbers');input.value='western';input.listeners.get('change')();
  assert.equal(h.get('memory-current').textContent,'2.346 million Rd');assert.equal(h.get('memory-total').textContent,'1.002 billion Rd');
  assert.deepEqual(E.incomeRecord(h.saved()),E.incomeRecord(s));
 });

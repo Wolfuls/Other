@@ -12,7 +12,7 @@ test('unified HP strength is linear two percent, with independent eight percent 
 });
 
 test('enemy HP uses the current shared curve and has a separate derived HP strength level',()=>{
- for(const q of D.sessions)for(let lv=1;lv<=100;lv++){
+ for(const q of D.sessions.filter(q=>!q.members))for(let lv=1;lv<=100;lv++){
   const next=E.sessionAtLevel(q,lv);assert.equal(next.hpStrengthLevel,lv-1);
   assert.equal(next.hpStrength,T.enemyDurability(lv-1,'vitality'));assert.equal(next.hp,N.floor(q.hp*T.enemyDurability(lv-1,'vitality')/100));
  }
@@ -88,14 +88,14 @@ test('legacy pending attacks preserve timers and rolls while adopting migrated s
 
 test('legacy high-level enemy HP survives harmless exponential rounding differences',()=>{
  const s=ready(['meta'],'mohican-solo');
- for(const q of D.sessions){
+ for(const q of D.sessions.filter(q=>!q.members)){
   s.questLevels[q.id]=310;s.questActiveLevels[q.id]=310;s.questUnlocks[q.id]=true;
   E.selectSession(s,q.id);E.setQuestLevel(s,q.id,310);s.enemies=null;E.ensureEnemies(s);
   const oldMax=N.geometric(q.hp,1.1,309);for(const enemy of s.enemies)if(enemy.kind!=='kogumo')enemy.hp=oldMax;
   s.hp=oldMax;
  }
  const migrated=S.decode(legacy(s));
- for(const q of D.sessions){const ctx=E.battleContext(migrated,q.id),maximum=E.getSession(ctx).hp;
+ for(const q of D.sessions.filter(q=>!q.members)){const ctx=E.battleContext(migrated,q.id),maximum=E.getSession(ctx).hp;
   for(const enemy of ctx.enemies)if(enemy.kind!=='kogumo'){assert.ok(enemy.hp<=maximum);assert.equal(enemy.hp,maximum);}
  }
  assert.deepEqual(roundTrip(migrated),migrated);
@@ -110,7 +110,7 @@ test('six-second recovery follows actual scaled HP and revives only at full HP',
 
 test('ability UI shows shared HP strength and actual HP while gauges remain actual health',()=>{
  const s=ready(['meta']);s.paused=true;s.levels.meta=11;s.health.meta.hp=7;
- const h=harness(s);assert.equal(h.get('ability-value-vitality-meta').textContent,'11');
+ const h=harness(s);h.openAbility('meta');assert.equal(h.get('ability-value-vitality-meta').textContent,'11');
  assert.equal(h.get('ability-maxhp-meta').textContent,'最大HP 24');assert.match(h.get('picker-hp-meta').textContent,/7 \/ 24/);
  assert.match(h.get('ally-hp-meta').textContent,/7 \/ 24/);assert.match(h.get('character-list').innerHTML,/HP強度/);
 });

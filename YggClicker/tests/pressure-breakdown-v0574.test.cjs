@@ -44,12 +44,12 @@ test('ability pressure ignores unallocated draft levels and reflects perk switch
  const c=character('meta'),p=c.perks.find(p=>p.level===10),old=p.runawayPressure;p.runawayPressure=.02;
  try{
   const s=ready(['meta']);s.levels.meta=10;s.paused=true;s.upgrades.stabilization=15;E.refreshPerkUnlocks(s);
-  const h=harness(s),original=h.get('pressure-summary-meta').textContent;
+  const h=harness(s);h.openAbility('meta');const original=h.get('pressure-summary-meta').textContent;h.closeAbility();
   click(h,'[data-ability]',{ability:'meta'});click(h,'[data-perk]',{perkCharacter:'meta',perk:p.id});
   const withPerk=h.get('pressure-summary-meta').textContent;assert.notEqual(withPerk,original);
   click(h,'[data-trade]',{trade:'buy',kind:'level',id:'meta'});assert.equal(h.get('pressure-summary-meta').textContent,withPerk);
   const html=h.get('pressure-content-meta').innerHTML;assert.match(html,/log₂/);assert.match(html,/因子安定化/);assert.match(html,/0.1 × Lv.15 ＝ 1.5/);assert.doesNotMatch(html,/鎮静調律/);assert.match(html,/パーク合計/);
-  click(h,'[data-ability-close]',{abilityClose:'meta'});assert.equal(h.get('pressure-summary-meta').textContent,original);assert.equal(h.saved().levels.meta,10);
+  click(h,'[data-ability-close]',{abilityClose:'meta'});h.openAbility('meta');assert.equal(h.get('pressure-summary-meta').textContent,original);assert.equal(h.saved().levels.meta,10);h.closeAbility();
   click(h,'[data-ability]',{ability:'meta'});click(h,'[data-perk]',{perkCharacter:'meta',perk:p.id});click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});
   assert.equal(h.get('pressure-summary-meta').textContent,withPerk);assert.equal(h.saved().perkEnabled.meta[p.id],true);
  }finally{p.runawayPressure=old;}

@@ -1,0 +1,73 @@
+.grounded .duo-combatant .enemy-sprite,.grounded .duo-combatant.enemy-attacking .enemy-sprite{width:100%;height:100%;left:0;top:0;transform:none!important;background:none!important;animation:none!important}
+.duo-combatant canvas{width:100%;height:100%;image-rendering:pixelated}
+.duo-combatant.duo-down .enemy-target{display:none}
+.duo-combatant.duo-down .enemy-health{color:#9cafba}
+.duo-effects{position:absolute;inset:0;pointer-events:none;z-index:16;overflow:visible}
+.duo-fx{position:absolute;display:block;image-rendering:pixelated;animation-duration:var(--duration);animation-fill-mode:both;animation-timing-function:linear}
+.duo-sword{width:54px;height:18px;border-bottom:9px solid #d6edf0;border-right:6px solid #f3f9fa;border-radius:0 0 90% 45%;box-shadow:0 4px 0 #6a8d9d;animation-name:duo-sword}
+@keyframes duo-sword{0%,12%{transform:translate(0,0) rotate(0);opacity:0}18%{opacity:1}50%{transform:translate(var(--travel),-25px) rotate(-1080deg)}90%{transform:translate(0,0) rotate(-2160deg);opacity:1}100%{opacity:0}}
+.duo-rock-up,.duo-rock-down{width:100px;height:92px;margin:-46px -50px;background:linear-gradient(125deg,#939694 0 22%,#555e60 23% 40%,#a4a69c 41% 59%,#424c51 60% 72%,#747874 73%);clip-path:polygon(15% 0,72% 0,100% 24%,94% 80%,65% 100%,15% 91%,0 36%)}
+.duo-rock-up{animation-name:duo-rock-up}.duo-rock-down{animation-name:duo-rock-down}
+@keyframes duo-rock-up{0%,18%{opacity:0;transform:translateY(-35px)}20%{opacity:1}48%{opacity:1;transform:translateY(-650px) rotate(170deg)}49%,100%{opacity:0;transform:translateY(-650px)}}
+@keyframes duo-rock-down{0%,52%{opacity:0;transform:translateY(-650px)}54%{opacity:1}94%{opacity:1;transform:translateY(0) rotate(210deg)}100%{opacity:0;transform:translateY(20px) rotate(215deg)}}
+.duo-ice{width:20px;height:12px;background:#ceffff;box-shadow:0 0 12px #8beaff;clip-path:polygon(0 45%,65% 0,100% 50%,60% 100%);animation-name:duo-ice}
+@keyframes duo-ice{0%,20%{opacity:0;transform:translate(0,0)}30%{opacity:1;transform:translate(0,calc(var(--phase)*30px))}90%{opacity:1;transform:translate(var(--travel),var(--fall))}100%{opacity:0;transform:translate(var(--travel),var(--fall))}}
+.duo-fist{width:35px;height:24px;border:3px solid #a97c36;background:#68502c;border-radius:20%;animation-name:duo-fist;opacity:.6}
+@keyframes duo-fist{0%{opacity:0}20%,75%{opacity:.5;transform:translate(calc(-25px - var(--phase)*75px),calc(-30px + var(--phase)*60px))}100%{opacity:0;transform:translate(-130px,0)}}
+.enemy-paused .duo-fx{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.duo-effects{display:none}}
+.duo-combatant .enemy-sprite{position:relative}.duo-combatant canvas{position:absolute;left:0;top:-28.571429%;width:100%;height:128.571429%}
+.duo-rock-up{width:var(--rock-width,260px);height:210px;margin:-190px 0 0 -130px}
+.duo-rock-down{width:var(--rock-width);height:var(--rock-height);margin:0;transform-origin:50% 100%;box-shadow:inset 0 24px 0 #b9b9a1;animation-name:duo-colossal-impact;background:linear-gradient(140deg,#bab9a4 0 15%,#7b837e 16% 32%,#4c575a 33% 35%,#8b9285 36% 57%,#465054 58% 61%,#626c64 62% 80%,#333f43 81%)}
+@keyframes duo-rock-up{0%,47%{opacity:0;transform:translateY(0)}48%{opacity:1}69%{opacity:1;transform:translateY(-900px) rotate(-25deg)}70%,100%{opacity:0;transform:translateY(-900px)}}
+@keyframes duo-colossal-impact{0%,72%{opacity:0;transform:translate(-50%,calc(-100% - 900px))}73%{opacity:1;transform:translate(-50%,calc(-100% - 900px))}96%{opacity:1;transform:translate(-50%,-100%)}98%{opacity:1;transform:translate(-50%,-98%) scaleY(.96)}100%{opacity:1;transform:translate(-50%,-100%)}}
+.duo-rock-dust{height:110px;margin-left:0;background:radial-gradient(ellipse at center,#e5d6a4 0 15%,#bfb38dbb 35%,transparent 70%);animation-name:duo-rock-dust}
+@keyframes duo-rock-dust{0%,94%{opacity:0;transform:translate(-50%,-50%) scale(.3)}97%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:.6;transform:translate(-50%,-50%) scale(1.25)}}
+.meta-arena .duo-combatant[data-duo-kind="eggra"]{left:var(--enemy-x)!important;top:var(--enemy-y)!important;z-index:2}
+.meta-arena .duo-combatant[data-duo-kind="chikira"]{left:calc(var(--enemy-x) + var(--reserve-1-x))!important;top:calc(var(--enemy-y) + var(--reserve-1-y))!important;z-index:1}
+.duo-rock-up,.duo-rock-down{background:url('./img/chikira-colossal-rock-v1.png') center/100% 100% no-repeat;clip-path:none;box-shadow:none}
+.duo-impact-fade{animation:duo-after-impact 1s linear forwards}
+@keyframes duo-after-impact{from{opacity:1}to{opacity:0}}
+.duo-sword{width:96px;height:125px;margin:-62px -48px;background:url('./img/eggra-blades-v1.png') center/contain no-repeat;border:0;border-radius:0;box-shadow:none;animation-name:duo-double-blades}
+@keyframes duo-double-blades{0%,23%{opacity:0;transform:translate(0,0) rotate(0)}26%{opacity:1}55%{opacity:1;transform:translate(var(--travel),-20px) rotate(-1080deg)}76%{opacity:1;transform:translate(0,-15px) rotate(-1800deg)}79%,100%{opacity:0;transform:translate(0,0) rotate(-1800deg)}}
+.duo-punch-trail{width:72px;height:38px;animation-name:duo-barrage;animation-delay:var(--drift-delay);}
+.duo-punch-trail canvas{width:100%;height:100%;image-rendering:pixelated}
+@keyframes duo-barrage{0%,14%{opacity:0;transform:translate(-5px,var(--punch-y))}20%{opacity:.8;transform:translate(var(--punch-x),var(--punch-y))}28%{opacity:0;transform:translate(calc(var(--punch-x) - 22px),var(--punch-y))}33%{opacity:.9;transform:translate(-15px,var(--punch-y))}42%{opacity:0;transform:translate(var(--punch-x),var(--punch-y))}50%{opacity:.85;transform:translate(-10px,var(--punch-y))}60%{opacity:0;transform:translate(var(--punch-x),var(--punch-y))}69%{opacity:.9;transform:translate(-10px,var(--punch-y))}79%{opacity:0;transform:translate(var(--punch-x),var(--punch-y))}88%,100%{opacity:0}}
+.duo-snow{width:8px;height:8px;background:#edffff;box-shadow:7px -6px #c1edff,-8px 5px #8fcbef;clip-path:polygon(35% 0,65% 0,65% 35%,100% 35%,100% 65%,65% 65%,65% 100%,35% 100%,35% 65%,0 65%,0 35%,35% 35%);animation-name:duo-cold-stream;animation-delay:var(--drift-delay)}
+.duo-frost-cloud{width:110px;height:65px;border-radius:48%;background:radial-gradient(ellipse,#eaffffd9,#a9def888 45%,#76b7de33 64%,transparent 70%);filter:blur(2px);animation-name:duo-cold-stream;animation-delay:var(--drift-delay)}
+@keyframes duo-cold-stream{0%,32%{opacity:0;transform:translate(0,0) scale(.3)}42%{opacity:.8;transform:translate(calc(var(--travel)*.15),calc(var(--fall)*.15)) scale(.8)}65%{opacity:.9;transform:translate(calc(var(--travel)*.6),calc(var(--fall)*.6)) scale(1.5)}90%{opacity:.7;transform:translate(var(--travel),var(--fall)) scale(2)}100%{opacity:0;transform:translate(var(--travel),var(--fall)) scale(2.4)}}
+.duo-slash-arc{width:140px;height:110px;margin:-50px -100px;border-left:7px solid #f5ffff;border-top:3px solid #b7ecff;border-bottom:3px solid #99d4f8;border-radius:50%;box-shadow:-9px 0 0 -5px #67caff;animation:duo-arc .24s ease-out both;animation-delay:var(--arc-delay);transform-origin:80% 50%}
+@keyframes duo-arc{0%{opacity:0;transform:rotate(calc(var(--arc-turn) - 50deg)) scale(.5)}20%{opacity:1}75%{opacity:.8;transform:rotate(var(--arc-turn)) scale(1.15)}100%{opacity:0;transform:rotate(calc(var(--arc-turn) + 30deg)) scale(1.25)}}
+.duo-punch-trail{animation-name:duo-punch-cycle;animation-duration:.24s;animation-iteration-count:infinite}
+.duo-punch-trail{width:46px;height:32px;clip-path:polygon(0 20%,70% 0,100% 20%,100% 80%,70% 100%,0 80%)}
+.duo-frost-cloud{width:78px;height:42px;background:radial-gradient(ellipse,#eaffff88,#a9def855 40%,#76b7de22 60%,transparent 70%)}
+.duo-snow{width:5px;height:5px}
+.duo-punch-trail canvas{animation:duo-barrage-gate var(--duration) linear both}
+@keyframes duo-punch-cycle{0%{opacity:0;transform:translate(-10px,var(--punch-y))}25%{opacity:.85}75%{opacity:.55;transform:translate(var(--punch-x),var(--punch-y))}100%{opacity:0;transform:translate(calc(var(--punch-x) - 25px),var(--punch-y))}}
+@keyframes duo-barrage-gate{0%,15%{visibility:hidden}16%,88%{visibility:visible}89%,100%{visibility:hidden}}
+
+/* One independent, varied punch per mote. */
+.duo-punch-trail{animation:duo-single-punch var(--flight) linear both;animation-delay:var(--drift-delay);clip-path:none}
+.duo-punch-trail canvas{animation:none}
+@keyframes duo-single-punch{0%{opacity:0;transform:translate(-5px,var(--punch-y)) rotate(var(--punch-turn)) scale(var(--punch-scale))}18%{opacity:.9}75%{opacity:.65}100%{opacity:0;transform:translate(var(--punch-x),var(--punch-end-y)) rotate(var(--punch-turn)) scale(var(--punch-scale))}}
+.duo-frost-cloud{margin:-21px -39px}.duo-snow{margin:-2px}
+.duo-frost-cloud,.duo-snow{animation-name:duo-mouth-stream;animation-duration:var(--cold-flight)}
+@keyframes duo-mouth-stream{0%{opacity:0;transform:translate(0,0) scale(.25)}8%{opacity:.8;transform:translate(calc(var(--travel)*.04),calc(var(--fall)*.04)) scale(.45)}65%{opacity:.8;transform:translate(calc(var(--travel)*.6),calc(var(--fall)*.6)) scale(1.4)}100%{opacity:0;transform:translate(var(--travel),var(--fall)) scale(2)}}
+
+/* Leave the arena on the left, then descend from above into the raised hands. */
+.duo-effects[data-duo-effect="boomerang"]{overflow:hidden}
+.duo-sword{animation-name:duo-sky-return}
+@keyframes duo-sky-return{0%,24%{opacity:0;transform:translate(0,0) rotate(0)}25%{opacity:1;transform:translate(0,0) rotate(0)}53%{opacity:1;transform:translate(var(--exit-x),-30px) rotate(-1080deg)}54%{opacity:0;transform:translate(var(--exit-x),-30px) rotate(-1080deg)}55%,65%{opacity:0;transform:translate(var(--catch-x),var(--sky-y)) rotate(-1440deg)}66%{opacity:1;transform:translate(var(--catch-x),var(--sky-y)) rotate(-1440deg)}87.9%{opacity:1;transform:translate(var(--catch-x),var(--catch-y)) rotate(-2160deg)}88%,100%{opacity:0;transform:translate(var(--catch-x),var(--catch-y)) rotate(-2160deg)}}
+
+.duo-blizzard-plume{height:220px;transform-origin:100% 70%;margin-top:-154px;animation:duo-sustained-breath var(--duration) linear both;animation-delay:var(--drift-delay,0s)}
+.duo-blizzard-plume canvas{width:100%;height:100%;image-rendering:auto}
+@keyframes duo-sustained-breath{0%,32%{opacity:0;transform:translateX(-97.65%) scaleX(.02)}38%{opacity:.8;transform:translateX(-97.65%) scaleX(.35)}52%,86%{opacity:.92;transform:translateX(-97.65%) scaleX(1)}93%{opacity:.55;transform:translateX(-97.65%) scaleX(1)}100%{opacity:0;transform:translateX(-97.65%) scaleX(1)}}
+
+.duo-cold-particle{margin:-15px 0 0 -20px;animation:duo-cold-scatter var(--flight) linear both;animation-delay:var(--drift-delay)}
+.duo-cold-particle canvas{width:100%;height:100%;image-rendering:pixelated}
+@keyframes duo-cold-scatter{0%{opacity:0;transform:translate(0,0) rotate(0)}8%{opacity:.85}75%{opacity:.65}100%{opacity:0;transform:translate(var(--travel),var(--fall)) rotate(var(--spin))}}
+.duo-charm-swords{width:90px;height:115px;margin:-60px -45px;background:url('./img/eggra-blades-v1.png') center/contain no-repeat;animation-name:duo-charm-toss}
+@keyframes duo-charm-toss{0%{opacity:1;transform:translateY(-30px)}18%{opacity:1;transform:translateY(-650px) rotate(720deg)}19%,68%{opacity:0;transform:translateY(-650px)}69%{opacity:1;transform:translateY(-650px) rotate(720deg)}87.9%{opacity:1;transform:translateY(-65px) rotate(1440deg)}88%,100%{opacity:0;transform:translateY(-65px)}}
+.duo-orange-aura{width:160px;height:200px;margin:-200px -80px;background:radial-gradient(ellipse at bottom,#ffce7088,transparent 65%);border-radius:50%;box-shadow:inset 0 -25px 30px #ff8b2099;animation-name:duo-charm-aura}
+.duo-holy-light{width:180px;height:600px;margin:-600px -90px;background:linear-gradient(90deg,transparent,#fff6bcbb 35%,#fffef5ee 50%,#fff6bcbb 65%,transparent);clip-path:polygon(35% 0,65% 0,100% 100%,0 100%);animation-name:duo-charm-aura}
+@keyframes duo-charm-aura{0%,18%{opacity:0}30%{opacity:.55}45%{opacity:.9}60%{opacity:.6}78%,88%{opacity:1}100%{opacity:0}}

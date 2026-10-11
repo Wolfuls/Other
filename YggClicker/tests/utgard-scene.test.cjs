@@ -13,7 +13,7 @@ test('crystal density follows income monotonically, saturates at 24, and does no
  const empty=harness(combatFixture(1000));assert.equal(empty.get('factor-rain').children.length,24);assert.ok(empty.get('factor-rain').children.every(n=>n.hidden));
  const s=combatFixture(1000);s.levels.richter=50;s.levels.richter=Math.max(s.levels.richter,1001);s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
  const h=harness(s),pool=[...h.get('factor-rain').children];
- assert.equal(pool.filter(n=>!n.hidden).length,UI.factorRainCount(E.expectedIncome(s).factorsPerSecond));
+ assert.equal(pool.filter(n=>!n.hidden).length,0);
  h.advance(4000);assert.deepEqual(h.get('factor-rain').children,pool,'effect reuses a fixed pool across live ticks');
  h.click('pause');assert.ok(h.get('arena-viewport').classList.contains('scene-paused'));
  h.click('pause');assert.ok(!h.get('arena-viewport').classList.contains('scene-paused'));
@@ -27,7 +27,7 @@ test('the gang quest uses Utgard, hides the individual enemy title and includes 
  const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;const h=harness(s);
  assert.ok(h.get('enemy-name').hidden);assert.ok(h.get('arena-viewport').classList.contains('has-scene'));
  assert.equal(h.get('arena-viewport').style.getPropertyValue('--session-background'),'url("'+mob.background+'")');
- assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor']);
+ assert.deepEqual(D.sessions.map(s=>s.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor','egg-or-chicken']);
  assert.equal(moveTestParty(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 

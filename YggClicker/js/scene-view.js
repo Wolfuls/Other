@@ -67,6 +67,7 @@
       setText('memory-total',money(income.allRuns)+' Rd');
       if(memories)return;
       const viewport=$('arena-viewport');
+      viewport.dataset.poultry=String(session.id==='egg-or-chicken');
       viewport.classList.toggle('four-phase',!!session.dawnBackground);
       let background=session.background||'',night=session.nightBackground||'',blend=UI.scenePhase(state.sceneSeconds,D.sceneCycle).night;
       if(session.dawnBackground&&session.duskBackground){

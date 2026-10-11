@@ -126,6 +126,6 @@ test('new saves reject invalid charge or ward values and older saves still gain 
 
 test('UI shows magic/current attack, new awakening names, chant action and the charged pose',()=>{
  const s=battle();enable(s,'megumin','laws-of-heaven');s.health.megumin.magicLevel=2;s.paused=true;const h=harness(s);
- assert.equal(h.get('ally-magic-megumin').textContent,'魔力 Lv.2 / 4');assert.equal(h.get('attack-action').textContent,'詠唱する');assert.ok(h.get('megumin-combatant').classList.contains('charging'));assert.match(h.get('magic-summary-megumin').textContent,/魔力 Lv.2 \/ 4/);assert.match(h.get('character-list').innerHTML,/高速詠唱/);assert.doesNotMatch(h.get('character-list').innerHTML,/爆風防壁|各パークの攻撃力補正を2倍/);
+ assert.equal(h.get('ally-magic-megumin').textContent,'魔力 Lv.1 / 4');assert.equal(h.get('attack-action').textContent,'詠唱する');assert.ok(h.get('megumin-combatant').classList.contains('charging'));h.openAbility('megumin');assert.match(h.get('magic-summary-megumin').textContent,/魔力 Lv.1 \/ 4/);assert.match(h.get('character-list').innerHTML,/高速詠唱/);assert.doesNotMatch(h.get('character-list').innerHTML,/爆風防壁|各パークの攻撃力補正を2倍/);
  const frames=FX.plan([{type:'magicCharge',actorId:'megumin',magicLevel:1,maximum:3},{type:'attack',actorId:'megumin',count:1,damage:100,hpBefore:200,hpAfter:100}]);assert.equal(frames.reduce((n,f)=>n+f.meguminAttacks,0),1);
 });

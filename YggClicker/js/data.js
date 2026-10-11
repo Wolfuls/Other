@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.73.2",
+  "version": "0.75.1",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -124,6 +124,7 @@
   ],
   "displayDefaults": {
     "simplifiedNumbers": false,
+    "numberUnit": "western",
     "showOrbits": true,
     "hitEffects": "normal",
     "showFactorRain": true,
@@ -570,6 +571,7 @@
 };
   data.characters=commonJS?require('./characters.js'):root.YggCharacters;
   data.sessions=commonJS?require('./quests.js'):root.YggQuests;
+  data.pendingQuests=data.sessions.pending||[];
   data.characters.sort((a,b)=>a.cost-b.cost);
   for (const character of data.characters) {
     const pressureBand = { awakening:'normal', reaction:'slightlyLow', recovery:'low' }[character.activationType];

@@ -1,0 +1,55 @@
+{
+  "viewport": {
+    "width": 739,
+    "height": 956
+  },
+  "seconds": 20,
+  "before": {
+    "renderMs": 720.2,
+    "renderMaxMs": 206.6,
+    "renderCalls": 198,
+    "dpsMs": 189.7,
+    "purchases": 45,
+    "questRender": 1,
+    "expectedIncomeCalls": 6,
+    "totalIncomeCalls": 29,
+    "longestTaskMs": 225,
+    "longTasks": 1,
+    "heap": 13988777
+  },
+  "after": {
+    "renderMs": 278.6,
+    "renderMaxMs": 114,
+    "renderCalls": 199,
+    "dpsMs": 121.1,
+    "purchases": 0,
+    "questRender": 0,
+    "expectedIncomeCalls": 0,
+    "totalIncomeCalls": 0,
+    "longestTaskMs": 133,
+    "longTasks": 2,
+    "heap": 17578704
+  },
+  "node": {
+    "0750": {
+      "dps50ms": 3.8615999999999815,
+      "ui10secMs": 142.6872,
+      "dom": {
+        "text": 977,
+        "formulas": 70,
+        "controls": 14,
+        "layout": 13
+      }
+    },
+    "0751": {
+      "dps50ms": 3.757000000000005,
+      "ui10secMs": 100.72559999999999,
+      "dom": {
+        "text": 551,
+        "formulas": 0,
+        "controls": 14,
+        "layout": 13
+      }
+    }
+  }
+}

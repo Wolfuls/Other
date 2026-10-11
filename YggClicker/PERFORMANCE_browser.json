@@ -1,0 +1,116 @@
+{
+  "conditions": "1280x720, duo visible, seeded combat, sequential 20-second instrumented samples; inclusive wall time, not OS CPU time",
+  "before": {
+    "seconds": 20.1073,
+    "advance": {
+      "calls": 198,
+      "totalMs": 143.1,
+      "maxMs": 7.1
+    },
+    "sync": {
+      "calls": 198,
+      "totalMs": 184.3,
+      "maxMs": 10
+    },
+    "render": {
+      "calls": 197,
+      "totalMs": 778.5,
+      "maxMs": 277.5
+    },
+    "totalDps": {
+      "calls": 4,
+      "totalMs": 249.8,
+      "maxMs": 201.4
+    },
+    "totalIncome": {
+      "calls": 4,
+      "totalMs": 0.6,
+      "maxMs": 0.2
+    },
+    "details": {
+      "calls": 40,
+      "totalMs": 13.3
+    },
+    "purchase": {
+      "calls": 68,
+      "totalMs": 6.4
+    },
+    "quest": {
+      "calls": 4,
+      "totalMs": 71.1
+    },
+    "drawImage": 2968,
+    "clearRect": 2590,
+    "longestTaskMs": 301,
+    "longTasks": 4,
+    "heapBytes": 15675069,
+    "images": 100
+  },
+  "after": {
+    "seconds": 20.1011,
+    "advance": {
+      "calls": 199,
+      "totalMs": 122.2,
+      "maxMs": 4.7
+    },
+    "sync": {
+      "calls": 199,
+      "totalMs": 163.8,
+      "maxMs": 15.9
+    },
+    "render": {
+      "calls": 198,
+      "totalMs": 452.3,
+      "maxMs": 212.6
+    },
+    "totalDps": {
+      "calls": 27,
+      "totalMs": 166.6,
+      "maxMs": 140.4
+    },
+    "totalIncome": {
+      "calls": 27,
+      "totalMs": 1.9,
+      "maxMs": 0.3
+    },
+    "details": {
+      "calls": 36,
+      "totalMs": 15.1
+    },
+    "purchase": {
+      "calls": 43,
+      "totalMs": 7.4
+    },
+    "quest": {
+      "calls": 1,
+      "totalMs": 8.4
+    },
+    "drawImage": 847,
+    "clearRect": 621,
+    "longestTaskMs": 233,
+    "longTasks": 1,
+    "heapBytes": 12095472,
+    "images": 39
+  },
+  "recovery": {
+    "worker": {
+      "elapsedMs": 4839.3,
+      "heartbeatMaxGapMs": 43.9,
+      "heartbeats": 301,
+      "exact": true
+    },
+    "fallback": {
+      "elapsedMs": 6435.6,
+      "heartbeatMaxGapMs": 36.6,
+      "heartbeats": 401,
+      "exact": true
+    }
+  },
+  "localStorage": {
+    "calls": 20,
+    "totalMs": 25.5,
+    "maxMs": 7.2,
+    "bytes": 20279,
+    "valid": true
+  }
+}

@@ -1,15 +1,15 @@
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,character:c,rng,faces,ready,enable,neutralHealth,roundTrip}=require('./current-fixtures.cjs');
-for(const q of D.sessions)test(`${q.id}: original stats, four intensities and independent HP/reward/action curves`,()=>{
+for(const q of D.sessions.filter(q=>!q.members))test(`${q.id}: original stats, four intensities and independent HP/reward/action curves`,()=>{
  const s=ready(['meta'],q.id),base=E.getSession(s);s.questLevels[q.id]=100;E.setQuestLevel(s,q.id,30);const grown=E.getSession(s);
  for(const k of ['attack','accuracy','evasion','ss','defense','resistance'])assert.deepEqual(grown[k],base[k]);
- assert.equal(grown.strengthLevel,29);assert.ok(Math.abs(grown.hp/base.hp-E.T.enemyDurability(29,'vitality')/100)<1/base.hp);assert.ok(Math.abs(grown.reward/base.reward-1.04**29*(1+29/100)**(100*Math.log(1.28/1.04)))<1/base.reward);assert.equal(grown.actionMultiplier,E.T.enemyValue(29)/100);
+ assert.equal(grown.strengthLevel,29);assert.ok(Math.abs(grown.hp/base.hp-E.T.enemyDurability(29,'vitality')/100)<1/base.hp);assert.ok(Math.abs(grown.reward/base.reward-1.04**29*(1+29/q.rewardTransition)**(q.rewardTransition*Math.log(1.28/1.04)))<1/base.reward);assert.equal(grown.actionMultiplier,E.T.enemyValue(29)/100);
  assert.deepEqual(E.formationIds(s),['meta']);assert.equal(roundTrip(s).questActiveLevels[q.id],30);
 });
 test('all quest unlocks remain after wallet falls, and the current roster/order are stable',()=>{
- const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
- s.factors=1e6;E.refreshQuestUnlocks(s);s.factors=0;for(const q of D.sessions)assert.equal(E.isQuestUnlocked(roundTrip(s),q.id),true);
+ const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor','egg-or-chicken']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
+ s.factors=1e7;E.refreshQuestUnlocks(s);s.factors=0;for(const q of D.sessions)assert.equal(E.isQuestUnlocked(roundTrip(s),q.id),true);
 });
 test('formations move occupied characters atomically, keep five-unit cap and preserve explicit empty parties',()=>{
  const s=ready(D.characters.slice(0,5).map(c=>c.id));for(const char of D.characters)s.levels[char.id]=1;
@@ -61,3 +61,4 @@ test('bulk and split deterministic steps agree, including offscreen battles and 
  const rounded=x=>JSON.parse(JSON.stringify(x,(_,v)=>typeof v==='number'?Math.round(v*1e8)/1e8:v));
  for(const key of ['factors','earned','kills','health','runaway','enemies','sessionStates']){assert.deepEqual(rounded(a[key]),rounded(b[key]));assert.deepEqual(a[key],c[key]);}
 });
+

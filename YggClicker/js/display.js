@@ -4,15 +4,22 @@
   const rates = new Intl.NumberFormat('ja-JP', { notation:'standard', maximumFractionDigits:3 });
   const currency = new Intl.NumberFormat('ja-JP', { notation:'standard', maximumFractionDigits:0,roundingMode:'trunc' });
   const largeUnits=['million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion','decillion','undecillion','duodecillion','tredecillion','quattuordecillion','quindecillion','sexdecillion','septendecillion','octodecillion','novemdecillion','vigintillion'];
-  function compactNumber(value){
+  const japaneseUnits=['万','億','兆','京','垓','秭','穣','溝','澗','正','載','極','恒河沙','阿僧祇','那由他','不可思議','無量大数'];
+  function compactNumber(value,style=true){
+    if(style==='japanese'){
+      const absolute=Math.abs(value);if(!Number.isFinite(value)||absolute<1e4)return null;
+      let power=Math.floor(Math.log10(absolute)/4)*4,scaled=value/10**power;
+      if(Math.abs(Number(scaled.toFixed(3)))>=10000){power+=4;scaled=value/10**power;}
+      return rates.format(scaled)+(japaneseUnits[power/4-1]||'×10^'+power);
+    }
     const absolute=Math.abs(value);if(!Number.isFinite(value)||absolute<1e6)return null;
     let power=Math.floor(Math.log10(absolute)/3)*3,scaled=value/10**power;
     if(Math.abs(Number(scaled.toFixed(3)))>=1000){power+=3;scaled=value/10**power;}
     return rates.format(scaled)+' '+(largeUnits[power/3-2]||'×10^'+power);
   }
-  const fullNumber = (value,simplified=false) => simplified&&compactNumber(Math.floor(value))||integers.format(Math.floor(value));
-  const currencyNumber = (value,simplified=false) => simplified&&compactNumber(value)||currency.format(value);
-  const incomeNumber = (value,simplified=false) => simplified&&compactNumber(value)||rates.format(value);
+  const fullNumber = (value,simplified=false) => simplified&&compactNumber(Math.floor(value),simplified)||integers.format(Math.floor(value));
+  const currencyNumber = (value,simplified=false) => simplified&&compactNumber(value,simplified)||currency.format(value);
+  const incomeNumber = (value,simplified=false) => simplified&&compactNumber(value,simplified)||rates.format(value);
   function scenePhase(seconds,cycle) {
     const time=((seconds||0)%cycle.seconds+cycle.seconds)%cycle.seconds,half=cycle.seconds/2,fade=cycle.transitionSeconds;
     const smooth=t=>t*t*(3-2*t);
