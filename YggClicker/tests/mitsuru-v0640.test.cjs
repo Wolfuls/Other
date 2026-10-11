@@ -15,12 +15,12 @@ test('wire and spark apply only on hit, repeat without stacking taunts, and clam
  enemy.row='rear';s.formationRows.mitsuru='rear';s.focusedEnemyId=enemy.id;
  const missed=E.click(s,()=>.4);assert.equal(missed[0].hit,false);assert.equal(enemy.tauntId,null);assert.equal(enemy.actionPoints,13);
  // A failed evasion forces a hit even against a stronger enemy.
- enemy.evasionFailure=true;E.click(s,()=>.4);assert.equal(enemy.tauntId,'mitsuru');assert.equal(enemy.actionPoints,9);
- for(let i=0;i<3;i++){enemy.evasionFailure=true;E.click(s,()=>.4);}assert.equal(enemy.actionPoints,0);assert.equal(enemy.tauntId,'mitsuru');
+ enemy.evasionFailure=true;E.click(s,()=>.4);assert.equal(enemy.tauntId,'mitsuru');assert.ok(enemy.turnSlowRate>0&&enemy.turnSlowRate<=.5);
+ for(let i=0;i<3;i++){enemy.evasionFailure=true;E.click(s,()=>.4);}assert.equal(enemy.turnSlowSeconds,5);assert.equal(enemy.tauntId,'mitsuru');
  assert.equal(E.combatDistance(s,'mitsuru',enemy),3);
 });
 test('taunt is consumed by the next attack; unavailable targets fall back to a living ally',()=>{
- for(const down of [false,true]){const s=fight(),enemy=s.enemies[0];enemy.tauntId='mitsuru';enemy.actionPoints=E.actionThreshold(s)*2;if(down)s.health.mitsuru={hp:-1,status:'dying',regenSeconds:0};
+ for(const down of [false,true]){const s=fight(),enemy=s.enemies[0];enemy.tauntId='mitsuru';s.timeline.priorities["e:"+enemy.id]=1e6;if(down)s.health.mitsuru={hp:-1,status:'dying',regenSeconds:0};
   const events=E.advance(s,1,()=>.4);const attack=events.find(e=>e.type==='enemyWindup');assert.equal(attack.targetId,down?'meta':'mitsuru');assert.equal(enemy.tauntId,null);
  }
 });
@@ -37,11 +37,11 @@ test('Mitsuru joins UI, selecting downed actor opens revival and rapid attacks e
  const frames=FX.plan([{type:'attack',actorId:'mitsuru',count:4,damage:40,hpBefore:100,hpAfter:60}]);assert.equal(frames.reduce((n,f)=>n+f.mitsuruAttacks,0),4);assert.ok(frames.every(f=>f.volleyMitsuruCount===4));
 });
 test('taunt controls only one attack in a multi-action enemy volley and survives saving its windup',()=>{
- const s=ready(['mitsuru','meta'],'mohican-solo'),e=s.enemies[0];s.actionPoints.mitsuru=s.actionPoints.meta=0;e.actionPoints=E.actionThreshold(s)*3;e.tauntId='mitsuru';
- E.advance(s,1,()=>.4);assert.equal(e.pendingAttack.taunted,true);assert.equal(roundTrip(s).enemies[0].pendingAttack.taunted,true);
+ const s=ready(['mitsuru','meta'],'mohican-solo'),e=s.enemies[0];s.actionPoints.mitsuru=s.actionPoints.meta=0;s.timeline.priorities["e:"+e.id]=1e6;e.tauntId='mitsuru';
+ E.advance(s,.01,()=>.4);assert.equal(e.pendingAttack.taunted,true);assert.equal(roundTrip(s).enemies[0].pendingAttack.taunted,true);
  // Isolate targeting from combat randomness; both party members stay alive.
  e.pendingAttack.profile={accuracySpec:{flat:-100,dice:0},evasionDice:{flat:100,dice:0},attack:{dice:0,flat:1},reduction:0,shield:0,hitLogRatio:0,damageLogRatio:0,damageScaleLog:0};
- const events=E.advance(s,.95,()=>.8).filter(x=>x.type==='enemyAttack');assert.equal(events[0].targetId,'mitsuru');assert.ok(events.slice(1).some(x=>x.targetId==='meta'));assert.equal(e.tauntId,null);
+ const events=E.advance(s,.95,()=>.8).filter(x=>x.type==='enemyAttack');assert.equal(events[0].targetId,'mitsuru');assert.equal(events.length,1);assert.equal(e.tauntId,null);
 });
 test('timed slow is local to its individual/session and clears on quest-level changes',()=>{
  const s=ready(['mitsuru'],'mohicans');s.enemies[1].slowSeconds=5;s.enemies[1].actionPenalty=4;s.enemies[1].tauntId='mitsuru';

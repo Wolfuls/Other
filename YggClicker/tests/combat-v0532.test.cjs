@@ -11,12 +11,10 @@ test('legacy linear training helper retains its minimum growth; combat training 
  s.levels.tordeliese=11;const spec=E.accuracySpec(s,c('tordeliese'));assert.equal(E.combatRoll({...spec,flat:0},faces(1,6)).total,-5);
  s.levels.tordeliese=11;assert.ok(Math.abs(E.attackProfile(s,c('tordeliese')).damageLogRatio-Math.log(1.2))<1e-12);
 });
-test('AP excludes zero-base participants but retains all other occupied slots with the shared threshold',()=>{
- const s=ready(['meta'],'scarecrow');assert.equal(E.actionThreshold(s),30);s.health.meta.status='dying';s.health.meta.hp=-2;assert.equal(E.actionThreshold(s),30);s.enemies[0].hp=0;s.enemies[0].respawnSeconds=5;assert.equal(E.actionThreshold(s),30);
- const multi=ready(['meta','richter'],'scarecrow');assert.equal(E.actionThreshold(multi),29);assert.equal(E.enemyActionPower(multi),0);
- const original=c('richter').actionDice;c('richter').actionDice={flat:0,dice:0};try{assert.equal(E.actionThreshold(multi),30);}finally{c('richter').actionDice=original;}
-});
-test('double hit includes equality; smash counts each pair of rolled sixes, stacks with double hit, and never applies to a miss',()=>{
+test('down and zero-action units are excluded; stun remains eligible',()=>{
+ const s=ready(['meta'],'scarecrow');assert.deepEqual(E.timelineUnits(s).map(u=>u.key),['a:meta']);
+ s.health.meta.stunTurns=3;assert.equal(E.timelineUnits(s).length,1);s.health.meta.status='dying';s.health.meta.hp=-2;assert.equal(E.timelineUnits(s).length,0);
+});test('double hit includes equality; smash counts each pair of rolled sixes, stacks with double hit, and never applies to a miss',()=>{
  const result=(a,b,dice)=>E.judgmentBonus({total:a,dice},{total:b,dice:[]});
  assert.deepEqual(result(20,10,[6,6,6,6,6,2]),{doubleHit:true,smashCritical:2,bonusDice:3});
  assert.equal(result(19,10,[6,6,2]).bonusDice,1);assert.equal(result(11,10,[6,2]).bonusDice,0);assert.equal(result(10,10,[6,6]).bonusDice,0);

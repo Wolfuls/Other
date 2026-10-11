@@ -54,7 +54,7 @@ test('Richter GX uses the same recursive 25% chain as Meta and spends no extra A
  const p=E.attackProfile(s,c('richter'));assert.equal(p.extraAttackChance,.25);assert.equal(E.chainAttackCount(.25,()=>.99),4);
  s.enemies[0].hp=1e8;s.hp=1e8;let first=true;const hits=E.click(s,()=>first?(first=false,.99):.5).filter(e=>e.type==='attack');
  assert.equal(hits.length,4);assert.equal(hits.filter(e=>e.extraAttack).length,3);assert.equal(s.actionPoints.richter,0);
- near(E.effectiveAttackRate(s,c('richter')),E.attackRate(s,c('richter'))/.75);
+ near(E.effectiveAttackRate(s,c('richter')),E.attackRate(s,c('richter'))*(1-.25**16)/.75);
  E.togglePerk(s,'richter','gx-bom',false);assert.equal(E.attackProfile(s,c('richter')).extraAttackChance,0);
 });
 // Isolate shared area rules at equal strength. Production unlock levels are
@@ -88,8 +88,8 @@ test('area forecast includes opposed judgments and agrees with sampled combat af
 });
 test('Waku AP reduction repeats at five percent and nextFrame always reapplies without stacking',()=>{
  const s=ready(['waku'],'dementor');enable(s,'waku','expanded-hurtbox','invisible-wall','next-frame');s.enemies[0].hp=1e8;s.hp=1e8;E.selectEnemy(s,s.enemies[0].id);s.enemies[0].actionPoints=200;
- const first=E.click(s,()=>.5).find(e=>e.type==='attack');assert.ok(first.hit);assert.equal(s.enemies[0].actionPoints,190);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);
- const second=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(second.forcedEvasionFailure,true);assert.equal(s.enemies[0].actionPoints,181);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);assert.equal(s.enemies[1].evasionFailure,false);
+ const first=E.click(s,()=>.5).find(e=>e.type==='attack');assert.ok(first.hit);assert.equal(s.enemies[0].turnSlowRate,.05);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);
+ const second=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(second.forcedEvasionFailure,true);assert.equal(s.enemies[0].turnSlowRate,.05);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);assert.equal(s.enemies[1].evasionFailure,false);
  E.togglePerk(s,'waku','next-frame',false);E.click(s,()=>.5);assert.equal(s.enemies[0].evasionFailure,false);
  s.questLevels.dementor=1000;E.setQuestLevel(s,'dementor',1000);enable(s,'waku','next-frame','vanishing-hitbox');const enemy=s.enemies[0];enemy.actionPoints=200;E.selectEnemy(s,enemy.id);const miss=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(miss.hit,false);assert.equal(enemy.actionPoints,200);assert.equal(enemy.defensePenalty,0);assert.equal(enemy.accuracyPenalty,0);assert.equal(enemy.evasionFailure,false);
 });

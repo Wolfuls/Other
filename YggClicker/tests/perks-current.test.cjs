@@ -31,9 +31,9 @@ test('poison strength follows its three upgrade tracks and OFF removes only futu
  s.enemies[0].poisonDamage=16;E.togglePerk(s,'tordeliese','greedy-gale',false);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,0);assert.equal(s.enemies[0].poisonDamage,16);
 });
 test('GM selects the chosen ally, gives a free action and falls back to normal Max attacks alone',()=>{
- const s=ready(['max','meta']);s.selectedCharacterId='meta';s.actionPoints.max=E.actionThreshold(s);s.actionPoints.meta=0;
- const events=E.advance(s,1,()=>.5);assert.ok(events.some(e=>e.delegatedBy==='max'&&e.actorId==='meta'));assert.ok(s.actionPoints.meta<E.actionThreshold(s));
- s.health.meta={hp:-1,status:'dying',regenSeconds:0};assert.equal(E.isActionDonor(s,c('max')),false);s.actionPoints.max=E.actionThreshold(s);const own=E.advance(s,1,()=>.5);assert.ok(own.some(e=>e.actorId==='max'&&e.type==='attack'));
+ const s=ready(['max','meta']);s.selectedCharacterId='meta';s.timeline.priorities["a:max"]=1e6;s.actionPoints.meta=0;
+ const events=E.advance(s,1,()=>.5);assert.ok(events.some(e=>e.delegatedBy==='max'&&e.actorId==='meta'));assert.equal(events.filter(e=>e.type==="timelineTurn").length,1);
+ s.health.meta={hp:-1,status:'dying',regenSeconds:0};assert.equal(E.isActionDonor(s,c('max')),false);s.timeline.priorities["a:max"]=1e6;s.timeline.busySeconds=0;const own=E.advance(s,1,()=>.5);assert.ok(own.some(e=>e.actorId==='max'&&e.type==='attack'));
 });
 test('Max support is local; Plot Armor replaces D6 with D4 and Mouth Wrestling adds physical evasion dice',()=>{
  const s=ready(['max','meta']);s.levels.waku=1;E.setFormation(s,'mohican-solo',['waku']);enable(s,'max','plot-armor','mouth-wrestling','handout');s.selectedCharacterId='meta';
@@ -42,7 +42,7 @@ test('Max support is local; Plot Armor replaces D6 with D4 and Mouth Wrestling a
 });
 test('Waku first-hit defense loss, repeated AP loss and one-use accuracy/evasion conditions are independent per target',()=>{
  const s=ready(['waku'],'dementor');enable(s,'waku','expanded-hurtbox','invisible-wall','vanishing-hitbox','next-frame');s.questLevels.dementor=100;E.setQuestLevel(s,'dementor',100);s.levels.waku=501;s.concentration.waku.accuracy=400;s.selectedCharacterId='waku';E.selectEnemy(s,s.enemies[1].id);s.enemies[1].actionPoints=150;
- const values=[.7,.2,.01,.01];const hit=E.click(s,()=>values.shift()??.5);assert.equal(hit.find(e=>e.type==='attack').hit,true);const target=s.enemies[1];assert.equal(target.defensePenalty,3);assert.equal(target.actionPoints,143);assert.equal(target.accuracyPenalty,15);assert.equal(target.evasionFailure,true);assert.equal(s.enemies[0].defensePenalty,0);
+ const values=[.7,.2,.01,.01];const hit=E.click(s,()=>values.shift()??.5);assert.equal(hit.find(e=>e.type==='attack').hit,true);const target=s.enemies[1];assert.equal(target.defensePenalty,3);assert.equal(target.turnSlowRate,.05);assert.equal(target.accuracyPenalty,15);assert.equal(target.evasionFailure,true);assert.equal(s.enemies[0].defensePenalty,0);
 });
 test('Jewel investment decreases on sale; crystal debuff and rainbow expire by recipient turns',()=>{
  const s=ready(['jewel']);enable(s,'jewel','crimson-fist','crystal-radiance','rainbow-armor','black-egg');s.levels.jewel=1001;s.concentration.jewel.accuracy=700;s.questLevels.scarecrow=100;E.setQuestLevel(s,'scarecrow',100);s.selectedCharacterId='jewel';

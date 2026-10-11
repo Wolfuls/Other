@@ -12,7 +12,7 @@ test('wiping out enemies clears only that party AP, no banking or manual attacks
  const s=ready('mohican-solo',['meta','richter']);s.levels.vishunal=1;E.setFormation(s,'scarecrow',['vishunal']);s.actionPoints.meta=20;s.actionPoints.richter=15;s.actionPoints.vishunal=9;s.hp=s.enemies[0].hp=1;
  E.click(s,()=>.5);assert.equal(s.actionPoints.meta,0);assert.equal(s.actionPoints.richter,0);assert.equal(s.actionPoints.vishunal,9);
  assert.equal(E.click(s).length,0);E.advance(s,4.5,()=>.5);assert.equal(s.actionPoints.meta,0);assert.equal(s.actionPoints.richter,0);assert.ok(E.isWaiting(s));
- E.advance(s,.5,()=>.5);assert.ok(!E.isWaiting(s));assert.ok(E.click(s,()=>.5).length);
+ const events=E.advance(s,.5,()=>.5);assert.ok(events.some(e=>e.type==='enemyRespawn'));assert.ok(events.filter(e=>e.type==='timelineTurn'&&e.sessionId===s.sessionId).length<=1);
 });
 test('summons retain creation-damage bases and receive the corresponding check/action growth',()=>{
  const s=ready('ozmorn');s.questLevels.ozmorn=s.questActiveLevels.ozmorn=8;

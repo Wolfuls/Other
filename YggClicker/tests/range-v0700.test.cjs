@@ -33,11 +33,11 @@ test('all declared reach and add-on ranges are independent from ongoing pressure
 });
 test('out-of-range automatic actions keep at most one AP threshold, manual attacks cannot bypass range',()=>{
  const s=ready(['jewel','meta'],'scarecrow');s.formationRows.jewel='rear';s.selectedCharacterId='jewel';
- const threshold=E.actionThreshold(s);s.actionPoints.jewel=threshold*10;
+ s.timeline.priorities["a:jewel"]=1e6;
  const clicks=s.clicks;assert.deepEqual(E.click(s),[]);assert.equal(s.clicks,clicks);
- const ev=E.advance(s,1,()=>.4);assert.equal(s.actionPoints.jewel,threshold);assert.ok(!ev.some(e=>e.actorId==='jewel'&&e.type==='attack'));
+ const ev=E.advance(s,1,()=>.4);assert.equal(s.timeline.priorities["a:jewel"],undefined);assert.ok(!ev.some(e=>e.actorId==='jewel'&&e.type==='attack'));
  assert.equal(E.averageAttackDamage(s,character('jewel')),0);
- s.health.meta={hp:-100,status:'dying',regenSeconds:0};const resumed=E.advance(s,1,()=>.4);assert.ok(resumed.some(e=>e.actorId==='jewel'&&e.type==='attack'));
+ s.health.meta={hp:-100,status:'dying',regenSeconds:0};s.timeline.busySeconds=0;for(const e of s.enemies)e.pendingAttack=null;const resumed=E.advance(s,1,()=>.4);assert.ok(resumed.some(e=>e.actorId==='jewel'&&e.type==='attack'));
 });
 test('only Mohicans have range 1, cannot target a screened rear, and do not bank multiple actions',()=>{
  for(const q of D.sessions)assert.deepEqual(q.attackRange,q.id.includes('mohican')?[1,1]:[1,3]);
@@ -45,10 +45,10 @@ test('only Mohicans have range 1, cannot target a screened rear, and do not bank
  assert.deepEqual(E.enemyTargetCandidates(s,e).map(c=>c.id),['meta']);s.enemies[0].row='rear';
  // A lone enemy rear becomes an effective front. A living enemy front screens it.
  s.formationRows.meta='rear';s.levels.max=1;s.formations[s.sessionId].push('max');
- assert.equal(E.enemyCanReach(s,e,character('meta')),false);e.actionPoints=999;E.advance(s,1,()=>.4);assert.ok(e.actionPoints<=E.actionThreshold(s));assert.equal(e.pendingAttack,null);
+ assert.equal(E.enemyCanReach(s,e,character('meta')),false);e.actionPoints=999;E.advance(s,1,()=>.4);assert.equal(s.timeline.priorities["e:"+e.id],undefined);assert.equal(e.pendingAttack,null);
 });
 test('queued attacks keep their original target after row edits',()=>{
- const s=ready(['meta','jewel'],'mohican-solo'),e=s.enemies[0];e.actionPoints=E.actionThreshold(s);E.advance(s,1,()=>.4);
+ const s=ready(['meta','jewel'],'mohican-solo'),e=s.enemies[0];s.timeline.priorities["e:"+e.id]=1e6;E.advance(s,.01,()=>.4);
  assert.ok(e.pendingAttack);const target=e.pendingAttack.targetId;E.setFormation(s,s.sessionId,['meta','jewel'],{[target]:'rear'});
  assert.equal(e.pendingAttack.targetId,target);const events=E.advance(s,1,()=>.4);assert.ok(events.some(e=>e.type==='enemyAttack'&&e.targetId===target));
 });

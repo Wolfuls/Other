@@ -1,5 +1,6 @@
 (function(root){
  'use strict';
+ let scheduleTail=(fn,ms)=>setTimeout(fn,ms);
  const images={},atlas={"chikira":[[0,0,256,262,140,258],[256,0,256,262,396,258],[512,0,256,262,652,258],[768,0,256,262,908,258],[1024,0,256,262,1164,258],[1280,0,256,262,1420,258],[0,262,256,264,140,519],[256,262,256,264,396,519],[512,262,256,264,652,519],[768,262,256,264,908,519],[1024,262,256,264,1164,519],[1280,262,256,264,1420,519],[0,526,256,249,140,771],[256,526,256,249,396,772],[512,526,256,249,652,772],[768,526,256,249,908,772],[1024,526,256,249,1164,771],[1280,526,256,249,1420,770],[0,775,256,249,140,1005],[256,775,256,249,396,1005],[512,775,256,249,652,1005],[768,775,256,249,908,1005],[1024,775,256,249,1164,1005],[1280,775,256,249,1420,1005]],"eggra":[[0,0,256,280,140,261],[256,0,256,280,396,263],[512,0,256,280,652,263],[768,0,286,280,908,259],[1054,0,226,280,1164,263],[1280,0,256,280,1420,263],[0,280,256,245,140,509],[256,280,256,245,396,509],[512,280,256,245,652,509],[768,280,256,245,908,509],[1024,280,256,245,1164,509],[1280,280,256,245,1420,509],[0,525,256,250,140,746],[256,525,256,250,396,746],[512,525,256,250,652,746],[768,525,256,250,908,746],[1024,525,256,250,1164,746],[1280,525,256,250,1420,746],[0,775,256,249,140,980],[256,775,256,249,396,984],[498,775,268,249,652,984],[750,775,277,249,908,985],[1024,775,256,249,1164,982],[1280,775,256,249,1420,984]]};
  const special={fists:{file:'chikira-punch-v3.png',edges:[0,170,351,590,777,990,1200,1490,1672],anchors:[85,257,438,643,833,1040,1270,1565],ground:608,scale:.59,flip:true},boomerang:{file:'eggra-throw-v3.png',edges:[0,297,548,829,1120,1385,1638,1886,2172],anchors:[152,418,700,980,1255,1515,1765,2050],ground:514,scale:.48},slash:{file:'eggra-cross-slash-v5.png',edges:[0,370,707,1066,1490,1840,2172],anchors:[189,526,875,1261,1646,2001],ground:530,grounds:[527,529,529,529,529,529],scale:.395}};
  const paintKeys=new WeakMap(),nodes=new Set(),motion=typeof matchMedia==='function'?matchMedia('(prefers-reduced-motion:reduce)'):{matches:false};
@@ -64,9 +65,9 @@
    if(!node.isConnected){nodes.delete(node);continue;}if(node.hidden||node.closest('[hidden]')||!node.classList.contains('duo-combatant'))continue;
    const kind=node.dataset.duoKind,canvas=node.querySelector('canvas');if(!canvas)continue;
    if(node.dataset.previewSlash){paintSpecial(canvas,'slash',Number(node.dataset.previewSlash));continue;}
-   const reduced=motion.matches,paused=!!node.closest('.enemy-paused');
+   const rate=Number(node.dataset.battleSpeed)||1,reduced=motion.matches,paused=!!node.closest('.enemy-paused');
    const clock=node._duoClock||(node._duoClock={last:t,time:t,down:false,downAt:t});
-   if(!paused)clock.time+=Math.min(100,t-clock.last);clock.last=t;
+   if(!paused)clock.time+=Math.min(100,t-clock.last)*rate;clock.last=t;
    const down=node.classList.contains('duo-down');if(down&&!clock.down)clock.downAt=clock.time;clock.down=down;
    let action=null,progress=0;
    let frame=kind==='chikira'?12+Math.floor(clock.time/150)%6:0;
@@ -74,8 +75,8 @@
    else if(Number(node.dataset.riseUntil)>t){const p=1-(Number(node.dataset.riseUntil)-t)/650;frame=[21,20,22,23,0][Math.min(4,Math.max(0,Math.floor(p*5)))];}
    else if(node.classList.contains('enemy-attacking')){
     const started=Number(node.dataset.duoStarted||t);
-    if(clock.attackStarted!==started){clock.attackStarted=started;clock.attackElapsed=Math.max(0,t-started);clock.attackLast=t;}
-    else {if(!paused)clock.attackElapsed+=Math.max(0,t-clock.attackLast);clock.attackLast=t;}
+    if(clock.attackStarted!==started){clock.attackStarted=started;clock.attackElapsed=Math.max(0,t-started)*rate;clock.attackLast=t;}
+    else {if(!paused)clock.attackElapsed+=Math.max(0,t-clock.attackLast)*rate;clock.attackLast=t;}
     progress=reduced?.5:clock.attackElapsed/(Number(node.dataset.duoDuration||1)*1000);action=node.dataset.duoAttack;frame=frameAt(action,progress);
    }else {clock.attackStarted=null;if(reduced)frame=0;}
    paint(canvas,kind,frame,reduced?0:clock.time,action,progress);
@@ -85,8 +86,8 @@
  if(typeof requestAnimationFrame==='function')requestAnimationFrame(tick);
  // Projectiles share the queued attack duration, including resumed windups.
  function attack(node,event,arena,targetNodes){
-  node.dataset.duoAttack=event.kind;node.dataset.duoDuration=event.duration;node.dataset.duoStarted=String(performance.now()-(event.duration-(event.remaining??event.duration))*1000);
-  const layer=document.createElement('span');layer.className='duo-effects';layer.dataset.duoEffect=event.kind;layer.setAttribute('aria-hidden','true');
+  node.dataset.duoAttack=event.kind;node.dataset.duoDuration=event.duration;node.dataset.duoStarted=String(performance.now()-(event.duration-(event.remaining??event.duration))*1000/(Number(node.dataset.battleSpeed)||1));
+  const layer=document.createElement('span');layer.dataset.battleSpeed=node.dataset.battleSpeed||'1';layer.className='duo-effects';layer.dataset.duoEffect=event.kind;layer.setAttribute('aria-hidden','true');
   const box=arena.getBoundingClientRect(),source=node.getBoundingClientRect(),sx=(source.left+source.width*.45-box.left)/box.width*100,sy=(source.top+source.height*(node.dataset.duoKind==='eggra'?.72:.5)-box.top)/box.height*100;
   const zoom=box.width/arena.offsetWidth||1;
   // Mouth in the open-mouth breath poses: canvas (70, 219), canvas begins 64px above actor.
@@ -132,8 +133,8 @@
   }
   arena.append(layer);return layer;
  }
- function finish(layer,immediate=false){if(!layer)return;if(!immediate&&layer.dataset?.duoEffect==='blizzard'){setTimeout(()=>layer.remove(),1200);return;}if(!immediate&&layer.dataset?.duoEffect==='boulder'&&!matchMedia('(prefers-reduced-motion:reduce)').matches){layer.classList.add('duo-impact-fade');setTimeout(()=>layer.remove(),1000);}else layer.remove();}
- root.YggDuoView={mount,paint,attack,frameAt,finish};
+ function finish(layer,immediate=false){if(!layer)return;if(!immediate&&layer.dataset?.duoEffect==='blizzard'){scheduleTail(()=>layer.remove(),1200);return;}if(!immediate&&layer.dataset?.duoEffect==='boulder'&&!matchMedia('(prefers-reduced-motion:reduce)').matches){layer.classList.add('duo-impact-fade');scheduleTail(()=>layer.remove(),1000);}else layer.remove();}
+ root.YggDuoView={setScheduler(fn){scheduleTail=fn;},mount,paint,attack,frameAt,finish};
 })(window);
 
 

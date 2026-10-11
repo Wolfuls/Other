@@ -15,10 +15,10 @@ function cardEvent(h,id,{key,interactive=false,disabled=false}={}){
 }
 
 test('quest titles and blank card space select battles without resetting combat; memory also opens',()=>{
- const s=ready(['meta'],'mohicans');s.paused=true;s.hp=7;s.enemies[0].hp=7;s.enemies[0].actionPoints=12;s.actionPoints.meta=9;
+ const s=ready(['meta'],'mohicans');s.paused=true;s.hp=7;s.enemies[0].hp=7;s.timeline.priorities={"a:meta":9,["e:"+s.enemies[0].id]:12};
  const h=harness(s),dispatch=e=>h.get('quest-list').listeners.get('click')(e);
  dispatch(cardEvent(h,'scarecrow'));assert.equal(h.saved().sessionId,'scarecrow');
- dispatch(cardEvent(h,'mohicans'));assert.equal(h.saved().sessionId,'mohicans');assert.equal(h.saved().enemies[0].hp,7);assert.equal(h.saved().enemies[0].actionPoints,12);assert.equal(h.saved().actionPoints.meta,9);
+ dispatch(cardEvent(h,'mohicans'));assert.equal(h.saved().sessionId,'mohicans');assert.equal(h.saved().enemies[0].hp,7);assert.deepEqual(h.saved().timeline.priorities,s.timeline.priorities);
  dispatch(cardEvent(h,'memories'));assert.equal(h.saved().viewingMemories,true);
  dispatch(cardEvent(h,'mohicans'));assert.equal(h.saved().viewingMemories,false);assert.equal(h.saved().enemies[0].hp,7);
 });
@@ -38,25 +38,13 @@ test('locked quest card cannot bypass the engine unlock and never changes the se
  assert.equal(h.saved().sessionId,s.sessionId);assert.equal(h.saved().questUnlocks.ozmorn,false);
 });
 
-test('AP stack sits between HP and runaway and uses each owning session threshold',()=>{
- const s=ready(['meta','richter'],'scarecrow');s.paused=true;s.levels.richter=51;
- E.setFormation(s,'mohicans',['richter']);s.actionPoints.meta=9;s.actionPoints.richter=21;
- const h=harness(s);
- for(const id of ['meta','richter']){
-   const owner=E.formationOwner(s,id),threshold=E.actionThreshold(E.battleContext(s,owner));
-   const node=h.get('ally-ap-'+id);assert.equal(node.textContent,'AP '+s.actionPoints[id]+' / '+threshold);assert.equal(node.getAttribute('aria-valuemax'),String(threshold));
-   const actor=h.get(id+'-combatant'),vitals=actor.children.find(n=>n.className==='ally-vitals');assert.deepEqual(vitals.children.map(n=>n.id),['ally-hp-'+id,'ally-ap-'+id,'ally-runaway-'+id]);
- }
- assert.equal(h.get('ally-ap-richter').hidden,true);assert.equal(h.get('ally-ap-meta').hidden,false);
+test('HUD shows action and owning-quest theoretical share without an AP gauge',()=>{
+ const s=ready(['meta','richter'],'scarecrow');s.paused=true;E.setFormation(s,'mohicans',['richter']);const h=harness(s);
+ const node=h.get('ally-turn-meta');assert.match(node.textContent,/行動.*理論.*%/);const actor=h.get('meta-combatant'),vitals=actor.children.find(n=>n.className==='ally-vitals');assert.deepEqual(vitals.children.map(n=>n.id),['ally-hp-meta','ally-turn-meta','ally-runaway-meta']);assert.equal(h.get('ally-turn-richter').hidden,true);
 });
-
-test('AP gauge follows one-second accumulation and consumption, clamps overflow and keeps exact text',()=>{
- const s=ready(['meta']);s.selectedCharacterId=null;const h=harness(s,undefined,{combatRandom:()=>.5});
- h.advance(1050);const first=Number(h.get('ally-ap-meta').getAttribute('aria-valuenow'));assert.ok(first>0);
- h.advance(1000);const second=Number(h.get('ally-ap-meta').getAttribute('aria-valuenow'));assert.ok(second<first,'one action consumed its threshold');
- assert.equal(HUD.actionGauge(999,30).percent,100);assert.equal(HUD.actionGauge(-5,30).percent,0);assert.equal(HUD.actionGauge(NaN,0).percent,0);
+test('HUD displays a bounded theoretical turn order and pause state',()=>{
+ const s=ready(['meta']);const h=harness(s);h.advance(250);assert.match(h.get('turn-order').firstElementChild.textContent,/次の手番（理論）/);h.click('pause');assert.match(h.get('turn-order').firstElementChild.textContent,/停止/);assert.equal(HUD.actionGauge,undefined);
 });
-
 test('memory hint is gone; click opens earned total and tab hiding pauses all its layers',()=>{
  const s=ready();s.paused=true;s.viewingMemories=true;s.earned=9876543;const h=harness(s);
  h.click('memory-monolith');assert.equal(h.get('memory-monolith').getAttribute('aria-expanded'),'true');assert.ok(h.get('memory-scene').classList.contains('record-open'));assert.equal(h.get('memory-total').textContent,'9,876,543 Rd');

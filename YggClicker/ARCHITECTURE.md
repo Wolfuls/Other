@@ -7,13 +7,13 @@
 - `js/data.js`: 共通設定・素材参照。両カタログに共通の既定値を付けて公開。
 - `js/strength.js`: 強度、命中確率、ダメージ分布。戦闘と見込みは同じ計算を使う。
 - `js/engine.js`: 純粋なゲーム状態の更新。DOMを参照しない。全セッションの時間進行、売買、パーク、暴走率を扱う。
-- `js/save.js`: スキーマ47の検証・旧セーブ移行。旧仕様の式や価格は移行専用なので削除しない。
+- `js/save.js`: スキーマ54の検証・旧セーブ移行。旧仕様の式や価格は移行専用なので削除しない。
 
 ## 表示
 
 - `js/scene-view.js`: クエスト背景・時刻遷移・追憶。画面を隠したときのモーション停止も所有。
 - `js/quest-view.js`: クエストカード、購入済みLv比較、周回状況。カード選択では内側の入力・操作ボタンを除外。
-- `js/battle-hud.js`: 味方のHP／AP／暴走率。戦闘状態の変更は行わない。
+- `js/battle-hud.js`: 味方のHP／行動値・理論配分率／暴走率。戦闘状態の変更は行わない。
 - `js/ability-view.js`: 仲間／敵に共通する能力セルとSSセルの配置。
 - `js/display.js`: 数値整形・位置計算。描画とは独立。
 - `js/combat-effects.js`: 攻撃の再生スケジュール。戦闘結果を再計算しない。
@@ -98,3 +98,14 @@ Character and perk reach lives in characters.js; quest reach in quests.js. forma
 ### AP persistence (v0.70.2)
 
 Expected action power may be fractional; actionThreshold floors the final doubled median to keep paid AP integral. Save validation accepts finite nonnegative fractional legacy AP, then floors it on the saved copy, including offscreen sessions. Invalid saves never replace a healthy primary. The app tracks the exact last persistence notice and clears it only after a successful save. tools/recover-live-ap.js wraps persist on a still-running old page without changing live progress.
+
+## 共有タイムライン（v0.76.0）
+
+各戦場のtimelineにSWRR優先度を保存。1秒境界ごとに1ユニットへ配分し、追加効果は同じ手番内の有限処理。timelineViewは優先度コピーのみで将来順を表示する。actionClockは既存の端数秒時計として維持。旧actionPointsは移行用0フィールド。詳細はTIMELINE_v0760.md。
+
+### 戦闘速度と演出待機（0.76.2）
+`battleSpeed` は実時間に対する戦闘時間の比率（1/2）。`timeline.busySeconds` はクエスト別の残り演出時間。攻撃イベントから純粋関数 `FX.turnDuration` で有限の表示期間を求め、メインスレッド/Workerとも同じ手番停止を適用する。半秒境界で自動手番を確認し、通常速度は整数秒だけ、倍速は各境界で候補を選ぶ。暴走等の実時間処理は整数秒だけ。DOMの終了イベントにゲーム進行を依存させない。CSSは既存AnimationのplaybackRate、Canvasは速度付き時計、JSの遅延は残り演出時間を保持したレート対応スケジューラを使用。
+
+### 演出駆動の手番（v0.76.3）
+上記の1秒／半秒境界による手番選択を廃止。演出の残り時間をイベント境界として次の手番へ進む。実時間の周期処理とは独立する。詳細は ANIMATION_TIMELINE_v0763.md。
+

@@ -12,8 +12,8 @@ test('Queen has the specified hidden base, costs, reaction type and six perk lev
 test('BLESS rolls mental 4D6 against resistance and strength, reducing only AP with a zero floor',()=>{
  const s=encounter(),e=s.enemies[0],p=E.attackProfile(s,queen());assert.ok(p.apAttack&&p.mental);assert.equal(p.dice,4);assert.equal(p.flat,0);assert.equal(p.accuracy.flat,17);assert.equal(p.evasion.flat,E.getSession(s).ss.flat);assert.equal(p.defense,2);
  e.actionPoints=1000;e.poisonDamage=4;s.poisonDamage=4;const before={hp:e.hp,total:s.totalDamage,kills:s.kills,factors:s.factors};e.evasionFailure=true;
- const hit=E.click(s,()=>.4).find(x=>x.type==='attack');assert.ok(hit.apDamage&&hit.hit);assert.ok(hit.damage>0);assert.equal(e.actionPoints,1000-hit.damage);assert.equal(e.hp,before.hp);assert.equal(s.totalDamage,before.total);assert.equal(s.kills,before.kills);assert.equal(s.factors,before.factors);assert.equal(e.poisonDamage,4);
- e.actionPoints=1;e.evasionFailure=true;E.click(s,()=>.4);assert.equal(e.actionPoints,0);assert.equal(e.hp,before.hp);
+ const hit=E.click(s,()=>.4).find(x=>x.type==='attack');assert.ok(hit.apDamage&&hit.hit);assert.ok(hit.damage>0);assert.ok(e.turnSlowRate>0&&e.turnSlowRate<=.5);assert.equal(e.turnSlowSeconds,5);assert.equal(e.hp,before.hp);assert.equal(s.totalDamage,before.total);assert.equal(s.kills,before.kills);assert.equal(s.factors,before.factors);assert.equal(e.poisonDamage,4);
+ e.actionPoints=1;e.evasionFailure=true;E.click(s,()=>.4);assert.ok(e.turnSlowRate<=.5);assert.equal(e.hp,before.hp);
  const low=E.attackProfile(s,queen());s.levels.queen=200;const high=E.attackProfile(s,queen());assert.ok(high.damageScaleLog>low.damageScaleLog&&high.damageLogRatio>low.damageLogRatio);
  assert.equal(E.averageAttackDamage(s,queen()),0);const f=F.matchup(s,queen());assert.equal(f.averageDamage,0);assert.ok(f.averageAPDamage>0&&f.apAttack);
 });
@@ -34,9 +34,9 @@ test('royal party effects include self, remain session-local and stop when Queen
 test('interception cancels four times with 0/25/50/75 percent refunds, then becomes ineffective',()=>{
  const s=encounter();enable(s,'queen','insolent');const e=s.enemies[0],hp=e.hp,allyHP=s.health.queen.hp;e.actionPoints=20;
  for(const [i,ap]of [20,45,95,170].entries()){
-  const events=pending(s,e);assert.ok(events.some(x=>x.type==='queenIntercept'&&x.hit));assert.ok(events.some(x=>x.type==='enemyCancel'));assert.ok(!events.some(x=>x.type==='enemyAttack'));assert.equal(e.actionPoints,ap);assert.equal(e.queenCancels,i+1);assert.equal(e.hp,hp);assert.equal(s.health.queen.hp,allyHP);
+  const events=pending(s,e);assert.ok(events.some(x=>x.type==='queenIntercept'&&x.hit));assert.ok(events.some(x=>x.type==='enemyCancel'));assert.ok(!events.some(x=>x.type==='enemyAttack'));assert.ok(s.timeline.priorities["e:"+e.id]<0);assert.equal(e.queenCancels,i+1);assert.equal(e.hp,hp);assert.equal(s.health.queen.hp,allyHP);
  }
- const immune=pending(s,e);assert.ok(!immune.some(x=>x.type==='queenIntercept'));assert.ok(immune.some(x=>x.type==='enemyAttack'));assert.equal(e.queenCancels,4);assert.equal(e.actionPoints,170);assert.equal(roundTrip(s).enemies[0].queenCancels,4);
+ const immune=pending(s,e);assert.ok(!immune.some(x=>x.type==='queenIntercept'));assert.ok(immune.some(x=>x.type==='enemyAttack'));assert.equal(e.queenCancels,4);assert.equal(e.actionPoints,20);assert.equal(roundTrip(s).enemies[0].queenCancels,4);
 });
 test('failed interception does not advance immunity; allies are not guarded by the counter',()=>{
  const s=encounter(['queen','meta']);enable(s,'queen','insolent');const e=s.enemies[0];assert.ok(!pending(s,e,'meta').some(x=>x.type==='queenIntercept'));assert.equal(e.queenCancels,0);
@@ -46,7 +46,7 @@ test('failed interception does not advance immunity; allies are not guarded by t
 test('immunity is independent per enemy, resets with the encounter, and pending AP cost is saved',()=>{
  const s=encounter(['queen'],'mohicans');enable(s,'queen','insolent');s.enemies[0].queenCancels=4;s.enemies[1].queenCancels=2;
  const events=pending(s,s.enemies[2]);assert.ok(events.some(x=>x.type==='queenIntercept'&&x.hit));assert.deepEqual(s.enemies.map(e=>e.queenCancels),[4,2,1]);
- s.enemies[0].pendingAttack={targetId:'queen',remaining:.3,count:2,kind:'attack',apCost:40};assert.equal(roundTrip(s).enemies[0].pendingAttack.apCost,40);
+ s.enemies[0].pendingAttack={targetId:'queen',remaining:.3,count:2,kind:'attack',apCost:40};assert.equal(roundTrip(s).enemies[0].pendingAttack.apCost,undefined);
  s.questLevels.mohicans=2;E.setQuestLevel(s,'mohicans',2);assert.ok(s.enemies.every(e=>e.queenCancels===0));
  for(const value of [-1,5,1.5]){s.enemies[0].queenCancels=value;assert.throws(()=>S.encode(s));}
 });
@@ -60,12 +60,10 @@ test('Queen UI hides attack base, retains flavors, supports revival and bounded 
  const frames=FX.plan([{type:'attack',actorId:'queen',apDamage:true,count:4,damage:32,hpBefore:20,hpAfter:20}]);assert.equal(frames.reduce((n,f)=>n+f.queenAttacks,0),4);assert.ok(frames.every(f=>f.volleyQueenCount===4&&f.apDamage));
 });
 
-test('large AP-only volleys leave enemy HP and rewards untouched',()=>{
- const s=encounter(['queen'],'scarecrow'),e=s.enemies[0];s.actionPoints.queen=E.actionThreshold(s)*2000;e.actionPoints=10000;
- const before={hp:e.hp,total:s.totalDamage,kills:s.kills,factors:s.factors};const events=E.advance(s,1,()=>.4);
- assert.ok(events.some(e=>e.type==='attack'&&e.apDamage&&e.approximate));assert.equal(e.hp,before.hp);assert.equal(s.totalDamage,before.total);assert.equal(s.kills,before.kills);assert.equal(s.factors,before.factors);assert.ok(e.actionPoints<10000&&e.actionPoints>=0);
+test('large legacy AP produces only one BLESS with bounded slow and no HP reward',()=>{
+ const s=encounter(['queen'],'scarecrow'),e=s.enemies[0];s.actionPoints.queen=1e100;const before={hp:e.hp,total:s.totalDamage,kills:s.kills,factors:s.factors};const events=E.advance(s,1,()=>.4);
+ assert.equal(events.filter(e=>e.type==='timelineTurn').length,1);assert.equal(events.filter(e=>e.type==='attack').length,1);assert.equal(e.hp,before.hp);assert.equal(s.totalDamage,before.total);assert.equal(s.kills,before.kills);assert.equal(s.factors,before.factors);assert.ok(e.turnSlowRate<=.5);
 });
-
 test('bounded visual summaries never add AP reduction into HP damage',()=>{
  const events=Array.from({length:240},(_,i)=>({type:'attack',actorId:i%2?'queen':'meta',apDamage:!!(i%2),count:1,damage:i%2?7:3,hpBefore:500,hpAfter:i%2?500:497}));
  const frames=FX.plan(events);assert.ok(frames.length<=24);assert.equal(frames.filter(f=>f.apDamage).reduce((n,f)=>n+f.damage,0),840);assert.equal(frames.filter(f=>!f.apDamage).reduce((n,f)=>n+f.damage,0),360);

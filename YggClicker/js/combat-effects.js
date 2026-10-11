@@ -41,6 +41,7 @@
     const first = frames[0], last = frames[frames.length - 1];
     const merged = { ...last, magicLevel:Math.max(0,...frames.map(f=>f.magicLevel||0)), summons:frames.flatMap(f=>f.summons||[]), hit:frames.some(f=>f.hit!==false),doubleHit:frames.some(f=>f.doubleHit),smashCritical:frames.reduce((n,f)=>n+(f.smashCritical||0),0),poisonBefore:first.poisonBefore, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null, supportOnly:frames.every(f=>f.supportOnly),poisonTick:frames.every(f=>f.poisonTick) };
     for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'vishunalAttacks', 'tordelieseAttacks','maxAttacks','wakuAttacks','jewelAttacks','mitsuruAttacks','queenAttacks','meguminAttacks','maxTransfers', 'clears', 'knockouts', 'overkills', 'overkillBonus', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
+    if(frames.every(f=>f.actionSlow))merged.damage=Math.max(0,...frames.map(f=>f.damage||0));
     merged.actor = frames.every(f => f.actor === first.actor) ? first.actor : 'パーティ';
     merged.volleyMetaCount = Math.max(merged.metaAttacks, ...frames.map(f => f.volleyMetaCount));
     merged.volleyRichterCount = Math.max(merged.richterAttacks, ...frames.map(f => f.volleyRichterCount));
@@ -56,7 +57,7 @@
   }
   function compact(frames) {
     if (frames.length <= MAX_STEPS) return frames;
-    // HP and AP are distinct resources, even when a very fast party shares a
+    // HP damage and action debuffs are distinct effects, even when a very fast party shares a
     // visual summary. Keep at most two summaries per chunk, in arrival order.
     return Array.from({length:12}, (_, i) => {
       const chunk=frames.slice(Math.floor(i*frames.length/12),Math.floor((i+1)*frames.length/12));
@@ -182,8 +183,26 @@
   }
   const meguminExplosionSize=magic=>480+Math.max(0,Math.min(7,Math.floor(Number(magic)||0)))*120;
   const meguminExplosionY=(targetY,targetHeight)=>targetY+targetHeight*.42+40;
-  const api = { meguminExplosionY, meguminExplosionSize, MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
+  function turnDuration(events){
+    const frames=plan(events);let offset=0,end=0;
+    for(const f of frames){
+      const projectile=(f.metaAttacks||f.richterAttacks||f.vishunalAttacks||f.wakuAttacks||f.continuation||!f.actorId);
+      const maxWindup=f.maxAttacks||f.maxTransfers?670+Math.max(0,Math.min(24,(f.maxAttacks||0)+(f.maxTransfers||0))-1)*45:0;
+      const impact=Math.max(f.meguminAttacks?720:0,f.queenAttacks||f.mitsuruAttacks?380:0,f.jewelAttacks?260:0,f.maxAttacks?maxWindup+320:0,f.tordelieseAttacks?820:0,projectile?780+Math.max(0,Math.min(24,f.count)-1)*45:0,f.poisonTick?560:0);
+      const pose=Math.max(f.meguminAttacks?1400:0,f.maxTransfers||f.maxAttacks?1180:0,f.wakuAttacks||f.tordelieseAttacks?880:0,800);
+      // Include the explosion, down/summon effect and damage text after impact.
+      end=Math.max(end,offset+pose,offset+impact+(f.meguminAttacks?1600:f.clears?1120:850));offset+=f.gap;
+    }
+    for(const e of events){
+      if(e.type==='enemyWindup')end=Math.max(end,e.duration*1000+1200);
+      if(e.type==='enemyRespawn')end=Math.max(end,650);
+      if(e.type==='runawayRoll'||e.type==='runawaySymptom')end=Math.max(end,1800);
+      if(e.type==='runawayDamage')end=Math.max(end,1150);
+    }
+    // One UI tick of slack covers presentation beginning after the engine call.
+    return end?Math.min(30,end/1000+.1):events.some(e=>e.type==='timelineTurn')?.25:0;
+  }
+  const api = { turnDuration, meguminExplosionY, meguminExplosionSize, MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggCombatEffects = api;
 })(typeof window !== 'undefined' ? window : globalThis);
-

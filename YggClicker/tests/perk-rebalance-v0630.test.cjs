@@ -59,7 +59,7 @@ test('Rabid Dog OFF, below Lv100 and incapacitation do not replace rolls; critic
 });
 test('off-screen misfires remain in their own session and credit kills/damage exactly once',()=>{
  const s=ready(['meta']);s.levels.vishunal=100;E.setFormation(s,'mohican-solo',['vishunal']);enable(s,'vishunal','rabid-dog');s.runaway.vishunal.runawayRate=49.99;s.runaway.vishunal.baseRunawayPressure=.1;
- const hp=s.enemies[0].hp,before=s.kills,damage=s.totalDamage;const ev=E.advance(s,1,()=>.75);
+ const hp=s.enemies[0].hp,before=s.kills,damage=s.totalDamage;s.health.meta.stunTurns=5;const ev=E.advance(s,1,()=>.75);
  const hits=ev.filter(e=>e.type==='attack'&&e.actorId==='vishunal');assert.equal(hits.length,1);assert.equal(hits[0].sessionId,'mohican-solo');assert.equal(s.enemies[0].hp,hp);assert.equal(s.kills,before+1);assert.equal(s.totalDamage,damage+hits[0].hpBefore);assert.equal(s.sessionStates['mohican-solo'].enemies[0].hp,0);assert.doesNotThrow(()=>S.encode(s));
 });
 test('Tordeliese applies poison from hire, never on a miss, and additive poison bonuses survive the new levels',()=>{

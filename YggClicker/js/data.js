@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.75.1",
+  "version": "0.76.4",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -125,7 +125,7 @@
   "displayDefaults": {
     "simplifiedNumbers": false,
     "numberUnit": "western",
-    "showOrbits": true,
+    "showOrbits": false,
     "hitEffects": "normal",
     "showFactorRain": true,
     "showRewardDice": true,

@@ -5,12 +5,14 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 52;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 54;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    53(document){return {...document,schemaVersion:54,state:{...document.state,battleSpeed:1,options:{...document.state.options,showOrbits:false}}};},
+    52(document){const state=structuredClone(document.state);state.actionPoints=Object.fromEntries(D.characters.map(c=>[c.id,0]));for(const battle of [state,...Object.values(state.sessionStates||{})]){battle.timeline=E.newTimeline();for(const e of battle.enemies||[]){e.actionPoints=0;if(e.pendingAttack){e.pendingAttack.count=1;delete e.pendingAttack.apCost;}}}return {...document,schemaVersion:53,state};},
     51(document){return {...document,schemaVersion:52};},
     50(document){const state=structuredClone(document.state),h=state.health?.megumin;if(h?.magicLevel!==undefined&&state.perkEnabled?.megumin?.['explosion-girl']!==false)h.magicLevel=number(h.magicLevel,'旧魔力',0,6,true)+1;return {...document,schemaVersion:51,state};},
     49(document){return {...document,schemaVersion:50,state:{...document.state,autoRest:Object.fromEntries(D.sessions.map(q=>[q.id,E.newAutoRest()]))}};},
@@ -531,7 +533,7 @@
     }
     if(result.respawnSeconds>0?result.batchHpFraction!==0||result.poisonDamage!==0:result.hp+result.batchHpFraction<=0||result.hp+result.batchHpFraction>(E.getSession(result).summons?1e100:E.getSession(result).hp))throw new Error('放置計算のHPが正しくありません。');
     if (typeof raw.paused !== 'boolean') throw new Error('一時停止状態が正しくありません。');
-    result.paused = raw.paused;
+    result.paused = raw.paused;result.battleSpeed=raw.battleSpeed??1;if(![1,2].includes(result.battleSpeed))throw new Error('戦闘速度が正しくありません。');
     if(raw.viewingMemories!==undefined&&typeof raw.viewingMemories!=='boolean')throw new Error('追憶の表示状態が正しくありません。');
     if(raw.memoriesUnlocked!==undefined&&typeof raw.memoriesUnlocked!=='boolean')throw new Error('追憶の解放状態が正しくありません。');
     result.memoriesUnlocked=raw.memoriesUnlocked===true||E.isMemoriesUnlocked(result);
@@ -542,8 +544,9 @@
       if(key==='numberUnit'?!['western','japanese'].includes(value):key==='hitEffects'?!D.hitEffectModes.includes(value):typeof value!=='boolean')throw new Error('表示設定が正しくありません。');
       result.options[key]=value;
     }
-    result.actionClock = number(raw.actionClock, 'APの加算周期', 0, 1);
-    if (result.actionClock >= 1) throw new Error('APの加算周期が正しくありません。');
+    result.options.showOrbits=false;
+    result.actionClock = number(raw.actionClock, '自動手番の秒周期', 0, 1);
+    if (result.actionClock >= 1) throw new Error('自動手番の秒周期が正しくありません。');
     for (const field of ['levels', 'actionPoints', 'upgrades', 'purchasedPerks']) record(raw[field], field);
     for (const field of ['levels', 'actionPoints', 'purchasedPerks']) {
       if (Object.keys(raw[field]).some(id => !D.characters.some(c => c.id === id))) throw new Error('未対応のキャラクターが含まれています。ゲームを更新してください。');
@@ -554,7 +557,7 @@
       result.levels[c.id] = number(raw.levels[c.id] ?? 0, c.name, 0, Number.MAX_SAFE_INTEGER, true);
       // Older live battles could spend a fractional expected action cost.
       // Validate the range first, then remove only that fractional remainder.
-      result.actionPoints[c.id] = Math.floor(number(raw.actionPoints[c.id] ?? 0, 'AP', 0, 1e100));
+      result.actionPoints[c.id] = 0; // Retired field; never seed timeline priorities from AP.
       if (!result.levels[c.id] && result.actionPoints[c.id]) throw new Error('未雇用キャラクターの行動力・APが正しくありません。');
       const purchased = raw.purchasedPerks[c.id] ?? [];
       if (!Array.isArray(purchased) || new Set(purchased).size !== purchased.length || purchased.some(id => {
@@ -603,7 +606,7 @@
       const h=health[c.id]??{hp:E.maxHP(result,c),status:'active',regenSeconds:0};record(h,'味方の状態');
       const hp=number(h.hp,'味方HP',-1e100,E.maxHP(result,c)),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
       if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===E.maxHP(result,c)&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==E.maxHP(result,c)||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
-      result.health[c.id]={hp,status:h.status,regenSeconds};
+      result.health[c.id]={hp,status:h.status,regenSeconds};if(h.summonDelaySeconds!==undefined)result.health[c.id].summonDelaySeconds=number(h.summonDelaySeconds,'召喚待機秒',0,5);if(h.turnSlowSeconds!==undefined){result.health[c.id].turnSlowSeconds=number(h.turnSlowSeconds,'行動妨害秒',0,5);result.health[c.id].turnSlowRate=number(h.turnSlowRate,'行動妨害率',0,.5);}
       for(const key of ['stunTurns','blastTurns','blastEvasion','magicLevel'])if(h[key]!==undefined)result.health[c.id][key]=number(h[key],key,0,key==='stunTurns'?5:key==='blastTurns'?1:key==='magicLevel'?7:35,true);
       if(h.blastEvasion&&!h.blastTurns)throw new Error('爆風効果の持続時間が正しくありません。');
     }
@@ -643,7 +646,7 @@
         const summonMaxHP=summon?number(e.maxHP,'コグモ最大HP',creationDamage,1e100,true):0;
         if(summon&&respawnSeconds)throw new Error('コグモは自動再出現しません。');
         const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:quest.members?E.enemyMaxHP(ctx,e):maxHP),poisonDamage=e.poisonDamage;
-        const actionPoints=Math.floor(number(e.actionPoints,'敵のAP',0,1e100));
+        const actionPoints=0;
         if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
         const wardSeconds=number(e.wardSeconds??0,'防御のおまじない残り秒',0,10);if(wardSeconds&&(!hp||respawnSeconds))throw new Error('ダウン中の防御強化です。');
         const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
@@ -661,10 +664,10 @@
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx,e));
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
           const kind=p.kind||'attack';if(!(quest.members?E.enemySpec(ctx,e).attacks.map(a=>a.id):['attack','flash','absorb']).includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
-          pendingAttack={targetId:p.targetId,remaining,count:number(p.count??1,'攻撃回数',1,1e100,true),...(p.kind?{kind}:{})};
+          pendingAttack={targetId:p.targetId,remaining,count:1,...(p.kind?{kind}:{})};
           if(p.charmApplied!==undefined){if(typeof p.charmApplied!=='boolean'||!['ward','revive'].includes(kind))throw new Error('おまじない状態が不正です。');pendingAttack.charmApplied=p.charmApplied;}
           if(p.taunted!==undefined){if(typeof p.taunted!=='boolean')throw new Error('挑発予約が正しくありません。');pendingAttack.taunted=p.taunted;}
-          if(p.apCost!==undefined)pendingAttack.apCost=number(p.apCost,'予約攻撃の消費AP',1,1e100);
+
           if(p.profile!==undefined){
             const profile=record(p.profile,'予約攻撃');
             const walk=(v,depth=0)=>{if(depth>4)throw new Error('予約攻撃が複雑すぎます。');if(typeof v==='number'){number(v,'予約攻撃の数値',-1e100,1e100);return;}if(typeof v==='boolean'||v===null)return;if(typeof v==='object'&&!Array.isArray(v)){for(const x of Object.values(v))walk(x,depth+1);return;}throw new Error('予約攻撃が正しくありません。');};walk(profile);
@@ -674,7 +677,7 @@
           }
         }
         const row=e.row??'front';if(!['front','rear'].includes(row))throw new Error('敵の前衛・後衛が正しくありません。');
-        ids.add(id);return {row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
+        ids.add(id);return {...(e.summonDelaySeconds!==undefined?{summonDelaySeconds:number(e.summonDelaySeconds,'召喚待機秒',0,5)}:{}),...(e.turnSlowSeconds!==undefined?{turnSlowSeconds:number(e.turnSlowSeconds,'行動妨害秒',0,5),turnSlowRate:number(e.turnSlowRate,'行動妨害率',0,.5)}:{}),row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
       });
       if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
@@ -683,7 +686,12 @@
       if(ctx.hp!==(target?.hp||0)||ctx.poisonDamage!==(target?.poisonDamage||0)||Math.abs(ctx.respawnSeconds-wait)>1e-9)throw new Error('表示対象の状態が正しくありません。');
       return {enemies:normalized,nextEnemyId,focusedEnemyId};
     }
-    Object.assign(result,validateEnemies(raw,result),validateProtection(raw,result));
+    function validateTimeline(value){
+      if(value===undefined)return E.newTimeline();record(value,'手番タイムライン');const input=record(value.priorities,'手番優先度');if(Object.keys(input).length>32)throw new Error('手番優先度が多すぎます');
+      const priorities={};for(const [key,v]of Object.entries(input)){if(!(key.startsWith('a:')&&D.characters.some(c=>c.id===key.slice(2)))&&!/^e:[0-9]{1,9}$/.test(key))throw new Error('手番ユニットが不正です');priorities[key]=number(v,'優先度',-1e103,1e103);}
+      return {...(value.busySeconds!==undefined?{busySeconds:number(value.busySeconds,'演出待機秒',0,30)}:{}),priorities,turns:number(value.turns??0,'累計手番',0,1e100,true)};
+    }
+    Object.assign(result,validateEnemies(raw,result),validateProtection(raw,result),{timeline:validateTimeline(raw.timeline)});
     const battles=raw.sessionStates===undefined?{}:record(raw.sessionStates,'クエスト別の戦況');
     result.sessionStates={};
     for(const [id,data] of Object.entries(battles)){
@@ -697,7 +705,7 @@
       const selectedCharacterId=value.selectedCharacterId??null;
       if(selectedCharacterId!==null&&!E.formationIds(result,id).includes(selectedCharacterId))throw new Error('クエスト別の手動攻撃対象が正しくありません。');
       const battle={hp,poisonDamage,batchHpFraction,batchDamageFraction,respawnSeconds,selectedCharacterId};
-      result.sessionStates[id]={...battle,...validateEnemies(value,{...ctx,...battle}),...validateProtection(value,ctx)};
+      result.sessionStates[id]={timeline:validateTimeline(value.timeline),...battle,...validateEnemies(value,{...ctx,...battle}),...validateProtection(value,ctx)};
     }
     if (raw.selectedCharacterId !== null && !D.characters.some(c => c.id === raw.selectedCharacterId && E.isDeployed(result,c.id))) throw new Error('手動攻撃の担当キャラクターが正しくありません。');
     result.selectedCharacterId = raw.selectedCharacterId;

@@ -69,6 +69,6 @@ test('early timer saves migrate old character names, charges, currency and count
   if(version<4){delete s.speedLevels;s.timers.meta=1.8*.25;}
   if(version<3){s.levels.hikari=s.levels.meta;delete s.levels.meta;s.timers.hikari=s.timers.meta;delete s.timers.meta;}
   const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:version,state:s}));
-  assert.ok(loaded.levels.meta>=2);assert.ok(loaded.factors>=123);assert.equal(loaded.kills,7);assert.equal(loaded.earned,500);assert.equal(loaded.actionLevels,undefined);assert.ok(Math.abs(loaded.actionPoints.meta-75)<1e-8);assert.deepEqual(roundTrip(loaded),loaded);
+  assert.ok(loaded.levels.meta>=2);assert.ok(loaded.factors>=123);assert.equal(loaded.kills,7);assert.equal(loaded.earned,500);assert.equal(loaded.actionLevels,undefined);assert.equal(loaded.actionPoints.meta,0);assert.deepEqual(roundTrip(loaded),loaded);
  }
 });

@@ -22,9 +22,8 @@ test('fixed perk bonuses are grown before concentration; a downed unit keeps its
  s.health[c.id].status='unconscious';assert.equal(E.actionPower(s,c),0);
  assert.equal(E.actionPower(s,c,c.action,true),N.floor(c.action*(1+.02*124)*1.08**(2/(1+2.5*2/124))));
 });
-test('required AP, metrics and one-second AP accumulation follow the new curve',()=>{
+test('action metrics retain the growth curve without AP accumulation',()=>{
  const s=ready(['meta']);s.levels.meta=51;const c=character('meta'),expected=N.floor(c.action*2);
- assert.equal(E.actionThreshold(s),expected*2);assert.equal(E.characterMetrics(s,c).action,expected);
- const before=roundTrip(s);assert.equal(before.levels.meta,51);assert.equal(E.actionPower(before,c),expected);
- E.advance(s,1,()=>.5);assert.equal(s.actionPoints.meta,N.floor((c.actionDice.flat+c.actionDice.dice*4)*1.1**7.5));
+ assert.equal(E.characterMetrics(s,c).action,expected);assert.equal(E.actionPower(roundTrip(s),c),expected);
+ const events=E.advance(s,1,()=>.5);assert.equal(events.filter(e=>e.type==='timelineTurn').length,1);assert.equal(s.actionPoints.meta,0);
 });

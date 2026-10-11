@@ -11,7 +11,7 @@ function party(){
 }
 test('fractional expected AP from Plot Armor does not become a fractional action cost',()=>{
  const s=party();const values=E.formationIds(s).map(id=>E.actionPower(s,character(id),character(id).action,true));
- assert.ok(values.some(v=>!Number.isInteger(v)));assert.equal(E.actionThreshold(s),49);
+ assert.ok(values.some(v=>!Number.isInteger(v)));assert.ok(E.timelineView(s).units.every(u=>Number.isFinite(u.weight)));
  const random=rng(104);
  for(let i=0;i<300;i++){
    E.advance(s,.1,random);
@@ -26,10 +26,10 @@ test('previous fractional ally/enemy AP is floored on save and load without chan
  // Round-trip both the visible battle and a stored battle with fractional AP.
  const ctx=E.battleContext(s,'mohicans');E.ensureEnemies(ctx);ctx.enemies[0].actionPoints=7.5;s.sessionStates.mohicans=E.battleSnapshot(ctx);
  const before=structuredClone(s),saved=S.decode(S.encode(s));
- assert.equal(saved.actionPoints.mitsuru,21);assert.equal(saved.enemies[0].actionPoints,13);
- assert.equal(saved.sessionStates.mohicans.enemies[0].actionPoints,7);
+ assert.equal(saved.actionPoints.mitsuru,0);assert.equal(saved.enemies[0].actionPoints,0);
+ assert.equal(saved.sessionStates.mohicans.enemies[0].actionPoints,0);
  assert.equal(saved.factors,s.factors);assert.deepEqual(saved.levels,s.levels);assert.deepEqual(s,before);
- for(const bad of [-.5,Infinity,NaN]){s.actionPoints.mitsuru=bad;assert.throws(()=>S.encode(s));}
+ for(const bad of [-.5,Infinity,NaN]){s.actionPoints.mitsuru=bad;assert.equal(S.decode(S.encode(s)).actionPoints.mitsuru,0);}
 });
 test('autosave keeps progressing across multiple intervals with AP dice perks and reload restores it',()=>{
  const h=harness(party());const first=h.saved();h.advance(10100);const second=h.saved();
@@ -57,6 +57,6 @@ test('live recovery repairs the next saved copy without touching the running bat
  assert.equal(legacy.persist(storage,s).ok,false);
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../tools/recover-live-ap.js'),'utf8'),context);
  assert.equal(data.size,0);assert.equal(legacy.persist(storage,s).ok,true);
- const restored=S.load(storage).state;assert.equal(restored.actionPoints.mitsuru,12);assert.equal(restored.enemies[0].actionPoints,8);
+ const restored=S.load(storage).state;assert.equal(restored.actionPoints.mitsuru,0);assert.equal(restored.enemies[0].actionPoints,0);
  assert.deepEqual(s,before);assert.equal(restored.factors,s.factors);
 });

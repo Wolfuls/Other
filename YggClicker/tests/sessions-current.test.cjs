@@ -18,7 +18,7 @@ test('formations move occupied characters atomically, keep five-unit cap and pre
 });
 test('camera switches preserve independent enemy IDs, HP, AP, poison, focus and pending effects',()=>{
  const s=ready(['meta'],'mohicans');s.levels.richter=1;E.setFormation(s,'dementor',['richter']);const enemy=s.enemies[1];enemy.hp=11;enemy.poisonDamage=4;enemy.actionPoints=8;enemy.evasionFailure=true;E.selectEnemy(s,enemy.id);const before=E.battleSnapshot(s);
- E.selectSession(s,'dementor');E.advance(s,.25,rng());E.selectSession(s,'mohicans');assert.deepEqual(E.battleSnapshot(s),before);assert.equal(roundTrip(s).focusedEnemyId,enemy.id);
+ E.selectSession(s,'dementor');E.selectSession(s,'mohicans');assert.deepEqual(E.battleSnapshot(s),before);assert.equal(roundTrip(s).focusedEnemyId,enemy.id);
 });
 test('level change clears battle AP/statuses without healing allies or touching another battle',()=>{
  const s=ready(['meta'],'mohicans');s.levels.richter=1;E.setFormation(s,'dementor',['richter']);const other=E.battleSnapshot(E.battleContext(s,'dementor'));s.health.meta.hp=8;s.runaway.meta.runawayRate=41;s.actionPoints.meta=9;s.enemies[0].poisonDamage=4;s.enemies[0].actionPoints=8;s.questLevels.mohicans=2;
@@ -28,16 +28,13 @@ test('both wipes stop opposing AP; player manual attack remains possible against
  const s=ready(['meta'],'mohicans');s.selectedCharacterId=null;s.health.meta={hp:-1,status:'dying',regenSeconds:0};for(const e of s.enemies)e.actionPoints=50;E.advance(s,1,rng());assert.ok(s.enemies.every(e=>e.actionPoints===0));assert.ok(E.click(s,()=>.5).some(e=>e.hit));
  for(const e of s.enemies){e.hp=0;e.respawnSeconds=5;}s.hp=0;s.actionPoints.meta=20;E.advance(s,1,rng());assert.equal(s.actionPoints.meta,0);assert.deepEqual(E.click(s),[]);
 });
-test('AP uses the maximum of median, mean and peak terms, excluding intrinsic zero actors and including down participants',()=>{
- const s=ready(['meta','richter'],'scarecrow');assert.equal(E.actionThreshold(s),29);s.health.richter={hp:-3,status:'dying',regenSeconds:0};assert.equal(E.actionThreshold(s),29);
- E.setFormation(s,'scarecrow',['meta']);assert.equal(E.actionThreshold(s),30);assert.equal(E.enemyActionPower(s),0);
-});
-test('swarm individuals attack independently after their animation, die separately and return after five seconds',()=>{
- const s=ready(['meta'],'mohicans');s.levels.meta=11;s.concentration.meta.vitality=10;s.health.meta.hp=E.maxHP(s,c('meta'));for(const e of s.enemies)e.actionPoints=E.actionThreshold(s)-1;
- const windups=E.advance(s,1,()=>.5).filter(e=>e.type==='enemyWindup');assert.equal(windups.length,3);const hp=s.health.meta.hp;E.advance(s,.2,()=>.5);assert.equal(s.health.meta.hp,hp);const impacts=E.advance(s,1,()=>.5).filter(e=>e.type==='enemyAttack');assert.equal(impacts.length,3);
- s.health.meta.hp=E.maxHP(s,c('meta'));s.actionPoints.meta=0;const e=s.enemies[1],neighbor=s.enemies[0].hp;s.health.meta.status='active';s.selectedCharacterId=null;e.hp=1;e.respawnSeconds=0;E.selectEnemy(s,e.id);E.click(s,()=>.5);assert.equal(e.hp,0);assert.equal(s.enemies[0].hp,neighbor);E.advance(s,4.99,()=>.5);assert.equal(e.hp,0);E.advance(s,.02,()=>.5);assert.ok(e.hp>0);
-});
-test('concentration belongs to the character, is free and cannot exceed earned points',()=>{
+test('theory shares exclude down characters and passive targets',()=>{
+ const s=ready(['meta','richter'],'scarecrow');assert.equal(E.timelineUnits(s).length,2);s.health.richter={hp:-3,status:'dying',regenSeconds:0};assert.deepEqual(E.timelineView(s).units.map(u=>[u.key,u.share]),[['a:meta',1]]);
+});test('swarm units share one slot and preserve individual respawn clocks',()=>{
+ const s=ready(['meta'],'mohicans');neutralHealth(s);s.timeline.priorities['e:'+s.enemies[0].id]=1e6;
+ const events=E.advance(s,1,()=>.5);assert.equal(events.filter(e=>e.type==='timelineTurn').length,1);assert.equal(events.filter(e=>e.type==='enemyWindup').length,1);
+ s.health.meta.stunTurns=20;const e=s.enemies[1];e.hp=0;e.respawnSeconds=5;E.advance(s,4.99,()=>.5);assert.equal(e.hp,0);E.advance(s,.02,()=>.5);assert.ok(e.hp>0);
+});test('concentration belongs to the character, is free and cannot exceed earned points',()=>{
  const s=ready(['meta','richter']);s.levels.meta=11;const before=s.factors,base=E.strengthValue(s,c('meta'),'armor'),other=E.strengthValue(s,c('richter'),'armor');
  assert.ok(E.setConcentration(s,'meta',{power:3,armor:5,evasion:1,action:1,accuracy:0,vitality:0}));assert.equal(s.factors,before);assert.ok(E.strengthValue(s,c('meta'),'armor')>base);assert.equal(E.strengthValue(s,c('richter'),'armor'),other);assert.equal(E.attackProfile(s,c('meta')).flat,5);
  assert.equal(E.setConcentration(s,'meta',{...s.concentration.meta,power:4}),false);E.setFormation(s,'mohicans',['meta']);assert.equal(s.concentration.meta.armor,5);

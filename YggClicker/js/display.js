@@ -58,6 +58,7 @@
       zoom,viewWidth:canvasWidth*zoom,viewHeight:height*zoom,offsetX:(width-canvasWidth*zoom)/2,heightLimit};
   }
   function visibleOrbit(id,orbit,count,scale,mobile) {
+    if(!count)return {width:0,height:0,footprint:210,extentY:id==='meta'?160:mobile?210:224};
     if(id==='richter')return creatureOrbit(count,scale,mobile);
     const meta=id==='meta',bodyHeight=meta?160:mobile?210:224;
     const size=(meta?(mobile?24:28):(mobile?38:42))*scale;

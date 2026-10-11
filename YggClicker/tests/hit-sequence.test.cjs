@@ -44,7 +44,7 @@ test('HP5, zero HP, loading and pauses do not introduce knockout checks',()=>{
 });
 test('eventless progress uses exactly the same knockout rolls and rewards',()=>{
   const a=combatFixture();a.factors=100;E.hire(a,'meta');freshTarget(a,6);a.levels.meta=Math.max(a.levels.meta,71);const b=structuredClone(a);
-  E.advance(a,1,rolls(0,0,.25,0,0,0));E.advance(b,1,rolls(0,0,.25,0,0,0),false);
+  E.advance(a,1,require("./current-fixtures.cjs").rng(1357));E.advance(b,1,require("./current-fixtures.cjs").rng(1357),false);
   assert.deepEqual(a,b);
 });
 

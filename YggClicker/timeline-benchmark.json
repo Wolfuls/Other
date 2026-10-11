@@ -1,0 +1,841 @@
+[
+  {
+    "version": "0751",
+    "quest": "mohicans",
+    "seconds": 600,
+    "ms": 1184.5304999999998,
+    "kills": 89,
+    "earned": 1661701196032785,
+    "income": 2769501993387.975,
+    "actions": {
+      "waku": 338,
+      "max": 100,
+      "megumin": 89,
+      "jewel": 17,
+      "queen": 13
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 177,
+      "questReward": 1347529899288407,
+      "overkillReward": 314171296744145,
+      "jewelDoubleHitIncome": 56,
+      "secondaryIncome": 0
+    },
+    "actors": {
+      "waku": 350,
+      "queen": 33,
+      "jewel": 45,
+      "megumin": 23,
+      "max": 31
+    },
+    "enemyAttacks": 477,
+    "incoming": 414,
+    "outgoing": 1509109,
+    "actualDps": 2515.181666666667,
+    "takenPerSecond": 0.69,
+    "autoWinners": {}
+  },
+  {
+    "version": "0751",
+    "quest": "mohicans",
+    "seconds": 3600,
+    "ms": 1685.6955000000003,
+    "kills": 89,
+    "earned": 1661701196033259,
+    "income": 461583665564.7942,
+    "actions": {
+      "waku": 338,
+      "max": 236,
+      "megumin": 89,
+      "jewel": 23,
+      "queen": 15
+    },
+    "prefixKills": {
+      "600": 89
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 651,
+      "questReward": 1347529899288407,
+      "overkillReward": 314171296744145,
+      "jewelDoubleHitIncome": 56,
+      "secondaryIncome": 0
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "mohicans",
+    "seconds": 28800,
+    "ms": 7167.830599999999,
+    "kills": 89,
+    "earned": 1001678318207995300,
+    "income": 34780497159999.836,
+    "actions": {
+      "waku": 338,
+      "max": 1645,
+      "megumin": 89,
+      "jewel": 81,
+      "queen": 35
+    },
+    "prefixKills": {
+      "600": 89,
+      "3600": 89
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 4648,
+      "questReward": 1347529899288407,
+      "overkillReward": 314171296744145,
+      "jewelDoubleHitIncome": 285,
+      "secondaryIncome": 0,
+      "jewelSideIncome": 1000016617011958300
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "dementor",
+    "seconds": 600,
+    "ms": 159.13830000000053,
+    "kills": 3,
+    "earned": 4110366788158623,
+    "income": 6850611313597.705,
+    "actions": {
+      "waku": 49,
+      "max": 11,
+      "megumin": 6,
+      "queen": 3
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 87,
+      "questReward": 3288293430526830,
+      "overkillReward": 822073357631706
+    },
+    "actors": {
+      "waku": 51,
+      "queen": 9,
+      "megumin": 3,
+      "max": 2
+    },
+    "enemyAttacks": 36,
+    "incoming": 675,
+    "outgoing": 314946,
+    "actualDps": 524.91,
+    "takenPerSecond": 1.125,
+    "autoWinners": {}
+  },
+  {
+    "version": "0751",
+    "quest": "dementor",
+    "seconds": 3600,
+    "ms": 430.90179999999964,
+    "kills": 3,
+    "earned": 4110366788158934,
+    "income": 1141768552266.3706,
+    "actions": {
+      "waku": 80,
+      "max": 18,
+      "megumin": 10,
+      "queen": 5,
+      "jewel": 1
+    },
+    "prefixKills": {
+      "600": 3
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 398,
+      "questReward": 3288293430526830,
+      "overkillReward": 822073357631706
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "dementor",
+    "seconds": 28800,
+    "ms": 2783.2695999999996,
+    "kills": 6,
+    "earned": 1008261837244200400,
+    "income": 35009091570979.184,
+    "actions": {
+      "waku": 320,
+      "max": 91,
+      "megumin": 45,
+      "queen": 26,
+      "jewel": 10
+    },
+    "prefixKills": {
+      "600": 3,
+      "3600": 3
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 2904,
+      "questReward": 6576586861053660,
+      "overkillReward": 1644146715263412,
+      "jewelSideIncome": 1000041103667881200
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "ozmorn",
+    "seconds": 600,
+    "ms": 1062.3486999999986,
+    "kills": 12,
+    "earned": 6607838930829311,
+    "income": 11013064884715.518,
+    "actions": {
+      "waku": 506,
+      "max": 94,
+      "megumin": 131,
+      "jewel": 3,
+      "queen": 4
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 119,
+      "questReward": 5286271144663356,
+      "overkillReward": 1321567786165836,
+      "secondaryIncome": 0
+    },
+    "actors": {
+      "waku": 567,
+      "jewel": 5,
+      "queen": 8,
+      "megumin": 12,
+      "max": 2
+    },
+    "enemyAttacks": 462,
+    "incoming": 841,
+    "outgoing": 2143373,
+    "actualDps": 3572.2883333333334,
+    "takenPerSecond": 1.4016666666666666,
+    "autoWinners": {}
+  },
+  {
+    "version": "0751",
+    "quest": "ozmorn",
+    "seconds": 3600,
+    "ms": 1147.7445999999982,
+    "kills": 12,
+    "earned": 6607838930829593,
+    "income": 1835510814119.3313,
+    "actions": {
+      "waku": 506,
+      "max": 136,
+      "megumin": 131,
+      "jewel": 4,
+      "queen": 5
+    },
+    "prefixKills": {
+      "600": 12
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 401,
+      "questReward": 5286271144663356,
+      "overkillReward": 1321567786165836,
+      "secondaryIncome": 0
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "ozmorn",
+    "seconds": 28800,
+    "ms": 3621.131300000001,
+    "kills": 12,
+    "earned": 6607838930832132,
+    "income": 229438851765.00458,
+    "actions": {
+      "waku": 506,
+      "max": 569,
+      "megumin": 131,
+      "jewel": 16,
+      "queen": 20
+    },
+    "prefixKills": {
+      "600": 12,
+      "3600": 12
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 2919,
+      "questReward": 5286271144663356,
+      "overkillReward": 1321567786165836,
+      "secondaryIncome": 0,
+      "jewelDoubleHitIncome": 21
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "egg-or-chicken",
+    "seconds": 600,
+    "ms": 637.4209999999985,
+    "kills": 75,
+    "earned": 130312500000,
+    "income": 217187500,
+    "actions": {
+      "waku": 263,
+      "max": 5,
+      "megumin": 33
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "questReward": 104250000000,
+      "overkillReward": 26062500000,
+      "secondaryIncome": 0
+    },
+    "actors": {
+      "waku": 264,
+      "megumin": 3,
+      "jewel": 1,
+      "queen": 1
+    },
+    "enemyAttacks": 0,
+    "incoming": 0,
+    "outgoing": 450000,
+    "actualDps": 750,
+    "takenPerSecond": 0,
+    "autoWinners": {}
+  },
+  {
+    "version": "0751",
+    "quest": "egg-or-chicken",
+    "seconds": 3600,
+    "ms": 2795.0105000000003,
+    "kills": 147,
+    "earned": 255412501065,
+    "income": 70947916.9625,
+    "actions": {
+      "waku": 434,
+      "max": 5,
+      "megumin": 33,
+      "jewel": 144,
+      "queen": 86
+    },
+    "prefixKills": {
+      "600": 75
+    },
+    "incomeTotals": {
+      "questReward": 204330000000,
+      "overkillReward": 51082500000,
+      "secondaryIncome": 0,
+      "jewelDamageIncome": 360,
+      "jewelDoubleHitIncome": 705
+    }
+  },
+  {
+    "version": "0751",
+    "quest": "egg-or-chicken",
+    "seconds": 28800,
+    "ms": 15856.928000000004,
+    "kills": 153,
+    "earned": 7213535494529554000,
+    "income": 250469982448942.88,
+    "actions": {
+      "waku": 434,
+      "max": 5,
+      "megumin": 33,
+      "jewel": 2081,
+      "queen": 356
+    },
+    "prefixKills": {
+      "600": 75,
+      "3600": 147
+    },
+    "incomeTotals": {
+      "questReward": 212670000000,
+      "overkillReward": 52472500000,
+      "secondaryIncome": 0,
+      "jewelDamageIncome": 2168,
+      "jewelDoubleHitIncome": 13519,
+      "jewelSideIncome": 7213535229387052000
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "mohicans",
+    "seconds": 600,
+    "ms": 391.6677999999956,
+    "kills": 58,
+    "earned": 1078780958700208,
+    "income": 1797968264500.3467,
+    "turns": 581,
+    "actions": {
+      "waku": 217,
+      "max": 44,
+      "megumin": 62,
+      "jewel": 17,
+      "queen": 14
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 187,
+      "questReward": 878165552345254,
+      "overkillReward": 200615406354695,
+      "jewelDoubleHitIncome": 72,
+      "secondaryIncome": 0
+    },
+    "actors": {
+      "waku": 229,
+      "queen": 27,
+      "jewel": 31,
+      "megumin": 17
+    },
+    "enemyAttacks": 226,
+    "incoming": 187,
+    "outgoing": 1002941,
+    "actualDps": 1671.5683333333334,
+    "takenPerSecond": 0.31166666666666665,
+    "autoWinners": {
+      "a:waku": 217,
+      "e:0": 5,
+      "e:2": 6,
+      "e:1": 8,
+      "a:max": 44,
+      "a:megumin": 62,
+      "a:jewel": 17,
+      "a:queen": 14,
+      "e:3": 2,
+      "e:4": 1,
+      "e:6": 7,
+      "e:7": 9,
+      "e:5": 2,
+      "e:8": 5,
+      "e:9": 10,
+      "e:10": 2,
+      "e:11": 3,
+      "e:12": 3,
+      "e:13": 4,
+      "e:14": 1,
+      "e:16": 6,
+      "e:17": 4,
+      "e:15": 3,
+      "e:18": 5,
+      "e:19": 7,
+      "e:20": 3,
+      "e:21": 2,
+      "e:22": 3,
+      "e:23": 1,
+      "e:25": 3,
+      "e:27": 3,
+      "e:26": 3,
+      "e:28": 6,
+      "e:29": 7,
+      "e:30": 2,
+      "e:31": 4,
+      "e:32": 2,
+      "e:34": 3,
+      "e:35": 8,
+      "e:33": 6,
+      "e:36": 2,
+      "e:37": 3,
+      "e:38": 5,
+      "e:39": 4,
+      "e:40": 2,
+      "e:42": 7,
+      "e:43": 7,
+      "e:41": 3,
+      "e:44": 3,
+      "e:45": 4,
+      "e:46": 4,
+      "e:47": 3,
+      "e:48": 2,
+      "e:49": 4,
+      "e:50": 3,
+      "e:51": 3,
+      "e:52": 5,
+      "e:53": 5,
+      "e:54": 3,
+      "e:55": 1,
+      "e:57": 1,
+      "e:58": 1,
+      "e:59": 2,
+      "e:60": 1
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "mohicans",
+    "seconds": 3600,
+    "ms": 1223.5655000000042,
+    "kills": 242,
+    "earned": 4546020811925748,
+    "income": 1262783558868.2634,
+    "turns": 3108,
+    "actions": {
+      "waku": 667,
+      "max": 341,
+      "megumin": 91,
+      "jewel": 48,
+      "queen": 49
+    },
+    "prefixKills": {
+      "600": 58
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 593,
+      "questReward": 3664070063233646,
+      "overkillReward": 881950748691395,
+      "jewelDoubleHitIncome": 114,
+      "secondaryIncome": 0
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "mohicans",
+    "seconds": 28800,
+    "ms": 4718.0357,
+    "kills": 242,
+    "earned": 1004591481020039800,
+    "income": 34881648646529.16,
+    "turns": 15508,
+    "actions": {
+      "waku": 667,
+      "max": 1881,
+      "megumin": 91,
+      "jewel": 108,
+      "queen": 65
+    },
+    "prefixKills": {
+      "600": 58,
+      "3600": 242
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 4693,
+      "questReward": 3664070063233646,
+      "overkillReward": 881950748691395,
+      "jewelDoubleHitIncome": 318,
+      "secondaryIncome": 0,
+      "jewelSideIncome": 1000045460208113200
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "dementor",
+    "seconds": 600,
+    "ms": 99.54839999999967,
+    "kills": 3,
+    "earned": 4110366788158626,
+    "income": 6850611313597.71,
+    "turns": 123,
+    "actions": {
+      "waku": 57,
+      "max": 9,
+      "megumin": 6,
+      "queen": 3
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 90,
+      "questReward": 3288293430526830,
+      "overkillReward": 822073357631706
+    },
+    "actors": {
+      "waku": 62,
+      "queen": 5,
+      "megumin": 3
+    },
+    "enemyAttacks": 38,
+    "incoming": 684,
+    "outgoing": 351619,
+    "actualDps": 586.0316666666666,
+    "takenPerSecond": 1.14,
+    "autoWinners": {
+      "a:waku": 57,
+      "e:0": 5,
+      "e:1": 4,
+      "e:2": 4,
+      "a:max": 9,
+      "a:megumin": 6,
+      "a:queen": 3,
+      "e:4": 12,
+      "e:5": 11,
+      "e:3": 12
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "dementor",
+    "seconds": 3600,
+    "ms": 327.77880000000005,
+    "kills": 3,
+    "earned": 4110366788158960,
+    "income": 1141768552266.3777,
+    "turns": 246,
+    "actions": {
+      "waku": 76,
+      "max": 15,
+      "megumin": 6,
+      "queen": 4
+    },
+    "prefixKills": {
+      "600": 3
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 424,
+      "questReward": 3288293430526830,
+      "overkillReward": 822073357631706
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "dementor",
+    "seconds": 28800,
+    "ms": 2172.622000000003,
+    "kills": 6,
+    "earned": 8220733576320032,
+    "income": 285442138066.6678,
+    "turns": 1203,
+    "actions": {
+      "waku": 241,
+      "max": 80,
+      "megumin": 6,
+      "queen": 8
+    },
+    "prefixKills": {
+      "600": 3,
+      "3600": 3
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 2960,
+      "questReward": 6576586861053660,
+      "overkillReward": 1644146715263412
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "ozmorn",
+    "seconds": 600,
+    "ms": 392.4490000000005,
+    "kills": 2,
+    "earned": 1101306488471674,
+    "income": 1835510814119.4568,
+    "turns": 592,
+    "actions": {
+      "waku": 247,
+      "max": 46,
+      "megumin": 20,
+      "jewel": 10,
+      "queen": 8
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "jewelDamageIncome": 142,
+      "questReward": 881045190777226,
+      "overkillReward": 220261297694306
+    },
+    "actors": {
+      "waku": 269,
+      "queen": 17,
+      "jewel": 23,
+      "megumin": 2
+    },
+    "enemyAttacks": 220,
+    "incoming": 568,
+    "outgoing": 652222,
+    "actualDps": 1087.0366666666666,
+    "takenPerSecond": 0.9466666666666667,
+    "autoWinners": {
+      "a:waku": 247,
+      "e:0": 12,
+      "e:3": 1,
+      "a:max": 46,
+      "a:megumin": 20,
+      "e:7": 9,
+      "e:8": 8,
+      "a:jewel": 10,
+      "a:queen": 8,
+      "e:11": 22,
+      "e:12": 6,
+      "e:13": 3,
+      "e:16": 1,
+      "e:19": 3,
+      "e:20": 2,
+      "e:23": 1,
+      "e:30": 4,
+      "e:31": 2,
+      "e:34": 1,
+      "e:38": 77,
+      "e:39": 4,
+      "e:40": 1,
+      "e:43": 2,
+      "e:44": 2,
+      "e:50": 4,
+      "e:53": 2,
+      "e:54": 2,
+      "e:57": 3,
+      "e:58": 3,
+      "e:64": 1,
+      "e:68": 12,
+      "e:69": 9,
+      "e:72": 2,
+      "e:73": 1,
+      "e:77": 3,
+      "e:78": 3,
+      "e:81": 2,
+      "e:85": 9,
+      "e:86": 8,
+      "e:89": 1,
+      "e:92": 1,
+      "e:96": 1,
+      "e:97": 1,
+      "e:100": 6,
+      "e:101": 5,
+      "e:104": 2,
+      "e:105": 2,
+      "e:108": 4,
+      "e:109": 3,
+      "e:112": 5,
+      "e:113": 5
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "ozmorn",
+    "seconds": 3600,
+    "ms": 1047.8824000000022,
+    "kills": 7,
+    "earned": 3854572709650853,
+    "income": 1070714641569.6814,
+    "turns": 1810,
+    "actions": {
+      "waku": 588,
+      "max": 221,
+      "megumin": 61,
+      "jewel": 22,
+      "queen": 40
+    },
+    "prefixKills": {
+      "600": 2
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 477,
+      "questReward": 3083658167720291,
+      "overkillReward": 770914541930071,
+      "secondaryIncome": 0,
+      "jewelDoubleHitIncome": 14
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "ozmorn",
+    "seconds": 28800,
+    "ms": 3456.410100000001,
+    "kills": 20,
+    "earned": 11013064884718732,
+    "income": 382398086274.956,
+    "turns": 5787,
+    "actions": {
+      "waku": 588,
+      "max": 1263,
+      "megumin": 197,
+      "jewel": 58,
+      "queen": 130
+    },
+    "prefixKills": {
+      "600": 2,
+      "3600": 7
+    },
+    "incomeTotals": {
+      "jewelDamageIncome": 3158,
+      "questReward": 8810451907772260,
+      "overkillReward": 2202612976943060,
+      "secondaryIncome": 0,
+      "jewelDoubleHitIncome": 261
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "egg-or-chicken",
+    "seconds": 600,
+    "ms": 280.9045000000042,
+    "kills": 68,
+    "earned": 118150000000,
+    "income": 196916666.66666666,
+    "turns": 329,
+    "actions": {
+      "waku": 218,
+      "max": 44,
+      "megumin": 55,
+      "jewel": 10,
+      "queen": 1
+    },
+    "prefixKills": {},
+    "incomeTotals": {
+      "questReward": 94520000000,
+      "overkillReward": 23630000000,
+      "secondaryIncome": 0
+    },
+    "actors": {
+      "waku": 231,
+      "queen": 16,
+      "jewel": 20,
+      "megumin": 7
+    },
+    "enemyAttacks": 0,
+    "incoming": 0,
+    "outgoing": 408000,
+    "actualDps": 680,
+    "takenPerSecond": 0,
+    "autoWinners": {
+      "a:waku": 218,
+      "a:max": 44,
+      "a:megumin": 55,
+      "a:jewel": 10,
+      "a:queen": 1,
+      "e:92": 1
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "egg-or-chicken",
+    "seconds": 3600,
+    "ms": 1757.2695000000022,
+    "kills": 76,
+    "earned": 130660011653,
+    "income": 36294447.68138889,
+    "turns": 3296,
+    "actions": {
+      "waku": 222,
+      "max": 1679,
+      "megumin": 55,
+      "jewel": 586,
+      "queen": 153
+    },
+    "prefixKills": {
+      "600": 68
+    },
+    "incomeTotals": {
+      "questReward": 105640000000,
+      "overkillReward": 25020000000,
+      "secondaryIncome": 0,
+      "jewelDamageIncome": 217,
+      "jewelDoubleHitIncome": 11436
+    }
+  },
+  {
+    "version": "0760",
+    "quest": "egg-or-chicken",
+    "seconds": 28800,
+    "ms": 12565.969399999994,
+    "kills": 183,
+    "earned": 10462212868102322000,
+    "income": 363271280142441.75,
+    "turns": 26378,
+    "actions": {
+      "waku": 222,
+      "max": 14375,
+      "megumin": 55,
+      "jewel": 5700,
+      "queen": 1190
+    },
+    "prefixKills": {
+      "600": 68,
+      "3600": 76
+    },
+    "incomeTotals": {
+      "questReward": 254370000000,
+      "overkillReward": 51082500000,
+      "secondaryIncome": 0,
+      "jewelDamageIncome": 1816,
+      "jewelDoubleHitIncome": 48129,
+      "jewelSideIncome": 10462212562649800000
+    }
+  }
+]

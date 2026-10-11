@@ -60,11 +60,11 @@ test('schema39 preserves current earnings and migrates enemy HP ratios, summons,
  E.selectSession(s,'ozmorn');delete s.previousRunsEarned;
  const migrated=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:39,state:s}));
  assert.deepEqual(E.incomeRecord(migrated),{currentRun:987654,allRuns:987654});
- assert.equal(migrated.health.meta.hp,9);assert.equal(migrated.actionPoints.meta,12);
+ assert.equal(migrated.health.meta.hp,9);assert.equal(migrated.actionPoints.meta,0);
  for(const base of D.sessions.filter(q=>!q.members)){
   const ctx=E.battleContext(migrated,base.id),max=E.getSession(ctx).hp,oldMax=E.hpFromStrength(base.hp,100);
   assert.equal(ctx.enemies[0].hp,Math.max(1,N.floor(N.floor(Math.floor(oldMax*.4)/oldMax*N.floor(base.hp*stat(100)/100))/N.floor(base.hp*stat(100)/100)*max)));
-  assert.equal(ctx.enemies[0].actionPoints,7);assert.equal(ctx.enemies[0].poisonDamage,4);
+  assert.equal(ctx.enemies[0].actionPoints,0);assert.equal(ctx.enemies[0].poisonDamage,4);
  }
  assert.equal(migrated.hp,8);assert.equal(migrated.enemies[1].maxHP,12);assert.equal(migrated.enemies[1].creationDamage,12);
  const pending=migrated.enemies[0].pendingAttack,expected=E.enemyHitProfile(migrated,migrated.enemies[0],c(migrated.enemies[0].pendingAttack.targetId));

@@ -151,7 +151,7 @@
   "shortName": "クイーン",
   "initials": "QN",
   "title": "女王",
-  "role": "精神攻撃・AP妨害",
+  "role": "精神攻撃・行動妨害",
   "cost": 30000,
   "powerCost": 6000,
   "actionCost": 7500,
@@ -212,7 +212,7 @@
       },
       "attackType": "mental",
       "apAttack": true,
-      "description": "このキャラクターが本気を出せば戦闘など一瞬でカタがついてしまうが、それでは面白くないので、代わりにHPではなくAPに4D6のダメージを与える精神攻撃を行う。",
+      "description": "このキャラクターが本気を出せば戦闘など一瞬でカタがついてしまうが、それでは面白くないので、代わりにHPではなく行動値を低下させる4D6威力の精神攻撃を行う。低下率は換算後威力÷（対象最大HP＋換算後威力）、最大50%・5秒。重ねがけは最大値を維持して時間を更新する。",
       "runawayPressure": 0,
       "cost": 0,
       "effectClass": "special"
@@ -242,7 +242,7 @@
       "name": "女王の威圧",
       "level": 75,
       "enemyActionReduction": 0.1,
-      "description": "クイーンの鋭い眼光は標的の魂を砕く。敵全体のAP取得率が−10%されるが、眼光だけでこれなら実際に武器を取れば果たしてどうなってしまうものか、想像だに恐ろしい。",
+      "description": "クイーンの鋭い眼光は標的の魂を砕く。敵全体の行動値が−10%されるが、眼光だけでこれなら実際に武器を取れば果たしてどうなってしまうものか、想像だに恐ろしい。",
       "runawayPressure": 0.013333333333333334,
       "cost": 0,
       "effectClass": "support"
@@ -252,7 +252,7 @@
       "name": "「この無礼者」",
       "level": 100,
       "interceptAttack": true,
-      "description": "クイーンに刃を向ける事はそれだけで圧倒的な恐怖が伴う。自身を攻撃する敵へ精神攻撃を行い、命中したなら攻撃をキャンセルする。同じ敵に対する効果は徐々に減少する。",
+      "description": "クイーンに刃を向ける事はそれだけで圧倒的な恐怖が伴う。自身を攻撃する敵へ精神攻撃を行い、命中したなら攻撃をキャンセルする。次の手番も遅らせる（参加者の行動値合計の50%→37.5%→25%→12.5%を優先度から減算）。同じ敵へ4回成功すると無効。優先度の下限は合計行動値の−2倍。",
       "runawayPressure": 0.025,
       "cost": 0,
       "effectClass": "special"
@@ -262,7 +262,7 @@
       "name": "KILLER QUEEN",
       "level": 150,
       "apDiceBonus": 2,
-      "description": "その絶大な気迫がさらに増幅し、《QUEEN's BLESS》によるAP減少が＋2D6される。恐ろしくも頼もしい彼女の潜在能力は、未だ底が見えない。",
+      "description": "その絶大な気迫がさらに増幅し、《QUEEN's BLESS》による行動低下の換算前威力が＋2D6される。恐ろしくも頼もしい彼女の潜在能力は、未だ底が見えない。",
       "runawayPressure": 0.016666666666666666,
       "cost": 0,
       "effectClass": "special"
@@ -329,7 +329,7 @@
       "name": "スパークショット",
       "level": 10,
       "apReduction": 4,
-      "description": "命中時、対象のAP−4。",
+      "description": "命中時、威力4を対象の耐久力で換算した行動値低下（5秒、合計最大50%）。",
       "cost": 0,
       "runawayPressure": 0.008333333333333333
     },
@@ -860,7 +860,7 @@
         "cost": 1000000,
         "name": "ハンドアウト",
         "selectedActionRate": 0.2,
-        "description": "手動攻撃に選択中のキャラクターのAP獲得率＋20%。",
+        "description": "手動攻撃に選択中のキャラクターの行動値＋20%。",
         "runawayPressure": 0.008333333333333333
       },
       {
@@ -870,7 +870,7 @@
         "cost": 10000000,
         "name": "プロットアーマー",
         "enemyDamageSides": 4,
-        "description": "部隊全体のAP獲得＋1D6。敵のダメージダイスをD4に変更。",
+        "description": "部隊全体の行動値＋1D6。敵のダメージダイスをD4に変更。",
         "partyActionDice": 1,
         "runawayPressure": 0.008333333333333333
       },
@@ -891,7 +891,7 @@
         "cost": 1000000000,
         "name": "ネームドNPC",
         "freeActionChance": 0.5,
-        "description": "手動攻撃に選択中の仲間は、50%の確率でAPを消費せず自動攻撃する。",
+        "description": "手動攻撃に選択中の仲間は、50%の確率で同一手番内に追加行動（最大8行動）。",
         "runawayPressure": 0.016666666666666666
       }
     ],
@@ -985,7 +985,7 @@
         "cost": 500000,
         "name": "見えない壁",
         "apReductionRate": 0.05,
-        "description": "攻撃した相手の現在AP−5%。",
+        "description": "攻撃した相手の行動値−5%（5秒）。",
         "runawayPressure": 0.005
       },
       {
