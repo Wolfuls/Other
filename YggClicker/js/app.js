@@ -1,6 +1,9 @@
 (function () {
   'use strict';
   const D = window.YggData, E = window.YggEngine, S = window.YggSave, FX = window.YggCombatEffects, UI = window.YggDisplay, M=window.YggMaintenance;
+  // Temporary UI feature gate. Engine/save support remains available for re-enabling.
+  const BATTLE_SPEED_ENABLED=false;
+  function availableState(next){if(!BATTLE_SPEED_ENABLED)next.battleSpeed=1;return next;}
   const charactersByHireCost=[...D.characters].sort((a,b)=>a.cost-b.cost);
   const elements = new Map();
   const $ = id => { if (!elements.has(id)) elements.set(id, document.getElementById(id)); return elements.get(id); };
@@ -524,6 +527,7 @@
   function renderBattleHUD() {
     renderHealth();
     changeVisualRate(E.battleSpeed(state));
+    $('battle-speed').hidden=!BATTLE_SPEED_ENABLED;$('battle-speed').disabled=!BATTLE_SPEED_ENABLED;
     setText('battle-speed',E.battleSpeed(state)===2?'倍速 ×2':'倍速');$('battle-speed').setAttribute('aria-pressed',String(E.battleSpeed(state)===2));
     renderTurnOrder();
     const session = E.getSession(state), hp = E.isWaiting(state)?0:state.hp,focused=E.ensureEnemies(state).find(e=>e.id===state.focusedEnemyId)||E.ensureEnemies(state).find(e=>e.hp>0),displayMax=E.enemyMaxHP(state,focused);
@@ -1545,7 +1549,7 @@
     $('cancel-revive').addEventListener('click',()=>$('revive-dialog').close());
     $('confirm-revive').addEventListener('click',()=>{if(blocked())return;if(!sync())return;if(E.revive(state,revivalTarget)){log(D.characters.find(c=>c.id===revivalTarget).name+'：復活バーストで全回復。');$('revive-dialog').close();save();render();}else renderRevivalDialog();});
     $('attack').addEventListener('click', () => { if(!sync())return; showEvents(E.click(state)); render(); });
-    $('battle-speed').addEventListener('click',()=>{if(blocked()||!sync())return;state.battleSpeed=E.battleSpeed(state)===2?1:2;changeVisualRate(state.battleSpeed);save();render();});
+    $('battle-speed').addEventListener('click',()=>{if(!BATTLE_SPEED_ENABLED||blocked()||!sync())return;state.battleSpeed=E.battleSpeed(state)===2?1:2;changeVisualRate(state.battleSpeed);save();render();});
     $('pause').addEventListener('click', () => { if(!sync())return; state.paused = !state.paused; if (state.paused) resetCombatVisuals(); save(); render(); log(state.paused ? '周回を一時停止しました。' : '周回を再開しました。'); });
     const chooseCharacter = id => {
       if (blocked()) return;
@@ -1736,7 +1740,7 @@
       // Always keep a recoverable pre-import copy; this key is not rotated by autosave.
       importBackup = previous;
       try { if (storage) storage.setItem(PRE_IMPORT, previous); } catch { /* Memory backup and export remain usable. */ }
-      incomeHistory.reset(Date.now());detailKeys.clear();state = S.decode(S.encode(importCandidate));questInputDrafts.clear();
+      incomeHistory.reset(Date.now());detailKeys.clear();state = availableState(S.decode(S.encode(importCandidate)));questInputDrafts.clear();
       resetCombatVisuals(true);
       const result = window.YggRecovery&&Date.now()-state.savedAt>5000?await recoverState(Date.now(),true).catch(()=>null):E.catchUp(state);if(!result)return;incomeHistory.reset(Date.now());
       corruptSave = false; importCandidate = null; lastTime = Date.now();
@@ -1766,7 +1770,7 @@
     initialized = true; readOnly = !hasLock;
     try { storage = window.localStorage; } catch { storage = null; }
     const loaded = storage ? S.load(storage) : { state: null, unavailable: true, warning: 'ブラウザへの保存を利用できません。セーブを書き出して保存してください。' };
-    if (loaded.state) state = loaded.state;
+    if (loaded.state) state = availableState(loaded.state);
     corruptSave = !!loaded.blocked;
     build(); bind();
     if (readOnly) notice('別のタブでYggClickerが起動中です。二重進行を防ぐため待機しています。もう一方を閉じ、このタブを再読み込みしてください。', true);

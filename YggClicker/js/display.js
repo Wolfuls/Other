@@ -122,7 +122,7 @@
       jewelHired?(jewel.extentY/2+jewel.footOffset-8)/.66:0,wakuHired?(waku.extentY/2+waku.footOffset-8)/.66:0,maxHired?(max.extentY/2+max.footOffset+max.hoverHeight-12)/.66:0);
     // The outer window stays fixed through purchases. Only the world inside
     // scales when actual sprite/orbit bounds no longer fit the available area.
-    const heightLimit=availableHeight>0?Math.max(80,availableHeight):(mobile?360:480);
+    const heightLimit=availableHeight>0?Math.max(80,availableHeight):(mobile?420:560);
     const zoom=Math.min(1,width/canvasWidth,heightLimit/minimumHeight);
     const height=heightLimit/zoom;
     const groundY=height/2+.16*Math.max(height,canvasWidth/1.5),feetY=groundY+24;

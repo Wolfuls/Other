@@ -297,3 +297,10 @@
 .dashboard .arena-viewport.has-scene::before,.dashboard .arena-viewport.has-scene::after{width:100%}
 .dashboard #enemy-name[hidden]{display:-webkit-box!important;visibility:hidden}
 .dashboard #enemy-name{font-size:17px;margin:4px 0;line-height:1.4;height:2.8em}
+
+/* More battle space on desktop without pushing controls out of the viewport. */
+@media(min-width:900px) and (min-height:500px){
+ .dashboard #enemy-name,.dashboard #enemy-name:not([hidden]){height:1.4em;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+ .dashboard #enemy-rules{height:1.5em;white-space:nowrap;text-overflow:ellipsis;display:block}
+ .dashboard .single-session .battle-panel{gap:6px}
+}

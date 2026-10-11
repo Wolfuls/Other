@@ -22,6 +22,8 @@ test('manual attacks also postpone the next automatic turn without changing SWRR
 test('8h synchronous and chunked recovery match exactly at double speed',()=>{
  const a=ready(['meta'],'ozmorn');a.battleSpeed=2;E.click(a,()=>.4);const b=structuredClone(a);E.advance(a,28800,rng(193),false,true);for(const _ of E.advanceSteps(b,28800,rng(193),false,true)){}assert.deepEqual(b,a);assert.ok(a.timeline.turns<=57600);
 });
-test('speed button toggles and saves without advancing paused combat',()=>{
- const s=ready(['meta']);s.paused=true;const h=harness(s);h.click('battle-speed');assert.equal(h.get('battle-speed').getAttribute('aria-pressed'),'true');h.click('save-now');assert.equal(h.saved().battleSpeed,2);assert.equal(h.saved().timeline.turns,0);h.click('battle-speed');assert.equal(h.get('battle-speed').getAttribute('aria-pressed'),'false');
+test('speed UI is hidden and disabled; loading x2 resumes at normal speed',()=>{
+ const s=ready(['meta']);s.paused=true;s.battleSpeed=2;const h=harness(s);
+ assert.equal(h.get('battle-speed').hidden,true);assert.equal(h.get('battle-speed').disabled,true);
+ h.click('battle-speed');h.click('save-now');assert.equal(h.saved().battleSpeed,1);assert.equal(h.saved().timeline.turns,0);
 });
