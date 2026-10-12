@@ -565,6 +565,7 @@
   function render(scheduled=false) {
     if(document.hidden)return;renderScheduled=scheduled;
     $('sins-open').hidden=(state.runNumber||1)<2;
+    $('karma-income').hidden=(state.runNumber||1)<2;
     const karmaText='罪業 '+fullNumber(state.sinTotal||0)+'：因子獲得量 ×'+E.sinIncomeMultiplier(state).toLocaleString('ja-JP',{maximumFractionDigits:2})+'（＋'+fullNumber(state.sinTotal||0)+'%）';
     setText('karma-income',karmaText);setText('sin-income',karmaText);
     if(renderSinShop())return;
