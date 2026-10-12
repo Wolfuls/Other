@@ -445,3 +445,26 @@
 button.pom-unit{pointer-events:auto;cursor:pointer;border:0;padding:0;background:transparent;color:inherit}button.pom-unit:focus-visible{outline:2px solid #d4ec9b;outline-offset:3px}
 
 .medical-room [id$="-combatant"]{transform:translate(-50%,-50%) scale(1.75);transform-origin:50% calc(50% + var(--body-foot,0px))}.medical-room [id$="-combatant"] :is(.ally-vitals,.ally-status,.ally-magic){scale:.5714286;transform-origin:50% 0}
+
+.megumin-common-projectile{width:64px;height:64px;pointer-events:none}.megumin-common-projectile .blast-fireball{display:block;width:64px;height:64px}
+
+/* Pine: generated four-column, three-row animation sheet. */
+.pine-combatant{position:absolute;width:220px;height:220px;transform:translate(-50%,-50%);--down-width:220px}
+.pine-sprite{display:block;width:220px;height:220px;border:0;padding:0;background:transparent url('./img/pine-animation-v1.png') 0 0/400% 300% no-repeat;image-rendering:pixelated;animation:pine-idle 1s steps(1) infinite;cursor:pointer}
+.pine-combatant.attacking .pine-sprite{animation:pine-punch .56s steps(1) forwards}
+.pine-combatant.downed .pine-sprite{animation:pine-down .52s steps(1) forwards}
+.pine-combatant .ally-down-sprite{display:none!important}
+.pine-combatant.is-paused .pine-sprite{animation-play-state:paused}
+.pine-avatar{display:block;width:38px;height:38px;background-size:400% 300%;background-position:0 0;image-rendering:pixelated}
+@keyframes pine-idle{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@keyframes pine-punch{0%{background-position:0 50%}25%{background-position:33.333333% 50%}50%{background-position:66.666667% 50%}75%,100%{background-position:100% 50%}}
+@keyframes pine-down{0%{background-position:0 100%;transform:translateX(0)}25%{background-position:33.333333% 100%;transform:translateX(0)}50%{background-position:66.666667% 100%;transform:translateX(calc(var(--pine-down-shift,24px) / 2))}75%,100%{background-position:100% 100%;transform:translateX(var(--pine-down-shift,24px))}}
+.medical-room .pine-combatant{--pine-down-shift:64px}
+@media(prefers-reduced-motion:reduce){.pine-sprite{animation:none}.pine-combatant.attacking .pine-sprite{animation:none;background-position:66.666667% 50%}.pine-combatant.downed .pine-sprite{animation:none;background-position:100% 100%;transform:translateX(var(--pine-down-shift,24px))}}
+
+/* Registered atlas renderer keeps every pose on one grounded origin. */
+.pine-sprite,.pine-combatant.attacking .pine-sprite,.pine-combatant.downed .pine-sprite{background:none!important;animation:none!important;transform:none!important}
+.pine-sprite canvas{display:block;width:400px;height:260px;margin-left:-90px;margin-top:-40px;image-rendering:pixelated;pointer-events:none}
+.pine-fist{position:absolute;width:140px;height:70px;background:url('./img/pine-fist-v3.png') center/contain no-repeat;image-rendering:pixelated;pointer-events:none;z-index:8;animation:pine-fist-flight .42s ease-in forwards}
+.pine-fist-burst{width:100px;height:50px}
+@keyframes pine-fist-flight{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--fist-angle,0deg)) scale(.6)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--fist-x)),calc(-50% + var(--fist-y))) rotate(var(--fist-angle,0deg)) scale(1.15)}}

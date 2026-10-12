@@ -11,7 +11,7 @@ function incoming(s,attack=10){const e=s.enemies[0];e.pendingAttack={targetId:'m
 
 test('Megumin keeps her base stats; six magic perks replace fixed bonuses and level 200 area exemption',()=>{
  const c=meg();assert.deepEqual([c.cost,c.powerCost,c.dice,c.flat,c.action,c.maxHP,c.defense,c.resistance],[500,100,4,1,13,18,1,6]);assert.deepEqual(c.actionDice,{flat:6,dice:2});assert.deepEqual(c.accuracy,{flat:13,dice:1});assert.equal(c.magicPower,11);assert.equal(c.perks.filter(p=>!p.common).length,10);
- assert.deepEqual(c.perks.filter(p=>p.awakeningLevel).map(p=>[p.name,p.awakeningLevel]),[['広域爆発',1],['爆風障壁',2],['高速詠唱',3]]);
+ assert.deepEqual(c.perks.filter(p=>p.awakeningLevel).map(p=>[p.name,p.awakeningLevel]),[['広域爆発',1],['過剰魔力',3],['高速詠唱',2]]);
  assert.deepEqual(c.perks.filter(p=>p.magicLevel).map(p=>[p.level,p.magicLevel,Math.round(p.runawayPressure*600)]),[[10,1,1],[25,2,3],[50,3,5],[100,4,7],[150,5,9],[200,6,11]]);
  assert.ok(c.perks.every(p=>!p.flat&&!p.diceBonus&&!p.noAreaPenalty&&!p.perkAttackAmplifier&&!p.actionBonus&&!p.blastReduction));
 });
@@ -51,9 +51,9 @@ test('automatic paid turns implement the full three-charge, cast, one-rest cycle
  assert.ok(turn(s).some(e=>e.type==='magicCharge'&&e.magicLevel===2));
 });
 
-test('awakening transitions grant area at 50, ward at 60 and fast chanting at 70',()=>{
+test('awakening transitions grant area at 50 and fast chanting at 60',()=>{
  const s=battle();
- for(const [rate,area,ward,action]of [[49,false,0,0],[50,true,0,0],[60,true,5,0],[69.99,true,5,0],[70,true,5,7],[79.99,true,5,7],[80,true,5,8],[0,false,0,0]]){
+ for(const [rate,area,ward,action]of [[49,false,0,0],[50,true,0,0],[60,true,0,6],[69.99,true,0,6],[70,true,0,7],[79.99,true,0,7],[80,true,0,8],[0,false,0,0]]){
   s.runaway.megumin.runawayRate=rate;const p=E.attackProfile(s,meg());assert.deepEqual([p.areaAttack,p.blastEvasionPerMagic,E.ownActionBonus(s,meg())],[area,ward,action]);
  }
  assert.equal(E.togglePerk(s,'megumin','quick-chant',false),false);
@@ -63,26 +63,6 @@ test('fast chanting is added before training scaling and follows suppression wit
  const s=battle();enable(s,'megumin','crimson-flame');assert.equal(E.ownActionBonus(s,meg()),0);s.levels.megumin=51;s.runaway.megumin.runawayRate=80;
  const actual=E.actionPower(s,meg(),13,false,()=>0); // The shared 80% bonus adds 1 D6, rolled as 1.
  assert.equal(actual,110);assert.ok(E.suppressRunaway(s,'megumin'));assert.equal(E.ownActionBonus(s,meg()),7);assert.equal(E.actionPower(s,meg(),13,false,()=>0),100);
-});
-
-test('ward uses consumed magic times five even on an all-miss attack and still rolls damage',()=>{
- const s=battle();enable(s,'megumin','laws-of-heaven');s.runaway.megumin.runawayRate=60;s.questLevels.scarecrow=10000;E.setQuestLevel(s,'scarecrow',10000);s.health.megumin.magicLevel=4;
- let calls=0;const events=E.click(s,()=>{calls++;return .4;});assert.equal(events.find(e=>e.type==='attack').hit,false);assert.equal(s.health.megumin.blastEvasion,20);assert.equal(s.health.megumin.blastTurns,1);assert.equal(s.health.megumin.magicLevel,undefined);assert.equal(s.health.megumin.stunTurns,1);
- assert.ok(calls>=6);assert.equal(s.health.megumin.blastReduction,undefined);
-});
-
-test('ward applies once and expires after one own turn, with stun failure taking priority',()=>{
- const s=battle();enable(s,'megumin','crimson-flame');s.runaway.megumin.runawayRate=60;cast(s);assert.equal(s.health.megumin.blastEvasion,10);
- const p=E.enemyHitProfile(s,s.enemies[0],meg()),hit=E.rollEnemyHit({...p,accuracySpec:{flat:-100,dice:0}},random);assert.ok(hit.hit&&hit.forcedFailure);assert.equal(F.matchup(s,meg()).evadeRate,0);
- const hp=s.health.megumin.hp;incoming(s,4);assert.equal(s.health.megumin.hp,hp-4);assert.equal(s.health.megumin.blastEvasion,undefined);
- const t=battle();enable(t,'megumin','crimson-flame');t.runaway.megumin.runawayRate=60;cast(t);turn(t);assert.equal(t.health.megumin.blastEvasion,undefined);assert.equal(t.health.megumin.blastTurns,undefined);assert.equal(t.health.megumin.stunTurns,0);
-});
-
-test('area explosion grants one magic-based ward; the Lv200 attack still has the common half penalty',()=>{
- const s=battle(['megumin'],'mohicans');enable(s,'megumin','eternal-hammer');s.runaway.megumin.runawayRate=60;s.enemies.forEach(e=>e.hp=1e8);
- const p=E.attackForecastProfile(s,meg());assert.equal(p.noAreaPenalty,false);assert.equal(cast(s).length,3);assert.equal(s.health.megumin.blastEvasion,35);
- const half=E.profileAverage(s,{...p,dice:0,flat:20,accuracy:null,defense:0,damageLogRatio:0,damageScaleLog:0});
- const full=E.profileAverage(s,{...p,dice:0,flat:20,accuracy:null,defense:0,noAreaPenalty:true,damageLogRatio:0,damageScaleLog:0});assert.equal(full,half*2);
 });
 
 test('GM donations progress one charge each and cannot bypass the rest after casting',()=>{
@@ -128,3 +108,5 @@ test('UI shows magic/current attack, new awakening names, chant action and the c
  assert.equal(h.get('ally-magic-megumin').textContent,'魔力 Lv.1 / 4');assert.equal(h.get('attack-action').textContent,'詠唱する');assert.ok(h.get('megumin-combatant').classList.contains('charging'));h.openAbility('megumin');assert.match(h.get('magic-summary-megumin').textContent,/魔力 Lv.1 \/ 4/);assert.match(h.get('character-list').innerHTML,/高速詠唱/);assert.doesNotMatch(h.get('character-list').innerHTML,/爆風防壁|各パークの攻撃力補正を2倍/);
  const frames=FX.plan([{type:'magicCharge',actorId:'megumin',magicLevel:1,maximum:3},{type:'attack',actorId:'megumin',count:1,damage:100,hpBefore:200,hpAfter:100}]);assert.equal(frames.reduce((n,f)=>n+f.meguminAttacks,0),1);
 });
+
+test('excess mana scales each magic point by floor level over ten, only at awakening three',()=>{for(const level of [9,10,19,20,101]){const s=battle();s.levels.megumin=level;s.runaway.megumin.runawayRate=69;const a=E.attackProfile(s,meg()),hit=E.accuracySpec(s,meg(),false).flat;s.runaway.megumin.runawayRate=70;const b=E.attackProfile(s,meg());assert.equal(b.flat-a.flat,Math.floor(level/10));assert.equal(E.accuracySpec(s,meg(),false).flat-hit,Math.floor(level/10));assert.equal(b.blastEvasionPerMagic,0);assert.doesNotThrow(()=>roundTrip(s));}});

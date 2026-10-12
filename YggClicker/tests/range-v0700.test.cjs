@@ -47,10 +47,10 @@ test('only Mohicans have range 1, cannot target a screened rear, and do not bank
  s.formationRows.meta='rear';s.levels.max=1;s.formations[s.sessionId].push('max');
  assert.equal(E.enemyCanReach(s,e,character('meta')),false);e.actionPoints=999;E.advance(s,1,()=>.4);assert.equal(s.timeline.priorities["e:"+e.id],undefined);assert.equal(e.pendingAttack,null);
 });
-test('queued attacks keep their original target after row edits',()=>{
+test('reformation cancels queued enemy attacks after row edits',()=>{
  const s=ready(['meta','jewel'],'mohican-solo'),e=s.enemies[0];s.timeline.priorities["e:"+e.id]=1e6;E.advance(s,.01,()=>.4);
  assert.ok(e.pendingAttack);const target=e.pendingAttack.targetId;E.setFormation(s,s.sessionId,['meta','jewel'],{[target]:'rear'});
- assert.equal(e.pendingAttack.targetId,target);const events=E.advance(s,1,()=>.4);assert.ok(events.some(e=>e.type==='enemyAttack'&&e.targetId===target));
+ assert.notEqual(s.enemies[0].id,e.id);assert.equal(s.enemies[0].pendingAttack,null);assert.equal(s.timeline.priorities['e:'+e.id],undefined);assert.equal(s.enemies[0].hp,E.enemyMaxHP(s,s.enemies[0]));
 });
 test('melee and ranged motions and conditional reattacks follow target distance',()=>{
  const s=rearBattle('waku'),c=character('waku');enable(s,'waku','monado-smash','expanded-hurtbox','next-frame');

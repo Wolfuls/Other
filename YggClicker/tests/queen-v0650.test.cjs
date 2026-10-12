@@ -6,7 +6,7 @@ const queen=()=>character('queen');
 function encounter(ids=['queen'],quest='mohican-solo'){const s=ready(ids,quest);E.selectCharacter(s,'queen');return s;}
 function pending(s,e,target='queen',apCost=100){e.pendingAttack={targetId:target,remaining:.01,count:1,kind:'attack',apCost,profile:{accuracySpec:{flat:-100,dice:0},evasionDice:{flat:100,dice:0},attack:{dice:0,flat:1},reduction:0,shield:0,hitLogRatio:0,damageLogRatio:0,damageScaleLog:0}};return E.advance(s,.01,()=>.4);}
 test('Queen has the specified hidden base, costs, reaction type and six perk levels/pressures',()=>{
- const c=queen();assert.deepEqual([c.cost,c.powerCost,c.action,c.dice,c.flat,c.maxHP,c.defense,c.resistance],[30000,6000,10,1,0,15,0,8]);assert.deepEqual(c.ss,{flat:17,dice:2});assert.equal(c.activationType,'reaction');assert.equal(c.baseRunawayPressure,.03);
+ const c=queen();assert.deepEqual([c.cost,c.powerCost,c.action,c.dice,c.flat,c.maxHP,c.defense,c.resistance],[50000,6000,10,1,0,15,0,8]);assert.deepEqual(c.ss,{flat:17,dice:2});assert.equal(c.activationType,'reaction');assert.equal(c.baseRunawayPressure,.03);
  assert.deepEqual(c.perks.filter(p=>!p.common).map(p=>p.level),[0,25,50,75,100,150]);assert.deepEqual(c.perks.filter(p=>!p.common).map(p=>Math.round(p.runawayPressure*600)),[0,4,3,8,15,10]);assert.ok(c.hiddenAttack);assert.equal(c.statFlavor.power,'計り知れない');
 });
 test('BLESS rolls mental 4D6 against resistance and strength, reducing only AP with a zero floor',()=>{

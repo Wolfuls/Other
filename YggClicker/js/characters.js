@@ -70,13 +70,13 @@
     },
     {
       "id": "blast-barrier",
-      "name": "爆風障壁",
+      "name": "過剰魔力",
       "level": 0,
       "runawayPressure": 0,
       "cost": 0,
-      "description": "攻撃後、使用した魔力×5を次の回避判定に加算。自身の次の手番終了まで1R持続。スタン中は回避自動失敗を優先。",
-      "awakeningLevel": 2,
-      "blastEvasionPerMagic": 5
+      "description": "魔力1点あたりの攻撃力・命中力補正が、めぐみんのLv10ごとにさらに＋1。",
+      "awakeningLevel": 3,
+      "magicBonusLevelStep": 10
     },
     {
       "id": "quick-chant",
@@ -84,7 +84,7 @@
       "level": 0,
       "cost": 0,
       "runawayPressure": 0,
-      "awakeningLevel": 3,
+      "awakeningLevel": 2,
       "runawayActionStep": 10,
       "description": "暴走率10%につき行動力＋1。"
     },
@@ -152,7 +152,7 @@
   "initials": "QN",
   "title": "女王",
   "role": "精神攻撃・行動妨害",
-  "cost": 30000,
+  "cost": 50000,
   "powerCost": 6000,
   "actionCost": 7500,
   "dice": 1,
@@ -620,7 +620,7 @@
       "flat": 9,
       "dice": 1
     },
-    "downSprite": "./img/vishunal-down-v1.png",
+    "downSprite": "./img/vishunal-down-v2.png",
     "name": "右藤ビシュナル",
     "initials": "UV",
     "title": "合法ランチャー",
@@ -1173,7 +1173,9 @@
     "activationType": "awakening"
   }
 ];
-  characters.push({"id":"cherry","name":"チエリ・チヨコリィート","shortName":"チェリー","initials":"CH","cost":2500,"dice":3,"flat":5,"action":15,"actionDice":{"flat":8,"dice":2},"accuracy":{"flat":21,"dice":1},"evasion":{"flat":13,"dice":1},"ss":{"flat":10,"dice":1},"maxHP":15,"defense":1,"resistance":2,"activationType":"augment","baseRunawayPressure":0.005,"attackRange":[1,3],"perks":[{"id":"assert-dominance","name":"ASSERT DOMINANCE!","level":0,"initial":true,"runawayPressure":0.01,"description":"耐性：火炎、弱点：風を得る。他者の火炎攻撃を受けるたび、次の自身の攻撃の攻撃力・命中力＋4。重複可能で、攻撃後に蓄積を消費する。","dominance":true,"cost":0},{"id":"burning","name":"BURNING","level":25,"runawayPressure":0.006666666666666667,"effectRange":[1,3],"description":"命中時、火炎の炎上を付与。炎上中の敵は被弾ごとに4点の非接触ダメージ。攻撃強度の平方根に比例して増加。対象またはチェリーがダウンするまで持続する。","burning":true,"cost":0},{"id":"volcano","name":"VOLCANO","level":50,"runawayPressure":0.01,"attackRange":[1,3],"description":"自身の手番ごとに自身を含む敵味方全員へ、火炎の非接触ダメージ4点。攻撃強度の平方根に比例して増加する。","volcano":true,"cost":0},{"id":"incinerate-them","name":"INCINERATE THEM!","level":75,"runawayPressure":0.011666666666666665,"effectRange":[1,3],"areaAttack":true,"description":"攻撃が全体攻撃になる。","cost":0},{"id":"dissatisfaction","name":"DISSATISFACTION","level":100,"runawayPressure":0.008333333333333333,"effectRange":[1,3],"description":"攻撃時25%で、自身を含む敵味方全員へ通常攻撃と同じ威力の火炎追加攻撃。","fireExtra":true,"cost":0},{"id":"extinguisher","name":"EXTINGUISHER","level":125,"runawayPressure":0.02,"description":"自身以外の味方全体が耐性：火炎を得る。","fireCover":true,"cost":0},{"id":"blazar","name":"BLAZAR","level":150,"effectRange":[1,3],"runawayPressure":0.016666666666666666,"flat":10,"blazar":true,"cost":0,"description":"[付加：1～3] 攻撃力＋10。彗星のような巨大な火球を相手へ叩き落とす。"}],"powerCost":500,"actionCost":625,"title":"炎上の支配者","role":"炎上・敵味方への火炎攻撃","color":"#eb626b","description":"火炎を受けて次の攻撃を強化し、敵味方を巻き込む炎を放つ。","portrait":"./img/cherry-idle-frame-0-v2.png","downSprite":"./img/cherry-down-frame-3-v2.png","downContact":{"width":384,"height":384,"bottom":360}});
+  characters.push({"id":"cherry","name":"チエリ・チヨコリィート","shortName":"チェリー","initials":"CH","cost":8000,"dice":3,"flat":5,"action":15,"actionDice":{"flat":8,"dice":2},"accuracy":{"flat":21,"dice":1},"evasion":{"flat":13,"dice":1},"ss":{"flat":10,"dice":1},"maxHP":15,"defense":1,"resistance":2,"activationType":"augment","baseRunawayPressure":0.005,"attackRange":[1,3],"perks":[{"id":"assert-dominance","name":"ASSERT DOMINANCE!","level":0,"initial":true,"runawayPressure":0.01,"description":"耐性：火炎、弱点：風を得る。他者の火炎攻撃を受けるたび、次の自身の攻撃の攻撃力・命中力＋4。重複可能で、攻撃後に蓄積を消費する。","dominance":true,"cost":0},{"id":"burning","name":"BURNING","level":25,"runawayPressure":0.006666666666666667,"effectRange":[1,3],"description":"命中時、火炎の炎上を付与。炎上中の敵は被弾ごとに4点の非接触ダメージ。攻撃強度の平方根に比例して増加。対象またはチェリーがダウンするまで持続する。","burning":true,"cost":0},{"id":"volcano","name":"VOLCANO","level":50,"runawayPressure":0.01,"attackRange":[1,3],"description":"自身の手番ごとに自身を含む敵味方全員へ、火炎の非接触ダメージ4点。攻撃強度の平方根に比例して増加する。","volcano":true,"cost":0},{"id":"incinerate-them","name":"INCINERATE THEM!","level":75,"runawayPressure":0.011666666666666665,"effectRange":[1,3],"areaAttack":true,"description":"攻撃が全体攻撃になる。","cost":0},{"id":"dissatisfaction","name":"DISSATISFACTION","level":100,"runawayPressure":0.008333333333333333,"effectRange":[1,3],"description":"攻撃時25%で、自身を含む敵味方全員へ通常攻撃と同じ威力の火炎追加攻撃。","fireExtra":true,"cost":0},{"id":"extinguisher","name":"EXTINGUISHER","level":125,"runawayPressure":0.02,"description":"自身以外の味方全体が耐性：火炎を得る。","fireCover":true,"cost":0},{"id":"blazar","name":"BLAZAR","level":150,"effectRange":[1,3],"runawayPressure":0.016666666666666666,"flat":10,"blazar":true,"cost":0,"description":"[付加：1～3] 攻撃力＋10。彗星のような巨大な火球を相手へ叩き落とす。"}],"powerCost":500,"actionCost":625,"title":"炎上の支配者","role":"炎上・敵味方への火炎攻撃","color":"#eb626b","description":"火炎を受けて次の攻撃を強化し、敵味方を巻き込む炎を放つ。","portrait":"./img/cherry-idle-frame-0-v2.png","downSprite":"./img/cherry-down-frame-3-v2.png","downContact":{"width":384,"height":384,"bottom":360}});
+  characters.push({"id":"pine","name":"パイン・アップル","shortName":"パイン","initials":"PN","cost":16000,"powerCost":1600,"actionCost":2000,"dice":4,"flat":2,"action":3,"actionDice":{"flat":3,"dice":2},"accuracy":{"flat":12,"dice":1},"evasion":{"flat":7,"dice":1},"ss":{"flat":4,"dice":1},"maxHP":65,"defense":5,"resistance":2,"activationType":"augment","baseRunawayPressure":0.02,"color":"#e6cf28","title":"パイナップルの仮面ヒーロー","role":"怪力・自己回復","description":"反動をものともしない怪力と、グミによる自己回復で戦う。","portrait":"./img/pine-animation-v1.png","portraitSheet":true,"portraitClass":"pine-avatar","portraitColumns":4,"portraitRows":3,"downSprite":"./img/pine-animation-v1.png","downContact":{"width":360,"height":360,"bottom":345},"source":"ユーザー提供のキャラクター設定・参考画像","perks":[{"id":"strength","name":"ストレングス","level":0,"cost":0,"runawayPressure":0.008333333333333333,"description":"攻撃強度＋10%。","initial":true,"strengthBonus":{"power":0.1}},{"id":"apple-gummy","name":"アップルグミ","level":10,"cost":0,"runawayPressure":0.016666666666666666,"description":"まれに自身の最大HPの30%を回復する（平均10分に1回）。","gummyHeal":0.3},{"id":"strongman","name":"力自慢","level":25,"cost":0,"runawayPressure":0.005,"description":"攻撃力＋1D6。攻撃時、自身に1点の非接触反動ダメージ。","diceBonus":1,"recoilFlat":1},{"id":"bulk-up","name":"バルクアップ","level":50,"cost":0,"runawayPressure":0.008333333333333333,"description":"HP強度＋20%。","strengthBonus":{"vitality":0.2}},{"id":"unrivaled-strength","name":"怪力無双","level":75,"cost":0,"runawayPressure":0.005,"description":"攻撃力＋1D6。攻撃時、自身に1点の非接触反動ダメージ。","diceBonus":1,"recoilFlat":1},{"id":"pine-gummy","name":"パイングミ","level":100,"cost":0,"runawayPressure":0.016666666666666666,"description":"アップルグミの回復量をさらに最大HPの30%増やす。","gummyBonus":0.3},{"id":"power-is-power","name":"力こそパワー","level":125,"cost":0,"runawayPressure":0.016666666666666666,"description":"攻撃強度＋10%。","strengthBonus":{"power":0.1}},{"id":"wonderful-curiosity","name":"すてきな好奇心","level":150,"cost":0,"runawayPressure":0.016666666666666666,"description":"命中力・回避力＋6、行動力＋3。","accuracyBonus":6,"evasionBonus":6,"actionBonus":3}]});
+  characters.find(c=>c.id==='jewel').unlockEarned=1000000;
   const bomber=characters.find(c=>c.id==='richter');bomber.perks=[{"id":"g-bom","name":"G-BoM.","level":0,"initial":true,"runawayPressure":0.008333333333333333,"pomSummon":true,"description":"自身の行動後、ポムポムボムを1体召喚。次の自身の手番で消滅し、この手番の最初の攻撃のダメージ判定へ合体する。","cost":0},{"id":"awaken-x-bom","name":"X-BoM.","level":0,"awakeningLevel":1,"minRunaway":50,"runawayPressure":0,"pomDice":1,"description":"ポムポムボムの攻撃力＋1D6。","cost":0},{"id":"awaken-y-bom","name":"Y-BoM.","level":0,"awakeningLevel":1,"minRunaway":60,"runawayPressure":0,"pomDice":1,"description":"ポムポムボムの攻撃力＋1D6。","cost":0},{"id":"awaken-z-bom","name":"Z-BoM.","level":0,"awakeningLevel":1,"minRunaway":70,"runawayPressure":0,"pomDice":1,"description":"ポムポムボムの攻撃力＋1D6。","cost":0},{"id":"dx-bom","name":"DX-BoM.","level":10,"runawayPressure":0.0016666666666666668,"flat":8,"effectRange":[1,3],"description":"攻撃力＋8。","cost":0},{"id":"bom-ber","name":"BoM-BeR","level":25,"runawayPressure":0.005,"areaAttack":true,"areaTrait":"swarm","effectRange":[1,3],"description":"[群れ]に対して全体攻撃を行う。","cost":0},{"id":"v-bom","name":"V-BoM.","level":50,"runawayPressure":0.008333333333333333,"pomFlat":8,"effectRange":[1,3],"description":"ポムポムボムの攻撃力＋8。","cost":0},{"id":"gx-bom","name":"GX-BoM.","level":75,"runawayPressure":0.008333333333333333,"extraAttackChance":0.25,"effectRange":[1,3],"description":"攻撃時25%で追加攻撃。連続発動する。追加攻撃にポムポムボムの補正は乗らない。","cost":0},{"id":"gx-bom-double","name":"GX-BoM.","level":100,"runawayPressure":0.008333333333333333,"pomCount":2,"description":"ポムポムボムの召喚数が1体から2体に増加。","cost":0},{"id":"vx-bom","name":"VX-BoM.","level":125,"runawayPressure":0.011666666666666665,"flat":16,"effectRange":[1,3],"description":"攻撃力の固定値＋16。","cost":0},{"id":"ex-bom","name":"EX-BoM.","level":150,"runawayPressure":0.015000000000000001,"flat":24,"effectRange":[1,3],"description":"攻撃力の固定値＋24。","cost":0}];bomber.description='ポムポムボムを召喚し、次の攻撃で合体する爆破使い。';
   for(const c of characters){
     c.attackElements=['megumin','vishunal','richter'].includes(c.id)?['blast']:[];
@@ -1186,10 +1188,11 @@
       if(['spark-shot','spaghetti-code'].includes(p.id))p.description='[付加：感電] '+p.description;
     }
   }
-  const basic={cherry:[1,3],meta:[1,3],mitsuru:[1,2],megumin:[1,3],richter:[1,3],vishunal:[1,3],tordeliese:[1,2],waku:[1,3],max:[1,3],jewel:[1,1],queen:[1,1]};
+  const basic={pine:[1,1],cherry:[1,3],meta:[1,3],mitsuru:[1,2],megumin:[1,3],richter:[1,3],vishunal:[1,3],tordeliese:[1,2],waku:[1,3],max:[1,3],jewel:[1,1],queen:[1,1]};
   const ranges={meta:{'metal-blade':['attackRange',1,3],'spinning-rush':['effectRange',2,3]},mitsuru:{'spark-shot':['attackRange',3,3],'spaghetti-code':['attackRange',1,1],'radioactivity':['effectRange',1,2]},richter:{'bom-ber':['effectRange',1,3],'gx-bom':['effectRange',1,3]},tordeliese:{'retreating-wind':['effectRange',1,2],'demonic-hammer':['attackRange',1,1],'annihilation':['effectRange',1,1]},waku:{'expanded-hurtbox':['effectRange',1,1],'monado-smash':['effectRange',1,1],'invisible-wall':['effectRange',1,1],'vanishing-hitbox':['effectRange',1,1],'full-screen-hurtbox':['effectRange',1,3],'next-frame':['effectRange',1,1]},jewel:{'crimson-fist':['effectRange',1,1],'crystal-radiance':['effectRange',1,3],'adamant-fist':['effectRange',1,1],'rainbow-armor':['effectRange',1,1]},queen:{'queens-bless':['attackRange',1,3],'insolent':['attackRange',1,3],'killer-queen':['effectRange',1,3]}};
   for(const c of characters){c.attackRange=basic[c.id];for(const p of c.perks){const r=ranges[c.id]?.[p.id];if(r)p[r[0]]=r.slice(1);if(p.id==='metal-blade')p.name='レアメタルブレード';}}
-  for(const c of characters)c.perks.push({id:'revival-burst',name:'復活バースト',level:1,common:true,autoRevive:true,cost:0,runawayPressure:0,description:'ON時、戦闘クエスト参加中にHPでダウンすると、因子を支払ってHP全回復で自動復帰する。費用は雇用費＋現在の育成投資額の5%。因子不足・休憩中・暴走ダウン中は自動発動しない。初期設定OFF。OFFでもクリックによる手動復活は可能。'});
+  for(const c of characters)c.perks.push({id:'covering',name:'カバーリング',level:1,common:true,covering:true,cost:0,runawayPressure:0,description:'前衛時のみ有効。後衛への物理攻撃を自身の防御で肩代わりし、回避せず自動命中となる。'});
+  for(const c of characters)c.perks.push({id:'revival-burst',name:'復活バースト',level:1,common:true,autoRevive:true,cost:0,runawayPressure:0,description:'ON時、戦闘クエスト参加中にHPでダウンすると、因子を支払ってHP全回復で自動復帰する。'});
   if(typeof module!=='undefined'&&module.exports)module.exports=characters;else root.YggCharacters=characters;
 })(typeof window!=='undefined'?window:globalThis);
 

@@ -134,7 +134,7 @@
       if(!questInputDrafts.has(base.id))input.value=quest.level;
       $('quest-apply-'+base.id).disabled=blocked()||!unlocked;
       const selected=!state.viewingMemories&&state.sessionId===base.id,select=$('quest-select-'+base.id);
-      setText('formation-open-'+base.id,'部隊編成 '+E.formationIds(state,base.id).length+' / '+E.MAX_PARTY_SIZE+'人');
+      setText('formation-open-'+base.id,'部隊編成 '+E.formationIds(state,base.id).length+' / '+E.partyCapacity(base.id)+'人');
       $('formation-open-'+base.id).disabled=blocked()||!unlocked;
       $('quest-enhance-toggle-'+base.id).disabled=blocked()||!unlocked;
       $('quest-lock-'+base.id).hidden=unlocked;
@@ -181,19 +181,19 @@
         const specs=[E.sessionAtLevel({...base,...members[index]},quest.level)];
         const set=(key,fn)=>setText('quest-'+key+'-'+base.id,specs.map(q=>fn(q)).join(' / '));
         setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level));
-        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>{const value=A.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?strengthNumber(value):incomeNumber(value);});
-        set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
+        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>{const value=A.strengthLevel(E.enemyStrength(q,kind),D.strength);return strengthNumber(value);});
+        set('hp-strength',q=>strengthNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
         for(const [key,stat]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])set(key,q=>rateFormat(F.expectedRoll(q[stat],stat!=='attack')));
         setText('quest-reward-'+base.id,base.independentRespawns?specs.map(q=>q.name+' '+money(E.incomeAmount(state,E.reward(state,q)))+' Rd').join(' / '):money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
       }
       setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level)+(draft!==undefined&&!valid?'（入力は1〜購入済みLvの整数）':''));
       setText('quest-strength-'+base.id,strengthNumber(A.strengthLevel(E.enemyStrength(quest),D.strength)));
-      setText('quest-armor-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'armor'),D.strength)));
-      setText('quest-check-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'accuracy'),D.strength)));
+      setText('quest-armor-strength-'+base.id,strengthNumber(A.strengthLevel(E.enemyStrength(quest,'armor'),D.strength)));
+      setText('quest-check-strength-'+base.id,strengthNumber(A.strengthLevel(E.enemyStrength(quest,'accuracy'),D.strength)));
       setText('quest-defense-'+base.id,fullNumber(quest.defense));
 
       setText('quest-hp-'+base.id,fullNumber(quest.hp));
-      setText('quest-hp-strength-'+base.id,incomeNumber(A.strengthLevel(quest.hpStrength,D.strength,'vitality')));
+      setText('quest-hp-strength-'+base.id,strengthNumber(A.strengthLevel(quest.hpStrength,D.strength,'vitality')));
       setText('quest-reward-'+base.id,`${money(E.incomeAmount(state,E.reward(state,quest)))} Rd`);
 
       const ownedStats=quest;
@@ -206,7 +206,7 @@
     function renderLive(state){
     for(const q of D.sessions){
       const ctx=E.battleContext(state,q.id),members=E.formationIds(state,q.id).length;
-      if(q.medical){setText('quest-live-'+q.id,(state.paused?'全体一時停止':members?'療養中':'部隊未編成')+' · '+members+'/5人');continue;}
+      if(q.medical){setText('quest-live-'+q.id,(state.paused?'全体一時停止':members?'療養中':'部隊未編成')+' · '+members+'/3人');continue;}
       setText('quest-live-'+q.id,(state.paused?'全体一時停止':E.isResting(ctx)?'休憩中（あと'+Math.ceil(E.restOf(ctx).remaining)+'秒）':members?'自動周回中':'部隊未編成')+(E.restOf(ctx).enabled?' · 出撃 '+Math.floor(E.restOf(ctx).elapsed/60)+'分 / '+E.restOf(ctx).defeats+'討伐':'')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?(q.reviveInPlace?'起き上がるまで ':'再出現まで ')+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(ctx.hp)+' / '+fullNumber(E.enemyMaxHP(ctx,ctx.enemies?.find(e=>e.id===ctx.focusedEnemyId&&e.hp>0)||ctx.enemies?.find(e=>e.hp>0)))));
     }
     }

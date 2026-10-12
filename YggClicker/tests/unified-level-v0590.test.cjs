@@ -7,7 +7,7 @@ const click=(h,selector,dataset)=>h.get('character-list').listeners.get('click')
 const focus=(s,id,values)=>({...s.concentration[id],...values});
 
 test('every personal strength uses one level, no minimum increment and no former level cap',()=>{
- for(const char of D.characters){const s=ready([char.id]);for(const level of [1,2,11,201,501]){
+ for(const char of D.characters){const s=ready([char.id]);for(const p of char.perks)if(p.strengthBonus)E.togglePerk(s,char.id,p.id,false);for(const level of [1,2,11,201,501]){
   s.levels[char.id]=level;for(const t of D.concentration)near(E.strengthValue(s,char,t.id),100*(1+.02*(level-1)));
   assert.equal(E.actionPower(s,char,2),Math.floor(2*(1+.08*(level-1))));
  }

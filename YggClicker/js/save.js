@@ -5,12 +5,13 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 63;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 64;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    63(document){const state=structuredClone(document.state),oldIds=state.formations?.infirmary||[];state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id==='infirmary'?[]:E.formationIds(state,q.id)]));for(const id of oldIds)if(state.health?.[id])state.health[id].regenSeconds=0;state.sessionStates={...state.sessionStates};delete state.sessionStates.infirmary;if(state.sessionId==='infirmary'){state.selectedCharacterId=null;state.timeline=E.newTimeline();state.floorClipTargetId=null;state.floorClipSeconds=0;state.rainbowTurns=0;}return {...document,state,schemaVersion:64};},
     62(document){return {...document,schemaVersion:63};},
     61(document){
       const old=record(document.state,'旧セーブ'),upgrades={...record(old.upgrades,'旧全体強化')};
@@ -689,7 +690,7 @@
     if(Object.keys(formations).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のクエスト編成です。');
     for(const q of D.sessions){
       const ids=formations[q.id]??null;
-      if(ids!==null&&(!Array.isArray(ids)||ids.length>E.MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!result.levels[id])))throw new Error('部隊編成は雇用済みの仲間を重複なく最大5人で指定してください。');
+      if(ids!==null&&(!Array.isArray(ids)||ids.length>E.partyCapacity(q.id)||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!result.levels[id])))throw new Error('部隊編成は雇用済みの仲間を重複なく最大5人で指定してください。');
       result.formations[q.id]=ids===null?null:[...ids];
     }
     const assigned=new Set();
