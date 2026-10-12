@@ -565,6 +565,8 @@
   function render(scheduled=false) {
     if(document.hidden)return;renderScheduled=scheduled;
     $('sins-open').hidden=(state.runNumber||1)<2;
+    const karmaText='罪業 '+fullNumber(state.sinTotal||0)+'：因子獲得量 ×'+E.sinIncomeMultiplier(state).toLocaleString('ja-JP',{maximumFractionDigits:2})+'（＋'+fullNumber(state.sinTotal||0)+'%）';
+    setText('karma-income',karmaText);setText('sin-income',karmaText);
     if(renderSinShop())return;
     const now=Date.now();if(scheduled&&now-lastScheduledRender<200)return;lastScheduledRender=now;
     E.refreshQuestUnlocks(state);E.refreshPerkUnlocks(state);
@@ -593,7 +595,7 @@
     $('session-code').textContent = state.viewingMemories?'追憶':`SESSION ${session.code} / ${session.name} / Lv.${fullNumber(session.level)}`;
     $('session-description').textContent = session.description;
     $('enemy-rules').textContent = session.members?session.members.map(m=>m.name+'：防御'+m.defense+' / 抵抗'+m.resistance).join(' · '):`防御 ${E.enemyDefense(session)} / 属性：${(session.traits || []).map(t => D.enemyTraits[t] || t).join('・') || 'なし'}`;
-    $('reward').textContent = `◇ ${money(E.reward(state))}Rd`;
+    $('reward').textContent = `◇ ${money(E.incomeAmount(state,E.reward(state)))}Rd`;
     const selected = E.selectedCharacter(state);
     $('manual-actor').textContent = `手動攻撃：${selected ? selected.name : 'あなた'}`;
     $('select-self').hidden = !selected;

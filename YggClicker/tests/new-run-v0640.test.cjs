@@ -8,7 +8,7 @@ test('new run archives only earned income once and preserves only records and pr
  E.beginDream(old);const unchanged=structuredClone(old),next=E.nextRun(old,9999),fresh=E.createState(9999);assert.deepEqual(old,unchanged);
  assert.equal(next.runNumber,4);assert.equal(next.previousRunsEarned,8888888);assert.equal(next.earned,0);assert.equal(next.factors,0);assert.deepEqual(next.options,old.options);
  assert.deepEqual(next,{...fresh,runNumber:4,previousRunsEarned:8888888,options:old.options,sinTotal:old.sinTotal,sinBalance:old.sinBalance});assert.deepEqual(roundTrip(next),next);assert.equal(E.nextRun(next),null);
- E.grantIncome(next,1000001,'questReward');E.selectMemories(next);E.beginDream(next);const again=E.nextRun(next,10000);assert.equal(again.runNumber,5);assert.equal(again.previousRunsEarned,9888889);
+ assert.equal(next.sinTotal,9);assert.equal(E.grantIncome(next,1000001,'questReward'),1090001);E.selectMemories(next);E.beginDream(next);const again=E.nextRun(next,10000);assert.equal(again.runNumber,5);assert.equal(again.previousRunsEarned,9978889);
 });
 test('schema43 starts on run one and introduces Mitsuru without touching previous progress',()=>{
  const s=memory();delete s.runNumber;for(const field of ['levels','health','runaway','actionPoints','concentration','perkEnabled','purchasedPerks','unlockedPerks'])delete s[field].mitsuru;
@@ -31,3 +31,4 @@ test('a failed next-run save retains the current run and closes the transition s
  const before=h.saved();armed=true;h.click('memory-monolith');h.click('dream-yes');h.advance(3700);
  assert.equal(h.get('dream-transition').open,false);assert.equal(h.get('memory-scene').hidden,false);assert.deepEqual(h.saved(),before);assert.match(h.get('notice').textContent,/保存容量/);
 });
+

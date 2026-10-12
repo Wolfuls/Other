@@ -162,7 +162,7 @@
 
     const previewKeys=new Map();
     function renderPreview(state,id){
-      const key=JSON.stringify([state.questLevels[id],state.questActiveLevels[id],questInputDrafts.get(id),state.upgrades.reward,state.options]);
+      const key=JSON.stringify([state.questLevels[id],state.questActiveLevels[id],questInputDrafts.get(id),state.upgrades.reward,state.sinTotal,state.options]);
       if(previewKeys.get(id)===key)return;previewKeys.set(id,key);
       const base=D.sessions.find(q=>q.id===id);if(!base)return;
       const current=E.getSession(state,id),owned=state.questLevels[id],draft=questInputDrafts.get(id),level=Number(draft);
@@ -175,7 +175,7 @@
         for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>incomeNumber(A.strengthLevel(E.enemyStrength(q,kind),D.strength)));
         set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength)));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
         for(const [key,stat]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])set(key,q=>rateFormat(F.expectedRoll(q[stat],stat!=='attack')));
-        setText('quest-reward-'+base.id,money(E.reward(state,quest))+' Rd');return;
+        setText('quest-reward-'+base.id,money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
       }
       setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level)+(draft!==undefined&&!valid?'（入力は1〜購入済みLvの整数）':''));
       setText('quest-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest),D.strength)));
@@ -185,7 +185,7 @@
 
       setText('quest-hp-'+base.id,fullNumber(quest.hp));
       setText('quest-hp-strength-'+base.id,incomeNumber(A.strengthLevel(quest.hpStrength,D.strength)));
-      setText('quest-reward-'+base.id,`${money(E.reward(state,quest))} Rd`);
+      setText('quest-reward-'+base.id,`${money(E.incomeAmount(state,E.reward(state,quest)))} Rd`);
 
       const ownedStats=quest;
       setText('quest-resistance-'+base.id,fullNumber(ownedStats.resistance));

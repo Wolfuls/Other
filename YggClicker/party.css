@@ -347,3 +347,5 @@
 @media(max-width:480px){.turn-order{gap:3px}.turn-order-icon{width:29px;height:29px;flex-basis:29px}.turn-order-label{font-size:9px}}
 
 .attack-controls{grid-template-columns:minmax(0,1fr) auto auto}#battle-speed{min-width:64px;padding:8px}#battle-speed[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+
+.karma-income{margin:-8px 0 18px;color:var(--muted);font-size:13px;overflow-wrap:anywhere}.sin-income{margin:0 0 22px;color:#d9cfae;font-size:13px}
