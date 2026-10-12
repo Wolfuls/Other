@@ -304,3 +304,12 @@
  .dashboard #enemy-rules{height:1.5em;white-space:nowrap;text-overflow:ellipsis;display:block}
  .dashboard .single-session .battle-panel{gap:6px}
 }
+
+/* The optional income summary needs its own row, not the battle workspace row. */
+@media(min-width:900px) and (min-height:500px){
+ .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:60px 88px auto minmax(0,1fr) 26px}
+ .dashboard .shell>.karma-income{margin:0;line-height:1.4}
+}
+@media(min-width:900px) and (min-height:500px) and (max-height:760px){
+ .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:50px 74px auto minmax(0,1fr) 22px}
+}
