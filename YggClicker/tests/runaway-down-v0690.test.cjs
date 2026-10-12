@@ -19,7 +19,7 @@ test('150% keeps party, selected attacker and HP; stops actions, auras and pendi
 
 test('suppression includes special down, below100 resumes in-place, full HP alone does not',()=>{
  const s=ready(['meta']);collapse(s,'meta');const original=[...E.formationIds(s)];
- s.health.meta.hp=E.maxHP(s,character('meta'))-1;E.advance(s,6,()=>.6);
+ s.health.meta.hp=E.maxHP(s,character('meta'));E.advance(s,6,()=>.6);
  assert.equal(s.health.meta.hp,E.maxHP(s,character('meta')));assert.equal(E.canAct(s,'meta'),false);
  assert.deepEqual(E.suppressionQuote(s).targets,['meta']);
  for(let i=0;i<5;i++)assert.equal(E.suppressRunaway(s),true);

@@ -2,7 +2,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready}=require('./current-fixtures.cjs'),N=require('../js/numbers');
 const config={'mohican-solo':[2,100],scarecrow:[10,100],mohicans:[2,98],dementor:[70,108],ozmorn:[50,100],'egg-or-chicken':[100000000,100],'electric-rat':[8,100]};
 test('quest reward transitions preserve Q1, fallback, monotonicity and numeric cap',()=>{
- for(const q of D.sessions){assert.deepEqual([q.reward,q.rewardTransition],config[q.id]);assert.equal(E.sessionAtLevel(q,1).reward,q.reward);
+ for(const q of D.sessions.filter(q=>!q.medical)){assert.deepEqual([q.reward,q.rewardTransition],config[q.id]);assert.equal(E.sessionAtLevel(q,1).reward,q.reward);
   let previous=0;for(let level=1;level<=500;level++){const actual=E.sessionAtLevel(q,level).reward;assert.ok(actual>=previous);previous=actual;}
   const {rewardTransition,...fallback}=q;
   for(const level of [1,10,30,50,100,170,300,500,1e6,Number.MAX_SAFE_INTEGER]){
@@ -12,7 +12,7 @@ test('quest reward transitions preserve Q1, fallback, monotonicity and numeric c
  }
 });
 test('reward transition affects only reward, never enemy stats or Q purchase curve',()=>{
- for(const q of D.sessions)for(const level of [1,10,30,50,100,170,300,500]){
+ for(const q of D.sessions.filter(q=>!q.medical))for(const level of [1,10,30,50,100,170,300,500]){
   const {reward:a,rewardTransition:b,...actual}=E.sessionAtLevel(q,level),{reward:c,rewardTransition:d,...standard}=E.sessionAtLevel({...q,rewardTransition:100},level);assert.deepEqual(actual,standard);
   const s=ready(['meta'],q.id);s.questLevels[q.id]=level;
   const base=q.reward*D.questGrowth.costRewardMultiplier;

@@ -10,7 +10,7 @@ function turn(s){s.timeline.busySeconds=0;s.timeline.priorities["a:megumin"]=1e6
 function incoming(s,attack=10){const e=s.enemies[0];e.pendingAttack={targetId:'megumin',remaining:.01,count:1,profile:{accuracySpec:{flat:-100,dice:0},evasionDice:{flat:100,dice:0},attack:{dice:0,flat:attack},reduction:0,shield:0,hitLogRatio:0,damageLogRatio:0,damageScaleLog:0}};return E.advance(s,.01,random).find(e=>e.type==='enemyAttack');}
 
 test('Megumin keeps her base stats; six magic perks replace fixed bonuses and level 200 area exemption',()=>{
- const c=meg();assert.deepEqual([c.cost,c.powerCost,c.dice,c.flat,c.action,c.maxHP,c.defense,c.resistance],[500,100,4,1,13,18,1,6]);assert.deepEqual(c.actionDice,{flat:6,dice:2});assert.deepEqual(c.accuracy,{flat:13,dice:1});assert.equal(c.magicPower,11);assert.equal(c.perks.length,10);
+ const c=meg();assert.deepEqual([c.cost,c.powerCost,c.dice,c.flat,c.action,c.maxHP,c.defense,c.resistance],[500,100,4,1,13,18,1,6]);assert.deepEqual(c.actionDice,{flat:6,dice:2});assert.deepEqual(c.accuracy,{flat:13,dice:1});assert.equal(c.magicPower,11);assert.equal(c.perks.filter(p=>!p.common).length,10);
  assert.deepEqual(c.perks.filter(p=>p.awakeningLevel).map(p=>[p.name,p.awakeningLevel]),[['広域爆発',1],['爆風障壁',2],['高速詠唱',3]]);
  assert.deepEqual(c.perks.filter(p=>p.magicLevel).map(p=>[p.level,p.magicLevel,Math.round(p.runawayPressure*600)]),[[10,1,1],[25,2,3],[50,3,5],[100,4,7],[150,5,9],[200,6,11]]);
  assert.ok(c.perks.every(p=>!p.flat&&!p.diceBonus&&!p.noAreaPenalty&&!p.perkAttackAmplifier&&!p.actionBonus&&!p.blastReduction));

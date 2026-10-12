@@ -3,7 +3,7 @@ const D=require('../js/data'),E=require('../js/engine'),F=require('../js/matchup
 const c=id=>D.characters.find(c=>c.id===id);
 function ready(q='mohican-solo',ids=['meta']){const s=E.createState();s.factors=1e8;if(q==='electric-rat')s.earned=1000;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,q,ids);E.selectSession(s,q);E.ensureEnemies(s);return s;}
 test('all quests retain HP/reward/action growth and move combat growth to intensity',()=>{
- for(const q of D.sessions.filter(q=>!q.members)){const s=ready(q.id);s.questLevels[q.id]=s.questActiveLevels[q.id]=12;const next=E.getSession(s);
+ for(const q of D.sessions.filter(q=>!q.medical&&!q.members)){const s=ready(q.id);s.questLevels[q.id]=s.questActiveLevels[q.id]=12;const next=E.getSession(s);
  for(const k of ['attack','accuracy','evasion','ss'])assert.deepEqual(next[k],q[k]);assert.equal(next.strengthLevel,11);
  assert.equal(next.hp,N.floor(q.hp*E.T.enemyDurability(11,'vitality')/100));assert.equal(next.reward,N.floor(q.reward*1.04**11*(1+11/q.rewardTransition)**(q.rewardTransition*Math.log(1.28/1.04))));
  const action=q.actionDice?q.actionDice.flat+3.5*q.actionDice.dice:q.action||0;assert.equal(E.enemyActionPower(s),N.floor(action*(E.T.enemyValue(11)/100)));}

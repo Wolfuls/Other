@@ -14,10 +14,10 @@ test('clicking a downed sprite offers revival without changing the manual actor,
  h.click('richter-select');h.click('confirm-revive');const after=h.saved();assert.equal(after.health.richter.hp,24);assert.equal(after.health.richter.status,'active');assert.equal(after.factors,500);assert.equal(after.selectedCharacterId,'meta');assert.equal(h.get('revive-dialog').open,false);
  h.click('confirm-revive');assert.equal(h.saved().factors,500);
 });
-test('rear enemy focus toggles through its own target button and can be cleared',()=>{
+test('focused enemy opens abilities on second click; explicit clear removes focus',()=>{
  const s=party();s.paused=true;const h=harness(s,undefined,{combatRandom:()=>.4}),rear=h.get('enemy-next-2'),button=rear.querySelector('.enemy-target');
  button.click();assert.equal(h.saved().focusedEnemyId,s.enemies[2].id);assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(rear.classList.contains('focused-enemy'),true);
- button.click();assert.equal(h.saved().focusedEnemyId,null);button.click();h.click('clear-focus');assert.equal(h.saved().focusedEnemyId,null);
+ button.click();assert.equal(h.saved().focusedEnemyId,s.enemies[2].id);assert.equal(h.get('enemy-info-dialog').open,true);h.click('enemy-info-close');h.click('clear-focus');assert.equal(h.saved().focusedEnemyId,null);
 });
 test('loaded soul drain starts without damage and displays impact only after its remaining animation',()=>{
  const s=party('dementor');s.enemies[1].pendingAttack={targetId:'meta',remaining:.6};const h=harness(s,undefined,{combatRandom:()=>.4}),rear=h.get('enemy-next-1');

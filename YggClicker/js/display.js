@@ -5,18 +5,19 @@
   const currency = new Intl.NumberFormat('ja-JP', { notation:'standard', maximumFractionDigits:0,roundingMode:'trunc' });
   const largeUnits=['million','billion','trillion','quadrillion','quintillion','sextillion','septillion','octillion','nonillion','decillion','undecillion','duodecillion','tredecillion','quattuordecillion','quindecillion','sexdecillion','septendecillion','octodecillion','novemdecillion','vigintillion'];
   const japaneseUnits=['万','億','兆','京','垓','秭','穣','溝','澗','正','載','極','恒河沙','阿僧祇','那由他','不可思議','無量大数'];
-  function compactNumber(value,style=true){
+  function compactNumber(value,style=true,integer=false){
     if(style==='japanese'){
       const absolute=Math.abs(value);if(!Number.isFinite(value)||absolute<1e4)return null;
       let power=Math.floor(Math.log10(absolute)/4)*4,scaled=value/10**power;
-      if(Math.abs(Number(scaled.toFixed(3)))>=10000){power+=4;scaled=value/10**power;}
-      return rates.format(scaled)+(japaneseUnits[power/4-1]||'×10^'+power);
+      if(Math.abs(integer?Math.floor(scaled):Number(scaled.toFixed(3)))>=10000){power+=4;scaled=value/10**power;}
+      return (integer?integers.format(Math.floor(scaled)):rates.format(scaled))+(japaneseUnits[power/4-1]||'×10^'+power);
     }
     const absolute=Math.abs(value);if(!Number.isFinite(value)||absolute<1e6)return null;
     let power=Math.floor(Math.log10(absolute)/3)*3,scaled=value/10**power;
-    if(Math.abs(Number(scaled.toFixed(3)))>=1000){power+=3;scaled=value/10**power;}
-    return rates.format(scaled)+' '+(largeUnits[power/3-2]||'×10^'+power);
+    if(Math.abs(integer?Math.floor(scaled):Number(scaled.toFixed(3)))>=1000){power+=3;scaled=value/10**power;}
+    return (integer?integers.format(Math.floor(scaled)):rates.format(scaled))+' '+(largeUnits[power/3-2]||'×10^'+power);
   }
+  const strengthNumber=(value,simplified=false)=>simplified&&compactNumber(value,simplified,true)||integers.format(Math.floor(value+Math.min(1e-7,Number.EPSILON*Math.max(1,Math.abs(value))*8)));
   const fullNumber = (value,simplified=false) => simplified&&compactNumber(Math.floor(value),simplified)||integers.format(Math.floor(value));
   const currencyNumber = (value,simplified=false) => simplified&&compactNumber(value,simplified)||currency.format(value);
   const incomeNumber = (value,simplified=false) => simplified&&compactNumber(value,simplified)||rates.format(value);
@@ -177,7 +178,7 @@
     return {face,size,pips:dieFaces[face-1].map(([x,y])=>`radial-gradient(circle at ${x}% ${y}%,#1d4b40 0 8%,transparent 9%)`).join(',')};
   };
   const cloudFormation=(x,y)=>[{x:x+180,y:y-55},{x,y:y-120},{x:x+5,y:y+55}];
-  const api={cloudFormation,fullNumber,currencyNumber,incomeNumber,scenePhase,outdoorPhase,orbitLayout,creatureOrbit,enemyFormationSize,advanceEnemyQueue,shuffledPorts,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
+  const api={strengthNumber,cloudFormation,fullNumber,currencyNumber,incomeNumber,scenePhase,outdoorPhase,orbitLayout,creatureOrbit,enemyFormationSize,advanceEnemyQueue,shuffledPorts,MAX_FACTOR_CRYSTALS,factorRainCount,factorDieAppearance,MAX_REWARD_DICE,rewardDiceCount};
   if (typeof module !== 'undefined' && module.exports) module.exports=api;
   else root.YggDisplay=api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.81.7",
+  "version": "0.82.7",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -460,7 +460,7 @@
     "purchaseCostGrowth": 1.125,
     "upgradeCostGrowth": 1.25,
     "rewardPerLevel": 0.1,
-    "recoverySeconds": 6
+    "recoverySeconds": 10
   },
   "enemyTraits": {
     "mohican": "モヒカン",

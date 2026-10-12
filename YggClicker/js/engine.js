@@ -277,7 +277,7 @@
   }
   const BATTLE_FIELDS=['timeline','hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId','enemies','nextEnemyId','focusedEnemyId','floorClipTargetId','floorClipSeconds','rainbowTurns'];
   const respawnDelay=()=>5;
-  const isWaiting=state=>state.enemies?state.enemies.every(e=>e.hp<=0):(state.respawnSeconds||0)>0;
+  const isWaiting=state=>getSession(state).medical?false:state.enemies?state.enemies.every(e=>e.hp<=0):(state.respawnSeconds||0)>0;
   function battleSnapshot(state){return Object.fromEntries(BATTLE_FIELDS.map(k=>[k,k==='timeline'?structuredClone(state.timeline||newTimeline()):k==='enemies'?(state.enemies?structuredClone(state.enemies):null):state[k]??(['selectedCharacterId','focusedEnemyId','floorClipTargetId'].includes(k)?null:0)]));}
   function battleContext(state,id=state.sessionId){
     if(id===state.sessionId)return state;
@@ -299,6 +299,7 @@
   function setFormation(state,questId,ids,rows=state.formationRows){
     if(!isQuestUnlocked(state,questId)||!Array.isArray(ids)||ids.length>MAX_PARTY_SIZE||new Set(ids).size!==ids.length||ids.some(id=>!D.characters.some(c=>c.id===id)||!state.levels[id]))return false;
     if(ids.some(id=>rows?.[id]!==undefined&&!['front','rear'].includes(rows[id])))return false;
+    for(const id of ids)if(formationOwner(state,id)!==questId)healthOf(state,id).regenSeconds=0;
     state.formationRows={...state.formationRows,...Object.fromEntries(ids.map(id=>[id,rows?.[id]||'front']))};
     refreshQuestUnlocks(state);
     const rosters=Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]));
@@ -451,7 +452,7 @@
   const geometricCost = (base, purchases, growth = D.balance.purchaseCostGrowth) => N.geometric(base,growth,purchases);
   function questCost(state,id=state.sessionId) {
     const session=D.sessions.find(s=>s.id===id),level=state.questLevels?.[id]??1;
-    if(!session || !Number.isSafeInteger(level+1))return Infinity;
+    if(!session || session.medical || !Number.isSafeInteger(level+1))return Infinity;
     // Each quest starts at 20 times its unmodified initial reward.
     // Retain the existing growth curve and late reward-based ceiling.
     const base=session.reward*D.questGrowth.costRewardMultiplier;
@@ -527,7 +528,7 @@
   function markSummoned(unit){unit.summonDelaySeconds=SUMMON_DELAY_SECONDS;return unit;}
   function elapseSummonDelay(unit,seconds){if(unit.summonDelaySeconds>0){unit.summonDelaySeconds=Math.max(0,unit.summonDelaySeconds-seconds);if(unit.summonDelaySeconds<1e-9)unit.summonDelaySeconds=0;}}
   function timelineUnits(state,random=null){
-    if(isResting(state)||isWaiting(state)||!activeCharacters(state).length)return [];
+    if(getSession(state).medical||isResting(state)||isWaiting(state)||!activeCharacters(state).length)return [];
     const result=[];
     for(const c of activeCharacters(state))if(canTakeAction(state,c)&&!(healthOf(state,c.id).summonDelaySeconds>0)){
       const raw=random?(c.actionDice?roll(c.actionDice.dice,c.actionDice.flat,random):c.action):c.action;
@@ -628,7 +629,7 @@
     if(events)events.push({type:'enemySummon',enemyId:target.id,targetSlot:state.enemies.indexOf(target),created,hp:target.hp,amount:gain});
   }
   function ensureEnemies(state){
-    const q=getSession(state),count=q.summons?3:(q.formationCount||1);
+    const q=getSession(state);if(q.medical){state.enemies=[];state.hp=1;state.poisonDamage=0;state.respawnSeconds=0;state.focusedEnemyId=null;return state.enemies;}const count=q.summons?3:(q.formationCount||1);
     if(!Array.isArray(state.enemies)||state.enemies.length!==count){
       state.enemies=Array.from({length:count},(_,i)=>q.members?newMember(state,i):q.summons&&i?emptyKogumo(state):newEnemy(state,i?getSession(state).hp:state.hp,i?0:state.poisonDamage||0,i?0:state.respawnSeconds||0));
       syncFront(state);
@@ -637,6 +638,7 @@
   }
   const livingEnemies=state=>ensureEnemies(state).filter(e=>e.hp>0&&!e.respawnSeconds);
   function syncFront(state){
+    if(getSession(state).medical){state.hp=1;state.poisonDamage=0;state.respawnSeconds=0;state.focusedEnemyId=null;return;}
     const living=state.enemies.filter(e=>e.hp>0&&!e.respawnSeconds);
     if(!living.some(e=>e.id===state.focusedEnemyId))state.focusedEnemyId=null;
     const target=living.find(e=>e.id===state.focusedEnemyId)||living[0];
@@ -675,21 +677,20 @@
   const opposedCache=new Map();
   function judgmentOutcomes(accuracy,evasion,ratio=0){return T.outcomes(accuracy,evasion,ratio);}
   const opposedHitChance=(accuracy,evasion)=>judgmentOutcomes(accuracy,evasion).chance;
+  function healAlly(state,c,amount,events,sessionId){
+    const h=state.health[c.id],before=h.hp,max=maxHP(state,c);h.hp=Math.min(max,h.hp+amount);
+    if(h.hp===max){h.regenSeconds=0;if(h.status!=='active'){h.status='active';if(events)events.push({type:'revive',actorId:c.id,hp:h.hp,sessionId});}}
+    if(events&&h.hp>before)events.push({type:'heal',actorId:c.id,amount:h.hp-before,hp:h.hp,sessionId});
+  }
   function recoverAllies(state,seconds,events){
-    for(const c of D.characters){
-      if(!state.levels[c.id])continue;
-      const h=state.health[c.id];
+    autoReviveAllies(state,events);
+    for(const c of D.characters){if(!state.levels[c.id])continue;const h=state.health[c.id],owner=formationOwner(state,c.id);
       if(h.hp>=maxHP(state,c)){h.regenSeconds=0;continue;}
-      h.regenSeconds+=seconds*(1+activation(state,c).recovery*D.runtimeBalance.recoverySpeedBonusPerStack);
-      const ticks=Math.floor((h.regenSeconds+1e-9)/D.balance.recoverySeconds);
-      if(!ticks)continue;
-      h.regenSeconds=Math.max(0,h.regenSeconds-ticks*D.balance.recoverySeconds);
-      const before=h.hp;h.hp=Math.min(maxHP(state,c),h.hp+ticks*Math.max(1,N.floor(maxHP(state,c)*.01)));
-      if(h.hp===maxHP(state,c)&&h.status!=='active'){h.status='active';if(events)events.push({type:'revive',actorId:c.id,hp:h.hp});}
-      if(h.hp===maxHP(state,c))h.regenSeconds=0;
-      if(events&&h.hp>before)events.push({type:'heal',actorId:c.id,amount:h.hp-before,hp:h.hp});
+      const period=owner==='infirmary'?2:D.balance.recoverySeconds;h.regenSeconds+=seconds;const ticks=Math.floor((h.regenSeconds+1e-9)/period);h.regenSeconds=Math.max(0,h.regenSeconds-ticks*period);
+      if(ticks)healAlly(state,c,ticks*Math.max(1,N.floor(maxHP(state,c)*.01)),events,owner);
     }
   }
+
   const enemyAttackDuration=(state,enemy=null,kind=enemy?.pendingAttack?.kind)=>enemySpec(state,enemy).attacks?.find(a=>a.id===kind)?.attackSeconds||enemySpec(state,enemy).attackSeconds||.72;
   function refreshFloorClip(state,force=false){
     if(!supportPerks(state).some(p=>p.protectLowestHP)){if(!state.floorClipSeconds||force){state.floorClipTargetId=null;state.floorClipSeconds=0;}return;}
@@ -1019,7 +1020,7 @@
     if(character?.id==='jewel')state.rainbowTurns=Math.max(0,(state.rainbowTurns||0)-1);
   }
   function queueManualAttack(state,random=Math.random){
-    if(state.viewingMemories||state.dreamShop||state.paused||isResting(state)||isWaiting(state))return [];
+    if(getSession(state).medical||state.viewingMemories||state.dreamShop||state.paused||isResting(state)||isWaiting(state))return [];
     const c=selectedCharacter(state);if(c&&(!canAct(state,c.id)||isStunned(state,c.id)||!hasReachableTarget(state,c)))return [];
     state.timeline||=newTimeline();const pending=state.timeline.manualAttacks||[];if(pending.length>=32)return [];
     if(c?.magicPower&&pending.some(p=>p.actorId===c.id))return [];
@@ -1040,7 +1041,7 @@
   }
   function click(state,random=Math.random,countClick=true){
     if(countClick&&state.viewingMemories)return [];
-    if(state.dreamShop||state.paused||isResting(state)||isWaiting(state))return [];
+    if(getSession(state).medical||state.dreamShop||state.paused||isResting(state)||isWaiting(state))return [];
     const character=selectedCharacter(state);
     if(character&&(!canAct(state,character.id)||isStunned(state,character.id)||!hasReachableTarget(state,character)))return [];
     // Unassigned manual attacks remain available to bootstrap the first hire.
@@ -1111,7 +1112,7 @@
         ctx.formations=state.formations;ctx.factors=state.factors;ctx.earned=state.earned;
         ctx.questActiveLevels=state.questActiveLevels;
         if(questChangePending(state,ctx.sessionId)&&!questBusy(ctx)){const level=state.pendingQuestLevels[ctx.sessionId];delete state.pendingQuestLevels[ctx.sessionId];applyQuestLevel(state,ctx.sessionId,level,ctx);}
-        normalizeEnemyActions(ctx);if(isResting(ctx)||isWaiting(ctx)||!activeCharacters(ctx).length||(ctx.timeline?.busySeconds||0)>1e-8||ctx.enemies?.some(e=>e.pendingAttack))continue;
+        normalizeEnemyActions(ctx);if(getSession(ctx).medical||isResting(ctx)||isWaiting(ctx)||!activeCharacters(ctx).length||(ctx.timeline?.busySeconds||0)>1e-8||ctx.enemies?.some(e=>e.pendingAttack))continue;
         const before={factors:ctx.factors,earned:ctx.earned,kills:ctx.kills,totalDamage:ctx.totalDamage},local=[];
         automaticTick(ctx,random,local);
         ctx.timeline.busySeconds=FX.turnDuration(local);
@@ -1145,6 +1146,7 @@
       if(elapsed<duration-1e-10)readyTurns();
       yield elapsed/duration;
     }
+    autoReviveAllies(state,events);
     for(const ctx of contexts)if(ctx!==state)state.sessionStates={...state.sessionStates,[ctx.sessionId]:battleSnapshot(ctx)};
     state.actionClock=Math.max(0,(clock+duration)%1);if(state.actionClock<1e-9||state.actionClock>1-1e-9)state.actionClock=0;state.sceneSeconds=((state.sceneSeconds||0)+duration)%D.sceneCycle.seconds;
     refreshQuestUnlocks(state);refreshPerkUnlocks(state);
@@ -1194,7 +1196,7 @@
     const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id);
     if(['level','power'].includes(kind)&&c)return {field:'levels',minimum:1,buy:hire,cost:s=>hireCost(s,c)};
     if(kind==='upgrade'&&u)return {field:'upgrades',minimum:0,buy:buyUpgrade,cost:s=>upgradeCost(s,u)};
-    if(kind==='quest'&&D.sessions.some(q=>q.id===id))return {field:'questLevels',minimum:1,buy:buyQuest,cost:s=>questCost(s,id)};
+    if(kind==='quest'&&D.sessions.some(q=>q.id===id&&!q.medical))return {field:'questLevels',minimum:1,buy:buyQuest,cost:s=>questCost(s,id)};
     return null;
   }
   function tradeDraft(state) { return {...state,incomeTotals:{...state.incomeTotals},unlockedPerks:structuredClone(state.unlockedPerks),perkEnabled:structuredClone(state.perkEnabled),concentration:structuredClone(state.concentration),actionPoints:{...state.actionPoints},levels:{...state.levels},upgrades:{...state.upgrades},questLevels:{...state.questLevels},questActiveLevels:{...state.questActiveLevels},pendingQuestLevels:{...state.pendingQuestLevels},timeline:structuredClone(state.timeline),sessionStates:structuredClone(state.sessionStates),enemies:state.enemies?structuredClone(state.enemies):null,health:structuredClone(state.health)}; }
@@ -1314,9 +1316,18 @@
   const combatUptime=()=>1;
   const totalDps=state=>D.sessions.filter(q=>formationIds(state,q.id).length).reduce((n,q)=>n+dps(battleContext(state,q.id)),0);
   function combatKey(state){const q=getSession(state),ids=formationIds(state);return JSON.stringify([restOf(state).enabled,restOf(state).kills,restOf(state).minutes,restOf(state).restMinutes,isResting(state),q.id,q.level,q.hp,q.reward,q.defense,q.resistance,q.evasion,q.traits,q.action,q.actionDice,q.attack,q.accuracy,q.ss,q.attackType,state.concentration,state.formationRows,ids,state.levels,state.upgrades,state.purchasedPerks,state.perkEnabled,ids.map(id=>activation(state,D.characters.find(c=>c.id===id))),ids.includes('max')?state.selectedCharacterId:null,ids.includes('jewel')&&activePerks(state,D.characters.find(c=>c.id==='jewel')).some(p=>p.investmentArmor)?state.factors:state.factors>1e99?state.factors:0,state.seedLevels,state.karmaSelections]);}
+  function autoReviveAllies(state,events){
+    for(const c of D.characters){
+      const h=state.health?.[c.id],owner=formationOwner(state,c.id);
+      if(!owner||owner==='infirmary'||!h||h.status==='active'||runawayOf(state,c.id).runawayCollapsed||isResting(battleContext(state,owner)))continue;
+      if(!perks(state,c).some(p=>p.autoRevive&&p.eligible&&p.enabled))continue;
+      const cost=revivalCost(state,c.id);
+      if(revive(state,c.id)&&events)events.push({type:'revive',actorId:c.id,hp:h.hp,automatic:true,cost,sessionId:owner});
+    }
+  }
   function revivalCost(state,id){
     const c=D.characters.find(c=>c.id===id);if(!c||!state.levels[id])return Infinity;
-    const cost=c.cost+N.delta(trainingInvestment(state,c)*.01);return Number.isFinite(cost)&&cost<=1e100?cost:Infinity;
+    const cost=c.cost+N.delta(trainingInvestment(state,c)*.05);return Number.isFinite(cost)&&cost<=1e100?cost:Infinity;
   }
   function revive(state,id){
     const cost=revivalCost(state,id),h=state.health?.[id],c=D.characters.find(c=>c.id===id);
@@ -1353,7 +1364,7 @@
     const recoveryStacks=activation(state,c).recovery,recoveryReduction=D.runtimeBalance.runawayPressureReductionPerStack,recoveryMultiplier=1-recoveryStacks*recoveryReduction;
     const seedPressureMultiplier=.95**(state.seedLevels?.sloth||0);
     const generated=active?source*recoveryMultiplier*(source>0?seedPressureMultiplier:1):0;
-    return {seedPressureMultiplier,base,training,trainingScale,trainingLevels,trainingTotal,perkEntries,perkPressure,temporary,source,recoveryStacks,recoveryReduction,recoveryMultiplier,calmingEntries,calming,generated,net:generated-calming,active,inactiveReason:active?null:r.runawayCollapsed?'collapsed':!healthy?'down':'undeployed',criticalReserve:r.criticalReserve||0};
+    return {medicalOverride:owner==='infirmary',seedPressureMultiplier,base,training,trainingScale,trainingLevels,trainingTotal,perkEntries,perkPressure,temporary,source,recoveryStacks,recoveryReduction,recoveryMultiplier,calmingEntries,calming,generated,net:owner==='infirmary'?-10/60:generated-calming,active,inactiveReason:active?null:r.runawayCollapsed?'collapsed':!healthy?'down':'undeployed',criticalReserve:r.criticalReserve||0};
   }
   function runawayPressure(state,c){return runawayPressureBreakdown(state,c).net;}
   function suppressionQuote(state,id=null){

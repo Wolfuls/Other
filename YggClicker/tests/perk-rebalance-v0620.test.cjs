@@ -12,13 +12,13 @@ test('rebalanced catalogs match every level and per-minute pressure; hire order 
  assert.deepEqual([c('meta').dice,c('meta').flat,c('richter').cost],[3,5,2500]);
  assert.deepEqual(D.characters.map(c=>c.cost),D.characters.map(c=>c.cost).toSorted((a,b)=>a-b));
  for(const [id,rows]of Object.entries(tables)){
-  assert.deepEqual(c(id).perks.map(p=>[p.id,p.level]),rows.map(([id,lv])=>[id,lv]));
+  assert.deepEqual(c(id).perks.filter(p=>!p.common).map(p=>[p.id,p.level]),rows.map(([id,lv])=>[id,lv]));
   for(const [pid,lv,pressure]of rows){const p=c(id).perks.find(p=>p.id===pid);near(p.runawayPressure*60,pressure);assert.equal(!!p.initial,lv===0&&!p.awakeningLevel);assert.doesNotMatch(p.description,/※|実装|防御計算後|半減ペナルティ/);}
  }
  assert.equal(c('waku').perks[0].name,'詐欺判定有効');
 });
 test('manual player damage is always exactly one, including high strengths, resistance, armor and minions',()=>{
- for(const q of D.sessions)for(const level of [1,100,1000]){
+ for(const q of D.sessions.filter(q=>!q.medical))for(const level of [1,100,1000]){
   const s=ready([],q.id);s.questLevels[q.id]=level;E.setQuestLevel(s,q.id,level);s.selectedCharacterId=null;
   if(q.members)E.selectEnemy(s,E.livingEnemies(s)[0].id);
   const before=E.livingEnemies(s)[0].hp,hit=E.click(s,()=>.5).find(e=>e.type==='attack');

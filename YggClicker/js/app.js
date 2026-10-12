@@ -68,6 +68,7 @@
   const money = n=>UI.currencyNumber(n,state.options.simplifiedNumbers?(state.options.numberUnit||'western'):false);
   const fullNumber=n=>UI.fullNumber(n,state.options.simplifiedNumbers?(state.options.numberUnit||'western'):false),incomeNumber=n=>UI.incomeNumber(n,state.options.simplifiedNumbers?(state.options.numberUnit||'western'):false);
   const format = fullNumber;
+  const strengthNumber=n=>UI.strengthNumber(n,state.options.simplifiedNumbers?(state.options.numberUnit||'western'):false);
   const rateFormat = incomeNumber;
 
   const rollText=s=>s?fullNumber(s.flat||0)+'＋'+fullNumber(s.dice||0)+'D'+(s.sides||6):'—';
@@ -77,6 +78,7 @@
   function renderPressureBreakdown(c){
     const b=E.runawayPressureBreakdown(state,c),minute=n=>pressureText(n*60),signedMinute=n=>(n>0?'+':'')+minute(n);
     setText('pressure-summary-'+c.id,'差引 '+signedMinute(b.net)+' / 分');
+    if(b.medicalOverride){$('pressure-content-'+c.id).innerHTML='<p class="pressure-caption">死神の宿に滞在中：暴走圧・鎮静圧とすべての倍率を無視し、暴走率 −10% / 分に置換します。</p>';return;}
     const trainingNames={level:'レベル',power:'攻撃',action:'行動',accuracy:'命中',evasion:'回避',vitality:'HP',armor:'防御'};
     const trainingParts=b.trainingLevels.map(t=>trainingNames[t.id]+' '+fullNumber(t.level)).join(' ＋ ');
     const perkRows=b.perkEntries.map(p=>'<div class="'+(!p.enabled||!p.eligible?'pressure-inactive':'')+'"><dt>'+p.name+' <small>'+(!p.eligible?'Lv不足':p.enabled?'ON':'OFF')+'</small></dt><dd>'+minute(p.configured)+(!p.enabled||!p.eligible?' × 0':'')+' ＝ '+minute(p.pressure)+'</dd></div>').join('');
@@ -149,7 +151,7 @@
   const blocked = () => readOnly || corruptSave || maintenanceBusy || recoveryBusy;
   const battleHUD=window.YggBattleHUD.create({get:$,setText,format:fullNumber});
   const sceneView=window.YggSceneView.create({get:$,setText,data:D,engine:E,display:UI,money,reducedMotion,blocked,startNextRun,schedule:setTimeout,cancel:clearTimeout});
-  const questView=window.YggQuestView.create({get:$,setText,data:D,engine:E,matchup:window.YggMatchup,money,fullNumber,rateFormat,incomeNumber,blocked,tradeControls,renderTrades,questInputDrafts,
+  const questView=window.YggQuestView.create({get:$,setText,data:D,engine:E,matchup:window.YggMatchup,money,fullNumber,rateFormat,incomeNumber,strengthNumber,blocked,tradeControls,renderTrades,questInputDrafts,
     actualIncome:()=>window.YggActualIncome(),renderEnemyInfoIfOpen:(ctx,id)=>{if(enemyInfoQuestId===id&&$('enemy-info-dialog').open)renderEnemyInfo(ctx,$('enemy-info-content'));}
   });
   function notice(text, error = false) {
@@ -238,7 +240,7 @@
   }
   const rangeText=range=>range[0]===range[1]?String(range[0]):range.join('～');
   function perkPanel(c){
-    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.awakeningLevel?'覚醒Lv.'+p.awakeningLevel:p.initial?'初期パーク':'Lv.'+p.level)+'</span><span class="perk-pressure">暴走圧 '+pressureText((p.runawayPressure||0)*60)+'%/分</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+(p.awakeningLevel?'【暴走率'+(p.minRunaway??[50,60,70][p.awakeningLevel-1])+'%以上でON】<br>':'')+((p.attackRange||p.effectRange)?'['+(p.attackRange?'攻撃':'付加')+'：'+rangeText(p.attackRange||p.effectRange)+'] ':'')+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
+    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.common?'共通パーク':p.awakeningLevel?'覚醒Lv.'+p.awakeningLevel:p.initial?'初期パーク':'Lv.'+p.level)+'</span><span class="perk-pressure">暴走圧 '+pressureText((p.runawayPressure||0)*60)+'%/分</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+(p.awakeningLevel?'【暴走率'+(p.minRunaway??[50,60,70][p.awakeningLevel-1])+'%以上でON】<br>':'')+((p.attackRange||p.effectRange)?'['+(p.attackRange?'攻撃':'付加')+'：'+rangeText(p.attackRange||p.effectRange)+'] ':'')+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
   }
   function focusControls(c,track){
     return '<div class="allocation-controls"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="-1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を減らす">−</button><input type="number" min="0" step="1" id="focus-'+track+'-'+c.id+'" data-focus-input="'+c.id+'" data-focus-stat="'+track+'" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を増やす">＋</button><small id="focus-bonus-'+track+'-'+c.id+'"></small></div>';
@@ -323,7 +325,7 @@
     setText('ability-base-ss-'+c.id,dice(c.ss));setText('character-level-'+c.id,'Lv.'+fullNumber(level));
     setText('focus-remaining-'+c.id,'残り '+fullNumber(total-used)+' / '+fullNumber(total)+' CP');
     for(const t of window.YggAbilityView.tracks){
-      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):t.id==='power'?fullNumber(Math.floor(values[t.id])):incomeNumber(values[t.id]));
+      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):t.id==='power'?strengthNumber(values[t.id]):incomeNumber(values[t.id]));
       if(!D.concentration.some(x=>x.id===t.id))continue;
       const input=$('focus-'+t.id+'-'+c.id);if(document.activeElement!==input)input.value=allocation[t.id];input.min=focusMinimum(c.id,t.id);input.max=total-used+allocation[t.id];input.disabled=blocked()||!level;
       setText('focus-bonus-'+t.id+'-'+c.id,'配分 ×'+incomeNumber(cpMultipliers[t.id]));
@@ -376,10 +378,10 @@
       setText('picker-hp-'+c.id,hired?'HP '+fullNumber(h.hp)+' / '+fullNumber(maxHP):'未雇用');
       setText('picker-runaway-'+c.id,hired?'暴走 '+fullNumber(runaway.runawayRate)+'%'+(runaway.runawayCollapsed?'・暴走ダウン':''):'');
       }
-      actor.classList.toggle('downed',down);actor.classList.toggle('stunned',E.isStunned(state,c.id));actor.classList.toggle('charging',!down&&!E.isStunned(state,c.id)&&E.magicState(ctx,c).current>0);
+      actor.classList.toggle('downed',down);actor.classList.toggle('stunned',E.isStunned(state,c.id));actor.classList.toggle('charging',!E.getSession(ctx).medical&&!down&&!E.isStunned(state,c.id)&&E.magicState(ctx,c).current>0);
       if(c.id==='megumin'){
         const magic=actor.classList.contains('spell-casting')?meguminCastMagic:down||E.isStunned(state,c.id)?0:E.magicState(ctx,c).current;
-        for(const [i,ring] of Array.from($('megumin-charge-axis').children).entries())ring.hidden=i>=magic;
+        for(const [i,ring] of Array.from($('megumin-charge-axis').children).entries())ring.hidden=E.getSession(ctx).medical||i>=magic;
       }
       const selector=$(c.id+'-select');
       selector.setAttribute('aria-label',c.name+(collapsed?'：暴走ダウン中':hpDown?'の復活バーストを選択':'を手動攻撃に選択'));
@@ -390,7 +392,7 @@
       suppress.hidden=!hired;suppress.disabled=blocked()||!!abilityEdit||!quote.valid||state.factors<quote.cost;
       setText('suppress-cost-'+c.id,money(quote.cost)+' Rd');suppress.setAttribute('aria-label',c.name+'の暴走率を10抑制 · '+money(quote.cost)+'Rd');
       }
-      battleHUD.render(c.id,{row:E.formationRow(state,c.id),waiting:!down&&!E.hasReachableTarget(ctx,c),hp:h.hp,maxHP,actionValue:action,turnShare:share,runawayRate:runaway.runawayRate,status:[down?status:E.isStunned(state,c.id)?'スタン '+h.stunTurns+'R':'',runaway.runawaySymptom?symptomName(runaway.runawaySymptom):'',h.turnSlowSeconds>0?'行動低下 '+Math.round(h.turnSlowRate*100)+'%':'' ].filter(Boolean).join(' · '),deployed:E.isDeployed(state,c.id),magic:c.magicPower?displayedMagic(ctx,c):null});
+      battleHUD.render(c.id,{row:E.formationRow(state,c.id),waiting:!E.getSession(ctx).medical&&!down&&!E.hasReachableTarget(ctx,c),hp:h.hp,maxHP,actionValue:action,turnShare:share,runawayRate:runaway.runawayRate,status:[down?status:E.isStunned(state,c.id)?'スタン '+h.stunTurns+'R':'',runaway.runawaySymptom?symptomName(runaway.runawaySymptom):'',h.turnSlowSeconds>0?'行動低下 '+Math.round(h.turnSlowRate*100)+'%':'' ].filter(Boolean).join(' · '),deployed:E.isDeployed(state,c.id),magic:c.magicPower?displayedMagic(ctx,c):null});
       if(managerTab==='characters'&&inspectedCharacter===c.id||abilityEdit?.id===c.id){
       const ev=E.evasionSpec(ctx,c),ss=E.evasionSpec(ctx,c,true);
       $('vitals-'+c.id).hidden=!state.levels[c.id];
@@ -534,7 +536,7 @@
     setText('revive-description','HP '+fullNumber(h.hp)+' / '+fullNumber(E.maxHP(state,c))+' → '+fullNumber(E.maxHP(state,c))+' / '+fullNumber(E.maxHP(state,c))+(E.runawayOf(state,c.id).runawayCollapsed?'。HPを全回復します。暴走ダウンは暴走率100%未満で復帰します。':'。全回復して戦闘へ復帰します。'));
     setText('revive-cost','必要因子 '+(Number.isFinite(cost)?money(cost)+'Rd':'計算範囲外')+' ／ 所持 '+money(state.factors)+'Rd');
     $('confirm-revive').disabled=blocked()||h.status==='active'||!Number.isFinite(cost)||state.factors<cost;
-    setText('revive-hint',h.status==='active'?'すでに復帰しています。':state.factors<cost?'因子が不足しています。自然回復でもHP満タンになると復帰します。':'雇用費＋現在の育成投資額の1%。');
+    setText('revive-hint',h.status==='active'?'すでに復帰しています。':state.factors<cost?'因子が不足しています。自然回復でもHP満タンになると復帰します。':'雇用費＋現在の育成投資額の5%。');
   }
   function openRevivalDialog(id){revivalTarget=id;renderRevivalDialog();$('revive-dialog').showModal();}
   function renderBattleHUD() {
@@ -548,7 +550,7 @@
     $('arena').classList.toggle('is-respawning',waiting);
     $('respawn-notice').hidden=!waiting;
     if(waiting)setText('respawn-notice',(E.getSession(state).reviveInPlace?'起き上がるまで ':'再出現まで ')+state.respawnSeconds.toFixed(1)+' 秒');
-    $('attack').disabled=blocked()||state.paused||waiting||!manualReady()||E.isResting(state);
+    $('attack').disabled=!!E.getSession(state).medical||blocked()||state.paused||waiting||!manualReady()||E.isResting(state);
     if(managerTab==='quests')questView.renderLive(state);
     const factors = money(state.factors);
     for (const id of ['factors', 'factors-pinned', 'factors-save', 'factors-help','factors-formation']) setText(id, factors);
@@ -623,7 +625,7 @@
     $('pause').textContent = state.paused ? '▶' : 'Ⅱ';
     $('pause').setAttribute('aria-label', state.paused ? '全セッションの周回を再開' : '全セッションの周回を一時停止');
     $('pause').disabled = blocked();
-    $('attack').disabled = blocked() || state.paused || E.isWaiting(state) || !manualReady()||E.isResting(state);
+    $('attack').disabled = !!E.getSession(state).medical || blocked() || state.paused || E.isWaiting(state) || !manualReady()||E.isResting(state);
     $('save-now').disabled = blocked();
     $('option-cache').disabled=maintenanceBusy;
     $('option-delete').disabled=readOnly||maintenanceBusy;
@@ -778,7 +780,7 @@
     sprite.style.setProperty('--foot-shift',((211-(appearance.footY??211))/224*100)+'%');
   }
   function renderEnemy(session) {
-    sceneView.render(state,session);$('enemy-name').hidden=!!session.variants;
+    sceneView.render(state,session);$('arena').classList.toggle('medical-room',!!session.medical);if(session.medical)setText('enemy-name',session.enemy);$('enemy-name').hidden=!!session.variants;
     const enemies=E.ensureEnemies(state),variants=session.variants||[],formation=session.summons?session.traits.includes('swarm'):enemies.length>1;
     if(enemyVariantSession!==session.id){enemyVariantSession=session.id;enemyAppearances.clear();}
     const used=new Set(enemies.map(e=>enemyAppearances.get(e.id)?.variant).filter(v=>v!=null));
@@ -795,7 +797,7 @@
       node.setAttribute('role','group');
       let button=node.querySelector('.enemy-target');
       if(!button){button=document.createElement('button');button.type='button';button.className='enemy-target';node.append(button);
-        button.addEventListener('click',()=>{if(blocked())return;if(!sync())return;const current=E.ensureEnemies(state)[i];if(current&&E.selectEnemy(state,state.focusedEnemyId===current.id?null:current.id)){save();render();}});}
+        button.addEventListener('click',()=>{if(blocked())return;if(!sync())return;const current=E.ensureEnemies(state)[i];if(current&&state.focusedEnemyId===current.id){enemyInfoQuestId=state.sessionId;setText('enemy-info-quest',E.getSession(state).name);renderEnemyInfo(state,$('enemy-info-content'));if(!$('enemy-info-dialog').open)$('enemy-info-dialog').showModal();return;}if(current&&E.selectEnemy(state,current.id)){save();render();}});}
       button.hidden=!formation||e.hp<=0;button.setAttribute('aria-label',enemyAppearances.get(e.id).name+'（'+(i+1)+'体目）を集中狙い');
       if(!node.querySelector('.enemy-status')){const label=document.createElement('span');label.className='enemy-status';label.hidden=true;node.append(label);}
       if(!node.querySelector('.enemy-health')){const bar=document.createElement('span');bar.className='enemy-health';node.append(bar);}
@@ -816,6 +818,7 @@
     if (key === battleLayoutKey) return;
     battleLayoutKey = key;
     const layout = UI.orbitLayout(options), arena = $('arena'), viewport = $('arena-viewport');
+    if(E.getSession(state).medical){const ids=E.formationIds(state),spots=ids.length<=3?[[.14,.87],[.34,.88],[.54,.87]]:[[.13,.65],[.34,.65],[.55,.65],[.21,.89],[.46,.89]];ids.forEach((id,i)=>{const p=layout[id];if(p){p.x=layout.width*spots[i][0];p.y=layout.height*spots[i][1]-(p.footOffset||0)-(p.hoverHeight||0);}});}
     arena.classList.toggle('grounded',options.grounded);
     arena.style.width = `${layout.width}px`; arena.style.height = `${layout.height}px`;
     arena.style.transform = `translateX(${layout.offsetX}px) scale(${layout.zoom})`;
@@ -1448,7 +1451,7 @@
     const actor=$('richter-combatant'),head=parseFloat(actor.style.getPropertyValue('--head-offset'))||112;
     return {x:actor.offsetLeft+(i-(count-1)/2)*56,y:actor.offsetTop-head-34};
   }
-  function renderPomBombs(){let layer=$('pom-bombs');if(!layer){layer=document.createElement('div');layer.id='pom-bombs';elements.set('pom-bombs',layer);$('arena').append(layer);}const bombs=E.pomUnits(state),key=JSON.stringify(bombs);if(layer.dataset.units!==key){layer.dataset.units=key;layer.replaceChildren();for(const b of bombs){const n=document.createElement('div');n.className='pom-unit';n.dataset.id=b.id;const img=document.createElement('span');img.className='pom-idle-sprite';img.style.backgroundImage='url("'+D.richterVisual.idleSheet+'")';img.setAttribute('role','img');img.setAttribute('aria-label','ポムポムボム');const hp=document.createElement('small');hp.textContent='HP '+Math.round(b.hp/b.maxHP*100)+'%';n.title='ポムポムボム：HP '+b.hp+'/'+b.maxHP+'・攻撃 '+b.dice+'D6＋'+b.flat;n.append(img,hp);layer.append(n);}}const actor=$('richter-combatant');for(const [i,n]of Array.from(layer.children).entries()){const p=pomPosition(i,bombs.length);n.style.left=p.x+'px';n.style.top=p.y+'px';n.hidden=i>=pomVisibleCount;n.querySelector('.pom-idle-sprite').style.animationPlayState=state.paused||blocked()||document.hidden?'paused':'running';n.style.setProperty('--pom-delay',(-i*.65)+'s');}}
+  function renderPomBombs(){let layer=$('pom-bombs');if(!layer){layer=document.createElement('div');layer.id='pom-bombs';elements.set('pom-bombs',layer);$('arena').append(layer);}const bombs=E.pomUnits(state),key=JSON.stringify(bombs);if(layer.dataset.units!==key){layer.dataset.units=key;layer.replaceChildren();for(const b of bombs){const n=document.createElement('button');n.type='button';n.className='pom-unit';n.setAttribute('aria-label','ポムポムボムのステータスを表示');n.setAttribute('aria-haspopup','dialog');n.addEventListener('click',()=>{const current=E.pomUnits(state).find(p=>p.id===b.id);if(!current||n.hidden)return;const rows=[['HP',fullNumber(current.hp)+' / '+fullNumber(current.maxHP)],['攻撃力',current.dice+'D6＋'+current.flat],['回避力','10＋0D6'],['回避強度',fullNumber(Math.floor(current.power))],['SS','10＋0D6'],['防御 / 抵抗','0 / 0'],['行動','手番なし']];$('pom-info-content').innerHTML='<dl class="quest-values">'+rows.map(([label,value])=>'<div><dt>'+label+'</dt><dd>'+value+'</dd></div>').join('')+'</dl><p>単体攻撃の対象外。全体攻撃には巻き込まれます。</p><p>表示はクリック時点の能力です。</p>';$('pom-info-dialog').showModal();});n.dataset.id=b.id;const img=document.createElement('span');img.className='pom-idle-sprite';img.style.backgroundImage='url("'+D.richterVisual.idleSheet+'")';img.setAttribute('role','img');img.setAttribute('aria-label','ポムポムボム');const hp=document.createElement('small');hp.textContent='HP '+Math.round(b.hp/b.maxHP*100)+'%';n.title='ポムポムボム：HP '+b.hp+'/'+b.maxHP+'・攻撃 '+b.dice+'D6＋'+b.flat;n.append(img,hp);layer.append(n);}}const actor=$('richter-combatant');for(const [i,n]of Array.from(layer.children).entries()){const p=pomPosition(i,bombs.length);n.style.left=p.x+'px';n.style.top=p.y+'px';n.hidden=i>=pomVisibleCount;n.querySelector('.pom-idle-sprite').style.animationPlayState=state.paused||blocked()||document.hidden?'paused':'running';n.style.setProperty('--pom-delay',(-i*.65)+'s');}}
   function cherrySpread(kind,targetSlot=0){
     if(document.hidden||reducedMotion.matches||state.options.hitEffects==='off')return;
     const layer=$('hit-effects'),groups=Array.from(layer.children).filter(n=>n.classList.contains('cherry-spread'));
@@ -1657,14 +1660,14 @@
     const encounter=E.getSession(ctx);
     if(encounter.members){
       const html=encounter.members.map(member=>{
-        const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);};
+        const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?strengthNumber(value):incomeNumber(value);};
         const bases={action:q.actionDice?rollText(q.actionDice):fullNumber(q.action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(q.attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
         return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>'+(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+'</p>';
       }).join('')+(encounter.independentRespawns?'<p>1体倒すごとに報酬を獲得し、倒した枠へ次の個体が乱入します。'+encounter.members.map(member=>member.name+' '+money(E.incomeAmount(ctx,E.reward(ctx,E.enemySpec(ctx,{kind:member.id})) ))+' Rd').join(' / ')+'</p>':'<p>'+encounter.members.length+'体すべて倒すと報酬 '+money(E.reward(ctx))+' Rd。先に倒した相手はダウンしたまま待機し、討伐後に全員が復帰します。</p>');
       if(node.innerHTML!==html)node.innerHTML=html;return;
     }
     const F=window.YggMatchup,q=E.getSession(ctx),forecast=F.party(ctx),attack=E.enemyAttackSpec(forecast.state);
-    const strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);},action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
+    const strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?strengthNumber(value):incomeNumber(value);},action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
     const bases={action:rollText(action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
     const stats='<div class="enemy-ability-rows">'+window.YggAbilityView.rows({
       enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+(q.attackElements?.length?' ／ [攻撃：'+q.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':''),
@@ -1776,6 +1779,7 @@
       if(!sync())return;
       if(id&&E.healthOf(state,id).status!=='active'){openRevivalDialog(id);return;}
       if(id&&E.runawayOf(state,id).runawayCollapsed){notice('暴走ダウン中です。暴走率100%未満で復帰します。');return;}
+      if(id&&state.selectedCharacterId===id){openAbility(id);return;}
       if (E.selectCharacter(state, id)) { save(); render(); }
     };
     for(const c of D.characters)$(c.id+'-select').addEventListener('click',()=>chooseCharacter(c.id));
@@ -1860,6 +1864,7 @@
     $('character-list').addEventListener('change',event=>{const input=event.target;if(input.dataset.focusInput){changeFocus(input.dataset.focusInput,input.dataset.focusStat,Number(input.value));input.value=E.concentration(state,input.dataset.focusInput)[input.dataset.focusStat];}});
     $('quest-list').addEventListener('keydown',event=>{const id=window.YggQuestView.cardSelection(event);if(id)chooseQuest(id);});
     $('quest-list').addEventListener('click',event=>{
+      const fold=event.target.closest('[data-quest-collapse]');if(fold){const card=$('quest-card-'+fold.dataset.questCollapse),collapsed=card.classList.toggle('quest-collapsed');fold.setAttribute('aria-expanded',String(!collapsed));fold.textContent=collapsed?'情報を開く':'折りたたむ';return;}
       const memories=event.target.closest('[data-memories]');if(memories){if(!memories.disabled)chooseQuest('memories');return;}
       const info=event.target.closest('[data-enemy-info]');
       if(info&&!info.disabled){enemyInfoQuestId=info.dataset.enemyInfo;const ctx=E.battleContext(state,enemyInfoQuestId);setText('enemy-info-quest',E.getSession(ctx).name);renderEnemyInfo(ctx,$('enemy-info-content'));if(!$('enemy-info-dialog').open)$('enemy-info-dialog').showModal();return;}

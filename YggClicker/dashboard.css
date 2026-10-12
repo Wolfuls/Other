@@ -435,3 +435,13 @@
 @media(max-width:760px){.ability-training-head{grid-template-columns:minmax(0,1fr) 36px;gap:10px;padding:10px 12px}.ability-training-head .ability-close{grid-column:2;min-width:36px;min-height:36px}.ability-training-head .ability-actions{grid-column:1/-1;grid-row:2}.ability-training-head h2{font-size:18px}.ability-header-level{font-size:14px;margin-top:3px}.ability-training-head .ability-actions button{min-height:44px}}
 @media(max-height:500px){.ability-dialog{max-height:98dvh}.ability-training-head{padding:6px 10px;gap:6px 10px}.ability-identity>small{display:none}.ability-training-head h2{font-size:16px}.ability-header-level{font-size:12px;margin-top:2px}.ability-training-head .ability-actions button{min-height:36px;gap:2px;padding:4px}.ability-footer{padding:6px 10px}}
 .ability-training-head .ability-actions button{white-space:normal}.ability-training-head .ability-actions button>small,.ability-training-head .ability-actions button>span{min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+
+.medical-room #enemy-art,.medical-room #enemy-next-1,.medical-room #enemy-next-2{display:none!important}.medical-room{background-color:#173339}
+
+.infirmary-toki{display:none;position:absolute;right:11%;bottom:9%;height:285px;width:auto;object-fit:contain;image-rendering:pixelated;pointer-events:none;z-index:3}.medical-room .infirmary-toki{display:block}
+
+.quest-title{display:flex;align-items:center;justify-content:space-between;gap:8px}.quest-title h3{min-width:0}.quest-collapse{flex-shrink:0;font-size:11px;padding:6px 8px}.quest-collapsed .quest-progress,.quest-collapsed .quest-enhancement,.quest-collapsed .quest-lock,.quest-collapsed .quest-actions>:not(.quest-select){display:none!important}
+
+button.pom-unit{pointer-events:auto;cursor:pointer;border:0;padding:0;background:transparent;color:inherit}button.pom-unit:focus-visible{outline:2px solid #d4ec9b;outline-offset:3px}
+
+.medical-room [id$="-combatant"]{transform:translate(-50%,-50%) scale(1.75);transform-origin:50% calc(50% + var(--body-foot,0px))}.medical-room [id$="-combatant"] :is(.ally-vitals,.ally-status,.ally-magic){scale:.5714286;transform-origin:50% 0}

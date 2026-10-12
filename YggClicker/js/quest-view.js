@@ -11,16 +11,16 @@
     }else if(event.target.closest(interactive))return null;
     return card.dataset.questCard;
   }
-  function create({data:D,engine:E,matchup:F,get:$,setText,money,fullNumber,rateFormat,incomeNumber,blocked,tradeControls,renderTrades,questInputDrafts,renderEnemyInfoIfOpen,actualIncome=()=>null}){
+  function create({data:D,engine:E,matchup:F,get:$,setText,money,fullNumber,rateFormat,incomeNumber,strengthNumber,blocked,tradeControls,renderTrades,questInputDrafts,renderEnemyInfoIfOpen,actualIncome=()=>null}){
     const A=typeof module!=='undefined'&&module.exports?require('./ability-view.js'):root.YggAbilityView;
     const memberSelections=new Map();
     const memberTypes=base=>(base.members||[]).filter((m,i,a)=>a.findIndex(x=>x.name===m.name)===i);
     function selectMember(state,id,index){const base=D.sessions.find(q=>q.id===id);if(!base||!memberTypes(base)[index])return;memberSelections.set(id,index);renderPreview(state,id);}
     function build(){
-    $('quest-list').innerHTML = D.sessions.map(s=>`<article class="quest-card" id="quest-card-${s.id}" data-quest-card="${s.id}" tabindex="0" aria-label="？？？">
+    $('quest-list').innerHTML = [...D.sessions].sort((a,b)=>Number(a.code)-Number(b.code)).map(s=>`<article class="quest-card" id="quest-card-${s.id}" data-quest-card="${s.id}" tabindex="0" aria-label="？？？">
       <div class="quest-title">
       <h3>
-      <small class="quest-number">No.${Number(s.code)}</small> <span id="quest-name-${s.id}">？？？</span></h3>
+      <small class="quest-number">No.${Number(s.code)}</small> <span id="quest-name-${s.id}">？？？</span></h3><button type="button" class="button secondary quest-collapse" data-quest-collapse="${s.id}" aria-expanded="true">折りたたむ</button>
       </div>
       <p class="quest-lock" id="quest-lock-${s.id}" hidden>
       </p>
@@ -153,6 +153,7 @@
       const ctx=E.battleContext(state,base.id),income=actualIncome();
       setText('quest-income-'+base.id,'実収益 '+incomeNumber(income?.quests[base.id]?.rate||0)+'Rd/秒');
       setText('quest-level-'+base.id,`購入済み Lv.${fullNumber(owned)} ／ 挑戦中 Lv.${fullNumber(quest.level)}`);
+      if(base.medical){setText('quest-select-'+base.id,selected?'表示中':base.name+'を表示');setText('quest-income-'+base.id,'2秒ごとにHP1%回復 · 暴走率−10%/分');setText('quest-level-'+base.id,'敵なし・クリア報酬なし');$('enemy-info-toggle-'+base.id).hidden=true;$('quest-enhance-toggle-'+base.id).hidden=true;$('quest-enhancement-'+base.id).hidden=true;continue;}
       renderPreview(state,base.id);
       $('enemy-info-toggle-'+base.id).disabled=!unlocked;
       renderEnemyInfoIfOpen(ctx,base.id);
@@ -180,13 +181,13 @@
         const specs=[E.sessionAtLevel({...base,...members[index]},quest.level)];
         const set=(key,fn)=>setText('quest-'+key+'-'+base.id,specs.map(q=>fn(q)).join(' / '));
         setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level));
-        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>{const value=A.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);});
+        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>{const value=A.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?strengthNumber(value):incomeNumber(value);});
         set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
         for(const [key,stat]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])set(key,q=>rateFormat(F.expectedRoll(q[stat],stat!=='attack')));
         setText('quest-reward-'+base.id,base.independentRespawns?specs.map(q=>q.name+' '+money(E.incomeAmount(state,E.reward(state,q)))+' Rd').join(' / '):money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
       }
       setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level)+(draft!==undefined&&!valid?'（入力は1〜購入済みLvの整数）':''));
-      setText('quest-strength-'+base.id,fullNumber(Math.floor(A.strengthLevel(E.enemyStrength(quest),D.strength))));
+      setText('quest-strength-'+base.id,strengthNumber(A.strengthLevel(E.enemyStrength(quest),D.strength)));
       setText('quest-armor-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'armor'),D.strength)));
       setText('quest-check-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'accuracy'),D.strength)));
       setText('quest-defense-'+base.id,fullNumber(quest.defense));
@@ -205,6 +206,7 @@
     function renderLive(state){
     for(const q of D.sessions){
       const ctx=E.battleContext(state,q.id),members=E.formationIds(state,q.id).length;
+      if(q.medical){setText('quest-live-'+q.id,(state.paused?'全体一時停止':members?'療養中':'部隊未編成')+' · '+members+'/5人');continue;}
       setText('quest-live-'+q.id,(state.paused?'全体一時停止':E.isResting(ctx)?'休憩中（あと'+Math.ceil(E.restOf(ctx).remaining)+'秒）':members?'自動周回中':'部隊未編成')+(E.restOf(ctx).enabled?' · 出撃 '+Math.floor(E.restOf(ctx).elapsed/60)+'分 / '+E.restOf(ctx).defeats+'討伐':'')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?(q.reviveInPlace?'起き上がるまで ':'再出現まで ')+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(ctx.hp)+' / '+fullNumber(E.enemyMaxHP(ctx,ctx.enemies?.find(e=>e.id===ctx.focusedEnemyId&&e.hp>0)||ctx.enemies?.find(e=>e.hp>0)))));
     }
     }

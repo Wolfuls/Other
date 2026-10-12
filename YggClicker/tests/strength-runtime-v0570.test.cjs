@@ -79,9 +79,9 @@ test('offline Poisson event count is consistent with mean interval without per-s
 test('activation stacks and original extra dice accumulate without changing intensity',()=>{
  const s=ready();for(const type of ['augment','reaction','sense','recovery','awakening']){s.runaway.meta.activationType=type;for(const [rate,stacks,dice]of [[49,0,0],[50,1,0],[60,2,0],[70,3,0],[80,3,1],[90,3,2]]){s.runaway.meta.runawayRate=rate;const a=E.activation(s,c('meta'));assert.equal(a.stacks,stacks);assert.equal(a.dice,dice);assert.equal(a.damage,type==='augment'?stacks:0);assert.equal(E.attackProfile(s,c('meta')).damageLogRatio,0);}}
 });
-test('runaway pressure is independent, stabilization works while incapacitated, recovery scales pressure/regen',()=>{
+test('runaway pressure is independent, stabilization works while incapacitated, recovery changes pressure but does not heal without turns',()=>{
  const s=ready(['max']);s.levels.max=Math.max(s.levels.max,11);const normal=E.runawayPressure(s,c('max'));s.runaway.max.runawayRate=70;almost(E.runawayPressure(s,c('max')),normal*.7);
- s.health.max.hp=10;s.health.max.status='unconscious';s.upgrades.stabilization=18;almost(E.runawayPressure(s,c('max')),-.03);E.advance(s,6,()=>.6);assert.equal(s.health.max.hp,11);assert.ok(s.runaway.max.runawayRate<70);
+ s.health.max.hp=10;s.health.max.status='unconscious';s.upgrades.stabilization=18;almost(E.runawayPressure(s,c('max')),-.03);E.advance(s,6,()=>.6);assert.equal(s.health.max.hp,10);assert.ok(s.runaway.max.runawayRate<70);
 });
 test('thresholds fire only ascending and rearm ten points below, symptoms clear below70',()=>{
  const s=ready(),events=[];E.changeRunaway(s,'meta',70,()=>.8,events);assert.deepEqual(events.filter(e=>e.type==='runawayThreshold').map(e=>e.threshold),[50,70]);

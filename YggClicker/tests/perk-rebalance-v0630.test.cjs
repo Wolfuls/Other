@@ -10,7 +10,7 @@ const tables={
  jewel:[['side-income',0,0],['yellow-glow',10,.1],['crimson-fist',25,.1],['crystal-radiance',50,.3],['iolite-shield',75,.4],['adamant-fist',100,.6],['rainbow-armor',125,1],['black-egg',150,1.2]]
 };
 for(const [id,rows]of Object.entries(tables))test(`${id}: ordered unlock levels, minute pressure, ON/OFF and down behavior`,()=>{
- assert.deepEqual(c(id).perks.map(p=>[p.id,p.level]),rows.map(([key,lv])=>[key,lv]));
+ assert.deepEqual(c(id).perks.filter(p=>!p.common).map(p=>[p.id,p.level]),rows.map(([key,lv])=>[key,lv]));
  const s=ready([id]);
  for(const [key,lv,minute]of rows){const p=c(id).perks.find(p=>p.id===key);near(p.runawayPressure*60,minute);
   s.levels[id]=Math.max(1,lv);assert.ok(E.togglePerk(s,id,key,true));assert.equal(active(s,id,key),true);

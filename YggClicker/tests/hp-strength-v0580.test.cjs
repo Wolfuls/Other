@@ -101,11 +101,11 @@ test('legacy high-level enemy HP survives harmless exponential rounding differen
  assert.deepEqual(roundTrip(migrated),migrated);
 });
 
-test('six-second recovery follows actual scaled HP and revives only at full HP',()=>{
+test('infirmary recovery follows actual scaled HP and revives only at full HP',()=>{
  const s=ready(['meta']),char=c('meta');s.levels.meta=101;s.concentration.meta.vitality=30;const max=E.maxHP(s,char),gain=Math.max(1,N.floor(max*.01));
- s.health.meta={hp:max-gain-1,status:'unconscious',regenSeconds:0};E.setFormation(s,s.sessionId,[]);
- E.advance(s,6,()=>.5);assert.equal(s.health.meta.hp,max-1);assert.equal(s.health.meta.status,'unconscious');
- E.advance(s,6,()=>.5);assert.equal(s.health.meta.hp,max);assert.equal(s.health.meta.status,'active');
+ s.health.meta={hp:max-gain-1,status:'unconscious',regenSeconds:0};E.setFormation(s,'infirmary',['meta']);
+ E.advance(s,2,()=>.5);assert.equal(s.health.meta.hp,max-1);assert.equal(s.health.meta.status,'unconscious');
+ E.advance(s,2,()=>.5);assert.equal(s.health.meta.hp,max);assert.equal(s.health.meta.status,'active');
 });
 
 test('ability UI shows shared HP strength and actual HP while gauges remain actual health',()=>{

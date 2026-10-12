@@ -333,6 +333,7 @@
     if(q.members)for(const member of q.members)if(member.id===q.id)member.code=q.code;
   }
   quests.sort((a,b)=>Number(a.code)-Number(b.code));
+  quests.push({id:'infirmary',code:'00',name:'死神の宿',enemy:'トキ',medical:true,background:'img/infirmary-background-v2.png',description:'敵のいない休養用クエスト。参加者は2秒ごとに最大HPの1%を回復する。暴走圧・鎮静圧は無視し、暴走率−10%/分に置換する。',hp:1,reward:0,action:0,attack:{dice:0,flat:0},accuracy:{dice:0,flat:0},evasion:{dice:0,flat:0},ss:{dice:0,flat:0},defense:0,resistance:0,traits:[],unlockFactors:0});
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;
 })(typeof window!=='undefined'?window:globalThis);
