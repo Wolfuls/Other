@@ -11,7 +11,7 @@ test('manual startup earns the five clears needed for Meta; hire and global upgr
  for(let i=0;i<5;i++){E.selectEnemy(s,E.livingEnemies(s)[0].id);for(let n=0;n<20;n++)E.click(s,()=>.999);E.advance(s,5,()=>.999);}
  assert.equal(s.kills,5);assert.equal(s.factors,10);assert.ok(E.hire(s,'meta'));assert.equal(s.factors,0);
  s.factors=2499;assert.equal(E.hire(s,'richter'),false);s.factors=2500;assert.ok(E.hire(s,'richter'));assert.equal(s.factors,0);
- for(const[id,first,next]of [['reward',100,125]]){
+ for(const[id,first,next]of [['stabilization',20000,30000]]){
   const u=D.upgrades.find(u=>u.id===id);s.factors=first-.01;assert.equal(E.buyUpgrade(s,id),false);
   s.factors=first;assert.ok(E.buyUpgrade(s,id));assert.equal(s.factors,0);assert.equal(E.upgradeCost(s,u),next);
  }

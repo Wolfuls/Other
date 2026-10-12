@@ -385,9 +385,6 @@
 @keyframes cherry-attack{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
 @keyframes cherry-down{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
 @keyframes cherry-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.985)}}
-.cherry-blazar{position:absolute;width:380px;height:380px;background:url('./img/cherry-blazar-v1.png') center/contain no-repeat;image-rendering:pixelated;pointer-events:none;animation:cherry-comet .52s linear forwards}
-@keyframes cherry-comet{0%{transform:translate(calc(-78% - 210px),calc(-78% - 290px));opacity:0}12%{opacity:1}65%{transform:translate(-78%,-78%);opacity:1}100%{transform:translate(-76%,-75%) scale(1.14);opacity:0}}
-.cherry-paused .cherry-blazar{animation-play-state:paused}
 
 /* A single skill layer sends independent flames from Cherry to both sides. */
 .cherry-spread{position:absolute;inset:0;pointer-events:none}
@@ -411,3 +408,30 @@
 .pom-idle-sprite{display:block;width:48px;height:48px;background-size:400% 100%;background-repeat:no-repeat;image-rendering:pixelated;animation:pom-idle-frames .8s steps(1,end) infinite;animation-delay:var(--pom-delay,0s)}
 @keyframes pom-idle-frames{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
 @media(prefers-reduced-motion:reduce){.pom-idle-sprite{animation:none}}
+
+/* BLAZAR: independently animated comet, wake, impact rings and embers. */
+.cherry-blazar{position:absolute;width:0;height:0;pointer-events:none;isolation:isolate}
+.blazar-comet,.blazar-echo{position:absolute;width:var(--comet-size);height:var(--comet-size);background:url('./img/cherry-blazar-v1.png') center/contain no-repeat;image-rendering:pixelated;transform-origin:78% 78%;animation:blazar-fall 440ms cubic-bezier(.5,.05,.85,.5) both;filter:drop-shadow(0 0 8px #ff9a32aa)}
+.blazar-echo{mix-blend-mode:screen;filter:blur(2px);animation-name:blazar-wake}.blazar-echo.far{--wake:-42px;opacity:.22}.blazar-echo.near{--wake:-20px;opacity:.4}
+.blazar-halo{position:absolute;width:260px;height:220px;border-radius:50%;background:radial-gradient(ellipse,#fff6c36b, #ff631d2b 38%,transparent 70%);animation:blazar-halo 950ms ease-out both;mix-blend-mode:screen}
+.blazar-impact{position:absolute;width:155px;height:155px;border-radius:50%;background:radial-gradient(circle,#fffbe8 0%,#ffe09b 15%,#ff9a3aaa 34%,#fb4b1333 58%,transparent 72%);animation:blazar-impact 500ms 310ms ease-out both;mix-blend-mode:screen}
+.blazar-ring{position:absolute;width:210px;height:90px;border:4px solid #ffce70;border-radius:50%;box-shadow:0 0 12px #ff781d,inset 0 0 12px #ffe5a1;animation:blazar-ring 650ms 320ms ease-out both;mix-blend-mode:screen}.blazar-ring.inner{width:145px;height:60px;border-color:#fff2bb;animation-delay:370ms}
+.blazar-bloom{position:absolute;width:230px;height:230px;animation:blazar-bloom 750ms 320ms ease-out both}.blazar-bloom .cherry-fire-sprite{animation-delay:320ms}
+.blazar-ember{position:absolute;width:var(--ember-size);height:var(--ember-size);border-radius:50%;background:#ffec9f;box-shadow:0 0 5px #ff842c;animation:blazar-ember 720ms var(--ember-delay) cubic-bezier(.1,.6,.3,1) both}
+@keyframes blazar-fall{0%{transform:translate(calc(-78% - 225px),calc(-78% - 310px)) scale(.72);opacity:0}12%{opacity:1}73%{transform:translate(-78%,-78%) scale(1);opacity:1}100%{transform:translate(-78%,-78%) scale(1.16);opacity:0}}
+@keyframes blazar-wake{0%{transform:translate(calc(-78% - 245px),calc(-78% - 330px)) scale(.72);opacity:0}20%{opacity:.25}73%{transform:translate(calc(-78% + var(--wake)),calc(-78% + var(--wake))) scale(.97);opacity:.35}100%{transform:translate(-78%,-78%) scale(1.05);opacity:0}}
+@keyframes blazar-halo{0%{transform:translate(calc(-50% - 225px),calc(-50% - 310px)) scale(.4);opacity:0}33%{transform:translate(-50%,-50%) scale(1);opacity:.7}100%{transform:translate(-50%,-50%) scale(1.9);opacity:0}}
+@keyframes blazar-impact{0%{transform:translate(-50%,-50%) scale(.25);opacity:0}10%{opacity:.85}100%{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+@keyframes blazar-ring{0%{transform:translate(-50%,-20%) scale(.2);opacity:0}8%{opacity:.85}100%{transform:translate(-50%,-20%) scale(1.8);opacity:0}}
+@keyframes blazar-bloom{0%{transform:translate(-50%,-80%) scale(.4);opacity:0}15%{opacity:1}100%{transform:translate(-50%,-95%) scale(1.3);opacity:0}}
+@keyframes blazar-ember{0%{transform:translate(-50%,-50%) scale(1.3);opacity:0}8%{opacity:1}100%{transform:translate(var(--ember-x),var(--ember-y)) scale(.15);opacity:0}}
+.cherry-paused .cherry-blazar *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.cherry-blazar{display:none}}
+
+/* Identity and training share the non-scrolling dialog header. */
+.ability-training-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(360px,1.35fr) 40px;gap:16px;padding:12px 18px}
+.ability-identity{min-width:0}.ability-training-head h2{font-size:20px;overflow-wrap:anywhere}.ability-header-level{display:block;margin-top:5px;font:700 16px/1.25 var(--mono);color:#cdeaaa;overflow-wrap:anywhere}
+.ability-training-head .ability-actions{grid-column:auto;min-width:0}.ability-training-head .ability-close{grid-column:3;grid-row:1;min-height:40px;padding:6px;align-self:start}
+@media(max-width:760px){.ability-training-head{grid-template-columns:minmax(0,1fr) 36px;gap:10px;padding:10px 12px}.ability-training-head .ability-close{grid-column:2;min-width:36px;min-height:36px}.ability-training-head .ability-actions{grid-column:1/-1;grid-row:2}.ability-training-head h2{font-size:18px}.ability-header-level{font-size:14px;margin-top:3px}.ability-training-head .ability-actions button{min-height:44px}}
+@media(max-height:500px){.ability-dialog{max-height:98dvh}.ability-training-head{padding:6px 10px;gap:6px 10px}.ability-identity>small{display:none}.ability-training-head h2{font-size:16px}.ability-header-level{font-size:12px;margin-top:2px}.ability-training-head .ability-actions button{min-height:36px;gap:2px;padding:4px}.ability-footer{padding:6px 10px}}
+.ability-training-head .ability-actions button{white-space:normal}.ability-training-head .ability-actions button>small,.ability-training-head .ability-actions button>span{min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}

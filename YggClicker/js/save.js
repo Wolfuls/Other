@@ -5,12 +5,21 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 61;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 62;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    61(document){
+      const old=record(document.state,'旧セーブ'),upgrades={...record(old.upgrades,'旧全体強化')};
+      const count=number(upgrades.reward??0,'旧クリア報酬増加Lv',0,Number.MAX_SAFE_INTEGER,true);
+      // Frozen retired purchase curve; cap the loop before summing malformed saves.
+      if(count&&N.geometric(100,1.25,count-1)>1e100)throw new Error('旧強化価格が計算範囲外です。');
+      let refund=0;for(let i=0;i<count;i++)refund+=N.geometric(100,1.25,i);
+      delete upgrades.reward;
+      return {...document,schemaVersion:62,state:{...old,upgrades,factors:Math.min(1e100,number(old.factors,'所持因子')+refund)}};
+    },
     60(document){const state=structuredClone(document.state);for(const field of ['unlockedPerks','purchasedPerks'])if(Array.isArray(state[field]?.richter))state[field].richter=[...new Set(state[field].richter.map(id=>id==='z-bom'?'g-bom':id))];if(state.perkEnabled?.richter&&'z-bom' in state.perkEnabled.richter){state.perkEnabled.richter['g-bom']=state.perkEnabled.richter['z-bom'];delete state.perkEnabled.richter['z-bom'];}return {...document,schemaVersion:61,state};},
     59(document){return {...document,schemaVersion:60};},
     58(document){

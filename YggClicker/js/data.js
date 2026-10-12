@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.81.4",
+  "version": "0.81.7",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -532,15 +532,6 @@
       "cost": 500000,
       "max": 1,
       "icon": "⚄"
-    },
-    {
-      "id": "reward",
-      "name": "クリア報酬増加",
-      "label": "基礎クリア報酬＋10% / Lv",
-      "description": "基礎クリア報酬に1Lvごとに10%加算。",
-      "cost": 100,
-      "max": null,
-      "icon": "◇"
     },
     {
       "id": "overkill",

@@ -234,7 +234,7 @@
 
     questView.build();
     sceneView.mount();
-    $('upgrade-list').innerHTML = D.upgrades.map(u => `<article class="upgrade-card"><span class="upgrade-icon" aria-hidden="true">${u.icon}</span><span class="upgrade-level" id="upgrade-level-${u.id}">Lv.0</span><h3>${u.name}</h3><p>${u.label}</p><div class="upgrade-purchase"><button class="button secondary" data-upgrade="${u.id}" aria-label="${u.name}を購入"><span id="upgrade-cost-${u.id}"></span></button>${u.id === 'reward' ? `<span class="enhancement-bonus"><small>報酬補正</small><strong id="${u.id}-bonus"></strong></span>` : ''}</div>${tradeControls('upgrade',u.id,u.max!==1)}</article>`).join('');
+    $('upgrade-list').innerHTML = D.upgrades.map(u => `<article class="upgrade-card"><span class="upgrade-icon" aria-hidden="true">${u.icon}</span><span class="upgrade-level" id="upgrade-level-${u.id}">Lv.0</span><h3>${u.name}</h3><p>${u.label}</p><div class="upgrade-purchase"><button class="button secondary" data-upgrade="${u.id}" aria-label="${u.name}を購入"><span id="upgrade-cost-${u.id}"></span></button></div>${tradeControls('upgrade',u.id,u.max!==1)}</article>`).join('');
   }
   const rangeText=range=>range[0]===range[1]?String(range[0]):range.join('～');
   function perkPanel(c){
@@ -251,7 +251,7 @@
       hp:'<small class="ability-hp" id="ability-maxhp-'+c.id+'"></small>',
       ss:'<strong id="ability-base-ss-'+c.id+'"></strong>'+(c.statFlavor?'<small class="stat-flavor">'+c.statFlavor.ss+'</small>':'')
     });
-    return '<dialog class="ability-dialog" id="ability-dialog-'+c.id+'" aria-labelledby="ability-title-'+c.id+'"><div class="ability-head"><div><small>能力・パーク</small><h2 id="ability-title-'+c.id+'">'+c.name+'</h2></div><button class="button secondary" data-ability-close="'+c.id+'" aria-label="変更を取り消して閉じる">×</button></div><div class="ability-content"><section class="unified-training"><div><small>キャラクターレベル</small><strong id="character-level-'+c.id+'"></strong></div><div class="ability-actions"><button class="button secondary" data-hire="'+c.id+'"><span id="hire-label-'+c.id+'">+1</span><small id="hire-cost-'+c.id+'"></small></button>'+tradeControls('level',c.id,true,true).replace('10回購入','+10').replace('1Lv売却','−1')+'</div></section><div class="focus-heading"><div><h3>コンセントレイション</h3><p>未使用CPを配分できます。振り直しは有料です。</p></div><strong id="focus-remaining-'+c.id+'"></strong><button class="button secondary" id="focus-reset-'+c.id+'" data-focus-reset="'+c.id+'">振り直す</button></div><div class="ability-rows">'+rows+'</div>'+(c.magicPower?'<p class="magic-summary" id="magic-summary-'+c.id+'"></p>':'')+'<details class="pressure-breakdown" id="pressure-breakdown-'+c.id+'"><summary>暴走圧・鎮静圧の計算 <span id="pressure-summary-'+c.id+'"></span></summary><div id="pressure-content-'+c.id+'"></div></details>'+perkPanel(c)+'<section class="strength-preview" id="strength-preview-'+c.id+'"></section></div><div class="ability-footer" role="group" aria-label="変更内容の確定"><span id="ability-changes-'+c.id+'"></span><div class="ability-confirm"><p id="ability-factors-'+c.id+'"></p><button class="button" data-ability-confirm="'+c.id+'">確定</button></div></div></dialog>';
+    return '<dialog class="ability-dialog" id="ability-dialog-'+c.id+'" aria-labelledby="ability-title-'+c.id+'"><div class="ability-head ability-training-head"><div class="ability-identity"><small>能力・パーク</small><h2 id="ability-title-'+c.id+'">'+c.name+'</h2><strong class="ability-header-level" id="character-level-'+c.id+'"></strong></div><div class="ability-actions"><button class="button secondary" data-hire="'+c.id+'"><span id="hire-label-'+c.id+'">+1</span><small id="hire-cost-'+c.id+'"></small></button>'+tradeControls('level',c.id,true,true).replace('10回購入','+10').replace('1Lv売却','−1')+'</div><button class="button secondary ability-close" data-ability-close="'+c.id+'" aria-label="変更を取り消して閉じる">×</button></div><div class="ability-content"><div class="focus-heading"><div><h3>コンセントレイション</h3><p>未使用CPを配分できます。振り直しは有料です。</p></div><strong id="focus-remaining-'+c.id+'"></strong><button class="button secondary" id="focus-reset-'+c.id+'" data-focus-reset="'+c.id+'">振り直す</button></div><div class="ability-rows">'+rows+'</div>'+(c.magicPower?'<p class="magic-summary" id="magic-summary-'+c.id+'"></p>':'')+'<details class="pressure-breakdown" id="pressure-breakdown-'+c.id+'"><summary>暴走圧・鎮静圧の計算 <span id="pressure-summary-'+c.id+'"></span></summary><div id="pressure-content-'+c.id+'"></div></details>'+perkPanel(c)+'<section class="strength-preview" id="strength-preview-'+c.id+'"></section></div><div class="ability-footer" role="group" aria-label="変更内容の確定"><span id="ability-changes-'+c.id+'"></span><div class="ability-confirm"><p id="ability-factors-'+c.id+'"></p><button class="button" data-ability-confirm="'+c.id+'">確定</button></div></div></dialog>';
   }
   function focusMinimum(id,track){return abilityEdit?.id===id&&!abilityEdit.focusReset?E.concentration(abilityEdit.original,id)[track]:0;}
   function proposedTraining(step){
@@ -323,7 +323,7 @@
     setText('ability-base-ss-'+c.id,dice(c.ss));setText('character-level-'+c.id,'Lv.'+fullNumber(level));
     setText('focus-remaining-'+c.id,'残り '+fullNumber(total-used)+' / '+fullNumber(total)+' CP');
     for(const t of window.YggAbilityView.tracks){
-      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):incomeNumber(values[t.id]));
+      setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):t.id==='power'?fullNumber(Math.floor(values[t.id])):incomeNumber(values[t.id]));
       if(!D.concentration.some(x=>x.id===t.id))continue;
       const input=$('focus-'+t.id+'-'+c.id);if(document.activeElement!==input)input.value=allocation[t.id];input.min=focusMinimum(c.id,t.id);input.max=total-used+allocation[t.id];input.disabled=blocked()||!level;
       setText('focus-bonus-'+t.id+'-'+c.id,'配分 ×'+incomeNumber(cpMultipliers[t.id]));
@@ -682,7 +682,6 @@
       $('upgrade-cost-' + u.id).textContent = maxed ? (u.max === 1 ? '解放済' : 'MAX') : Number.isFinite(cost)?`購入 · ◇ ${money(cost)}Rd`:'計算範囲外';
       document.querySelector(`[data-upgrade="${u.id}"]`).disabled = blocked() || maxed || !Number.isFinite(cost) || !Number.isSafeInteger(state.upgrades[u.id]+1) || state.factors < cost;
     }
-    $('reward-bonus').textContent = `＋${rateFormat(state.upgrades.reward * D.balance.rewardPerLevel * 100)}%`;
     renderMeta();
     const richter = D.characters.find(c => c.id === 'richter'), hired = E.isDeployed(state,'richter');
     if ($('arena').classList.contains('has-richter') !== hired) combatGeometry = null;
@@ -1256,7 +1255,14 @@
   function cherryBlazarActive(frame){return frame.actorId==='cherry'&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)&&E.perks(state,D.characters.find(c=>c.id==='cherry')).some(p=>p.id==='blazar'&&p.unlocked)&&E.inRange([1,3],frame.distance||1);}
   function cherryBlazar(target){
     if(document.hidden||reducedMotion.matches||state.options.hitEffects==='off')return;
-    const node=document.createElement('span');node.className='cherry-blazar';node.setAttribute('aria-hidden','true');node.style.left=target.x+'px';node.style.top=target.y+'px';$('hit-effects').append(node);deferVisual(()=>node.remove(),520);
+    const layer=$('hit-effects');
+    const old=layer.querySelectorAll('.cherry-blazar');if(old.length>=6)old[0].remove();
+    const node=document.createElement('span');node.className='cherry-blazar';node.setAttribute('aria-hidden','true');node.style.left=target.x+'px';node.style.top=target.y+'px';
+    node.style.setProperty('--comet-size',Math.min(440,$('arena').offsetWidth*.7)+'px');
+    for(const name of ['halo','echo far','echo near','comet','impact','ring outer','ring inner']){const part=document.createElement('span');part.className='blazar-'+name;node.append(part);}
+    const flame=document.createElement('span');flame.className='blazar-bloom';const sprite=document.createElement('span');sprite.className='cherry-fire-sprite';flame.append(sprite);node.append(flame);
+    for(let i=0;i<16;i++){const ember=document.createElement('i'),angle=(i*137.508-90)*Math.PI/180,radius=70+(i%5)*23;ember.className='blazar-ember';ember.style.setProperty('--ember-x',Math.cos(angle)*radius+'px');ember.style.setProperty('--ember-y',(Math.sin(angle)*radius*.6-35)+'px');ember.style.setProperty('--ember-delay',(300+i%4*18)+'ms');ember.style.setProperty('--ember-size',(3+i%3*2)+'px');node.append(ember);}
+    layer.append(node);deferVisual(()=>node.remove(),1200);
   }
   function animateCherryAttack(frame){
     const actor=$('cherry-combatant');if(actor.classList.contains('downed')||reducedMotion.matches||document.hidden)return 0;
@@ -1651,14 +1657,14 @@
     const encounter=E.getSession(ctx);
     if(encounter.members){
       const html=encounter.members.map(member=>{
-        const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>incomeNumber(window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength));
+        const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);};
         const bases={action:q.actionDice?rollText(q.actionDice):fullNumber(q.action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(q.attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
         return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>'+(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+'</p>';
       }).join('')+(encounter.independentRespawns?'<p>1体倒すごとに報酬を獲得し、倒した枠へ次の個体が乱入します。'+encounter.members.map(member=>member.name+' '+money(E.incomeAmount(ctx,E.reward(ctx,E.enemySpec(ctx,{kind:member.id})) ))+' Rd').join(' / ')+'</p>':'<p>'+encounter.members.length+'体すべて倒すと報酬 '+money(E.reward(ctx))+' Rd。先に倒した相手はダウンしたまま待機し、討伐後に全員が復帰します。</p>');
       if(node.innerHTML!==html)node.innerHTML=html;return;
     }
     const F=window.YggMatchup,q=E.getSession(ctx),forecast=F.party(ctx),attack=E.enemyAttackSpec(forecast.state);
-    const strength=kind=>incomeNumber(window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength)),action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
+    const strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);},action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
     const bases={action:rollText(action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
     const stats='<div class="enemy-ability-rows">'+window.YggAbilityView.rows({
       enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+(q.attackElements?.length?' ／ [攻撃：'+q.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':''),

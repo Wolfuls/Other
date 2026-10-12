@@ -110,7 +110,7 @@ test('runaway states persist over saves and quest changes; offline processes all
 test('quest resets preserve ally wounds/runaway and other battle; concentration, reward increments, quest prices',()=>{
  const s=ready(['meta']);s.levels.richter=1;E.setFormation(s,'scarecrow',['richter']);s.questLevels[s.sessionId]=10;s.health.meta.hp=8;s.runaway.meta.runawayRate=42;const other=JSON.stringify(s.sessionStates.scarecrow);
  assert.ok(E.setQuestLevel(s,s.sessionId,2));assert.equal(s.health.meta.hp,8);assert.equal(s.runaway.meta.runawayRate,42);assert.equal(JSON.stringify(s.sessionStates.scarecrow),other);
- s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),5);assert.equal(E.reward(s,{reward:45}),57);assert.equal(D.questGrowth.costGrowth,1.15);
+ s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),2);assert.equal(E.reward(s,{reward:45}),45);assert.equal(D.questGrowth.costGrowth,1.15);
 });
 test('forecasts share corrected hit chance and original values without mutation',()=>{
  const s=ready(['meta'],'dementor');s.levels.meta=Math.max(s.levels.meta,31);const before=JSON.stringify(s),row=F.party(s).rows[0],p=E.attackProfile(s,c('meta'));almost(row.hitRate,T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance);assert.ok(Number.isFinite(row.averageDamage));assert.equal(JSON.stringify(s),before);

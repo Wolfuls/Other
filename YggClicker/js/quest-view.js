@@ -180,13 +180,13 @@
         const specs=[E.sessionAtLevel({...base,...members[index]},quest.level)];
         const set=(key,fn)=>setText('quest-'+key+'-'+base.id,specs.map(q=>fn(q)).join(' / '));
         setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level));
-        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>incomeNumber(A.strengthLevel(E.enemyStrength(q,kind),D.strength)));
+        for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>{const value=A.strengthLevel(E.enemyStrength(q,kind),D.strength);return kind==='power'?fullNumber(Math.floor(value)):incomeNumber(value);});
         set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
         for(const [key,stat]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])set(key,q=>rateFormat(F.expectedRoll(q[stat],stat!=='attack')));
         setText('quest-reward-'+base.id,base.independentRespawns?specs.map(q=>q.name+' '+money(E.incomeAmount(state,E.reward(state,q)))+' Rd').join(' / '):money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
       }
       setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level)+(draft!==undefined&&!valid?'（入力は1〜購入済みLvの整数）':''));
-      setText('quest-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest),D.strength)));
+      setText('quest-strength-'+base.id,fullNumber(Math.floor(A.strengthLevel(E.enemyStrength(quest),D.strength))));
       setText('quest-armor-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'armor'),D.strength)));
       setText('quest-check-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest,'accuracy'),D.strength)));
       setText('quest-defense-'+base.id,fullNumber(quest.defense));

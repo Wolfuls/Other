@@ -11,7 +11,7 @@ test('reward taper preserves first rewards and reduces the late one-win windfall
  for(const base of D.sessions)assert.equal(E.sessionAtLevel(base,1).reward,base.reward);
  for(const level of [150,200,250,500])assert.ok(E.sessionAtLevel(q,level).reward<oldReward(level-1));
  s.questActiveLevels.ozmorn=170;const reward=E.reward(s);
- assert.ok(reward>3e14&&reward<5e14);
+ assert.ok(reward>3e14/13.9&&reward<5e14/13.9);
  assert.ok(E.hireCost(s,character('waku'))/reward>1);
  assert.ok(E.hireCost(s,character('megumin'))/reward>4);
  // Even a lucky Q190 win cannot buy a full level for all five members.

@@ -17,9 +17,9 @@ test('legacy linear training guarantees one per level; original attack and armor
  for(const n of [-4,0,1,2,20])for(const rate of [.05,.1])for(let lv=1;lv<100;lv++)assert.ok(N.training(n,rate,lv)>=N.training(n,rate,lv-1)+1);
  const s=ready();const original=E.attackProfile(s,c('meta'));s.levels.meta=100;assert.equal(E.attackProfile(s,c('meta')).flat,original.flat);assert.equal(E.armor(s,c('meta')),2);assert.ok(E.T.value(100)>1000000);
 });
-test('early quest quotes retain 1.15 growth and reward upgrades have minimum one every level',()=>{
+test('early quest quotes retain 1.15 growth and retired reward upgrades no longer alter rewards',()=>{
  const s=ready();for(let lv=1;lv<80;lv++){s.questLevels.scarecrow=lv;assert.equal(E.questCost(s),N.geometric(D.sessions.find(q=>q.id===s.sessionId).reward*20,1.15,lv-1));}
- s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),5);assert.equal(E.reward(s,{reward:45}),57);
+ s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),2);assert.equal(E.reward(s,{reward:45}),45);
  const u=D.upgrades.find(u=>u.id==='stabilization');s.upgrades.stabilization=2;assert.equal(E.upgradeCost(s,u),45000);assert.ok(E.buyUpgrade(s,'stabilization'));assert.equal(s.upgrades.stabilization,3);
 });
 test('quest/overkill/refund credits remain separated; current save never repays them',()=>{

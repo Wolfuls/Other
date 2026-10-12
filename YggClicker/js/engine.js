@@ -444,7 +444,7 @@
       minimumLevelBonus:0,preLevelMultiplier:1+b.upgrade.rate,
       overkillThreshold:state.upgrades.overkill ? D.upgrades.find(u=>u.id==='overkill').threshold : 0, breakdown };
   }
-  const reward = (state, session = getSession(state)) => Math.min(1e100,session.reward+Math.max(1,N.floor(session.reward*D.balance.rewardPerLevel))*state.upgrades.reward);
+  const reward = (state, session = getSession(state)) => Math.min(1e100,session.reward);
   const overkillBonus = (state,session=getSession(state)) => state.upgrades.overkill ? N.delta(reward(state,session) * D.upgrades.find(u=>u.id==='overkill').bonusRate) : 0;
   // Each repeatable purchase track has its own unrounded geometric curve.
   // Recompute from the level rather than multiplying an already rounded price.
