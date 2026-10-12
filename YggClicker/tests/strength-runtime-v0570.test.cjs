@@ -64,7 +64,7 @@ test('OFF does not erase rainbow, enemy debuffs, protection or pending enemy pro
  const loaded=S.decode(S.encode(s));assert.deepEqual(loaded.enemies[0].pendingAttack.profile,s.enemies[0].pendingAttack.profile);assert.equal(loaded.enemies[0].evasionPenalty,6);
 });
 test('income classification excludes refunds/quest/overkill from greed',()=>{
- const s=ready();s.seedLevels.greed=100;D.seedSystem.enabled=true;try{for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,D.secondaryIncomeTypes.includes(type)?200:100);}}finally{D.seedSystem.enabled=false;}
+ const s=ready();s.seedLevels.greed=100;D.seedSystem.enabled=true;try{for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,D.secondaryIncomeTypes.includes(type)?2100:100);}}finally{D.seedSystem.enabled=true;}
 });
 test('Jewel income uses current wallet, never triggers on clear, is gated by deployment/health/pause',()=>{
  const s=ready(['jewel'],'scarecrow');s.factors=10000;s.selectedCharacterId=null;s.hp=s.enemies[0].hp=1;E.click(s,()=>0);assert.equal(s.incomeTotals.jewelSideIncome,undefined);

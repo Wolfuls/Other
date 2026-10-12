@@ -61,7 +61,7 @@
     // visual summary. Keep at most two summaries per chunk, in arrival order.
     return Array.from({length:12}, (_, i) => {
       const chunk=frames.slice(Math.floor(i*frames.length/12),Math.floor((i+1)*frames.length/12));
-      const kind=frame=>String(!!frame.apDamage)+':'+(['stab','shoot','spark','kick'].includes(frame.motion)?frame.motion:'normal');
+      const kind=frame=>String(!!frame.apDamage)+':'+(frame.hit===false?'miss':frame.elementMultiplier??1)+':'+(['stab','shoot','spark','kick'].includes(frame.motion)?frame.motion:'normal');
       const kinds=[...new Set(chunk.map(kind))];
       return kinds.map(key=>mergeFrames(chunk.filter(frame=>kind(frame)===key)));
     }).flat();
@@ -202,7 +202,9 @@
     // One UI tick of slack covers presentation beginning after the engine call.
     return end?Math.min(30,end/1000+.1):events.some(e=>e.type==='timelineTurn')?.25:0;
   }
-  const api = { turnDuration, meguminExplosionY, meguminExplosionSize, MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
+  // Battle-time impact deadline for one manual attack, independent of visibility.
+  const manualImpactSeconds=(id,motion)=>({meta:.62,richter:.76,vishunal:.76,megumin:.72,mitsuru:.38,queen:.38,jewel:.26,waku:.67,max:.99,tordeliese:motion==='kick'?.36:.52}[id]??.56);
+  const api = { manualImpactSeconds, turnDuration, meguminExplosionY, meguminExplosionSize, MAX_PROJECTILES, MAX_STEPS, FLIGHT_MS, PROJECTILE_FLIGHT_MS, impactMotion, metaAttackCount, projectileGroups, volleySpan, plan, createPlayback };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggCombatEffects = api;
 })(typeof window !== 'undefined' ? window : globalThis);

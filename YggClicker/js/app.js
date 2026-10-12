@@ -35,6 +35,7 @@
   let rewardDieIndex = 0;
   const PRE_IMPORT = 'yggclicker.before-import';
   const RICHTER_EXPLOSION_MS = 640;
+  let sinInspection=false;
   let state = E.createState(), storage, readOnly = false, corruptSave = false;
   let importCandidate = null, lastTime = Date.now(), lastSave = Date.now(), initialized = false;
   let storageError = false, importBackup = null, saveErrorMessage = '';
@@ -81,14 +82,14 @@
     const perkRows=b.perkEntries.map(p=>'<div class="'+(!p.enabled||!p.eligible?'pressure-inactive':'')+'"><dt>'+p.name+' <small>'+(!p.eligible?'Lv不足':p.enabled?'ON':'OFF')+'</small></dt><dd>'+minute(p.configured)+(!p.enabled||!p.eligible?' × 0':'')+' ＝ '+minute(p.pressure)+'</dd></div>').join('');
     const calmingRows=b.calmingEntries.map(u=>'<div><dt>'+u.name+'</dt><dd>'+minute(u.perLevel)+(u.source==='perk'?'（部隊効果）':' × Lv.'+fullNumber(u.level))+' ＝ '+minute(u.pressure)+'</dd></div>').join('');
     const status=b.active?(state.paused?'一時停止中・再開時の計算':'部隊参加中'):({collapsed:'暴走ダウン中',down:'戦闘不能',undeployed:'未編成'}[b.inactiveReason]+'：暴走圧は停止、鎮静のみ適用');
-    const equation='（'+[b.base,b.training,b.perkPressure,b.temporary].map(minute).join(' ＋ ')+'）× '+pressureText(b.recoveryMultiplier)+(b.active?'':' × 0')+' − '+minute(b.calming)+' ＝ 約 '+signedMinute(b.net)+' / 分';
+    const equation='（'+[b.base,b.training,b.perkPressure,b.temporary].map(minute).join(' ＋ ')+'）× '+pressureText(b.recoveryMultiplier)+' × '+pressureText(b.seedPressureMultiplier)+(b.active?'':' × 0')+' − '+minute(b.calming)+' ＝ 約 '+signedMinute(b.net)+' / 分';
     const html='<p class="pressure-caption">'+status+'<span>単位：暴走率のポイント / 分</span></p>'+
       '<div class="pressure-columns"><section><h4>暴走圧</h4><dl class="pressure-values">'+
       '<div><dt>基礎暴走圧</dt><dd>'+minute(b.base)+'</dd></div>'+
       '<div><dt>育成暴走圧</dt><dd>'+minute(b.trainingScale)+' × log₂(1 ＋ '+fullNumber(b.trainingTotal)+')<br>＝ 約 '+minute(b.training)+'</dd></div></dl>'+
       '<p class="pressure-training">配分済みCP合計：'+trainingParts+' ＝ '+fullNumber(b.trainingTotal)+'<small>未使用CPは含まない</small></p>'+
       '<dl class="pressure-values"><div><dt>パーク合計</dt><dd>'+minute(b.perkPressure)+'</dd></div><div><dt>一時補正</dt><dd>'+minute(b.temporary)+'</dd></div>'+
-      '<div><dt>回復型活性</dt><dd>×（1 − '+b.recoveryStacks+'段階 × '+pressureText(b.recoveryReduction)+'）<br>＝ ×'+pressureText(b.recoveryMultiplier)+'</dd></div>'+
+      '<div><dt>回復型活性</dt><dd>×（1 − '+b.recoveryStacks+'段階 × '+pressureText(b.recoveryReduction)+'）<br>＝ ×'+pressureText(b.recoveryMultiplier)+'</dd></div><div><dt>怠惰の種</dt><dd>発生量 ×'+pressureText(b.seedPressureMultiplier)+'</dd></div>'+
       '<div class="pressure-subtotal"><dt>適用する暴走圧</dt><dd>約 '+minute(b.generated)+'</dd></div></dl></section>'+
       '<section class="pressure-perk-panel"><h4>パークの暴走圧</h4><dl class="pressure-values">'+perkRows+'</dl></section>'+
       '<section class="pressure-calming-panel"><h4>鎮静圧</h4><dl class="pressure-values">'+calmingRows+'<div class="pressure-subtotal"><dt>鎮静圧の合計</dt><dd>'+minute(b.calming)+'</dd></div></dl></section></div>'+
@@ -243,7 +244,7 @@
   }
   function abilityDialog(c){
     const rows=window.YggAbilityView.rows({
-      baseCell:t=>'<strong id="ability-base-'+t.id+'-'+c.id+'"></strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+(c.id==='waku'?'剣 1 ／ 発砲 2～3':rangeText(c.attackRange))+'</small>':'')+(c.statFlavor?'<small class="stat-flavor">'+(t.id==='armor'?'防御：'+c.statFlavor.defense+'<br>抵抗：'+c.statFlavor.resistance:c.statFlavor[t.id]||'')+'</small>':''),
+      baseCell:t=>'<strong id="ability-base-'+t.id+'-'+c.id+'"></strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+(c.id==='waku'?'剣 1 ／ 発砲 2～3':rangeText(c.attackRange))+(c.attackElements?.length?' ／ [攻撃：'+c.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':'')+(c.statFlavor?'<small class="stat-flavor">'+(t.id==='armor'?'防御：'+c.statFlavor.defense+'<br>抵抗：'+c.statFlavor.resistance:c.statFlavor[t.id]||'')+'</small>':''),
       valueCell:t=>'<strong id="ability-value-'+t.id+'-'+c.id+'"></strong>',
       controls:t=>focusControls(c,t.id),
       hp:'<small class="ability-hp" id="ability-maxhp-'+c.id+'"></small>',
@@ -352,11 +353,11 @@
     const {kind,id,trade}=button.dataset;
     const count=trade==='sell'?Number(button.dataset.count||1):10;
     const ok=trade==='sell'?E.sell(state,kind,id,count):E.buyMany(state,kind,id,10);
-    if(ok){resetCombatVisuals();const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id),q=D.sessions.find(q=>q.id===id);
+    if(ok){if(kind!=='quest'||!E.questChangePending(state,id))resetCombatVisuals();const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id),q=D.sessions.find(q=>q.id===id);
       log(`${c?.name||u?.name||q?.name}：${trade==='sell'?count+'段階売却しました。':'10段階購入しました。'}`);save();render();}
     return true;
   }
-  function manualReady(){if(state.viewingMemories)return false;const selected=E.selectedCharacter(state);return selected?E.canAct(state,selected.id)&&!E.isStunned(state,selected.id)&&E.hasReachableTarget(state,selected):true;}
+  function manualReady(){if(state.viewingMemories||(state.timeline?.manualAttacks?.length||0)>=32)return false;const selected=E.selectedCharacter(state);return selected?E.canAct(state,selected.id)&&!E.isStunned(state,selected.id)&&E.hasReachableTarget(state,selected):true;}
   function displayedMagic(ctx,c){const magic=E.magicState(ctx,c);return {...magic,current:c?.id==='megumin'&&E.isDeployed(state,c.id)&&$('megumin-combatant').classList.contains('spell-casting')?meguminCastMagic:Math.max(0,magic.current-1)};}
   function renderHealth(){
     const contexts=new Map(),turnViews=new Map();
@@ -483,7 +484,7 @@
   function showEnemyAttack(e){
     stopEnemyAttack(e.enemyId);
     if(!E.isDeployed(state,e.targetId)||document.hidden)return;
-    const actor=$(e.targetId+'-combatant'),text=document.createElement('span');text.className='damage-float ally-damage';text.textContent=e.hit?(e.apDamage?'行動 −'+e.damage+'%':e.fightingSpirit?'闘志 · HP1':(e.badLuck?'悪運 ':'')+'−'+e.damage):e.nullified?'無効':'回避';
+    const actor=$(e.targetId+'-combatant'),text=document.createElement('span');text.className='damage-float ally-damage';text.textContent=e.hit&&e.elementMultiplier===0?'無効':e.hit?(e.apDamage?'行動 −'+e.damage+'%':e.fightingSpirit?'闘志 · HP1':(e.elementMultiplier>1?'弱点 ':'')+(e.badLuck?'悪運 ':'')+'−'+e.damage):e.nullified?'無効':'回避';
     if(e.hit){const bonuses=[e.doubleHit?'倍差命中':'',e.smashCritical?'スマッシュクリティカル'+(e.smashCritical>1?' ×'+e.smashCritical:''):''].filter(Boolean);if(bonuses.length){const detail=document.createElement('small');detail.textContent=bonuses.join(' / ');text.append(detail);}}
     const lane=receivedFloatSequence++%3-1,head=parseFloat(actor.style.getPropertyValue('--head-offset'))||112;
     text.style.left=(actor.offsetLeft+lane*24)+'px';text.style.top=(actor.offsetTop-head-8-Math.abs(lane)*12)+'px';
@@ -535,7 +536,7 @@
     $('arena').classList.toggle('is-respawning',waiting);
     $('respawn-notice').hidden=!waiting;
     if(waiting)setText('respawn-notice',(E.getSession(state).reviveInPlace?'起き上がるまで ':'再出現まで ')+state.respawnSeconds.toFixed(1)+' 秒');
-    $('attack').disabled=blocked()||state.paused||waiting||!manualReady()||playback.pending>0||(state.timeline?.busySeconds||0)>0;
+    $('attack').disabled=blocked()||state.paused||waiting||!manualReady()||E.isResting(state);
     if(managerTab==='quests')questView.renderLive(state);
     const factors = money(state.factors);
     for (const id of ['factors', 'factors-pinned', 'factors-save', 'factors-help','factors-formation']) setText(id, factors);
@@ -563,6 +564,8 @@
   }
   function render(scheduled=false) {
     if(document.hidden)return;renderScheduled=scheduled;
+    $('sins-open').hidden=(state.runNumber||1)<2;
+    if(renderSinShop())return;
     const now=Date.now();if(scheduled&&now-lastScheduledRender<200)return;lastScheduledRender=now;
     E.refreshQuestUnlocks(state);E.refreshPerkUnlocks(state);
     renderBattleHUD();
@@ -605,7 +608,7 @@
     $('pause').textContent = state.paused ? '▶' : 'Ⅱ';
     $('pause').setAttribute('aria-label', state.paused ? '全セッションの周回を再開' : '全セッションの周回を一時停止');
     $('pause').disabled = blocked();
-    $('attack').disabled = blocked() || state.paused || E.isWaiting(state) || !manualReady()||playback.pending>0||(state.timeline?.busySeconds||0)>0;
+    $('attack').disabled = blocked() || state.paused || E.isWaiting(state) || !manualReady()||E.isResting(state);
     $('save-now').disabled = blocked();
     $('option-cache').disabled=maintenanceBusy;
     $('option-delete').disabled=readOnly||maintenanceBusy;
@@ -919,13 +922,13 @@
     actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='max');
     $('max-select').disabled=blocked()||!hired;$('max-select').setAttribute('aria-pressed',state.selectedCharacterId==='max');
   }
-  function animateMaxAttack(count,volleyCount=count,summarized=false,projectileCount=count,targetSlot=0) {
+  function animateMaxAttack(count,volleyCount=count,summarized=false,projectileCount=count,targetSlot=0,manual=false) {
     if(!E.canAct(state,'max')||reducedMotion.matches||document.hidden)return 0;
     const actor=$('max-combatant'),now=performance.now(),burst=count>1||volleyCount>1||now-lastMaxShot<280;
     lastMaxShot=now;cancelVisual(maxAttackTimer);
     if(burst){actor.classList.remove('attacking');actor.classList.add('bursting');}
     else{actor.classList.add('attacking');restartAnimation($('max-standing'),'max-throw');maxAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),1180);}
-    const layer=$('max-tubs'),g=targetedGeometry(targetSlot),groups=FX.projectileGroups(projectileCount,24-layer.children.length,summarized),windup=burst?80:670;
+    const layer=$('max-tubs'),g=targetedGeometry(targetSlot),groups=FX.projectileGroups(projectileCount,24-layer.children.length,summarized),windup=!manual&&burst?80:670;
     groups.forEach((amount,i)=>{const delay=windup+i*45,tub=document.createElement('span');tub.className='max-tub pixel-art';tub.dataset.attackCount=amount;
       tub.style.left=(g.enemyX-38+(i%3-1)*12)+'px';tub.style.top=(g.enemyY-130)+'px';tub.style.animationDelay=delay+'ms';layer.append(tub);deferVisual(()=>tub.remove(),delay+360);
     });return windup+Math.max(0,groups.length-1)*45;
@@ -1039,7 +1042,7 @@
     // A grouped extreme-rate launch spreads its projectiles over 160ms.
     return groups.length > 1 ? 220 : 60;
   }
-  function animateRichterAttack(count, volleyCount = count, summarized = false, targetSlot=0) {
+  function animateRichterAttack(count, volleyCount = count, summarized = false, targetSlot=0,manual=false) {
     if (!E.canAct(state,'richter') || reducedMotion.matches || document.hidden) return;
     const combatant = $('richter-combatant'), layer = $('richter-projectiles');
     const now = performance.now(), burst = volleyCount > 1 || now - lastRichterShot < 280;
@@ -1052,7 +1055,7 @@
       restartAnimation(combatant.querySelector('.meta-body'), 'meta-lunge');
     }
     cancelVisual(richterAttackTimer);
-    const throwDelay = combatant.classList.contains('bursting') ? 80 : 200;
+    const throwDelay = !manual&&combatant.classList.contains('bursting') ? 80 : 200;
     if (!combatant.classList.contains('bursting')) {
       richterAttackTimer = deferVisual(() => combatant.classList.remove('attacking'), 620);
     }
@@ -1074,14 +1077,14 @@
     }
     return throwDelay;
   }
-  function animateVishunalAttack(count,volleyCount=count,summarized=false,targetSlot=0) {
+  function animateVishunalAttack(count,volleyCount=count,summarized=false,targetSlot=0,manual=false) {
     if(!E.canAct(state,'vishunal')||reducedMotion.matches||document.hidden)return 0;
     const actor=$('vishunal-combatant'),layer=$('vishunal-projectiles'),now=performance.now();
     const burst=volleyCount>1||now-lastVishunalShot<280;lastVishunalShot=now;
     if(burst||actor.classList.contains('bursting')){if(!actor.classList.contains('bursting'))vishunalMotionStarted=now;actor.classList.remove('attacking');actor.classList.add('bursting');}
     else{vishunalMotionStarted=now;actor.classList.add('attacking');restartAnimation($('vishunal-standing'),'vishunal-fire');}
     cancelVisual(vishunalAttackTimer);
-    const delay=actor.classList.contains('bursting')?80:200;
+    const delay=!manual&&actor.classList.contains('bursting')?80:200;
     if(!actor.classList.contains('bursting'))vishunalAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),560);
     const groups=FX.projectileGroups(count,FX.MAX_PROJECTILES-layer.children.length,summarized),g=targetedGeometry(targetSlot);
     if(!groups.length&&layer.lastElementChild)labelProjectile(layer.lastElementChild,Number(layer.lastElementChild.dataset.attackCount)+count);
@@ -1211,8 +1214,8 @@
     $('arena').classList.add('combat-playing');
     if (displayedHP === null && Number.isFinite(frame.hpBefore)) displayedHP = frame.hpBefore;
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate,frame.targetSlot||0) : 0;
-    const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0) : 0;
-    const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0):0;
+    const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch) : 0;
+    const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch):0;
     const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
     const mitsuru=frame.mitsuruAttacks?animateMitsuruAttack(frame.mitsuruAttacks,frame.volleyMitsuruCount,frame.targetSlot||0,frame.hit,frame.motion):0;
     const queen=frame.queenAttacks?animateQueenAttack(frame.queenAttacks,frame.volleyQueenCount,frame.targetSlot||0,frame.hit):0;
@@ -1220,7 +1223,7 @@
     const jewel=frame.jewelAttacks?animateJewelAttack(frame.jewelAttacks,frame.volleyJewelCount):0;
     const waku=frame.wakuAttacks?animateWakuAttack(frame.wakuAttacks,frame.volleyWakuCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
     const maxActions=(frame.maxAttacks||0)+(frame.maxTransfers||0);
-    const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0):0;
+    const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0,frame.manualLaunch):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
     return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
   }
@@ -1270,7 +1273,7 @@
       if(frame.poisonTick)floating.classList.add('poison-damage');
       floating.style.left=impactX+'px';floating.style.top=impactY+'px';floating.dataset.attackCount = frame.count;
       floating.dataset.impactId = visualHitId;
-      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':`${frame.apDamage?'行動 −':frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}${frame.apDamage?'%':''}`;
+      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':frame.elementMultiplier===0?'無効':`${frame.elementMultiplier>1?'弱点 ':''}${frame.apDamage?'行動 −':frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}${frame.apDamage?'%':''}`;
       floating.style.marginLeft = `${motion.x}px`; floating.style.marginTop = `${motion.y-(frame.poisonTick?84:0)}px`;
       floating.style.setProperty('--float-drift', `${motion.driftX}px`);
       floating.style.setProperty('--float-rise', `${-motion.floatRise}px`);
@@ -1283,7 +1286,7 @@
       $('damage-floats').append(floating);
       deferVisual(() => floating.remove(), 850);
     }
-    $('last-roll').textContent = `${frame.actor} / ${frame.hit===false?'MISS':format(frame.damage)+(frame.apDamage?'% 行動低下':' DMG')}${frame.continuation ? '・全体攻撃' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
+    $('last-roll').textContent = `${frame.actor} / ${frame.hit===false?'MISS':frame.elementMultiplier===0?'無効':(frame.elementMultiplier>1?'弱点 ':'')+format(frame.damage)+(frame.apDamage?'% 行動低下':' DMG')}${frame.continuation ? '・全体攻撃' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
     cancelVisual(hitTimers.get(impactTarget));hitTimers.delete(impactTarget);impactTarget.classList.remove('enemy-hit');
     if (frame.hit!==false&&!frame.clears) {
       const target = impactTarget;
@@ -1319,6 +1322,12 @@
     const otherClears=events.filter(e=>e.type==='clear'&&e.sessionId&&e.sessionId!==state.sessionId);
     if(otherClears.length)log('別セッションで '+fullNumber(otherClears.reduce((n,e)=>n+(e.count||1),0))+'周。因子 +'+money(otherClears.reduce((n,e)=>n+e.reward,0))+'Rd');
     events=events.filter(e=>!e.sessionId||e.sessionId===state.sessionId);
+    for(const launch of events.filter(e=>e.type==='manualLaunch'&&!e.charging))if(!document.hidden&&!reducedMotion.matches){
+      const frame=FX.plan([{...launch,type:'attack',manualLaunch:true}])[0];if(!frame)continue;
+      deferVisual(()=>{if(!playback.pending&&!(state.timeline?.manualAttacks?.length)){displayedHP=null;$('arena').classList.remove('combat-playing');requestBattleRender();}},FX.manualImpactSeconds(frame.actorId,frame.motion)*1000+1000);
+      const timing=showLaunch(frame);for(const c of D.characters)if(frame[c.id+'Attacks'])deferVisual(()=>{if(!(state.timeline?.manualAttacks||[]).some(p=>p.actorId===c.id))finishBurst(c.id);},Math.max(timing[c.id]||0,FX.manualImpactSeconds(c.id,frame.motion)*1000)+100);
+    }
+    events=events.filter(e=>e.type!=='manualLaunch');
     if(FX.turnDuration(events)===.25){
       const turn=events.find(e=>e.type==='timelineTurn'),actor=turn?.actorId&&$(turn.actorId+'-combatant');
       if(actor){actor.classList.add('status-turn');deferVisual(()=>actor.classList.remove('status-turn'),250);}
@@ -1344,7 +1353,7 @@
     }
     for(const event of events)if(event.type==='attack'&&event.poisonBefore!==undefined&&!shownPoison.has(event.enemyId))shownPoison.set(event.enemyId,event.poisonBefore);
     const attacks = events.filter(e => e.type === 'attack'), clears = events.filter(e => e.type === 'clear');
-    if ((attacks.length || events.some(e=>e.type==='support')) && !document.hidden && !reducedMotion.matches) playback.enqueue(events,{sustainedActors:automatic ? ['meta','richter','vishunal','tordeliese','max','waku','jewel','mitsuru','queen','megumin'].filter(continuousBurst) : []});
+    if ((attacks.length || events.some(e=>e.type==='support')) && !document.hidden && !reducedMotion.matches) {const immediate=events.filter(e=>e.manualImpact),deferred=events.filter(e=>!e.manualImpact);for(const frame of FX.plan(immediate))showImpact(frame);if(immediate.length)deferVisual(()=>{if(!playback.pending){displayedHP=null;pendingEnemyDefeats.clear();$('arena').classList.remove('combat-playing');requestBattleRender();}},200);playback.enqueue(deferred,{sustainedActors:automatic ? ['meta','richter','vishunal','tordeliese','max','waku','jewel','mitsuru','queen','megumin'].filter(continuousBurst) : []});}
     else if (attacks.length) {
       const last = attacks[attacks.length - 1];
       const totalAttacks = attacks.reduce((sum, e) => sum + (e.count || 1), 0);
@@ -1361,12 +1370,41 @@
       log(`${E.getSession(state).name} クリア${count > 1 ? ` ×${format(count)}` : ''}${knockouts ? `（気絶 ${format(knockouts)}回）` : ''}。因子 +${money(clears.reduce((n, e) => n + e.reward, 0))}Rd`);
     }
   }
+  function renderSinShop(){
+    const dialog=$('sin-shop');
+    if(!state.dreamShop&&!sinInspection){if(dialog.open)dialog.close();return false;}
+    const inspecting=!state.dreamShop;dialog.classList.toggle('sin-inspection',inspecting);dialog.setAttribute('aria-label',inspecting?'大罪の補正':'大罪の購入');
+    $('sin-finish').hidden=inspecting;$('sin-reset').hidden=inspecting;$('sin-close').hidden=!inspecting;
+    setText('sin-total',fullNumber(state.sinTotal));setText('sin-balance',fullNumber(state.sinBalance));setText('sin-gain','+'+fullNumber(state.dreamGain));
+    for(const id of Object.keys(D.seedSystem.effects)){
+      const level=state.seedLevels[id]||0,cost=E.seedCost(state,id),button=$('sin-buy-'+id);
+      setText('sin-level-'+id,'Lv.'+level);
+      const names={pride:'傲慢',vanity:'虚栄',envy:'嫉妬',wrath:'憤怒',sloth:'怠惰',greed:'強欲',gluttony:'暴食',lust:'愛欲'};
+      const label=names[id]+' Lv.'+level+' — '+(Number.isFinite(cost)?fullNumber(cost)+'大罪でレベルを上げる':'上限');
+      button.title=inspecting?names[id]+' Lv.'+level:label+' ／ ホイール上：購入・下：今回の購入を1Lv撤回';button.setAttribute('aria-label',button.title);
+      const effect=id==='sloth'?.95**level:id==='greed'?1+.2*level:E.seedMultiplier(state,id);
+      setText('sin-effect-'+id,'現在 ×'+(effect<.01?effect.toExponential(2):effect.toLocaleString('ja-JP',{maximumFractionDigits:3})));
+      button.disabled=inspecting||blocked()||!Number.isFinite(cost)||state.sinBalance<cost;
+    }
+    $('sin-finish').disabled=blocked();$('sin-reset').disabled=blocked()||!Object.keys(state.dreamPurchases||{}).length;
+    if(!dialog.open)dialog.showModal();return !!state.dreamShop;
+  }
+  function persistDream(next){
+    next.savedAt=Date.now();const result=storage?S.persist(storage,next):{ok:false,error:'保存できないため夢を進められません。'};
+    if(!result.ok){notice(result.error,true);setText('sin-message',result.error);return false;}
+    state=next;lastTime=lastSave=Date.now();storageError=false;controlsKey='';return true;
+  }
   function startNextRun(){
+    if(blocked()||abilityEdit)return false;
+    const next=structuredClone(state);if(!E.beginDream(next)||!persistDream(next))return false;
+    resetCombatVisuals();incomeHistory.reset(Date.now());render();return true;
+  }
+  function finishNextRun(){
     if(blocked()||abilityEdit)return false;
     const next=E.nextRun(state,Date.now());if(!next)return false;
     // Persist the complete replacement before releasing the previous in-memory run.
     const result=storage?S.persist(storage,next):{ok:false,error:'保存できないため周回を開始できません。'};
-    if(!result.ok){notice(result.error,true);return false;}
+    if(!result.ok){notice(result.error,true);if(state.dreamShop)setText('sin-message',result.error);return false;}
     state=next;lastTime=lastSave=Date.now();storageError=false;
     questInputDrafts.clear();formationQuestId=null;formationDraft=[];revivalTarget=null;enemyInfoQuestId=null;
     incomeHistory.reset(Date.now());controlsKey='';battleRender=null;battleLayoutKey='';inspectedCharacter='meta';
@@ -1472,13 +1510,13 @@
     const strength=kind=>incomeNumber(window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength)),action={...q.actionDice,dice:q.actionDice?.dice||0,flat:q.actionDice?.flat??q.action??0};
     const bases={action:rollText(action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
     const stats='<div class="enemy-ability-rows">'+window.YggAbilityView.rows({
-      enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+'</small>':''),
+      enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+(q.attackElements?.length?' ／ [攻撃：'+q.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':''),
       valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength)):strength(t.id))+'</strong>',
       hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'
     })+'</div>';
     const percent=v=>(v*100).toFixed(1)+'%',finite=v=>Number.isFinite(v)?'約'+rateFormat(v)+'回':'—';
     const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">'+(r.reachable?'約'+percent(r.hitRate):'射程外')+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+(r.apAttack?'換算前 '+rateFormat(r.averageAPDamage):rateFormat(r.averageDamage))+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':!r.enemyReachable?'敵の射程外':finite(r.endurance))+'</td></tr>').join('');
-    const html='<div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
+    const html='<p>'+E.attributeSummary(q)+(q.summons?'（コグモも同じ）':'')+'</p><div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
     if(node.innerHTML!==html)node.innerHTML=html;
   }
   function renderFormationDraft(){
@@ -1548,8 +1586,33 @@
     $('clear-focus').addEventListener('click',()=>{if(!sync())return;E.selectEnemy(state,null);save();render();});
     $('cancel-revive').addEventListener('click',()=>$('revive-dialog').close());
     $('confirm-revive').addEventListener('click',()=>{if(blocked())return;if(!sync())return;if(E.revive(state,revivalTarget)){log(D.characters.find(c=>c.id===revivalTarget).name+'：復活バーストで全回復。');$('revive-dialog').close();save();render();}else renderRevivalDialog();});
-    $('attack').addEventListener('click', () => { if(!sync())return; showEvents(E.click(state)); render(); });
+    $('attack').addEventListener('click', () => { if(!sync())return; showEvents(E.queueManualAttack(state)); render(); });
     $('battle-speed').addEventListener('click',()=>{if(!BATTLE_SPEED_ENABLED||blocked()||!sync())return;state.battleSpeed=E.battleSpeed(state)===2?1:2;changeVisualRate(state.battleSpeed);save();render();});
+    $('sins-open').addEventListener('click',()=>{if(abilityEdit||(state.runNumber||1)<2)return;sinInspection=true;setText('sin-message','');render();});
+    $('sin-close').addEventListener('click',()=>{sinInspection=false;render();});
+    $('sin-shop').addEventListener('cancel',e=>{e.preventDefault();if(!state.dreamShop){sinInspection=false;render();}});
+    $('sin-reset').addEventListener('click',()=>{
+      if(blocked()||!state.dreamShop)return;const next=structuredClone(state);
+      if(E.resetDreamPurchases(next)&&persistDream(next)){setText('sin-message','');render();}
+    });
+    $('sin-finish').addEventListener('click',()=>{if(!blocked()&&state.dreamShop)finishNextRun();});
+    for(const id of Object.keys(D.seedSystem.effects)){
+    const changeSeed=refund=>{
+      if(blocked()||!state.dreamShop)return;const next=structuredClone(state);
+      if(!(refund?E.refundSeed(next,id):E.buySeed(next,id))||!persistDream(next))return;
+      const card=$('sin-buy-'+id).closest('.sin-card');card?.classList.remove('sin-purchased');if(card){void card.offsetWidth;card.classList.add('sin-purchased');}
+      setText('sin-message','');render();
+    };
+    const button=$('sin-buy-'+id),surface=button.closest('.sin-card')||button;let wheelSum=0,lastWheel=0;
+    button.addEventListener('click',()=>changeSeed(false));
+    surface.addEventListener('wheel',event=>{
+      if(!state.dreamShop||blocked()||event.ctrlKey||!event.deltaY)return;
+      event.preventDefault();const now=Date.now(),delta=event.deltaY*(event.deltaMode===1?40:event.deltaMode===2?100:1);
+      if(now-lastWheel>300||Math.sign(delta)!==Math.sign(wheelSum))wheelSum=0;
+      lastWheel=now;wheelSum+=delta;
+      if(Math.abs(wheelSum)>=80){changeSeed(wheelSum>0);wheelSum=0;}
+    },{passive:false});
+    }
     $('pause').addEventListener('click', () => { if(!sync())return; state.paused = !state.paused; if (state.paused) resetCombatVisuals(); save(); render(); log(state.paused ? '周回を一時停止しました。' : '周回を再開しました。'); });
     const chooseCharacter = id => {
       if (blocked()) return;
@@ -1652,7 +1715,7 @@
       if(challenge?.dataset.questLevel){
         if(challenge.disabled||blocked())return;if(!sync())return;
         const id=challenge.dataset.questLevel,level=Number($('quest-active-'+id).value);
-        if(E.setQuestLevel(state,id,level)){questInputDrafts.delete(id);if(state.sessionId===id)resetCombatVisuals(true);save();render();}
+        if(E.setQuestLevel(state,id,level)){questInputDrafts.delete(id);if(state.sessionId===id&&!E.questChangePending(state,id))resetCombatVisuals(true);if(E.questChangePending(state,id))notice('挑戦Q '+level+' を予約しました。現在の行動終了後に切り替わります。');save();render();}
         else notice('購入済みの範囲で、整数のLvを指定してください。');
         return;
       }
@@ -1668,7 +1731,7 @@
       if(!button||button.disabled||blocked())return;
       if(!sync())return;
       if(E.buyQuest(state,button.dataset.quest)){
-        if(state.sessionId===button.dataset.quest)resetCombatVisuals();
+        if(state.sessionId===button.dataset.quest&&!E.questChangePending(state,button.dataset.quest))resetCombatVisuals();
         const quest=E.getSession(state,button.dataset.quest);
         log(`${quest.name}をLv.${fullNumber(quest.level)}に強化。`);
         save();render();

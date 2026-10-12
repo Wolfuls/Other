@@ -317,6 +317,9 @@
       attacks:[{id:'slash',name:'曲剣斬り',range:[1,1],frame:1},{id:'boomerang',name:'曲剣投げ',range:[2,3],frame:2},{id:'ward',name:'防御のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'revive',name:'蘇生のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'blizzard',attackSeconds:3.2,name:'吹雪のブレス',range:[1,3],area:true,frame:3}]}
   ];
   quests.push({...members[0],id:'egg-or-chicken',rewardTransition:100,code:'06',name:'卵が先か鶏が先か',enemy:'チキーラ＆エッグラ',area:'中層 / 畜産プラント',description:'鶏と卵があふれる畜産プラントで待ち構える二人組。二人とも倒すと討伐完了。',unlockFactors:10000000,reward:100000000,formationCount:2,formationLayout:'staggered',members,sharedHP:false,reviveInPlace:true,traits:['swarm'],row:'front',attackRange:[1,3],background:'./img/poultry-plant-v2.png',enemyScale:1.4});
+  const ozmorn=quests.find(q=>q.id==='ozmorn');
+  Object.assign(ozmorn,{attackElements:['shock'],resistances:['shock'],weaknesses:['blast']});
+  Object.assign(ozmorn.summon,{attackElements:[],resistances:['shock'],weaknesses:['blast']});
   quests.pending=[];
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;

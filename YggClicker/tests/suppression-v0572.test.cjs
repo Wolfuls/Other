@@ -73,6 +73,6 @@ test('a quest level draft survives enemy respawn and rendering until applied',()
  h.get('quest-list').listeners.get('input')({target:input});h.advance(1500);assert.equal(input.value,'12');
  h.click('pause');assert.equal(input.value,'12');
  h.get('quest-list').listeners.get('click')({target:{closest:sel=>sel==='[data-quest-level]'?{disabled:false,dataset:{questLevel:'scarecrow'}}:null}});
- assert.equal(h.saved().questActiveLevels.scarecrow,12);
+ assert.equal(h.saved().pendingQuestLevels.scarecrow,12);h.click('pause');h.advance(3000);h.click('save-now');assert.equal(h.saved().questActiveLevels.scarecrow,12);
 });
 

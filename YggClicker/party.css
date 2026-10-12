@@ -335,7 +335,7 @@
 .scene-phase{display:none!important}
 @media(prefers-reduced-motion:reduce){.meta-arena.cloud-battle .cloud-minion.cloud-emerging{animation:none}}
 
-.ally-turn{display:block;font-size:10px;color:#b8e5ff}.turn-order{font-size:11px;line-height:1.5;max-height:3em;overflow:auto;margin:0;color:var(--muted)}
+.turn-order{font-size:11px;line-height:1.5;max-height:3em;overflow:auto;margin:0;color:var(--muted)}
 
 /* Static thumbnails: no independent animation loop or additional sprite assets. */
 .turn-order{display:flex;align-items:center;gap:5px;max-height:none;overflow:visible;min-height:38px;flex-wrap:nowrap}

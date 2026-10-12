@@ -53,9 +53,9 @@
       "level": 0,
       "runawayPressure": 0.016666666666666666,
       "cost": 0,
-      "description": "魔力1から開始し、各魔力パークの到達値も＋1。手番ごとに魔力を1段階高め、最高値に達した次の手番に攻撃。魔力パークがなければ魔力1で攻撃する。攻撃後は魔力1に戻り、5手番スタンして回避も自動失敗する。",
+      "description": "魔力1から開始し、各魔力パークの到達値も＋1。手番ごとに魔力を1段階高め、最高値に達した次の手番に攻撃。魔力パークがなければ魔力1で攻撃する。攻撃後は魔力1に戻り、1手番スタンして回避も自動失敗する。",
       "initial": true,
-      "afterAttackStun": 5,
+      "afterAttackStun": 1,
       "magicCharge": true
     },
     {
@@ -1172,6 +1172,17 @@
     "activationType": "awakening"
   }
 ];
+  for(const c of characters){
+    c.attackElements=['megumin','vishunal','richter'].includes(c.id)?['blast']:[];
+    c.resistances=[];c.weaknesses=[];
+    if(c.id==='mitsuru')for(const p of c.perks){
+      if(['spark-shot','radioactivity'].includes(p.id))p.attackElements=['shock'];
+      if(p.id==='spark-shot')p.effectElements={apReduction:['shock']};
+      if(p.id==='spaghetti-code')p.effectElements={retaliationSlow:['shock']};
+      if(['spark-shot','radioactivity'].includes(p.id))p.description='[攻撃：感電] '+p.description;
+      if(['spark-shot','spaghetti-code'].includes(p.id))p.description='[付加：感電] '+p.description;
+    }
+  }
   const basic={meta:[1,3],mitsuru:[1,2],megumin:[1,3],richter:[1,3],vishunal:[1,3],tordeliese:[1,2],waku:[1,3],max:[1,3],jewel:[1,1],queen:[1,1]};
   const ranges={meta:{'metal-blade':['attackRange',1,3],'spinning-rush':['effectRange',2,3]},mitsuru:{'spark-shot':['attackRange',3,3],'spaghetti-code':['attackRange',1,1],'radioactivity':['effectRange',1,2]},richter:{'bom-ber':['effectRange',1,3],'gx-bom':['effectRange',1,3]},tordeliese:{'retreating-wind':['effectRange',1,2],'demonic-hammer':['attackRange',1,1],'annihilation':['effectRange',1,1]},waku:{'expanded-hurtbox':['effectRange',1,1],'monado-smash':['effectRange',1,1],'invisible-wall':['effectRange',1,1],'vanishing-hitbox':['effectRange',1,1],'full-screen-hurtbox':['effectRange',1,3],'next-frame':['effectRange',1,1]},jewel:{'crimson-fist':['effectRange',1,1],'crystal-radiance':['effectRange',1,3],'adamant-fist':['effectRange',1,1],'rainbow-armor':['effectRange',1,1]},queen:{'queens-bless':['attackRange',1,3],'insolent':['attackRange',1,3],'killer-queen':['effectRange',1,3]}};
   for(const c of characters){c.attackRange=basic[c.id];for(const p of c.perks){const r=ranges[c.id]?.[p.id];if(r)p[r[0]]=r.slice(1);if(p.id==='metal-blade')p.name='レアメタルブレード';}}

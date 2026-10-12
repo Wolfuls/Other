@@ -49,7 +49,7 @@ test('lethal enemy sprite stays present in flight, then swaps to a defeat snapsh
  const h=harness(s,undefined,{combatRandom:()=>.5});h.click('attack');
  assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),false);assert.equal(h.get('enemy-defeats').children.length,0);
  h.advance(180);assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),false);
- h.advance(500);assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),true);assert.ok(h.get('enemy-defeats').children.some(n=>n.classList.contains('enemy-defeat')));
+ h.advance(520);assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),true);assert.ok(h.get('enemy-defeats').children.some(n=>n.classList.contains('enemy-defeat')));
 });
 test('enemy information opens separately and formation edits preview unsaved allocations',()=>{
  const s=ready();s.paused=true;const h=harness(s);const click=data=>h.get('quest-list').listeners.get('click')({target:{closest:sel=>sel===data.selector?{dataset:data.dataset,setAttribute(){}}:null}});

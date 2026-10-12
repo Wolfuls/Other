@@ -26,7 +26,7 @@ test('three individual enemy slots preserve their neighbors and the down snapsho
  const h=harness(s,undefined,{combatRandom:()=>.5}),ids=['enemy-art','enemy-next-1','enemy-next-2'];
  const appearance=()=>ids.map(id=>h.get(id).dataset.appearance),before=appearance();assert.equal(new Set(before).size,3);
  assert.ok(ids.every(id=>h.get(id).firstElementChild));assert.ok(!h.get('enemy-next-1').hidden);
- h.click('attack');h.advance(630);
+ h.click('attack');h.advance(700);
  assert.deepEqual(appearance(),before);assert.ok(h.get('enemy-art').classList.contains('enemy-absent'));assert.equal(new Set(appearance()).size,3);
  const ghost=h.get('enemy-defeats').children.find(n=>n.classList.contains('enemy-defeat'));
  assert.equal(ghost.dataset.appearance,before[0]);assert.equal(ghost.firstElementChild.style.getPropertyValue('--enemy-image'),'url("'+D.sessions.find(s=>s.id==='mohicans').variants.find(v=>v.sheet===before[0]).defeatSheet+'")');
@@ -35,7 +35,7 @@ test('three individual enemy slots preserve their neighbors and the down snapsho
 
 test('reduced motion still hides defeated individuals without creating falling sprites',()=>{
  const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;s.levels.meta=1;s.selectedCharacterId='meta';freshTarget(s,1);const h=harness(s,undefined,{combatRandom:()=>.5});
- h.media.matches=true;h.media.change();const next=h.get('enemy-next-1').dataset.appearance;h.click('attack');
+ h.media.matches=true;h.media.change();const next=h.get('enemy-next-1').dataset.appearance;h.click('attack');h.advance(700);
  assert.equal(h.get('enemy-next-1').dataset.appearance,next);assert.ok(h.get('enemy-art').classList.contains('enemy-absent'));assert.equal(h.get('enemy-defeats').children.length,0);assert.ok(h.get('arena').classList.contains('enemy-paused'));
 });
 

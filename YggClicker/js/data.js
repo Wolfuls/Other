@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.76.6",
+  "version": "0.78.3",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -69,13 +69,13 @@
     "oblivion"
   ],
   "seedSystem": {
-    "enabled": false,
+    "enabled": true,
     "effects": {
       "pride": "action",
       "vanity": "evasionStrength",
       "envy": "hitStrength",
       "wrath": "attackStrength",
-      "melancholy": "sedation",
+      "sloth": "pressure",
       "greed": "secondaryIncome",
       "gluttony": "maxHP",
       "lust": "defenseStrength"

@@ -40,7 +40,7 @@ test('older Plot Armor migration refund is also classified and never counted twi
 });
 test('runaway, seeds, preferences, pending attacks and simultaneous battles survive canonical save round trip',()=>{
  const s=ready(['meta']);s.levels.richter=1;E.setFormation(s,'dementor',['richter']);s.runaway.richter.runawayRate=89;s.runaway.richter.runawaySymptom='body';s.runaway.richter.criticalReserve=6;s.options.showOrbits=false;s.options.hitEffects='translucent';s.seedLevels.greed=5;s.karmaSelections.greed='future';
- const first=roundTrip(s),second=roundTrip(first);assert.deepEqual(second,first);assert.equal(second.runaway.richter.runawaySymptom,'body');assert.equal(second.seedLevels.greed,5);assert.equal(second.karmaSelections.greed,'future');assert.equal(D.seedSystem.enabled,false);
+ const first=roundTrip(s),second=roundTrip(first);assert.deepEqual(second,first);assert.equal(second.runaway.richter.runawaySymptom,'body');assert.equal(second.seedLevels.greed,5);assert.equal(second.karmaSelections.greed,'future');assert.equal(D.seedSystem.enabled,true);
 });
 for(const [label,mutate]of [
  ['negative wallet',s=>s.factors=-1],['unknown actor',s=>s.levels.invalid=1],['unknown quest',s=>s.sessionId='unknown'],

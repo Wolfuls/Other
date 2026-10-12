@@ -38,9 +38,9 @@ test('locked quest card cannot bypass the engine unlock and never changes the se
  assert.equal(h.saved().sessionId,s.sessionId);assert.equal(h.saved().questUnlocks.ozmorn,false);
 });
 
-test('HUD shows action and owning-quest theoretical share without an AP gauge',()=>{
+test('HUD removes the redundant action line and retains HP and runaway',()=>{
  const s=ready(['meta','richter'],'scarecrow');s.paused=true;E.setFormation(s,'mohicans',['richter']);const h=harness(s);
- const node=h.get('ally-turn-meta');assert.match(node.textContent,/行動.*理論.*%/);const actor=h.get('meta-combatant'),vitals=actor.children.find(n=>n.className==='ally-vitals');assert.deepEqual(vitals.children.map(n=>n.id),['ally-hp-meta','ally-turn-meta','ally-runaway-meta']);assert.equal(h.get('ally-turn-richter').hidden,true);
+ const actor=h.get('meta-combatant'),vitals=actor.children.find(n=>n.className==='ally-vitals');assert.deepEqual(vitals.children.map(n=>n.id),['ally-hp-meta','ally-runaway-meta']);
 });
 test('HUD displays a bounded theoretical turn order and pause state',()=>{
  const s=ready(['meta']);const h=harness(s);h.advance(250);assert.match(h.get('turn-order').firstElementChild.textContent,/次の手番（理論）/);h.click('pause');assert.match(h.get('turn-order').firstElementChild.textContent,/停止/);assert.equal(HUD.actionGauge,undefined);

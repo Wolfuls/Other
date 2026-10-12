@@ -5,12 +5,15 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 54;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 57;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    56(document){return {...document,schemaVersion:57};},
+    55(document){return {...document,schemaVersion:56,state:{...document.state,dreamPurchases:{}}};},
+    54(document){const state=structuredClone(document.state);if(state.health?.megumin?.stunTurns>1)state.health.megumin.stunTurns=1;for(const field of ['seedLevels','karmaSelections'])if(state[field]&&Object.hasOwn(state[field],'melancholy')){state[field].sloth=state[field].melancholy;delete state[field].melancholy;}return {...document,schemaVersion:55,state};},
     53(document){return {...document,schemaVersion:54,state:{...document.state,battleSpeed:1,options:{...document.state.options,showOrbits:false}}};},
     52(document){const state=structuredClone(document.state);state.actionPoints=Object.fromEntries(D.characters.map(c=>[c.id,0]));for(const battle of [state,...Object.values(state.sessionStates||{})]){battle.timeline=E.newTimeline();for(const e of battle.enemies||[]){e.actionPoints=0;if(e.pendingAttack){e.pendingAttack.count=1;delete e.pendingAttack.apCost;}}}return {...document,schemaVersion:53,state};},
     51(document){return {...document,schemaVersion:52};},
@@ -519,6 +522,15 @@
     const activeLevels=raw.questActiveLevels===undefined?{}:record(raw.questActiveLevels,'挑戦Lv');
     if(Object.keys(activeLevels).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応の挑戦クエストです。');
     result.questActiveLevels=Object.fromEntries(Object.entries(activeLevels).map(([id,level])=>[id,number(level,'挑戦Lv',1,result.questLevels[id],true)]));
+    const pending=raw.pendingQuestLevels===undefined?{}:record(raw.pendingQuestLevels,'Q変更予約');
+    if(Object.keys(pending).some(id=>!D.sessions.some(q=>q.id===id)))throw new Error('未対応のQ変更予約');
+    result.pendingQuestLevels=Object.fromEntries(Object.entries(pending).map(([id,level])=>[id,number(level,'Q変更予約',1,result.questLevels[id],true)]));
+    result.sinTotal=number(raw.sinTotal??0,'罪業',0,Number.MAX_SAFE_INTEGER,true);
+    result.sinBalance=number(raw.sinBalance??0,'大罪',0,result.sinTotal,true);
+    result.dreamGain=number(raw.dreamGain??0,'獲得罪業',0,result.sinTotal,true);
+    if(raw.dreamShop!==undefined&&typeof raw.dreamShop!=='boolean')throw new Error('大罪購入の状態が不正です');
+    result.dreamShop=raw.dreamShop===true;
+    if(result.dreamShop&&(!raw.viewingMemories||!E.isMemoriesUnlocked({...result,memoriesUnlocked:raw.memoriesUnlocked})))throw new Error('追憶以外では大罪を購入できません');
     result.sceneSeconds=number(raw.sceneSeconds===undefined?0:raw.sceneSeconds,'昼夜の経過時間',0,D.sceneCycle.seconds);
     if(result.sceneSeconds>=D.sceneCycle.seconds)throw new Error('昼夜の経過時間が正しくありません。');
     result.respawnSeconds=number(raw.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(result));
@@ -596,6 +608,14 @@
     const seeds=raw.seedLevels===undefined?{}:record(raw.seedLevels,'種');
     if(Object.keys(seeds).some(k=>!Object.hasOwn(result.seedLevels,k)))throw new Error('未対応の種です。');
     for(const k of Object.keys(result.seedLevels))result.seedLevels[k]=number(seeds[k]||0,'種Lv',0,Number.MAX_SAFE_INTEGER,true);
+    const purchases=raw.dreamPurchases===undefined?{}:record(raw.dreamPurchases,'今回の購入');
+    if(Object.keys(purchases).some(id=>!Object.hasOwn(result.seedLevels,id))||!result.dreamShop&&Object.keys(purchases).length)throw new Error('今回の購入記録が不正です');
+    let refundable=0;result.dreamPurchases={};
+    for(const [id,p]of Object.entries(purchases)){
+      record(p,'今回の購入');const levels=number(p.levels,'今回の購入Lv',1,result.seedLevels[id],true),cost=number(p.cost,'今回の購入額',levels,result.sinTotal,true);
+      result.dreamPurchases[id]={levels,cost};refundable+=cost;
+    }
+    if(refundable+result.sinBalance>result.sinTotal)throw new Error('今回の返金額が不正です');
     const karma=raw.karmaSelections===undefined?{}:record(raw.karmaSelections,'カルマ');
     if(Object.keys(karma).some(k=>!Object.hasOwn(result.seedLevels,k))||Object.values(karma).some(v=>typeof v!=='string'||v.length>100))throw new Error('カルマ選択が正しくありません。');result.karmaSelections={...karma};
     const income=raw.incomeTotals===undefined?{}:record(raw.incomeTotals,'収入種別');
@@ -657,8 +677,8 @@
         const tauntId=e.tauntId??null;
         const queenCancels=number(e.queenCancels??0,'女王の迎撃回数',0,4,true);
         if(tauntId!==null&&!D.characters.some(c=>c.id===tauntId))throw new Error('挑発対象が正しくありません。');
-        const slowSeconds=number(e.slowSeconds??0,'行動力低下の残り秒',0,5),actionPenalty=number(e.actionPenalty??0,'行動力低下',0,4,true);
-        if(![0,4].includes(actionPenalty)||!!slowSeconds!==!!actionPenalty||respawnSeconds&&(tauntId||slowSeconds))throw new Error('行動力低下の状態が正しくありません。');
+        const slowSeconds=number(e.slowSeconds??0,'行動力低下の残り秒',0,5),actionPenalty=number(e.actionPenalty??0,'行動力低下',0,6,true);
+        if(![0,4,6].includes(actionPenalty)||!!slowSeconds!==!!actionPenalty||respawnSeconds&&(tauntId||slowSeconds))throw new Error('行動力低下の状態が正しくありません。');
         let pendingAttack=null;
         if(e.pendingAttack!=null){
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx,e));
@@ -689,7 +709,9 @@
     function validateTimeline(value){
       if(value===undefined)return E.newTimeline();record(value,'手番タイムライン');const input=record(value.priorities,'手番優先度');if(Object.keys(input).length>32)throw new Error('手番優先度が多すぎます');
       const priorities={};for(const [key,v]of Object.entries(input)){if(!(key.startsWith('a:')&&D.characters.some(c=>c.id===key.slice(2)))&&!/^e:[0-9]{1,9}$/.test(key))throw new Error('手番ユニットが不正です');priorities[key]=number(v,'優先度',-1e103,1e103);}
-      return {...(value.busySeconds!==undefined?{busySeconds:number(value.busySeconds,'演出待機秒',0,30)}:{}),priorities,turns:number(value.turns??0,'累計手番',0,1e100,true)};
+      let manualAttacks;
+      if(value.manualAttacks!==undefined){if(!Array.isArray(value.manualAttacks)||value.manualAttacks.length>32)throw new Error('手動攻撃予約が多すぎます');manualAttacks=value.manualAttacks.map(p=>{record(p,'手動攻撃予約');if(p.actorId!==null&&!D.characters.some(c=>c.id===p.actorId))throw new Error('手動攻撃者が不正です');return {actorId:p.actorId,targetId:number(p.targetId,'攻撃対象',0,999999999,true),remaining:number(p.remaining,'着弾待ち',0,2)};});}
+      return {...(manualAttacks?{manualAttacks}:{}),...(value.busySeconds!==undefined?{busySeconds:number(value.busySeconds,'演出待機秒',0,30)}:{}),priorities,turns:number(value.turns??0,'累計手番',0,1e100,true)};
     }
     Object.assign(result,validateEnemies(raw,result),validateProtection(raw,result),{timeline:validateTimeline(raw.timeline)});
     const battles=raw.sessionStates===undefined?{}:record(raw.sessionStates,'クエスト別の戦況');

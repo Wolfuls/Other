@@ -47,7 +47,7 @@ test('immunity is independent per enemy, resets with the encounter, and pending 
  const s=encounter(['queen'],'mohicans');enable(s,'queen','insolent');s.enemies[0].queenCancels=4;s.enemies[1].queenCancels=2;
  const events=pending(s,s.enemies[2]);assert.ok(events.some(x=>x.type==='queenIntercept'&&x.hit));assert.deepEqual(s.enemies.map(e=>e.queenCancels),[4,2,1]);
  s.enemies[0].pendingAttack={targetId:'queen',remaining:.3,count:2,kind:'attack',apCost:40};assert.equal(roundTrip(s).enemies[0].pendingAttack.apCost,undefined);
- s.questLevels.mohicans=2;E.setQuestLevel(s,'mohicans',2);assert.ok(s.enemies.every(e=>e.queenCancels===0));
+ s.questLevels.mohicans=2;E.setQuestLevel(s,'mohicans',2);assert.equal(s.pendingQuestLevels.mohicans,2);E.advance(s,2,()=>.5);assert.ok(s.enemies.every(e=>e.queenCancels===0));
  for(const value of [-1,5,1.5]){s.enemies[0].queenCancels=value;assert.throws(()=>S.encode(s));}
 });
 test('old saves add unhired Queen without losing progress or changing run records',()=>{

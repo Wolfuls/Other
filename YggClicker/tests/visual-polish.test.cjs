@@ -25,7 +25,7 @@ test('character identity stays hidden below hire price, reveals at affordability
  assert.equal(h.get('hire-cost-richter').textContent,''); // hidden detail is lazy
 assert.equal(h.get('meta-combatant').hidden,false);
  h.click('attack');assert.ok(h.get('card-richter').classList.contains('obscured'));
- h.click('attack');h.click('attack');h.click('attack');assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters.find(c=>c.id==='richter').name);
+ h.advance(700);for(let i=0;i<3;i++){h.click('attack');h.advance(700);}assert.ok(!h.get('card-richter').classList.contains('obscured'));assert.equal(h.get('identity-richter').textContent,D.characters.find(c=>c.id==='richter').name);
  buy(h,{hire:'richter'});assert.equal(h.saved().levels.richter,1);assert.ok(h.saved().factors<2500);assert.ok(!h.get('card-richter').classList.contains('obscured'));
  assert.ok(h.get('card-vishunal').classList.contains('obscured'));
  const t=combatFixture(1000);t.paused=true;t.factors=2500;t.levels.meta=1;const k=harness(t);

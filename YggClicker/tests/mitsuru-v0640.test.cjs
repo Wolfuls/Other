@@ -47,5 +47,5 @@ test('timed slow is local to its individual/session and clears on quest-level ch
  const s=ready(['mitsuru'],'mohicans');s.enemies[1].slowSeconds=5;s.enemies[1].actionPenalty=4;s.enemies[1].tauntId='mitsuru';
  assert.ok(E.enemyActionPower(s,10,s.enemies[1])<E.enemyActionPower(s,10,s.enemies[0]));s.levels.meta=1;E.setFormation(s,'dementor',['meta']);E.selectSession(s,'dementor');E.advance(s,.5,()=>.4);
  const other=E.battleContext(s,'mohicans');assert.equal(other.enemies[1].slowSeconds,4.5);assert.equal(s.enemies[0].slowSeconds,0);
- s.questLevels.mohicans=2;E.setQuestLevel(s,'mohicans',2);assert.ok(E.battleContext(s,'mohicans').enemies.every(e=>!e.tauntId&&!e.slowSeconds&&!e.actionPenalty));
+ s.questLevels.mohicans=2;E.setQuestLevel(s,'mohicans',2);assert.equal(s.pendingQuestLevels.mohicans,2);s.health.mitsuru.stunTurns=1;for(let i=0;i<1000&&s.pendingQuestLevels.mohicans;i++)E.advance(s,.01,()=>.4);assert.equal(E.questLevel(s,'mohicans'),2);assert.ok(E.battleContext(s,'mohicans').enemies.every(e=>!e.tauntId&&!e.slowSeconds&&!e.actionPenalty));
 });

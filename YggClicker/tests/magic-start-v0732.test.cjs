@@ -8,5 +8,5 @@ test('base magic and cap shift by one, OFF disables it and spent magic restarts 
 });
 test('schema50 charge migration preserves remaining casts and stun, and runs only once',()=>{
  for(const enabled of [true,false])for(const oldLevel of [0,3,6]){const s=ready(['megumin']);enable(s,'megumin','eternal-hammer');s.perkEnabled.megumin['explosion-girl']=enabled;s.health.megumin.magicLevel=oldLevel;s.health.megumin.stunTurns=3;
- const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:50,state:s}));assert.equal(loaded.health.megumin.magicLevel,enabled?oldLevel+1:oldLevel);assert.equal(loaded.health.megumin.stunTurns,3);assert.deepEqual(S.decode(S.encode(loaded)),loaded);}
+ const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:50,state:s}));assert.equal(loaded.health.megumin.magicLevel,enabled?oldLevel+1:oldLevel);assert.equal(loaded.health.megumin.stunTurns,1);assert.deepEqual(S.decode(S.encode(loaded)),loaded);}
 });

@@ -91,7 +91,7 @@ test('Waku AP reduction repeats at five percent and nextFrame always reapplies w
  const first=E.click(s,()=>.5).find(e=>e.type==='attack');assert.ok(first.hit);assert.equal(s.enemies[0].turnSlowRate,.05);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);
  const second=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(second.forcedEvasionFailure,true);assert.equal(s.enemies[0].turnSlowRate,.05);assert.equal(s.enemies[0].defensePenalty,3);assert.equal(s.enemies[0].evasionFailure,true);assert.equal(s.enemies[1].evasionFailure,false);
  E.togglePerk(s,'waku','next-frame',false);E.click(s,()=>.5);assert.equal(s.enemies[0].evasionFailure,false);
- s.questLevels.dementor=1000;E.setQuestLevel(s,'dementor',1000);enable(s,'waku','next-frame','vanishing-hitbox');const enemy=s.enemies[0];enemy.actionPoints=200;E.selectEnemy(s,enemy.id);const miss=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(miss.hit,false);assert.equal(enemy.actionPoints,200);assert.equal(enemy.defensePenalty,0);assert.equal(enemy.accuracyPenalty,0);assert.equal(enemy.evasionFailure,false);
+ s.questLevels.dementor=1000;s.timeline.busySeconds=0;E.setQuestLevel(s,'dementor',1000);enable(s,'waku','next-frame','vanishing-hitbox');const enemy=s.enemies[0];enemy.actionPoints=200;E.selectEnemy(s,enemy.id);const miss=E.click(s,()=>.5).find(e=>e.type==='attack');assert.equal(miss.hit,false);assert.equal(enemy.actionPoints,200);assert.equal(enemy.defensePenalty,0);assert.equal(enemy.accuracyPenalty,0);assert.equal(enemy.evasionFailure,false);
 });
 test('ability cards show updated unlocks and minute pressure without implementation notes',()=>{
  const s=ready(['meta','richter','waku']);s.paused=true;const h=harness(s);

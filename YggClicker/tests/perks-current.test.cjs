@@ -22,8 +22,8 @@ for(const [id,perk]of [['meta','metal-storm'],['richter','bom-ber'],['vishunal',
 test('poison starts only on a hit, triggers once per attack and cannot reach a replacement victim',()=>{
  const s=ready(['tordeliese','meta']);enable(s,'tordeliese','greedy-gale');
  const hit=E.click(s,()=>.5);assert.equal(hit.filter(e=>e.poisonTick).length,1);assert.equal(s.enemies[0].poisonDamage,4);
- s.questLevels.scarecrow=600;E.setQuestLevel(s,'scarecrow',600);s.enemies[0].poisonDamage=4;const hp=s.hp,miss=E.click(s,()=>.5);assert.equal(miss[0].hit,false);assert.equal(s.hp,hp);assert.equal(miss.some(e=>e.poisonTick),false);
- E.setQuestLevel(s,'scarecrow',1);s.enemies[0].hp=1;E.click(s,()=>.5);assert.equal(s.enemies[0].poisonDamage,0);assert.equal(s.enemies[0].respawnSeconds,5);
+ s.questLevels.scarecrow=600;s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',600);s.enemies[0].poisonDamage=4;const hp=s.hp,miss=E.click(s,()=>.5);assert.equal(miss[0].hit,false);assert.equal(s.hp,hp);assert.equal(miss.some(e=>e.poisonTick),false);
+ s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',1);s.enemies[0].hp=1;E.click(s,()=>.5);assert.equal(s.enemies[0].poisonDamage,0);assert.equal(s.enemies[0].respawnSeconds,5);
 });
 test('poison strength follows its three upgrade tracks and OFF removes only future application',()=>{
  const s=ready(['tordeliese']);enable(s,'tordeliese','greedy-gale','severing-storm','demonic-hammer','annihilation','folding-gale','for-whom-the-storm');
@@ -45,7 +45,7 @@ test('Waku first-hit defense loss, repeated AP loss and one-use accuracy/evasion
  const values=[.7,.2,.01,.01];const hit=E.click(s,()=>values.shift()??.5);assert.equal(hit.find(e=>e.type==='attack').hit,true);const target=s.enemies[1];assert.equal(target.defensePenalty,3);assert.equal(target.turnSlowRate,.05);assert.equal(target.accuracyPenalty,15);assert.equal(target.evasionFailure,true);assert.equal(s.enemies[0].defensePenalty,0);
 });
 test('Jewel investment decreases on sale; crystal debuff and rainbow expire by recipient turns',()=>{
- const s=ready(['jewel']);enable(s,'jewel','crimson-fist','crystal-radiance','rainbow-armor','black-egg');s.levels.jewel=1001;s.concentration.jewel.accuracy=700;s.questLevels.scarecrow=100;E.setQuestLevel(s,'scarecrow',100);s.selectedCharacterId='jewel';
+ const s=ready(['jewel']);enable(s,'jewel','crimson-fist','crystal-radiance','rainbow-armor','black-egg');s.levels.jewel=1001;s.concentration.jewel.accuracy=700;s.questLevels.scarecrow=100;s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',100);s.selectedCharacterId='jewel';
  E.click(s,()=>.5);assert.ok(s.incomeTotals.jewelDoubleHitIncome>0);assert.equal(s.rainbowTurns,2);assert.equal(s.enemies[0].evasionPenalty,6);assert.equal(s.enemies[0].evasionPenaltyTurns,2);
  const before=E.armor(s,c('jewel'));E.sell(s,'power','jewel',90);assert.ok(E.armor(s,c('jewel'))<=before);
 });

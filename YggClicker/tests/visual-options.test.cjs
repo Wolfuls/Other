@@ -19,7 +19,7 @@ test('hit modes retain the same single-target combat but change only their visua
  let expected;
  for(const mode of D.hitEffectModes){
   const s=fighter();s.options.hitEffects=mode;moveTestParty(s,'scarecrow');E.ensureEnemies(s)[0].hp=1;s.hp=1;const h=harness(s,undefined,{combatRandom:()=>.5});
-  h.click('attack');h.advance(780);
+  h.click('attack');h.advance(800);
   assert.equal(h.get('arena-viewport').dataset.hitEffects,mode);
   assert.equal(h.get('hit-effects').children.length,mode==='off'?0:1);
   assert.equal(h.get('explosions').children.length,['normal','translucent'].includes(mode)?1:0);
@@ -33,7 +33,7 @@ test('hit modes retain the same single-target combat but change only their visua
 test('turning off visuals during a volley clears current effects, keeps projectiles and preserves all progress',()=>{
  const s=fighter();s.levels.richter=Math.max(s.levels.richter,201);s.purchasedPerks.richter=['bom-ber'];s.perkEnabled.richter=Object.fromEntries(s.purchasedPerks.richter.map(id=>[id,true]));
  const on=harness(s,undefined,{combatRandom:()=>.5}),off=harness(s,undefined,{combatRandom:()=>.5});
- for(const h of [on,off]){h.click("attack");h.advance(780);}
+ for(const h of [on,off]){h.click("attack");h.advance(800);}
  assert.ok(off.get('explosions').children.length>0);
  for(const [id,value] of [['hit-effects','off'],['factor-rain',false],['reward-dice',false],['damage-numbers',false],['overflow-labels',false],['defeat-labels',false]])change(off,id,value);
  for(let i=0;i<30;i++){
@@ -64,12 +64,14 @@ test('damage, overflow and defeat text have independent controls and include bat
 });
 
 test('reward dice can be disabled independently of ambient dice and restored on future impacts',()=>{
- const h=harness(fighter());h.click('attack');h.advance(780);assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));
- h.click('attack');h.advance(780);assert.ok(h.get('reward-rain').children.some(n=>!n.hidden));
+ const h=harness(fighter());h.click('attack');h.advance(1200);assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));
+ h.click('attack');h.advance(800);assert.ok(h.get('reward-rain').children.some(n=>!n.hidden));
  change(h,'reward-dice',false);assert.ok(h.get('reward-rain').children.every(n=>n.hidden));
  assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));
- change(h,'factor-rain',false);change(h,'reward-dice',true);h.click('attack');h.advance(780);
+ change(h,'factor-rain',false);change(h,'reward-dice',true);h.click('attack');h.advance(800);
  assert.ok(h.get('factor-rain').children.every(n=>n.hidden));assert.ok(h.get('reward-rain').children.some(n=>!n.hidden));
  const reloaded=harness(h.saved());assert.equal(reloaded.get('option-factor-rain').checked,false);assert.equal(reloaded.get('option-reward-dice').checked,true);
 });
+
+
 
