@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.80.5",
+  "version": "0.81.4",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -25,7 +25,7 @@
     "strengthBase": 100,
     "strengthGrowth": 1.1,
     "personalGrowth": 0.02,
-    "personalGrowthByKind": {"action": 0.04, "vitality": 0.04},
+    "personalGrowthByKind": {"action": 0.08, "vitality": 0.08},
     "focusGrowth": 1.08,
     "focusDiminishing": 2.5,
     "hitStrengthExponent": 1,

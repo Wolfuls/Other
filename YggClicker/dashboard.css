@@ -359,3 +359,55 @@
 
 .dashboard footer[hidden]{display:none!important}
 
+
+
+
+/* Character animation and fire are independent sprite objects. */
+.cherry-combatant{position:absolute;width:150px;height:150px;transform:translate(-50%,-50%)}
+.cherry-placeholder,.cherry-down-animation{display:block;position:absolute;inset:0;width:150px;height:150px;border:0;border-radius:0;background: url('./img/cherry-idle-sheet-v2.png') 0 0/400% 100% no-repeat;image-rendering:pixelated;animation:cherry-idle 1.4s steps(1,end) infinite,cherry-breathe 1.4s ease-in-out infinite;transform-origin:50% 93.75%;transition:none}
+.cherry-placeholder:disabled{opacity:1}.cherry-placeholder:active{transform:none!important}
+.cherry-combatant.attacking .cherry-placeholder{background-image:url('./img/cherry-attack-sheet-v2.png');animation:cherry-attack .64s steps(1,end) forwards}
+.cherry-down-animation{display:none;pointer-events:none;background-image:url('./img/cherry-down-sheet-v2.png');animation:cherry-down .52s steps(1,end) forwards}
+.cherry-combatant.downed .cherry-placeholder{visibility:hidden}.cherry-combatant.downed .cherry-down-animation{display:block}
+#cherry-combatant .ally-down-sprite{display:none}.cherry-combatant.is-paused>*{animation-play-state:paused}
+.cherry-fire-sprite{display:block;width:100%;height:100%;background:url('./img/cherry-fire-sheet-v2.png') 0 0/400% 100% no-repeat;image-rendering:pixelated;animation:cherry-frames .48s steps(1,end) infinite;pointer-events:none}
+.cherry-flame{position:absolute;transform:translate(-50%,-75%);pointer-events:none;animation:cherry-flame-fade .6s ease-out forwards}
+.cherry-projectile{animation:cherry-fire-travel .32s linear forwards}
+.cherry-burning{position:absolute;left:50%;bottom:12%;width:100px;height:110px;transform:translateX(-50%);z-index:4;opacity:.8}
+.cherry-paused .cherry-flame,.cherry-paused .cherry-fire-sprite{animation-play-state:paused}
+.arena-viewport[data-hit-effects=translucent] .cherry-burning{opacity:.28}
+@keyframes cherry-frames{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+@keyframes cherry-fire-travel{to{transform:translate(calc(-50% + var(--fire-x)),calc(-75% + var(--fire-y)))}}
+@keyframes cherry-flame-fade{0%,65%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.cherry-placeholder,.cherry-down-animation,.cherry-fire-sprite{animation:none!important}.cherry-down-animation{background-position:100% 0}}
+
+@keyframes cherry-idle{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+@keyframes cherry-attack{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+@keyframes cherry-down{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+@keyframes cherry-breathe{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.985)}}
+.cherry-blazar{position:absolute;width:380px;height:380px;background:url('./img/cherry-blazar-v1.png') center/contain no-repeat;image-rendering:pixelated;pointer-events:none;animation:cherry-comet .52s linear forwards}
+@keyframes cherry-comet{0%{transform:translate(calc(-78% - 210px),calc(-78% - 290px));opacity:0}12%{opacity:1}65%{transform:translate(-78%,-78%);opacity:1}100%{transform:translate(-76%,-75%) scale(1.14);opacity:0}}
+.cherry-paused .cherry-blazar{animation-play-state:paused}
+
+/* A single skill layer sends independent flames from Cherry to both sides. */
+.cherry-spread{position:absolute;inset:0;pointer-events:none}
+.cherry-spread-flame{position:absolute;width:100px;height:140px;transform:translate(-50%,-85%);animation:cherry-ignite .75s ease-out var(--spread-delay,0s) both}
+.cherry-spread-travel{position:absolute;width:90px;height:90px;transform:translate(-50%,-75%);animation:cherry-spread-travel .4s ease-in var(--spread-delay,0s) both}
+.cherry-spread.dissatisfaction .cherry-spread-flame{width:135px;height:155px;animation-name:cherry-flare}
+.cherry-spread.volcano .cherry-spread-flame{transform-origin:50% 90%}
+.cherry-spread .cherry-fire-sprite{animation-delay:var(--spread-delay,0s)}
+.cherry-paused .cherry-spread *{animation-play-state:paused}
+@keyframes cherry-ignite{0%{opacity:0;transform:translate(-50%,-75%) scale(.2,.1)}22%{opacity:1;transform:translate(-50%,-85%) scale(1,1.2)}65%{opacity:1}100%{opacity:0;transform:translate(-50%,-95%) scale(.7,1.1)}}
+@keyframes cherry-flare{0%{opacity:0;transform:translate(-50%,-80%) scale(.15)}25%{opacity:1;transform:translate(-50%,-80%) scale(1.25)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,-90%) scale(.8)}}
+@keyframes cherry-spread-travel{0%{opacity:0}12%{opacity:1}90%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--fire-x)),calc(-75% + var(--fire-y)))}}
+
+.meta-arena .damage-float.burn-damage{color:#ffad43;font-size:27px;text-shadow:-1px -1px #5d160c,1px -1px #5d160c,-1px 1px #5d160c,1px 1px #5d160c,0 0 8px #ff4d1680}
+
+#pom-bombs{position:absolute;inset:0;pointer-events:none;z-index:4}.pom-unit{position:absolute;width:48px;transform:translate(-50%,-50%);text-align:center}.pom-unit small{display:block;background:#101b20de;color:#fff;font:10px monospace}
+
+.pom-unit[hidden]{display:none}
+
+
+.pom-idle-sprite{display:block;width:48px;height:48px;background-size:400% 100%;background-repeat:no-repeat;image-rendering:pixelated;animation:pom-idle-frames .8s steps(1,end) infinite;animation-delay:var(--pom-delay,0s)}
+@keyframes pom-idle-frames{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+@media(prefers-reduced-motion:reduce){.pom-idle-sprite{animation:none}}

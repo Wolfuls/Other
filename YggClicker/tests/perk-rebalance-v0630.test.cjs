@@ -70,8 +70,8 @@ test('Tordeliese applies poison from hire, never on a miss, and additive poison 
 });
 test('Plot Armor AP die is trained, Handout stays selected-only, and GM never shares attack levels',()=>{
  const s=ready(['max','meta']);enable(s,'max','plot-armor');s.levels.meta=51;const m=c('meta');
- assert.equal(E.actionPower(s,m,15,false,faces(4)),57);near(E.actionPower(s,m,15),55.5);
- enable(s,'max','handout');assert.equal(E.actionPower(s,m,15,false,faces(4)),57);s.selectedCharacterId='meta';assert.equal(E.actionPower(s,m,15,false,faces(5)),72);
+ assert.equal(E.actionPower(s,m,15,false,faces(4)),95);near(E.actionPower(s,m,15),92.5);
+ enable(s,'max','handout');assert.equal(E.actionPower(s,m,15,false,faces(4)),95);s.selectedCharacterId='meta';assert.equal(E.actionPower(s,m,15,false,faces(5)),120);
  assert.equal(E.strengthValue(s,m,'power'),200);assert.equal(E.concentrationPoints(s,'meta'),50);assert.equal(c('max').perks.some(p=>p.id==='western-munchkin'),false);
  const before=E.attackProfile(s,m);s.perkEnabled.max['western-munchkin']=true;assert.deepEqual(E.attackProfile(s,m),before);
 });

@@ -7,7 +7,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require("../js/data.js");
 const E=require('../js/engine.js'),{harness}=require('./app-harness.cjs');
 // Keep the visual target alive independently of the current progression curve.
-function fixture(action=190){const q=D.sessions.find(q=>q.id==='heavy');q.hp=Math.max(q.hp,15000000);const s=combatFixture(1000);s.levels.richter=501;s.perkEnabled.richter['z-bom']=false;s.concentration.richter.accuracy=280;s.concentration.richter.action=action;s.selectedCharacterId='richter';moveTestParty(s,'heavy');s.questLevels.heavy=160;s.hp=E.getSession(s).hp;return s;}
+function fixture(action=190){const q=D.sessions.find(q=>q.id==='heavy');q.hp=Math.max(q.hp,15000000);const s=combatFixture(1000);s.levels.richter=501;s.perkEnabled.richter['g-bom']=false;s.concentration.richter.accuracy=280;s.concentration.richter.action=action;s.selectedCharacterId='richter';moveTestParty(s,'heavy');s.questLevels.heavy=160;s.hp=E.getSession(s).hp;return s;}
 
 test('rapid input volleys stay in the same burst until input stops',()=>{
   const s=fixture();s.timeline.priorities["a:richter"]=1e6;

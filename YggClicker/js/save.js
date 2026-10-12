@@ -5,12 +5,14 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 59;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 61;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    60(document){const state=structuredClone(document.state);for(const field of ['unlockedPerks','purchasedPerks'])if(Array.isArray(state[field]?.richter))state[field].richter=[...new Set(state[field].richter.map(id=>id==='z-bom'?'g-bom':id))];if(state.perkEnabled?.richter&&'z-bom' in state.perkEnabled.richter){state.perkEnabled.richter['g-bom']=state.perkEnabled.richter['z-bom'];delete state.perkEnabled.richter['z-bom'];}return {...document,schemaVersion:61,state};},
+    59(document){return {...document,schemaVersion:60};},
     58(document){
       const state=structuredClone(document.state);
       for(const c of D.characters){
@@ -666,6 +668,8 @@
       const hp=number(h.hp,'味方HP',-1e100,E.maxHP(result,c)),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
       if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===E.maxHP(result,c)&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==E.maxHP(result,c)||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
       result.health[c.id]={hp,status:h.status,regenSeconds};if(h.summonDelaySeconds!==undefined)result.health[c.id].summonDelaySeconds=number(h.summonDelaySeconds,'召喚待機秒',0,5);if(h.turnSlowSeconds!==undefined){result.health[c.id].turnSlowSeconds=number(h.turnSlowSeconds,'行動妨害秒',0,5);result.health[c.id].turnSlowRate=number(h.turnSlowRate,'行動妨害率',0,.5);}
+      if(h.pomBombs!==undefined){if(c.id!=='richter'||!Array.isArray(h.pomBombs)||h.pomBombs.length>2)throw new Error('ポムポムボムの保存値が不正です');result.health[c.id].pomBombs=h.pomBombs.map((b,i)=>{record(b,'ポムポムボム');if(!D.sessions.some(q=>q.id===b.sessionId))throw new Error('召喚先が不正です');const maxHP=number(b.maxHP,'召喚HP上限',1,1e100,true);return {id:'pom-'+i,sessionId:b.sessionId,hp:number(b.hp,'召喚HP',0,maxHP,true),maxHP,power:number(b.power,'召喚強度',1,1e100),dice:number(b.dice,'召喚攻撃D',5,8,true),flat:number(b.flat,'召喚固定値',0,8,true)};});}
+      if(h.fireBonus!==undefined){if(c.id!=='cherry')throw new Error('火炎強化の対象が不正です');result.health[c.id].fireBonus=number(h.fireBonus,'火炎強化',0,1e100,true);}
       for(const key of ['stunTurns','blastTurns','blastEvasion','magicLevel'])if(h[key]!==undefined)result.health[c.id][key]=number(h[key],key,0,key==='stunTurns'?5:key==='blastTurns'?1:key==='magicLevel'?7:35,true);
       if(h.blastEvasion&&!h.blastTurns)throw new Error('爆風効果の持続時間が正しくありません。');
     }
@@ -736,7 +740,7 @@
           }
         }
         const row=e.row??'front';if(!['front','rear'].includes(row))throw new Error('敵の前衛・後衛が正しくありません。');
-        ids.add(id);return {...(e.summonDelaySeconds!==undefined?{summonDelaySeconds:number(e.summonDelaySeconds,'召喚待機秒',0,5)}:{}),...(e.turnSlowSeconds!==undefined?{turnSlowSeconds:number(e.turnSlowSeconds,'行動妨害秒',0,5),turnSlowRate:number(e.turnSlowRate,'行動妨害率',0,.5)}:{}),row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
+        ids.add(id);return {...(e.burnDamage!==undefined?{burnDamage:number(e.burnDamage,'炎上',0,1e100,true)}:{}),...(e.summonDelaySeconds!==undefined?{summonDelaySeconds:number(e.summonDelaySeconds,'召喚待機秒',0,5)}:{}),...(e.turnSlowSeconds!==undefined?{turnSlowSeconds:number(e.turnSlowSeconds,'行動妨害秒',0,5),turnSlowRate:number(e.turnSlowRate,'行動妨害率',0,.5)}:{}),row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
       });
       if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
@@ -761,8 +765,8 @@
       const respawnSeconds=number(value.respawnSeconds??0,'再出現待ち',0,E.respawnDelay(ctx));
       const hp=number(value.hp,'残りHP',respawnSeconds?0:1,maxHP);
       if(!Number.isInteger(hp)||respawnSeconds&&hp!==0)throw new Error('クエスト別HPが正しくありません。');
-      const poisonDamage=value.poisonDamage??0,batchHpFraction=number(value.batchHpFraction??0,'HP端数',-1,1),batchDamageFraction=number(value.batchDamageFraction??0,'ダメージ端数',-1,1);
-      if(![0,4,8,12,16].includes(poisonDamage)||Math.abs(batchHpFraction)>=1||Math.abs(batchDamageFraction)>=1||(respawnSeconds?poisonDamage!==0||batchHpFraction!==0:hp+batchHpFraction<=0||hp+batchHpFraction>maxHP))throw new Error('クエスト別の戦闘状態が正しくありません。');
+      const poisonDamage=number(value.poisonDamage??0,'クエスト別猛毒',0,1e100,true),batchHpFraction=number(value.batchHpFraction??0,'HP端数',-1,1),batchDamageFraction=number(value.batchDamageFraction??0,'ダメージ端数',-1,1);
+      if(Math.abs(batchHpFraction)>=1||Math.abs(batchDamageFraction)>=1||(respawnSeconds?poisonDamage!==0||batchHpFraction!==0:hp+batchHpFraction<=0||hp+batchHpFraction>maxHP))throw new Error('クエスト別の戦闘状態が正しくありません。');
       const selectedCharacterId=value.selectedCharacterId??null;
       if(selectedCharacterId!==null&&!E.formationIds(result,id).includes(selectedCharacterId))throw new Error('クエスト別の手動攻撃対象が正しくありません。');
       const battle={hp,poisonDamage,batchHpFraction,batchDamageFraction,respawnSeconds,selectedCharacterId};

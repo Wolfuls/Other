@@ -133,7 +133,7 @@ module.exports={
       "rabid-dog": false
     },
     "richter": {
-      "z-bom": true,
+      "g-bom": true,
       "dx-bom": true,
       "bom-ber": true,
       "gx-bom": true,
@@ -438,7 +438,7 @@ module.exports={
       "rabid-dog"
     ],
     "richter": [
-      "z-bom",
+      "g-bom",
       "dx-bom",
       "bom-ber",
       "vx-bom",

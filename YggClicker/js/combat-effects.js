@@ -39,7 +39,7 @@
   const volleySpan = count => Math.min(720, Math.max(0, count - 1) * 120);
   function mergeFrames(frames) {
     const first = frames[0], last = frames[frames.length - 1];
-    const merged = { ...last, magicLevel:Math.max(0,...frames.map(f=>f.magicLevel||0)), summons:frames.flatMap(f=>f.summons||[]), hit:frames.some(f=>f.hit!==false),doubleHit:frames.some(f=>f.doubleHit),smashCritical:frames.reduce((n,f)=>n+(f.smashCritical||0),0),poisonBefore:first.poisonBefore, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null, supportOnly:frames.every(f=>f.supportOnly),poisonTick:frames.every(f=>f.poisonTick) };
+    const merged = { ...last, pomAssisted:frames.some(f=>f.pomAssisted||f.pomDice>0), magicLevel:Math.max(0,...frames.map(f=>f.magicLevel||0)), summons:frames.flatMap(f=>f.summons||[]), hit:frames.some(f=>f.hit!==false),doubleHit:frames.some(f=>f.doubleHit),smashCritical:frames.reduce((n,f)=>n+(f.smashCritical||0),0),poisonBefore:first.poisonBefore, hpBefore:first.hpBefore, approximate:true, knockoutRoll:null, supportOnly:frames.every(f=>f.supportOnly),poisonTick:frames.every(f=>f.poisonTick) };
     for (const field of ['count', 'damage', 'metaAttacks', 'richterAttacks', 'vishunalAttacks', 'tordelieseAttacks','maxAttacks','wakuAttacks','jewelAttacks','mitsuruAttacks','queenAttacks','meguminAttacks','maxTransfers', 'clears', 'knockouts', 'overkills', 'overkillBonus', 'reward']) merged[field] = frames.reduce((n, f) => n + (f[field]||0), 0);
     if(frames.every(f=>f.actionSlow))merged.damage=Math.max(0,...frames.map(f=>f.damage||0));
     merged.actor = frames.every(f => f.actor === first.actor) ? first.actor : 'パーティ';
@@ -61,7 +61,7 @@
     // visual summary. Keep at most two summaries per chunk, in arrival order.
     return Array.from({length:12}, (_, i) => {
       const chunk=frames.slice(Math.floor(i*frames.length/12),Math.floor((i+1)*frames.length/12));
-      const kind=frame=>String(!!frame.apDamage)+':'+(frame.hit===false?'miss':frame.elementMultiplier??1)+':'+(['stab','shoot','spark','kick'].includes(frame.motion)?frame.motion:'normal');
+      const kind=frame=>(frame.actor==='炎上'?'burn':frame.poisonTick?'poison':'direct')+':'+String(!!frame.apDamage)+':'+(frame.hit===false?'miss':frame.elementMultiplier??1)+':'+(['stab','shoot','spark','kick'].includes(frame.motion)?frame.motion:'normal');
       const kinds=[...new Set(chunk.map(kind))];
       return kinds.map(key=>mergeFrames(chunk.filter(frame=>kind(frame)===key)));
     }).flat();

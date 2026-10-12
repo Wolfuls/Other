@@ -174,6 +174,7 @@
   }
   function build() {
     for(const c of D.characters){
+      if(c.placeholder){let actor=document.getElementById(c.id+'-combatant');if(!actor){actor=document.createElement('div');actor.id=c.id+'-combatant';actor.className='combatant cherry-combatant';const button=document.createElement('button');button.id=c.id+'-select';button.className='cherry-placeholder';button.textContent=c.shortName;actor.append(button);$('arena').append(actor);}battleHUD.mount(c,actor,document);continue;}
       const actor=$(c.id+'-combatant'),down=document.createElement('img');down.src=c.downSprite;down.alt=c.name+'：ダウン';down.className='ally-down-sprite pixel-art';down.style.setProperty('--down-bottom-gap',((c.downContact.height-c.downContact.bottom)/c.downContact.height*100)+'%');actor.append(down);
       battleHUD.mount(c,actor,document);
     }
@@ -223,7 +224,7 @@
     $('explosions').style.setProperty('--blast-duration', `${RICHTER_EXPLOSION_MS}ms`);
     $('party-capacity').textContent = `/ ${E.MAX_PARTY_SIZE}`;
     $('manual-formula').innerHTML = formulaPanel('manual', true);
-    $('character-picker').innerHTML = charactersByHireCost.map(c=>`<div class="picker-entry"><button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-copy"><span class="picker-name" id="picker-name-${c.id}"></span><span class="picker-level" id="picker-level-${c.id}"></span><span class="picker-hp" id="picker-hp-${c.id}"></span><span class="picker-runaway" id="picker-runaway-${c.id}"></span></span></button><button type="button" class="suppress-button" id="suppress-${c.id}" data-suppress="${c.id}"><span>暴走抑制</span><small id="suppress-cost-${c.id}"></small></button></div>`).join('');
+    $('character-picker').innerHTML = charactersByHireCost.map(c=>`<div class="picker-entry"><button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.placeholder?`<span>${c.initials}</span>`:c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-copy"><span class="picker-name" id="picker-name-${c.id}"></span><span class="picker-level" id="picker-level-${c.id}"></span><span class="picker-hp" id="picker-hp-${c.id}"></span><span class="picker-runaway" id="picker-runaway-${c.id}"></span></span></button><button type="button" class="suppress-button" id="suppress-${c.id}" data-suppress="${c.id}"><span>暴走抑制</span><small id="suppress-cost-${c.id}"></small></button></div>`).join('');
     warmQuest(E.getSession(state));
     $('character-list').innerHTML = charactersByHireCost.map(c => `<article class="character-card compact-character" id="card-${c.id}" role="tabpanel" aria-labelledby="inspect-${c.id}" style="--char-color:${c.color}">
       <button class="character-select" data-select-character="${c.id}" aria-label="${c.name}を手動攻撃に選択" aria-pressed="false" title="クリックで手動攻撃の担当に選択"><span class="avatar ${c.portrait ? 'sprite-avatar' : ''}" aria-hidden="true">${c.portraitSheet ? `<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>` : c.portrait ? `<img class="pixel-art" src="${c.portrait}" alt="">` : c.initials}</span><strong class="character-identity" id="identity-${c.id}">${c.name}</strong></button>
@@ -237,7 +238,7 @@
   }
   const rangeText=range=>range[0]===range[1]?String(range[0]):range.join('～');
   function perkPanel(c){
-    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.awakeningLevel?'覚醒Lv.'+p.awakeningLevel:p.initial?'初期パーク':'Lv.'+p.level)+'</span><span class="perk-pressure">暴走圧 '+pressureText((p.runawayPressure||0)*60)+'%/分</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+(p.awakeningLevel?'【暴走率'+[50,60,70][p.awakeningLevel-1]+'%以上でON】<br>':'')+((p.attackRange||p.effectRange)?'['+(p.attackRange?'攻撃':'付加')+'：'+rangeText(p.attackRange||p.effectRange)+'] ':'')+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
+    return '<section class="ability-perks" aria-labelledby="perk-title-'+c.id+'"><div class="ability-section-heading"><h3 id="perk-title-'+c.id+'">パーク</h3><span id="perk-summary-'+c.id+'"></span></div><div class="ability-perk-grid">'+(c.perks||[]).map(p=>'<div class="perk" id="perk-'+c.id+'-'+p.id+'"><div><span>'+ (p.awakeningLevel?'覚醒Lv.'+p.awakeningLevel:p.initial?'初期パーク':'Lv.'+p.level)+'</span><span class="perk-pressure">暴走圧 '+pressureText((p.runawayPressure||0)*60)+'%/分</span><strong>'+(p.struckPrefix?'<s>'+p.struckPrefix+'</s>':'')+p.name+'</strong><span class="perk-status"></span></div><p>'+(p.awakeningLevel?'【暴走率'+(p.minRunaway??[50,60,70][p.awakeningLevel-1])+'%以上でON】<br>':'')+((p.attackRange||p.effectRange)?'['+(p.attackRange?'攻撃':'付加')+'：'+rangeText(p.attackRange||p.effectRange)+'] ':'')+p.description+'</p><button class="button secondary perk-buy" data-perk-character="'+c.id+'" data-perk="'+p.id+'"></button></div>').join('')+'</div></section>';
   }
   function focusControls(c,track){
     return '<div class="allocation-controls"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="-1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を減らす">−</button><input type="number" min="0" step="1" id="focus-'+track+'-'+c.id+'" data-focus-input="'+c.id+'" data-focus-stat="'+track+'" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分"><button type="button" data-focus="'+c.id+'" data-focus-stat="'+track+'" data-step="1" aria-label="'+c.name+'の'+D.concentration.find(t=>t.id===track).name+'配分を増やす">＋</button><small id="focus-bonus-'+track+'-'+c.id+'"></small></div>';
@@ -402,10 +403,13 @@
     if(managerTab==='characters'){const all=E.suppressionQuote(state);$('suppress-all').disabled=blocked()||!!abilityEdit||!all.valid||state.factors<all.cost;
     setText('suppress-all-cost',money(all.cost)+' Rd');setText('suppression-party',E.getSession(state).enemy+'の部隊');
     }
+    renderPomBombs();
     const enemies=E.ensureEnemies(state),enemyTurns=E.timelineView(state,0);
     for(const id of shownPoison.keys())if(!enemies.some(e=>e.id===id))shownPoison.delete(id);
     for(let i=0;i<3;i++){
       const node=$(i?'enemy-next-'+i:'enemy-art'),e=enemies[i],bar=node.querySelector('.enemy-health');
+      let flame=node.querySelector('.cherry-burning');if(!flame){flame=document.createElement('span');flame.className='cherry-burning cherry-fire-sprite';flame.setAttribute('aria-hidden','true');node.append(flame);}
+      flame.hidden=!(e?.burnDamage&&e.hp>0&&!e.respawnSeconds)||state.options.hitEffects==='off';flame.style.animationPlayState=state.paused||blocked()||document.hidden?'paused':'running';
       const max=e?E.enemyMaxHP(state,e):1;
       const duo=!!E.getSession(state).members&&!E.getSession(state).independentRespawns;
       node.classList.toggle('duo-down',duo&&e?.hp<=0);
@@ -689,7 +693,7 @@
     $('richter-select').disabled = blocked() || !hired;
     $('richter-select').setAttribute('aria-pressed', state.selectedCharacterId === 'richter');
     renderVishunal();
-    renderTordeliese();renderMax();renderWaku();renderJewel();renderMitsuru();renderQueen();renderMegumin();
+    renderTordeliese();renderMax();renderWaku();renderJewel();renderMitsuru();renderQueen();renderMegumin();$('cherry-combatant').hidden=!E.isDeployed(state,'cherry');$('cherry-select').textContent='';$('cherry-combatant').classList.toggle('is-paused',state.paused||blocked()||document.hidden);$('hit-effects').classList.toggle('cherry-paused',state.paused||blocked()||document.hidden);$('cherry-select').disabled=blocked()||!E.isDeployed(state,'cherry');
     renderBattleLayout();
     for(const [id,key] of Object.entries(displayControls)){
       const control=$(id);
@@ -765,8 +769,8 @@
     else delete node.dataset.defeatSheet;
     if(node.dataset.appearance===source)return;
     node.dataset.appearance=source;
-    let sprite=node.firstElementChild;
-    if(!sprite){sprite=document.createElement('span');sprite.className='enemy-sprite';sprite.setAttribute('aria-hidden','true');node.append(sprite);}
+    let sprite=node.querySelector('.enemy-sprite');
+    if(!sprite){sprite=document.createElement('span');sprite.className='enemy-sprite';sprite.setAttribute('aria-hidden','true');node.prepend(sprite);}
     sprite.style.setProperty('--enemy-image',source?'url("'+source+'")':'none');
     sprite.style.setProperty('--enemy-attack-image',appearance.attackSheet?'url("'+appearance.attackSheet+'")':'none');
     sprite.style.setProperty('--enemy-wave-image',appearance.waveSheet?'url("'+appearance.waveSheet+'")':'none');
@@ -808,7 +812,7 @@
     arenaViewportWidth = width || $('arena-viewport').clientWidth || 300;
     const options = {metaScale:E.weaponScale(state,'meta'),richterScale:E.weaponScale(state,'richter'),metaCount:0,richterCount:0,
       formationRows:state.formationRows,groundFraction:E.getSession(state).groundFraction||.66,availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
-      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
+      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),cherryHired:E.isDeployed(state,'cherry'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
     const key = JSON.stringify(options);
     if (key === battleLayoutKey) return;
     battleLayoutKey = key;
@@ -849,6 +853,7 @@
       a.style.setProperty('--staff-x',D.meguminVisual.staffTip.x*scale+'px');
       a.style.setProperty('--staff-y',D.meguminVisual.staffTip.y*scale+'px');
     }
+    const cherry=layout.cherry;if(cherry){const a=$('cherry-combatant');a.style.left=cherry.x+'px';a.style.top=cherry.y+'px';a.style.setProperty('--body-foot',cherry.footOffset+'px');}
     const j=layout.jewel;if(j&&E.isDeployed(state,'jewel')){const a=$('jewel-combatant');a.style.left=j.x+'px';a.style.top=j.y+'px';a.style.setProperty('--body-foot',j.footOffset+'px');}
     const w=layout.waku;if(w&&E.isDeployed(state,'waku')){const a=$('waku-combatant');a.style.left=w.x+'px';a.style.top=w.y+'px';a.style.setProperty('--body-foot',w.footOffset+'px');}
     const m=layout.max;if(m&&E.isDeployed(state,'max')){const a=$('max-combatant');a.style.left=m.x+'px';a.style.top=m.y+'px';a.style.setProperty('--body-foot',(m.footOffset+m.hoverHeight)+'px');a.style.setProperty('--down-foot',(m.footOffset+m.hoverHeight)+'px');a.style.setProperty('--max-size',m.spriteSize+'px');}
@@ -1066,10 +1071,10 @@
     // A grouped extreme-rate launch spreads its projectiles over 160ms.
     return groups.length > 1 ? 220 : 60;
   }
-  function animateRichterAttack(count, volleyCount = count, summarized = false, targetSlot=0,manual=false) {
+  function animateRichterAttack(count, volleyCount = count, summarized = false, targetSlot=0,manual=false,pomAssisted=false) {
     if (!E.canAct(state,'richter') || reducedMotion.matches || document.hidden) return;
     const combatant = $('richter-combatant'), layer = $('richter-projectiles');
-    const now = performance.now(), burst = volleyCount > 1 || now - lastRichterShot < 280;
+    const now = performance.now(), burst = pomAssisted || volleyCount > 1 || now - lastRichterShot < 280;
     lastRichterShot = now;
     if (burst || combatant.classList.contains('bursting')) {
       combatant.classList.remove('attacking'); combatant.classList.add('bursting');
@@ -1083,6 +1088,7 @@
     if (!combatant.classList.contains('bursting')) {
       richterAttackTimer = deferVisual(() => combatant.classList.remove('attacking'), 620);
     }
+    hidePomsForAttack(Math.max(620,throwDelay+FX.PROJECTILE_FLIGHT_MS+80));
     const groups = FX.projectileGroups(count, FX.MAX_PROJECTILES - layer.children.length, summarized);
     if (!groups.length && layer.lastElementChild) labelProjectile(layer.lastElementChild, Number(layer.lastElementChild.dataset.attackCount) + count);
     const geometry = targetedGeometry(targetSlot);
@@ -1168,6 +1174,8 @@
     $('enemy-effects').replaceChildren();
     if (battleRender !== null) cancelAnimationFrame(battleRender); battleRender = null;
     for (const t of visualTimers.values()) clearTimeout(t.timer); visualTimers.clear();
+    pomVisibleCount=Infinity;pomRefillTimer=pomSecondTimer=null;renderPomBombs();
+    cherryAttackTimer=null;$('cherry-combatant').classList.remove('attacking');
     cancelVisual(metaAttackTimer);
     $('jewel-combatant').classList.remove('attacking','bursting');lastJewelShot=-Infinity;
     $('mitsuru-combatant').classList.remove('attacking','bursting');$('mitsuru-effects').replaceChildren();lastMitsuruShot=-Infinity;
@@ -1198,7 +1206,7 @@
     const target=$(frame.targetSlot?'enemy-next-'+frame.targetSlot:'enemy-art'),ghost=target.cloneNode(true);
     const position=readCombatGeometry().enemySlots[frame.targetSlot||0];ghost.style.left=position.x+'px';ghost.style.top=position.y+'px';
     const previous=enemyAppearances.get(frame.enemyId);if(previous)setEnemyAppearance(ghost,previous,'');
-    ghost.querySelector('.enemy-status')?.remove();ghost.querySelector('.enemy-health')?.remove();ghost.querySelector('.enemy-target')?.remove();ghost.classList.remove('enemy-absent','focused-enemy','enemy-attacking','enemy-absorbing','cloud-emerging');ghost.hidden=false;
+    ghost.querySelector('.cherry-burning')?.remove();ghost.querySelector('.enemy-status')?.remove();ghost.querySelector('.enemy-health')?.remove();ghost.querySelector('.enemy-target')?.remove();ghost.classList.remove('enemy-absent','focused-enemy','enemy-attacking','enemy-absorbing','cloud-emerging');ghost.hidden=false;
     ghost.removeAttribute('id'); ghost.removeAttribute('aria-label'); ghost.setAttribute('aria-hidden', 'true');
     ghost.classList.add('enemy-defeat'); ghost.dataset.clearCount = frame.clears;
     ghost.dataset.reason = frame.knockouts === frame.clears ? 'knockout' : 'hp';
@@ -1236,11 +1244,34 @@
     renderEnemy(E.getSession(state), frame.clears);
     deferVisual(() => { ghost.remove(); label?.remove(); }, fallMs + 20);
   }
+  let cherryAttackTimer=null;
+  function cherryFlame(x,y,size=100,destination=null){
+    if(document.hidden||reducedMotion.matches||state.options.hitEffects==='off')return;
+    const layer=$('hit-effects');while(layer.children.length>=32)layer.firstElementChild.remove();
+    const node=document.createElement('span'),sprite=document.createElement('span');node.className='cherry-flame'+(destination?' cherry-projectile':'');sprite.className='cherry-fire-sprite';node.setAttribute('aria-hidden','true');
+    node.style.left=x+'px';node.style.top=y+'px';node.style.width=node.style.height=size+'px';
+    if(destination){node.style.setProperty('--fire-x',(destination.x-x)+'px');node.style.setProperty('--fire-y',(destination.y-y)+'px');}
+    node.append(sprite);layer.append(node);deferVisual(()=>node.remove(),destination?330:600);
+  }
+  function cherryBlazarActive(frame){return frame.actorId==='cherry'&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)&&E.perks(state,D.characters.find(c=>c.id==='cherry')).some(p=>p.id==='blazar'&&p.unlocked)&&E.inRange([1,3],frame.distance||1);}
+  function cherryBlazar(target){
+    if(document.hidden||reducedMotion.matches||state.options.hitEffects==='off')return;
+    const node=document.createElement('span');node.className='cherry-blazar';node.setAttribute('aria-hidden','true');node.style.left=target.x+'px';node.style.top=target.y+'px';$('hit-effects').append(node);deferVisual(()=>node.remove(),520);
+  }
+  function animateCherryAttack(frame){
+    const actor=$('cherry-combatant');if(actor.classList.contains('downed')||reducedMotion.matches||document.hidden)return 0;
+    // Area hits share one casting gesture; the flame remains a separate object.
+    if(!actor.classList.contains('attacking')){actor.classList.add('attacking');cancelVisual(cherryAttackTimer);cherryAttackTimer=deferVisual(()=>{actor.classList.remove('attacking');cherryAttackTimer=null;},640);}
+    const x=actor.offsetLeft+45,y=actor.offsetTop-12,target=readCombatGeometry().enemySlots[frame.targetSlot||0];
+    deferVisual(()=>{if(!actor.classList.contains('downed')){cherryFlame(x,y,60);if(target){if(cherryBlazarActive(frame))cherryBlazar(target);else cherryFlame(x,y,100,target);}}},160);
+    return 480;
+  }
   function showLaunch(frame) {
     $('arena').classList.add('combat-playing');
     if (displayedHP === null && Number.isFinite(frame.hpBefore)) displayedHP = frame.hpBefore;
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate,frame.targetSlot||0) : 0;
-    const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch) : 0;
+    const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch,frame.pomAssisted||frame.pomDice>0) : 0;
+    const cherry=frame.actorId==='cherry'&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)?animateCherryAttack(frame):0;
     const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch):0;
     const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
     const mitsuru=frame.mitsuruAttacks?animateMitsuruAttack(frame.mitsuruAttacks,frame.volleyMitsuruCount,frame.targetSlot||0,frame.hit,frame.motion):0;
@@ -1251,13 +1282,14 @@
     const maxActions=(frame.maxAttacks||0)+(frame.maxTransfers||0);
     const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0,frame.manualLaunch):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
-    return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
+    return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(cherry,frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
   }
   function showImpact(frame) {
     if(frame.summons?.length)for(const e of frame.summons)showCloudCreation(e);
     if(frame.poisonAfter!==undefined)shownPoison.set(frame.enemyId,frame.poisonAfter);
     if(frame.supportOnly)return;
     const impactTarget=$(frame.targetSlot?'enemy-next-'+frame.targetSlot:'enemy-art'),position=readCombatGeometry().enemySlots[frame.targetSlot||0],impactX=position.x,impactY=position.y;
+    if(frame.hit!==false&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)&&(frame.actorId==='cherry'||frame.actor==='炎上'))cherryFlame(impactX,impactY,cherryBlazarActive(frame)?260:frame.actor==='VOLCANO'?180:110);
     visualHitId++;
     const motion = FX.impactMotion();
     const hitMode=frame.apDamage?'off':state.options.hitEffects;
@@ -1297,10 +1329,11 @@
     if(state.options.showDamageNumbers||details.length){
       const floating = document.createElement('span'); floating.className = 'damage-float';
       if(frame.poisonTick)floating.classList.add('poison-damage');
+      if(frame.actor==='炎上')floating.classList.add('burn-damage');
       floating.style.left=impactX+'px';floating.style.top=impactY+'px';floating.dataset.attackCount = frame.count;
       floating.dataset.impactId = visualHitId;
-      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':frame.elementMultiplier===0?'無効':`${frame.elementMultiplier>1?'弱点 ':''}${frame.apDamage?'行動 −':frame.poisonTick?'猛毒 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}${frame.apDamage?'%':''}`;
-      floating.style.marginLeft = `${motion.x}px`; floating.style.marginTop = `${motion.y-(frame.poisonTick?84:0)}px`;
+      if(state.options.showDamageNumbers)floating.textContent = frame.hit===false?'MISS':frame.elementMultiplier===0?'無効':`${frame.elementMultiplier>1?'弱点 ':''}${frame.apDamage?'行動 −':frame.poisonTick?'猛毒 ':frame.actor==='炎上'?'炎上 ':''}${frame.approximate ? '合計 ' : ''}${format(frame.damage)}${frame.apDamage?'%':''}`;
+      floating.style.marginLeft = `${motion.x+(frame.actor==='炎上'?48:0)}px`; floating.style.marginTop = `${motion.y-(frame.poisonTick?84:frame.actor==='炎上'?44:0)}px`;
       floating.style.setProperty('--float-drift', `${motion.driftX}px`);
       floating.style.setProperty('--float-rise', `${-motion.floatRise}px`);
       if (details.length) {
@@ -1396,12 +1429,49 @@
     }
     arena.append(node);deferVisual(()=>node.remove(),Math.max(.1,seconds)*1000);
   }
+  let pomVisibleCount=Infinity,pomRefillTimer=null,pomSecondTimer=null;
+  function hidePomsForAttack(duration=700){
+    cancelVisual(pomRefillTimer);cancelVisual(pomSecondTimer);
+    pomVisibleCount=0;renderPomBombs();
+    pomRefillTimer=deferVisual(()=>{
+      pomVisibleCount=1;renderPomBombs();
+      pomSecondTimer=deferVisual(()=>{pomVisibleCount=Infinity;renderPomBombs();},220);
+    },duration);
+  }
+  function pomPosition(i,count){
+    const actor=$('richter-combatant'),head=parseFloat(actor.style.getPropertyValue('--head-offset'))||112;
+    return {x:actor.offsetLeft+(i-(count-1)/2)*56,y:actor.offsetTop-head-34};
+  }
+  function renderPomBombs(){let layer=$('pom-bombs');if(!layer){layer=document.createElement('div');layer.id='pom-bombs';elements.set('pom-bombs',layer);$('arena').append(layer);}const bombs=E.pomUnits(state),key=JSON.stringify(bombs);if(layer.dataset.units!==key){layer.dataset.units=key;layer.replaceChildren();for(const b of bombs){const n=document.createElement('div');n.className='pom-unit';n.dataset.id=b.id;const img=document.createElement('span');img.className='pom-idle-sprite';img.style.backgroundImage='url("'+D.richterVisual.idleSheet+'")';img.setAttribute('role','img');img.setAttribute('aria-label','ポムポムボム');const hp=document.createElement('small');hp.textContent='HP '+Math.round(b.hp/b.maxHP*100)+'%';n.title='ポムポムボム：HP '+b.hp+'/'+b.maxHP+'・攻撃 '+b.dice+'D6＋'+b.flat;n.append(img,hp);layer.append(n);}}const actor=$('richter-combatant');for(const [i,n]of Array.from(layer.children).entries()){const p=pomPosition(i,bombs.length);n.style.left=p.x+'px';n.style.top=p.y+'px';n.hidden=i>=pomVisibleCount;n.querySelector('.pom-idle-sprite').style.animationPlayState=state.paused||blocked()||document.hidden?'paused':'running';n.style.setProperty('--pom-delay',(-i*.65)+'s');}}
+  function cherrySpread(kind,targetSlot=0){
+    if(document.hidden||reducedMotion.matches||state.options.hitEffects==='off')return;
+    const layer=$('hit-effects'),groups=Array.from(layer.children).filter(n=>n.classList.contains('cherry-spread'));
+    while(groups.length>=4)groups.shift().remove();
+    const group=document.createElement('div');group.className='cherry-spread '+(kind==='VOLCANO'?'volcano':'dissatisfaction');group.dataset.skill=kind;group.setAttribute('aria-hidden','true');layer.append(group);
+    const caster=$('cherry-combatant'),launch={x:caster.offsetLeft+45,y:caster.offsetTop-12},targets=[];
+    const impact=readCombatGeometry().enemySlots[targetSlot]||readCombatGeometry().enemySlots[0],origin={x:impact.x,y:impact.y,id:'impact'};
+    for(const c of D.characters){const actor=$(c.id+'-combatant');if(E.isDeployed(state,c.id)&&!actor.hidden)targets.push({x:actor.offsetLeft,y:actor.offsetTop+(parseFloat(actor.style.getPropertyValue('--body-foot'))||60),id:c.id});}
+    const geometry=readCombatGeometry();for(const [i,e] of E.ensureEnemies(state).entries()){if(e.respawnSeconds)continue;const p=geometry.enemySlots[i];if(p)targets.push({x:p.x,y:p.y+60,id:e.id});}
+    for(const [i,b]of E.pomUnits(state).entries()){targets.push({...pomPosition(i,E.pomUnits(state).length),id:b.id});}
+    targets.sort((a,b)=>Math.abs(a.x-origin.x)-Math.abs(b.x-origin.x));
+    const add=(className,p,size,delay,target)=>{const carrier=document.createElement('span'),sprite=document.createElement('span');carrier.className=className;carrier.dataset.target=p.id||'cherry';carrier.style.left=p.x+'px';carrier.style.top=p.y+'px';carrier.style.setProperty('--spread-delay',delay+'s');if(size){carrier.style.width=size+'px';carrier.style.height=size+'px';}if(target){carrier.style.setProperty('--fire-x',(target.x-p.x)+'px');carrier.style.setProperty('--fire-y',(target.y-p.y)+'px');}sprite.className='cherry-fire-sprite';carrier.append(sprite);group.append(carrier);};
+    add('cherry-spread-travel cherry-spread-initial',launch,130,0,origin);
+    add('cherry-spread-flame cherry-spread-burst',origin,220,.38);
+    targets.forEach((p,i)=>{const delay=.55+i*.055;
+      add('cherry-spread-travel',{...origin,id:p.id},kind==='VOLCANO'?75:115,delay,p);
+      add('cherry-spread-flame',p,0,delay+.32);
+      if(kind==='VOLCANO'&&state.options.hitEffects!=='simple')for(const side of [-1,1])add('cherry-spread-flame',{...p,x:p.x+side*30},80,delay+.4);
+    });
+    deferVisual(()=>group.remove(),2100+targets.length*55);
+  }
   function showEvents(events, automatic = false) {
     changeVisualRate(E.battleSpeed(state));
     if(state.viewingMemories)return;
     const otherClears=events.filter(e=>e.type==='clear'&&e.sessionId&&e.sessionId!==state.sessionId);
     if(otherClears.length)log('別セッションで '+fullNumber(otherClears.reduce((n,e)=>n+(e.count||1),0))+'周。因子 +'+money(otherClears.reduce((n,e)=>n+e.reward,0))+'Rd');
     events=events.filter(e=>!e.sessionId||e.sessionId===state.sessionId);
+    if(events.some(e=>e.type==='timelineTurn'&&e.actorId==='richter')&&!document.hidden&&!reducedMotion.matches)hidePomsForAttack(FX.turnDuration(events)===.25?250:700);
+    const fireSkills=new Set(events.map(e=>e.actor||e.source).filter(name=>['VOLCANO','DISSATISFACTION'].includes(name)));for(const kind of fireSkills){const impact=events.find(e=>e.actor===kind&&Number.isInteger(e.targetSlot));cherrySpread(kind,impact?.targetSlot||0);}
     for(const launch of events.filter(e=>e.type==='manualLaunch'&&!e.charging))if(!document.hidden&&!reducedMotion.matches){
       const frame=FX.plan([{...launch,type:'attack',manualLaunch:true}])[0];if(!frame)continue;
       deferVisual(()=>{if(!playback.pending&&!(state.timeline?.manualAttacks?.length)){displayedHP=null;$('arena').classList.remove('combat-playing');requestBattleRender();}},FX.manualImpactSeconds(frame.actorId,frame.motion)*1000+1000);

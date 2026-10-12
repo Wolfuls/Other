@@ -32,7 +32,7 @@ test('all schema33 purchased perks refund their historical costs once with origi
  const s=ready();for(const char of D.characters){s.levels[char.id]=1;s.purchasedPerks[char.id]=Object.keys(legacyCosts[char.id]||{});}delete s.perkRefunded;
  const sum=Object.values(legacyCosts).flatMap(Object.values).reduce((n,cost)=>n+cost,0),legacy={gameId:D.gameId,schemaVersion:33,gameVersion:'0.56.3',state:s};
  const loaded=S.decode(JSON.stringify(legacy));assert.equal(loaded.factors,s.factors+sum);assert.equal(loaded.earned,s.earned);assert.equal(loaded.incomeTotals.migrationRefund,sum);assert.equal(roundTrip(loaded).factors,loaded.factors);
- for(const char of D.characters)for(const id of Object.keys(legacyCosts[char.id]||{}))assert.equal(loaded.perkEnabled[char.id][id],id==='western-munchkin'?undefined:true);
+ for(const char of D.characters)for(const id of Object.keys(legacyCosts[char.id]||{}))assert.equal(loaded.perkEnabled[char.id][char.id==='richter'&&id==='z-bom'?'g-bom':id],id==='western-munchkin'?undefined:true);
 });
 test('older Plot Armor migration refund is also classified and never counted twice',()=>{
  const s=ready(['max']);s.purchasedPerks.max=['plot-armor'];delete s.perkRefunded;const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:31,state:s}));

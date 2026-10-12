@@ -32,7 +32,7 @@ test('Max replaces one win with one recipient action even with free-action perks
  const s=ready(['max','meta']);enable(s,'max','named-npc');s.selectedCharacterId='meta';s.enemies[0].hp=1e100;force(s,'a:max');const ev=E.advance(s,1,rng(771));assert.equal(ev.filter(e=>e.type==='timelineTurn').length,1);assert.equal(ev.filter(e=>e.delegatedBy==='max').length,1);assert.equal(s.timeline.turns,1);
 });
 test('free actions and recursive attacks are strictly bounded inside one win',()=>{
- const s=ready(['max','richter']);enable(s,'max','named-npc');enable(s,'richter','gx-bom');s.perkEnabled.richter['z-bom']=false;s.selectedCharacterId='richter';s.enemies[0].hp=1e100;force(s,'a:richter');
+ const s=ready(['max','richter']);enable(s,'max','named-npc');enable(s,'richter','gx-bom');s.perkEnabled.richter['g-bom']=false;s.selectedCharacterId='richter';s.enemies[0].hp=1e100;force(s,'a:richter');
  const c=character('richter'),q=D.sessions.find(q=>q.id==='scarecrow'),before=[c.accuracy,q.evasion];
  try{c.accuracy={flat:100,dice:0};q.evasion={flat:0,dice:0};const ev=E.advance(s,1,()=>1-Number.EPSILON);assert.equal(ev.filter(e=>e.type==='timelineTurn').length,1);assert.equal(ev.filter(e=>e.type==='attack').length,E.MAX_TURN_ACTIONS*E.MAX_CHAIN_HITS);}finally{[c.accuracy,q.evasion]=before;}
 });test('action slow is nonstacking, duration bounded, ignores down targets and expires in rest',()=>{

@@ -9,7 +9,7 @@ const focus=(s,id,values)=>({...s.concentration[id],...values});
 test('every personal strength uses one level, no minimum increment and no former level cap',()=>{
  for(const char of D.characters){const s=ready([char.id]);for(const level of [1,2,11,201,501]){
   s.levels[char.id]=level;for(const t of D.concentration)near(E.strengthValue(s,char,t.id),100*(1+.02*(level-1)));
-  assert.equal(E.actionPower(s,char,2),Math.floor(2*(1+.04*(level-1))));
+  assert.equal(E.actionPower(s,char,2),Math.floor(2*(1+.08*(level-1))));
  }
  s.levels[char.id]=200;s.factors=1e50;assert.ok(E.buyMany(s,'level',char.id,10));assert.equal(roundTrip(s).levels[char.id],210);
  }

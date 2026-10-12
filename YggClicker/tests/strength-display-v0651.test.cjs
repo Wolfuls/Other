@@ -15,7 +15,7 @@ test('each strength label includes its own CP multiplier, uses shared display un
  const s=ready(['meta']);s.levels.meta=201;s.paused=true;assert.equal(E.setConcentration(s,'meta',{power:20,accuracy:8,evasion:0,armor:12}),true);
  const c=character('meta'),hp=E.maxHP(s,c),h=harness(s),cp=E.concentration(s,'meta');h.openAbility('meta');
  for(const stat of ['power','accuracy','evasion','vitality','armor']){
-  const multiplier=Math.exp(E.T.focusLog(cp[stat],200));if(cp[stat]>0)assert.ok(multiplier>1);assert.equal(h.get('ability-value-'+stat+'-meta').textContent,UI.incomeNumber(1+(E.strengthValue(s,c,stat)/100-1)/(stat==='vitality'?.04:.02)));
+  const multiplier=Math.exp(E.T.focusLog(cp[stat],200));if(cp[stat]>0)assert.ok(multiplier>1);assert.equal(h.get('ability-value-'+stat+'-meta').textContent,UI.incomeNumber(1+(E.strengthValue(s,c,stat)/100-1)/(stat==='vitality'?.08:.02)));
  }
  assert.equal(h.get('ability-maxhp-meta').textContent,'最大HP '+hp);assert.equal(A.strengthLevel(500,D.strength),201);assert.equal(A.strengthLevel(0,D.strength),0);assert.equal(A.strengthLevel(1e100,D.strength),5e99);
 });

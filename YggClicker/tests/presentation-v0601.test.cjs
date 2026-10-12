@@ -55,9 +55,10 @@ test('memory hint is gone; click opens earned total and tab hiding pauses all it
 test('browser script order and CommonJS resolve exactly the same canonical game data',()=>{
  const dir=path.join(__dirname,'..'),context={};context.window=context;
  const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
- const scripts=[...html.matchAll(/<script defer src="\.\/(js\/[^\"]+)"/g)].map(m=>m[1]);
+ const scripts=[...html.matchAll(/<script defer src="\.\/(js\/[^\"]+)"/g)].map(m=>m[1].split('?')[0]);
  for(const file of scripts){if(file==='js/app.js')break;vm.runInNewContext(fs.readFileSync(path.join(dir,file),'utf8'),context);}
  assert.deepEqual(JSON.parse(JSON.stringify(context.YggData)),JSON.parse(JSON.stringify(D)));
  assert.deepEqual(JSON.parse(JSON.stringify(context.YggEngine.createState(1000))),JSON.parse(JSON.stringify(E.createState(1000))));
  assert.equal(context.YggQuests[0].variants,context.YggQuests[2].variants);
 });
+

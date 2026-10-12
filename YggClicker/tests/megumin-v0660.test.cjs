@@ -62,7 +62,7 @@ test('awakening transitions grant area at 50, ward at 60 and fast chanting at 70
 test('fast chanting is added before training scaling and follows suppression without a stray plus one',()=>{
  const s=battle();enable(s,'megumin','crimson-flame');assert.equal(E.ownActionBonus(s,meg()),0);s.levels.megumin=51;s.runaway.megumin.runawayRate=80;
  const actual=E.actionPower(s,meg(),13,false,()=>0); // The shared 80% bonus adds 1 D6, rolled as 1.
- assert.equal(actual,66);assert.ok(E.suppressRunaway(s,'megumin'));assert.equal(E.ownActionBonus(s,meg()),7);assert.equal(E.actionPower(s,meg(),13,false,()=>0),60);
+ assert.equal(actual,110);assert.ok(E.suppressRunaway(s,'megumin'));assert.equal(E.ownActionBonus(s,meg()),7);assert.equal(E.actionPower(s,meg(),13,false,()=>0),100);
 });
 
 test('ward uses consumed magic times five even on an all-miss attack and still rolls damage',()=>{
@@ -87,7 +87,7 @@ test('area explosion grants one magic-based ward; the Lv200 attack still has the
 
 test('GM donations progress one charge each and cannot bypass the rest after casting',()=>{
  const s=battle(['megumin','max']);enable(s,'megumin','king-of-worlds');s.enemies[0].hp=1e8;
- function donated(){s.timeline.busySeconds=0;s.timeline.priorities["a:max"]=1e6;s.actionPoints.megumin=0;return E.advance(s,.01,random);}
+ function donated(){s.timeline.busySeconds=0;s.timeline.priorities={"a:max":1e6};s.actionPoints.megumin=0;return E.advance(s,.01,random);}
  for(let i=1;i<=2;i++){const ev=donated();assert.ok(ev.some(e=>e.type==='magicCharge'&&e.magicLevel===i+1&&e.delegatedBy==='max'));assert.ok(!ev.some(e=>e.type==='attack'&&e.actorId==='megumin'));}
  assert.ok(donated().some(e=>e.type==='attack'&&e.actorId==='megumin'));assert.equal(s.health.megumin.stunTurns,1);
  assert.ok(!donated().some(e=>e.type==='attack'&&e.actorId==='megumin'));assert.equal(s.health.megumin.stunTurns,1);

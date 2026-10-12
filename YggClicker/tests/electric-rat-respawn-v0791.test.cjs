@@ -9,7 +9,7 @@ test('individual rewards retain quest growth, upgrades and sin multiplier',()=>{
  for(const slot of [0,1]){const e=s.enemies[slot],spec=E.enemySpec(s,e),expected=E.incomeAmount(s,E.reward(s,spec)),before=s.factors;e.hp=1;E.selectEnemy(s,e.id);E.click(s,()=>.5);assert.equal(s.factors-before,expected);}
 });
 test('partial independent respawn progresses offscreen and survives current saves',()=>{
- const s=ready([],'electric-rat');s.enemies[1].hp=1;E.selectEnemy(s,s.enemies[1].id);E.click(s,()=>.5);const oldId=s.enemies[1].id;E.selectSession(s,'scarecrow');const restored=roundTrip(s);E.advance(restored,E.respawnDelay(restored)+.01,rng());const battle=restored.sessionStates['electric-rat'];assert.equal(battle.enemies[1].hp,15);assert.notEqual(battle.enemies[1].id,oldId);assert.equal(S.VERSION,59);assert.doesNotThrow(()=>roundTrip(restored));
+ const s=ready([],'electric-rat');s.enemies[1].hp=1;E.selectEnemy(s,s.enemies[1].id);E.click(s,()=>.5);const oldId=s.enemies[1].id;E.selectSession(s,'scarecrow');const restored=roundTrip(s);E.advance(restored,E.respawnDelay(restored)+.01,rng());const battle=restored.sessionStates['electric-rat'];assert.equal(battle.enemies[1].hp,15);assert.notEqual(battle.enemies[1].id,oldId);assert.equal(S.VERSION,61);assert.doesNotThrow(()=>roundTrip(restored));
 });
 test('ordinary duo still waits for all members and awards one group reward',()=>{
  const s=ready([],'egg-or-chicken'),before=s.factors,e=s.enemies[0];e.hp=1;E.selectEnemy(s,e.id);E.click(s,()=>.5);E.advance(s,3,rng());assert.equal(e.hp,0);assert.equal(s.kills,0);assert.equal(s.factors,before);

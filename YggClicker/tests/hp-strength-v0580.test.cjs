@@ -6,9 +6,9 @@ const {harness}=require('./app-harness.cjs');
 const near=(a,b,tolerance=1e-10)=>assert.ok(Math.abs(a-b)<=tolerance*Math.max(1,Math.abs(b)),`${a} != ${b}`);
 const legacy=s=>JSON.stringify({gameId:D.gameId,schemaVersion:36,gameVersion:'0.57.6',state:s});
 
-test('unified HP strength is linear four percent, without CP bonuses',()=>{
- const s=ready();for(const char of D.characters)for(const lv of [1,2,3,11,201]){s.levels[char.id]=lv;near(E.hpStrength(s,char),100*(1+.04*(lv-1)));assert.equal(E.maxHP(s,char),N.floor(char.maxHP*(1+.04*(lv-1))));}
- s.levels.meta=11;s.concentration.meta.vitality=10;near(E.hpStrength(s,c('meta')),140);
+test('unified HP strength is linear eight percent, without CP bonuses',()=>{
+ const s=ready();for(const char of D.characters)for(const lv of [1,2,3,11,201]){s.levels[char.id]=lv;near(E.hpStrength(s,char),100*(1+.08*(lv-1)));assert.equal(E.maxHP(s,char),N.floor(char.maxHP*(1+.08*(lv-1))));}
+ s.levels.meta=11;s.concentration.meta.vitality=10;near(E.hpStrength(s,c('meta')),180);
 });
 
 test('enemy HP uses the current shared curve and has a separate derived HP strength level',()=>{
@@ -65,7 +65,7 @@ test('retired HP allocation alters neither HP nor incoming damage',()=>{
 });
 
 test('unified level and defense allocations leave wounds unchanged, reductions clamp HP',()=>{
- const s=ready();s.health.meta.hp=7;assert.ok(E.buyMany(s,'level','meta',10));assert.equal(s.health.meta.hp,7);assert.equal(E.maxHP(s,c('meta')),28);
+ const s=ready();s.health.meta.hp=7;assert.ok(E.buyMany(s,'level','meta',10));assert.equal(s.health.meta.hp,7);assert.equal(E.maxHP(s,c('meta')),36);
  assert.ok(E.setConcentration(s,'meta',{...s.concentration.meta,armor:10}));assert.equal(s.health.meta.hp,7);s.health.meta.hp=E.maxHP(s,c('meta'));
  assert.ok(E.sell(s,'level','meta',10));assert.equal(s.health.meta.hp,20);assert.equal(Object.values(s.concentration.meta).reduce((a,b)=>a+b,0),0);
  s.health.meta={hp:-5,status:'dying',regenSeconds:1};assert.ok(E.buyMany(s,'level','meta',1));assert.equal(s.health.meta.hp,-5);assert.equal(s.health.meta.status,'dying');
@@ -111,7 +111,7 @@ test('six-second recovery follows actual scaled HP and revives only at full HP',
 test('ability UI shows shared HP strength and actual HP while gauges remain actual health',()=>{
  const s=ready(['meta']);s.paused=true;s.levels.meta=11;s.health.meta.hp=7;
  const h=harness(s);h.openAbility('meta');assert.equal(h.get('ability-value-vitality-meta').textContent,'11');
- assert.equal(h.get('ability-maxhp-meta').textContent,'最大HP 28');assert.match(h.get('picker-hp-meta').textContent,/7 \/ 28/);
- assert.match(h.get('ally-hp-meta').textContent,/25%/);assert.match(h.get('character-list').innerHTML,/HP強度/);
+ assert.equal(h.get('ability-maxhp-meta').textContent,'最大HP 36');assert.match(h.get('picker-hp-meta').textContent,/7 \/ 36/);
+ assert.match(h.get('ally-hp-meta').textContent,/19.4%/);assert.match(h.get('character-list').innerHTML,/HP強度/);
 });
 

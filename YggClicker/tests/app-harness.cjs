@@ -26,7 +26,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     remove(){if(this.parent){this.parent.children=this.parent.children.filter(n=>n!==this);this.parent=null;}}
     replaceChildren(...nodes){this.children.forEach(n=>n.parent=null);this.children=[];this.append(...nodes);}
     get firstElementChild(){return this.children[0];}get lastElementChild(){return this.children.at(-1);}
-    querySelector(sel){if(['.projectile-count','.enemy-target','.enemy-health','.enemy-status'].includes(sel))return this.children.find(n=>n.classList.contains(sel.slice(1)))||null;if(!this.selectors.has(sel))this.selectors.set(sel,new Element());return this.selectors.get(sel);}
+    querySelector(sel){if(['.projectile-count','.enemy-target','.enemy-health','.enemy-status','.enemy-sprite','.cherry-burning'].includes(sel))return this.children.find(n=>n.classList.contains(sel.slice(1)))||null;if(!this.selectors.has(sel))this.selectors.set(sel,new Element());return this.selectors.get(sel);}
     addEventListener(type,fn){this.listeners.set(type,fn);}click(){this.listeners.get('click')?.({target:this});}
     closest(selector){return this.parent?.classList.contains(selector.slice(1))?this.parent:null;}
     getAnimations(){return [];}

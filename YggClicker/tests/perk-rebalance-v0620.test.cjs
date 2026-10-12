@@ -5,7 +5,7 @@ const {harness}=require('./app-harness.cjs');
 const near=(a,b,eps=1e-10)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
 const tables={
  meta:[['mohican-slayer',0,0],['attack-plus',10,.1],['lock-plus',25,.1],['metal-shield',50,.1],['metal-blade',75,.3],['spinning-rush',100,.3],['metal-storm',125,.5],['full-metal-burst',150,.9]],
- richter:[['z-bom',0,.2],['dx-bom',10,.1],['bom-ber',25,.3],['gx-bom',50,.5],['vx-bom',75,.7],['ex-bom',100,.9]],
+ richter:[['g-bom',0,.5],['awaken-x-bom',0,0],['awaken-y-bom',0,0],['awaken-z-bom',0,0],['dx-bom',10,.1],['bom-ber',25,.3],['v-bom',50,.5],['gx-bom',75,.5],['gx-bom-double',100,.5],['vx-bom',125,.7],['ex-bom',150,.9]],
  waku:[['deceptive-hitbox',0,.1],['expanded-hurtbox',10,.1],['floor-clip',25,.2],['monado-smash',50,.3],['invisible-wall',75,.3],['vanishing-hurtbox',100,.8],['vanishing-hitbox',125,.9],['full-screen-hurtbox',150,.9],['next-frame',200,1.5]]
 };
 test('rebalanced catalogs match every level and per-minute pressure; hire order follows the new price',()=>{
@@ -13,7 +13,7 @@ test('rebalanced catalogs match every level and per-minute pressure; hire order 
  assert.deepEqual(D.characters.map(c=>c.cost),D.characters.map(c=>c.cost).toSorted((a,b)=>a-b));
  for(const [id,rows]of Object.entries(tables)){
   assert.deepEqual(c(id).perks.map(p=>[p.id,p.level]),rows.map(([id,lv])=>[id,lv]));
-  for(const [pid,lv,pressure]of rows){const p=c(id).perks.find(p=>p.id===pid);near(p.runawayPressure*60,pressure);assert.equal(!!p.initial,lv===0);assert.doesNotMatch(p.description,/※|実装|防御計算後|半減ペナルティ/);}
+  for(const [pid,lv,pressure]of rows){const p=c(id).perks.find(p=>p.id===pid);near(p.runawayPressure*60,pressure);assert.equal(!!p.initial,lv===0&&!p.awakeningLevel);assert.doesNotMatch(p.description,/※|実装|防御計算後|半減ペナルティ/);}
  }
  assert.equal(c('waku').perks[0].name,'詐欺判定有効');
 });
@@ -50,7 +50,7 @@ test('perk pressure accumulates only from eligible ON perks and is inactive whil
  }
 });
 test('Richter GX uses the same recursive 25% chain as Meta and spends no extra AP',()=>{
- const s=ready(['richter']);enable(s,'richter','gx-bom');s.perkEnabled.richter['z-bom']=false;
+ const s=ready(['richter']);enable(s,'richter','gx-bom');s.perkEnabled.richter['g-bom']=false;
  const p=E.attackProfile(s,c('richter'));assert.equal(p.extraAttackChance,.25);assert.equal(E.chainAttackCount(.25,()=>.99),4);
  s.enemies[0].hp=1e8;s.hp=1e8;let first=true;const hits=E.click(s,()=>first?(first=false,.99):.5).filter(e=>e.type==='attack');
  assert.equal(hits.length,4);assert.equal(hits.filter(e=>e.extraAttack).length,3);assert.equal(s.actionPoints.richter,0);
