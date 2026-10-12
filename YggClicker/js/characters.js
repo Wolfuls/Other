@@ -733,7 +733,8 @@
         "name": "貪戻の凩",
         "inflictPoison": true,
         "poisonDamage": 4,
-        "description": "攻撃で猛毒を付与。猛毒状態の敵は被弾ごとに4点の非接触ダメージ。",
+        "poisonStrengthExponent": 0.5,
+        "description": "攻撃で猛毒を付与。猛毒状態の敵は被弾ごとに4点の非接触ダメージ。攻撃強度に応じて猛毒ダメージも上昇する。",
         "runawayPressure": 0.005,
         "initial": true
       },

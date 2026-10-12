@@ -66,7 +66,7 @@ test('UI displays a deployed down sprite, actual HP, recovery reason and suppres
 
 test('explosion grounding moves 40 world pixels lower without changing magic scale',()=>{
  for(const height of [120,224,480])assert.equal(FX.meguminExplosionY(150,height),150+height*.42+40);
- const s=ready(['megumin']);s.enemies[0].evasionFailure=true;s.forecast=true;const h=harness(s,undefined,{combatRandom:()=>.4});h.click('attack');h.advance(800);
+ const s=ready(['megumin']);s.enemies[0].evasionFailure=true;s.forecast=true;s.timeline.busySeconds=10; /* Isolate the manual visual from concurrent automatic turns. */ const h=harness(s,undefined,{combatRandom:()=>.4});h.click('attack');h.advance(800);
  const blast=h.get('explosions').children.find(e=>e.classList.contains('megumin-explosion'));assert.ok(blast);
  // The app harness's shared combat geometry anchors the enemy at offsetTop=150.
  assert.equal(blast.style.top,FX.meguminExplosionY(150,224)+'px');assert.equal(blast.style.getPropertyValue('--explosion-size'),'600px');

@@ -10,7 +10,7 @@
   const setText = (id, value) => { const node = $(id), text = String(value); if (node.textContent !== text) node.textContent = text; };
   let maintenanceBusy=false,recoveryBusy=false,recoveryGeneration=0;
   const warmedImages=new Map();
-  function warmQuest(q){for(const src of [q.background,q.sheet,q.attackSheet,q.defeatSheet,q.summon?.sheet,...(q.members||[]).map(m=>m.sheet),...(q.variants||[]).flatMap(v=>[v.sheet,v.defeatSheet])].filter(Boolean)){if(warmedImages.has(src))continue;const img=new Image();warmedImages.set(src,img);img.onerror=()=>warmedImages.delete(src);img.src=src;}}
+  function warmQuest(q){for(const src of [q.background,q.sheet,q.attackSheet,q.defeatSheet,q.summon?.sheet,...(q.members||[]).flatMap(m=>[m.sheet,m.attackSheet,m.waveSheet,m.defeatSheet]),...(q.variants||[]).flatMap(v=>[v.sheet,v.defeatSheet])].filter(Boolean)){if(warmedImages.has(src))continue;const img=new Image();warmedImages.set(src,img);img.onerror=()=>warmedImages.delete(src);img.src=src;}}
   let renderScheduled=false,uiReady=false,summaryKey='',summaryValues=null;
   const incomeHistory=new window.YggIncomeHistory(Date.now());let incomeWindow=300;
   E.observeIncome((quest,amount)=>{if(uiReady&&!recoveryBusy&&!abilityEdit)incomeHistory.add(quest,amount,Date.now());});
@@ -223,7 +223,7 @@
     $('explosions').style.setProperty('--blast-duration', `${RICHTER_EXPLOSION_MS}ms`);
     $('party-capacity').textContent = `/ ${E.MAX_PARTY_SIZE}`;
     $('manual-formula').innerHTML = formulaPanel('manual', true);
-    $('character-picker').innerHTML = charactersByHireCost.map(c=>`<div class="picker-entry"><button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-copy"><span class="picker-name" id="picker-name-${c.id}"></span><span class="picker-hp" id="picker-hp-${c.id}"></span><span class="picker-runaway" id="picker-runaway-${c.id}"></span></span></button><button type="button" class="suppress-button" id="suppress-${c.id}" data-suppress="${c.id}"><span>暴走抑制</span><small id="suppress-cost-${c.id}"></small></button></div>`).join('');
+    $('character-picker').innerHTML = charactersByHireCost.map(c=>`<div class="picker-entry"><button id="inspect-${c.id}" type="button" role="tab" aria-controls="card-${c.id}" aria-selected="false" tabindex="-1"><span class="picker-icon" aria-hidden="true">${c.portraitSheet?`<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>`:`<img class="pixel-art" src="${c.portrait}" alt="">`}</span><span class="picker-copy"><span class="picker-name" id="picker-name-${c.id}"></span><span class="picker-level" id="picker-level-${c.id}"></span><span class="picker-hp" id="picker-hp-${c.id}"></span><span class="picker-runaway" id="picker-runaway-${c.id}"></span></span></button><button type="button" class="suppress-button" id="suppress-${c.id}" data-suppress="${c.id}"><span>暴走抑制</span><small id="suppress-cost-${c.id}"></small></button></div>`).join('');
     warmQuest(E.getSession(state));
     $('character-list').innerHTML = charactersByHireCost.map(c => `<article class="character-card compact-character" id="card-${c.id}" role="tabpanel" aria-labelledby="inspect-${c.id}" style="--char-color:${c.color}">
       <button class="character-select" data-select-character="${c.id}" aria-label="${c.name}を手動攻撃に選択" aria-pressed="false" title="クリックで手動攻撃の担当に選択"><span class="avatar ${c.portrait ? 'sprite-avatar' : ''}" aria-hidden="true">${c.portraitSheet ? `<span class="${c.portraitClass||'vishunal-avatar'} pixel-art" style="background-image:url('${c.portrait}')"></span>` : c.portrait ? `<img class="pixel-art" src="${c.portrait}" alt="">` : c.initials}</span><strong class="character-identity" id="identity-${c.id}">${c.name}</strong></button>
@@ -246,7 +246,7 @@
     const rows=window.YggAbilityView.rows({
       baseCell:t=>'<strong id="ability-base-'+t.id+'-'+c.id+'"></strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+(c.id==='waku'?'剣 1 ／ 発砲 2～3':rangeText(c.attackRange))+(c.attackElements?.length?' ／ [攻撃：'+c.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':'')+(c.statFlavor?'<small class="stat-flavor">'+(t.id==='armor'?'防御：'+c.statFlavor.defense+'<br>抵抗：'+c.statFlavor.resistance:c.statFlavor[t.id]||'')+'</small>':''),
       valueCell:t=>'<strong id="ability-value-'+t.id+'-'+c.id+'"></strong>',
-      controls:t=>focusControls(c,t.id),
+      controls:t=>D.concentration.some(x=>x.id===t.id)?focusControls(c,t.id):'',
       hp:'<small class="ability-hp" id="ability-maxhp-'+c.id+'"></small>',
       ss:'<strong id="ability-base-ss-'+c.id+'"></strong>'+(c.statFlavor?'<small class="stat-flavor">'+c.statFlavor.ss+'</small>':'')
     });
@@ -315,14 +315,15 @@
     const actionSpec={flat:c.actionDice.flat+act.action+ownAction+support.reduce((n,p)=>n+(p.partyAction||0),0),dice:c.actionDice.dice+act.dice+support.reduce((n,p)=>n+(p.partyActionDice||0),0)};
     const allocation=E.concentration(state,c.id),total=E.concentrationPoints(state,c.id),used=Object.values(allocation).reduce((n,v)=>n+v,0);
     const cpMultipliers=Object.fromEntries(D.concentration.map(t=>[t.id,E.T.focusMultiplier(allocation[t.id],total,t.id)]));
-    const values=Object.fromEntries(D.concentration.map(t=>[t.id,t.id==='action'?E.actionPower(ctx,c,c.action,true):window.YggAbilityView.strengthLevel(E.strengthValue(state,c,t.id),D.strength)]));
+    const values=Object.fromEntries(window.YggAbilityView.tracks.map(t=>[t.id,t.id==='action'?E.actionPower(ctx,c,c.action,true):window.YggAbilityView.strengthLevel(E.strengthValue(state,c,t.id),D.strength,t.id)]));
     if(c.magicPower){const m=E.magicState(ctx,c);setText('magic-summary-'+c.id,'魔力 Lv.'+displayedMagic(ctx,c).current+' / '+m.maximum+' · 攻撃力・命中力 ＋'+(m.current*c.magicPower)+(m.current<m.maximum?' · あと'+(m.maximum-m.current)+'手番詠唱、その次に攻撃':' · 次の行動で攻撃'));}
     setText('ability-maxhp-'+c.id,'最大HP '+fullNumber(E.maxHP(state,c)));
     const base={power:c.hiddenAttack?'？？？':dice({dice:profile.dice,flat:profile.flat+profile.bonus}),action:dice(actionSpec),vitality:fullNumber(c.maxHP),armor:fullNumber(E.armor(ctx,c))+' / '+fullNumber(E.armor(ctx,c,true)),accuracy:dice(E.accuracySpec(ctx,c,false)),evasion:dice(E.evasionSpec(ctx,c))};
     setText('ability-base-ss-'+c.id,dice(c.ss));setText('character-level-'+c.id,'Lv.'+fullNumber(level));
     setText('focus-remaining-'+c.id,'残り '+fullNumber(total-used)+' / '+fullNumber(total)+' CP');
-    for(const t of D.concentration){
+    for(const t of window.YggAbilityView.tracks){
       setText('ability-base-'+t.id+'-'+c.id,base[t.id]);setText('ability-value-'+t.id+'-'+c.id,t.id==='action'?fullNumber(values[t.id]):incomeNumber(values[t.id]));
+      if(!D.concentration.some(x=>x.id===t.id))continue;
       const input=$('focus-'+t.id+'-'+c.id);if(document.activeElement!==input)input.value=allocation[t.id];input.min=focusMinimum(c.id,t.id);input.max=total-used+allocation[t.id];input.disabled=blocked()||!level;
       setText('focus-bonus-'+t.id+'-'+c.id,'配分 ×'+incomeNumber(cpMultipliers[t.id]));
       if(t.id!=='action')$('ability-value-'+t.id+'-'+c.id).title='内部強度をCP未配分の味方Lv相当へ換算（小数3桁まで）';
@@ -353,7 +354,7 @@
     const {kind,id,trade}=button.dataset;
     const count=trade==='sell'?Number(button.dataset.count||1):10;
     const ok=trade==='sell'?E.sell(state,kind,id,count):E.buyMany(state,kind,id,10);
-    if(ok){if(kind!=='quest'||!E.questChangePending(state,id))resetCombatVisuals();const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id),q=D.sessions.find(q=>q.id===id);
+    if(ok){if(kind==='quest')questInputDrafts.delete(id);if(kind!=='quest'||!E.questChangePending(state,id))resetCombatVisuals();const c=D.characters.find(c=>c.id===id),u=D.upgrades.find(u=>u.id===id),q=D.sessions.find(q=>q.id===id);
       log(`${c?.name||u?.name||q?.name}：${trade==='sell'?count+'段階売却しました。':'10段階購入しました。'}`);save();render();}
     return true;
   }
@@ -406,7 +407,7 @@
     for(let i=0;i<3;i++){
       const node=$(i?'enemy-next-'+i:'enemy-art'),e=enemies[i],bar=node.querySelector('.enemy-health');
       const max=e?E.enemyMaxHP(state,e):1;
-      const duo=!!E.getSession(state).members;
+      const duo=!!E.getSession(state).members&&!E.getSession(state).independentRespawns;
       node.classList.toggle('duo-down',duo&&e?.hp<=0);
       node.classList.toggle('enemy-absent',!duo&&!!e?.respawnSeconds&&!pendingEnemyDefeats.has(e.id));
       if(e?.kind==='kogumo')node.hidden=(e.hp<=0&&!pendingEnemyDefeats.has(e.id))||pendingCloudBirths.has(e.id);
@@ -414,7 +415,7 @@
       const button=node.querySelector('.enemy-target');
       if(button){button.disabled=!e||e.hp<=0||!!e.respawnSeconds||blocked();button.setAttribute('aria-pressed',String(!!e&&state.focusedEnemyId===e.id));}
       if(e&&!playback.pending)shownPoison.set(e.id,e.poisonDamage);
-      if(bar){bar.hidden=!e;if(e){const text=e.respawnSeconds?(duo?(enemies.some(x=>x.hp>0)?'ダウン': '起き上がるまで '+e.respawnSeconds.toFixed(1)+'秒'):'再出現 '+e.respawnSeconds.toFixed(1)+'秒'):(duo?E.enemySpec(state,e).enemy+' · ':'')+'HP '+fullNumber(e.hp)+' / '+fullNumber(max)+' · 行動 '+rateFormat(E.enemyActionPower(state,undefined,e)*(e.turnSlowSeconds>0?1-e.turnSlowRate:1))+' · '+(e.pendingAttack?'準備中':'理論 '+((enemyTurns.units.find(u=>u.key==='e:'+e.id)?.share||0)*100).toFixed(1)+'%');if(bar.textContent!==text)bar.textContent=text;bar.style.setProperty('--hp-ratio',e.hp/max*100+'%');}}
+      if(bar){bar.hidden=!e;if(e){const text=e.respawnSeconds?(duo?(enemies.some(x=>x.hp>0)?'ダウン': '起き上がるまで '+e.respawnSeconds.toFixed(1)+'秒'):'再出現 '+e.respawnSeconds.toFixed(1)+'秒'):(duo?E.enemySpec(state,e).enemy+' · ':'')+'HP '+window.YggBattleHUD.hpPercent(e.hp,max)+' · '+(e.pendingAttack?'準備中':'理論 '+((enemyTurns.units.find(u=>u.key==='e:'+e.id)?.share||0)*100).toFixed(1)+'%');if(bar.textContent!==text)bar.textContent=text;bar.style.setProperty('--hp-ratio',e.hp/max*100+'%');}}
       const conditions=node.querySelector('.enemy-status');
       if(conditions){
         const labels=!e||e.hp<=0||e.respawnSeconds?[]:[
@@ -441,7 +442,8 @@
   function stopEnemyAttack(id,immediate=false){
     const visual=enemyAttackVisuals.get(id);if(!visual)return;
     if(visual.node.classList.contains('enemy-absorbing'))$('arena').classList.remove('clouds-sucking');
-    delete visual.node.dataset.duoAttack;visual.node.classList.remove('enemy-attacking','enemy-absorbing');if(visual.soul?.dataset?.duoEffect)window.YggDuoView.finish(visual.soul,immediate);else visual.soul?.remove();enemyAttackVisuals.delete(id);
+    if(visual.node.dataset.attackKind==='discharge')for(const node of Array.from($('arena').children))if(node.classList.contains('plant-charge'))node.remove();
+    delete visual.node.dataset.duoAttack;delete visual.node.dataset.attackKind;visual.node.classList.remove('enemy-attacking','enemy-absorbing');if(visual.soul?.dataset?.duoEffect)window.YggDuoView.finish(visual.soul,immediate);else visual.soul?.remove();enemyAttackVisuals.delete(id);
   }
   function startEnemyAttack(e){
     if(document.hidden||reducedMotion.matches||state.paused)return;
@@ -452,7 +454,9 @@
     const elapsed=e.duration-(e.remaining??e.duration);
     node.style.setProperty('--enemy-attack-duration',e.duration+'s');node.style.setProperty('--enemy-attack-delay',-elapsed+'s');
     node.classList.toggle('enemy-absorbing',e.kind==='absorb');
-    node.classList.add('enemy-attacking');restartAnimation(node.firstElementChild,'enemy-attack-frames');
+    node.dataset.attackKind=e.kind||'attack';
+    if(e.kind==='discharge'&&state.sessionId==='electric-rat')deferVisual(()=>{if(node.dataset.attackKind==='discharge')showPlantElectricity('charge',e.targetSlot,e.remaining??e.duration);},0);
+    node.classList.add('enemy-attacking');restartAnimation(node.firstElementChild,node.classList.contains('electric-rat')?'electric-rat-attack':'enemy-attack-frames');
     let soul=null;
     if(node.classList.contains('duo-combatant')){const area=['boulder','blizzard'].includes(e.kind),targets=area?E.enemyTargetCandidates(state,E.ensureEnemies(state)[e.targetSlot]):D.characters.filter(c=>c.id===e.targetId);soul=window.YggDuoView.attack(node,e,$('arena'),targets.map(c=>$(c.id+'-combatant')).filter(Boolean));}
     if(state.sessionId==='dementor'&&E.isDeployed(state,e.targetId)){
@@ -479,6 +483,10 @@
       $('enemy-effects').append(soul);
     }
     enemyAttackVisuals.set(e.enemyId,{node,soul});
+    if(state.sessionId==='electric-rat'&&['discharge','thunderstrike','electric-shock','thunder-wave'].includes(e.kind))deferVisual(()=>{
+      const visual=enemyAttackVisuals.get(e.enemyId);
+      if(visual?.node===node&&node.dataset.attackKind===e.kind)visual.soul=showRatElectricity(e);
+    },0);
   }
   let receivedFloatSequence=0;
   function showEnemyAttack(e){
@@ -596,7 +604,7 @@
     $('session-code').textContent = state.viewingMemories?'追憶':`SESSION ${session.code} / ${session.name} / Lv.${fullNumber(session.level)}`;
     $('session-description').textContent = session.description;
     $('enemy-rules').textContent = session.members?session.members.map(m=>m.name+'：防御'+m.defense+' / 抵抗'+m.resistance).join(' · '):`防御 ${E.enemyDefense(session)} / 属性：${(session.traits || []).map(t => D.enemyTraits[t] || t).join('・') || 'なし'}`;
-    $('reward').textContent = `◇ ${money(E.incomeAmount(state,E.reward(state)))}Rd`;
+    $('reward').textContent = session.independentRespawns?`◇ ${money(E.incomeAmount(state,E.reward(state)))}Rd / バッドアス ${money(E.incomeAmount(state,E.reward(state,E.enemySpec(state,{kind:'electric-rat'}))))}Rd`:`◇ ${money(E.incomeAmount(state,E.reward(state)))}Rd`;
     const selected = E.selectedCharacter(state);
     $('manual-actor').textContent = `手動攻撃：${selected ? selected.name : 'あなた'}`;
     $('select-self').hidden = !selected;
@@ -625,8 +633,10 @@
       card.classList.toggle('manual-selected', state.selectedCharacterId === c.id);
       setText('identity-'+c.id,obscured?'？？？':c.name);
       setText('picker-name-'+c.id,obscured?'？？？':c.shortName|| (c.id==='meta'?'メタ':c.id==='richter'?'ゲルハムト':c.id==='vishunal'?'ビシュナル':c.id==='tordeliese'?'トルデリーゼ':c.name));
+      setText('picker-level-'+c.id,'Lv.'+fullNumber(level));
+      $('picker-level-'+c.id).title='Lv.'+level.toLocaleString('ja-JP');
       $('inspect-'+c.id).classList.toggle('obscured',obscured);
-      $('inspect-'+c.id).setAttribute('aria-label',obscured?`未公開の仲間・${money(cost)}Rdの詳細`:`${c.name}の詳細`);
+      $('inspect-'+c.id).setAttribute('aria-label',obscured?`未公開の仲間・${money(cost)}Rdの詳細`:`${c.name} Lv.${level.toLocaleString('ja-JP')}の詳細`);
       const selectButton = document.querySelector(`[data-select-character="${c.id}"]`);
       selectButton.disabled = blocked() || !E.isDeployed(state,c.id);
       selectButton.setAttribute('aria-pressed', state.selectedCharacterId === c.id);
@@ -736,7 +746,7 @@
       const title=(index+1)+'手目：'+u.name+'（'+(ally?'味方':'敵')+'）';icon.setAttribute('aria-label',title);icon.title=title;
       const art=document.createElement('span');art.className='turn-order-art pixel-art';
       const source=c?.portrait||appearance?.sheet||appearance?.image;
-      if(source){art.style.backgroundImage='url("'+source+'")';art.style.backgroundSize=((c?.portraitSheet?8:appearance?.sheet?(appearance.spriteFrames||4):1)*100)+'% '+(e?.kind==='chikira'?1024/262*100:e?.kind==='eggra'?1024/280*100:100)+'%';}else art.textContent=u.name.slice(0,2);
+      if(source){art.style.backgroundImage='url("'+source+'")';art.style.backgroundSize=((c?.portraitSheet?4:appearance?.sheet?(appearance.spriteFrames||4):1)*100)+'% '+(c?.portraitSheet?200:e?.kind==='chikira'?1024/262*100:e?.kind==='eggra'?1024/280*100:100)+'%';}else art.textContent=u.name.slice(0,2);
       icon.append(art);const number=document.createElement('small');number.textContent=String(index+1);icon.append(number);node.append(icon);
     });
   }
@@ -745,6 +755,8 @@
     node.setAttribute('aria-label',role+appearance.name);
     node.classList.toggle('animated-enemy',!!appearance.sheet);
     node.classList.toggle('pixel-art',!!appearance.sheet);
+    node.classList.toggle('electric-rat',appearance.id==='electric-rat');
+    node.classList.toggle('electro-rat',appearance.spriteKind==='electro-rat');
     const source=appearance.sheet||appearance.image||'';
     node.classList.toggle('enemy-placeholder',!source);
     node.dataset.placeholderName=source?'':appearance.name;
@@ -757,6 +769,8 @@
     if(!sprite){sprite=document.createElement('span');sprite.className='enemy-sprite';sprite.setAttribute('aria-hidden','true');node.append(sprite);}
     sprite.style.setProperty('--enemy-image',source?'url("'+source+'")':'none');
     sprite.style.setProperty('--enemy-attack-image',appearance.attackSheet?'url("'+appearance.attackSheet+'")':'none');
+    sprite.style.setProperty('--enemy-wave-image',appearance.waveSheet?'url("'+appearance.waveSheet+'")':'none');
+    sprite.style.setProperty('--enemy-defeat-image',appearance.defeatSheet?'url("'+appearance.defeatSheet+'")':'none');
     sprite.style.setProperty('--enemy-absorb-image',appearance.absorbSheet?'url("'+appearance.absorbSheet+'")':'none');
     sprite.style.setProperty('--foot-shift',((211-(appearance.footY??211))/224*100)+'%');
   }
@@ -772,8 +786,9 @@
       }
       const node=$(i?'enemy-next-'+i:'enemy-art');node.hidden=e.kind==='kogumo'&&((e.hp<=0&&!pendingEnemyDefeats.has(e.id))||pendingCloudBirths.has(e.id));node.classList.toggle('cloud-boss',!!session.summons&&!i);node.classList.toggle('cloud-minion',e.kind==='kogumo');if(node.dataset.enemyId!==String(e.id)){for(const [id,v]of enemyAttackVisuals)if(v.node===node)stopEnemyAttack(id);}node.dataset.enemyId=String(e.id);
       setEnemyAppearance(node,enemyAppearances.get(e.id),'');
-      node.classList.toggle('duo-combatant',!!session.members);
-      if(session.members)window.YggDuoView.mount(node,e.kind);else node.querySelector('canvas')?.remove();
+      const canvasMember=!!session.members&&['chikira','eggra'].includes(e.kind);
+      node.classList.toggle('duo-combatant',canvasMember);
+      if(canvasMember)window.YggDuoView.mount(node,e.kind);else node.querySelector('canvas')?.remove();
       node.setAttribute('role','group');
       let button=node.querySelector('.enemy-target');
       if(!button){button=document.createElement('button');button.type='button';button.className='enemy-target';node.append(button);
@@ -792,7 +807,7 @@
   function renderBattleLayout(width = arenaViewportWidth) {
     arenaViewportWidth = width || $('arena-viewport').clientWidth || 300;
     const options = {metaScale:E.weaponScale(state,'meta'),richterScale:E.weaponScale(state,'richter'),metaCount:0,richterCount:0,
-      formationRows:state.formationRows,availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
+      formationRows:state.formationRows,groundFraction:E.getSession(state).groundFraction||.66,availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
       metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
     const key = JSON.stringify(options);
     if (key === battleLayoutKey) return;
@@ -811,6 +826,12 @@
     arena.style.setProperty('--enemy-width', `${layout.enemyWidth}px`);
     arena.style.setProperty('--enemy-height', `${layout.enemyHeight}px`);
     arena.style.setProperty('--enemy-foot', `${layout.enemyFoot || 0}px`);
+    for(let i=0;i<3;i++){
+      const actor=$(i?'enemy-next-'+i:'enemy-art'),scale=layout.enemyScales?.[i]||1;
+      actor.style.setProperty('--enemy-width',layout.enemyWidth*scale+'px');
+      actor.style.setProperty('--enemy-height',layout.enemyHeight*scale+'px');
+      actor.style.setProperty('--enemy-foot',(layout.enemyFoot||0)*scale+'px');
+    }
     layout.reserves.forEach((p,i)=>{arena.style.setProperty(`--reserve-${i+1}-x`,`${p.x}px`);arena.style.setProperty(`--reserve-${i+1}-y`,`${p.y}px`);});
     for (const id of ['meta','richter']) {
       const placement = layout[id], actor = $(`${id}-combatant`);
@@ -1138,6 +1159,7 @@
     return last+520;
   }
   function resetCombatVisuals(resetRoll = false) {
+    for(const node of Array.from($('arena').children))if(node.classList.contains('plant-electricity'))node.remove();
     for(const id of ['mitsuru','waku','tordeliese'])$(id+'-combatant').classList.remove('range-motion');
     for(const c of D.characters)$('ally-rolls-'+c.id).replaceChildren();
     playback.reset();shownPoison.clear();pendingCloudBirths.clear();pendingEnemyDefeats.clear();
@@ -1184,7 +1206,8 @@
     ghost.dataset.impactId = visualHitId;
     const hasDefeatSheet = !!ghost.dataset.defeatSheet;
     const groundedDefeat=['kneel','dissolve'].includes(ghost.dataset.defeatStyle);
-    const fallMs = groundedDefeat ? 1100 : motion.fallMs + (hasDefeatSheet ? 240 : 0);
+    const ratDefeat=ghost.classList.contains('electric-rat')||ghost.classList.contains('electro-rat');
+    const fallMs = ratDefeat ? 320 : groundedDefeat ? 1100 : motion.fallMs + (hasDefeatSheet ? 240 : 0);
     if (hasDefeatSheet) {
       ghost.classList.add('has-defeat-sheet');
       ghost.firstElementChild.style.setProperty('--enemy-image', 'url("'+ghost.dataset.defeatSheet+'")');
@@ -1319,6 +1342,60 @@
     node.style.setProperty('--roll-slot',String(layer.children.length));
     layer.append(node);deferVisual(()=>node.remove(),1800);
   }
+  // Four-frame raster effects keep their aspect ratio; only compact sparks travel.
+  function electricSprite(layer,kind,x,y,size,delay=0,travel=null,duration=.55,fullHeight=null){
+    const carrier=document.createElement('span');carrier.className='electric-sprite-carrier';
+    carrier.style.left=x+'px';carrier.style.top=y+'px';carrier.style.setProperty('--fx-delay',delay+'s');carrier.style.setProperty('--fx-duration',duration+'s');
+    if(travel){carrier.classList.add('electric-travel');carrier.style.setProperty('--fx-x',travel.x-x+'px');carrier.style.setProperty('--fx-y',travel.y-y+'px');}
+    const sprite=document.createElement('span');sprite.className='electric-sprite fx-'+kind;
+    sprite.style.width=size+'px';sprite.style.height=(fullHeight?fullHeight*1.3:size*.75)+'px';if(fullHeight)carrier.style.top=fullHeight/2+'px';carrier.append(sprite);layer.append(carrier);
+  }
+  function ratEffectOrigin(slot=0){
+    const p=readCombatGeometry().enemySlots[slot],actor=$(slot?'enemy-next-'+slot:'enemy-art');
+    return actor.classList.contains('electric-rat')?{x:p.x+actor.offsetWidth*.12,y:p.y+actor.offsetHeight*.2}:p;
+  }
+  function reactorEffectOrigin(){
+    const arena=$('arena'),viewport=$('arena-viewport'),a=arena.getBoundingClientRect(),v=viewport.getBoundingClientRect();
+    const scale=a.width/arena.clientWidth||1,cover=Math.max(viewport.clientWidth/1536,viewport.clientHeight/1024);
+    return {x:(v.left+viewport.clientWidth/2+(999-768)*cover-a.left)/scale,y:(v.top+viewport.clientHeight/2+(342-512)*cover-a.top)/scale,cover:cover/scale};
+  }
+  function showRatElectricity(e){
+    if(document.hidden||reducedMotion.matches||state.paused)return null;
+    const arena=$('arena'),source=ratEffectOrigin(e.targetSlot||0),node=document.createElement('span');
+    node.className='rat-electricity';node.dataset.kind=e.kind;node.setAttribute('aria-hidden','true');
+    const seconds=Math.max(.1,e.remaining??e.duration),enemy=E.ensureEnemies(state)[e.targetSlot||0];
+    const targets=e.kind==='discharge'?E.enemyTargetCandidates(state,enemy):D.characters.filter(c=>c.id===e.targetId);
+    if(e.kind!=='discharge')electricSprite(node,e.kind,source.x,source.y,e.kind==='discharge'?210:130,0,null,seconds);if(e.kind!=='discharge')node.lastElementChild.classList.add('rat-aura');
+    if(e.kind==='discharge')for(const [slot,rat]of E.ensureEnemies(state).entries()){
+      if(rat.hp<=0||rat.respawnSeconds)continue;
+      const actor=$(slot?'enemy-next-'+slot:'enemy-art'),p=ratEffectOrigin(slot);
+      electricSprite(node,'discharge',p.x,p.y,actor.offsetWidth*.95,0,null,seconds);
+      node.lastElementChild.classList.add('rat-aura');
+    }
+    for(const c of targets){
+      const actor=$(c.id+'-combatant');if(!actor||actor.hidden)continue;
+      const target={x:actor.offsetLeft,y:actor.offsetTop};
+      electricSprite(node,e.kind==='thunder-wave'?'thunder-wave':'electric-shock',source.x,source.y,e.kind==='thunder-wave'?110:75,0,target,seconds*.7);
+      electricSprite(node,e.kind,target.x,target.y,e.kind==='thunderstrike'?200:e.kind==='discharge'?150:115,seconds*.55,null,seconds*.45,e.kind==='thunderstrike'?arena.clientHeight:null);
+    }
+    arena.append(node);return node;
+  }
+  function showPlantElectricity(phase,slot=0,seconds=.9){
+    if(document.hidden||reducedMotion.matches||state.paused||state.sessionId!=='electric-rat')return;
+    const arena=$('arena');for(const previous of Array.from(arena.children))if(previous.classList.contains('plant-electricity'))previous.remove();
+    const source=ratEffectOrigin(slot),core=reactorEffectOrigin(),cover=core.cover;
+    const node=document.createElement('span');node.className='plant-electricity '+(phase==='charge'?'plant-charge':'plant-field');node.setAttribute('aria-hidden','true');
+    if(phase==='charge')electricSprite(node,'electric-shock',source.x,source.y,90,0,core,seconds);
+    else{
+      electricSprite(node,'discharge',core.x,core.y,320*cover,0,null,seconds);
+      for(const [i,f]of [.18,.5,.85].entries()){
+        const target={x:arena.clientWidth*f,y:arena.clientHeight*.76};
+        electricSprite(node,'electric-shock',core.x,core.y,110,.08+i*.04,target,.4);
+        electricSprite(node,'discharge',target.x,target.y,240,.4+i*.04,null,.4);
+      }
+    }
+    arena.append(node);deferVisual(()=>node.remove(),Math.max(.1,seconds)*1000);
+  }
   function showEvents(events, automatic = false) {
     changeVisualRate(E.battleSpeed(state));
     if(state.viewingMemories)return;
@@ -1342,6 +1419,7 @@
       else if(event.type==='enemyCharm'){setText('last-roll',event.kind==='ward'?'防御のおまじない：防御＋5（10秒）':event.success?'蘇生のおまじない：チキーラがHP50%で復活':'蘇生のおまじない：失敗');renderEnemy(E.getSession(state));}
       else if(event.type==='enemyWindup')startEnemyAttack(event);
       else if(event.type==='enemyAttack')showEnemyAttack(event);
+      else if(event.type==='electricField')showPlantElectricity('field',event.targetSlot);
       else if(event.type==='enemyAbsorb')showCloudAbsorb(event);
       else if(event.type==='enemySummon'){if(event.created&&!document.hidden&&!reducedMotion.matches)pendingCloudBirths.add(event.enemyId);}
       else if(event.type==='enemyRemoved')renderEnemy(E.getSession(state));
@@ -1504,9 +1582,9 @@
     if(encounter.members){
       const html=encounter.members.map(member=>{
         const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>incomeNumber(window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength));
-        const bases={action:fullNumber(q.action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(q.attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
-        return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength)):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>';
-      }).join('')+'<p>2人とも倒すと報酬 '+money(encounter.reward)+' Rd。先に倒した相手はダウンしたまま待機し、討伐後に2人とも復帰します。</p>';
+        const bases={action:q.actionDice?rollText(q.actionDice):fullNumber(q.action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(q.attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
+        return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>'+(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+'</p>';
+      }).join('')+(encounter.independentRespawns?'<p>1体倒すごとに報酬を獲得し、倒した枠へ次の個体が乱入します。'+encounter.members.map(member=>member.name+' '+money(E.incomeAmount(ctx,E.reward(ctx,E.enemySpec(ctx,{kind:member.id})) ))+' Rd').join(' / ')+'</p>':'<p>'+encounter.members.length+'体すべて倒すと報酬 '+money(E.reward(ctx))+' Rd。先に倒した相手はダウンしたまま待機し、討伐後に全員が復帰します。</p>');
       if(node.innerHTML!==html)node.innerHTML=html;return;
     }
     const F=window.YggMatchup,q=E.getSession(ctx),forecast=F.party(ctx),attack=E.enemyAttackSpec(forecast.state);
@@ -1514,12 +1592,12 @@
     const bases={action:rollText(action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
     const stats='<div class="enemy-ability-rows">'+window.YggAbilityView.rows({
       enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>'+(t.id==='power'?'<small class="base-attack-range">基本射程 '+rangeText(q.attackRange||[1,3])+(q.attackElements?.length?' ／ [攻撃：'+q.attackElements.map(x=>E.elementNames[x]).join('・')+']':'')+'</small>':''),
-      valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength)):strength(t.id))+'</strong>',
+      valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?incomeNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',
       hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'
     })+'</div>';
     const percent=v=>(v*100).toFixed(1)+'%',finite=v=>Number.isFinite(v)?'約'+rateFormat(v)+'回':'—';
     const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">'+(r.reachable?'約'+percent(r.hitRate):'射程外')+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+(r.apAttack?'換算前 '+rateFormat(r.averageAPDamage):rateFormat(r.averageDamage))+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':!r.enemyReachable?'敵の射程外':finite(r.endurance))+'</td></tr>').join('');
-    const html='<p>'+E.attributeSummary(q)+(q.summons?'（コグモも同じ）':'')+'</p><div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
+    const html=(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+(q.summons?'（コグモも同じ）':'')+'</p><div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
     if(node.innerHTML!==html)node.innerHTML=html;
   }
   function renderFormationDraft(){
@@ -1709,6 +1787,8 @@
       const memories=event.target.closest('[data-memories]');if(memories){if(!memories.disabled)chooseQuest('memories');return;}
       const info=event.target.closest('[data-enemy-info]');
       if(info&&!info.disabled){enemyInfoQuestId=info.dataset.enemyInfo;const ctx=E.battleContext(state,enemyInfoQuestId);setText('enemy-info-quest',E.getSession(ctx).name);renderEnemyInfo(ctx,$('enemy-info-content'));if(!$('enemy-info-dialog').open)$('enemy-info-dialog').showModal();return;}
+      const member=event.target.closest('[data-quest-member]');
+      if(member){questView.selectMember(state,member.dataset.questMember,Number(member.dataset.memberIndex));return;}
       const details=event.target.closest('[data-quest-details]');
       if(details?.dataset.questDetails){
         if(details.disabled||blocked())return;

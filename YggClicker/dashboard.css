@@ -60,7 +60,7 @@
 .dashboard .notice{position:absolute;top:65px;left:24px;right:24px;z-index:20;margin:0;box-shadow:0 8px 20px #0007;max-height:30vh;overflow:auto}
 @media(min-width:900px) and (min-height:500px){
  html:has(body.dashboard),body.dashboard{height:100%;overflow:hidden}
- .dashboard .shell{width:100%;max-width:none;height:100dvh;padding:0 20px 10px;display:grid;grid-template-rows:60px 88px minmax(0,1fr) 26px;gap:10px}
+ .dashboard .shell{width:100%;max-width:none;height:100dvh;padding:0 20px 10px;display:grid;grid-template-rows:60px 88px minmax(0,1fr);gap:10px}
  .dashboard .topbar{height:60px;margin:0;padding:0}.dashboard .brand{font-size:22px}.dashboard .brand small{font-size:10px}.dashboard .brand-mark{width:33px;height:36px;font-size:30px}.dashboard .version{font-size:11px}
  .dashboard .metrics{margin:0;grid-template-columns:minmax(190px,1.45fr) minmax(115px,.85fr) minmax(160px,1.05fr) minmax(95px,.6fr) minmax(120px,1fr);align-items:stretch;min-height:0}
  .dashboard .metric{padding:9px 14px;min-width:0;overflow:auto;scrollbar-width:thin;border-bottom:0}
@@ -83,7 +83,7 @@
  .dashboard .attack-controls{margin:0;gap:8px}.dashboard .attack-button{padding:8px 14px;min-height:56px;max-height:66px}.dashboard .attack-button small{font-size:12px;max-height:32px;overflow:auto;white-space:normal}.dashboard .attack-symbol{font-size:26px}.dashboard .pause-button{min-width:52px}
  .dashboard footer{margin:0;padding:0;min-width:0;font-size:11px;gap:12px}.dashboard footer .text-button{font-size:12px}
 }
-@media(min-width:900px) and (max-height:760px){.dashboard .shell{grid-template-rows:50px 74px minmax(0,1fr) 22px;gap:7px;padding:0 12px 6px}.dashboard .topbar{height:50px}.dashboard .brand small{display:none}.dashboard .metric{padding:6px 10px}.dashboard #factors{font-size:24px}.dashboard .metric strong,.dashboard #kills{font-size:21px}.dashboard .manager-view{padding:10px}.dashboard .manager-tabs{padding:5px}.dashboard .manager-tabs button{padding:8px 2px}.dashboard .battle-heading{display:none}.dashboard .single-session .battle-panel{grid-template-rows:auto minmax(0,1fr) auto auto auto;padding:10px;gap:6px}.dashboard .character-panel>.panel-heading{display:none}.dashboard .character-picker{margin-bottom:8px}.dashboard .character-picker button{min-height:70px;height:auto}.dashboard .compact-character>.character-select{min-height:38px;margin-bottom:6px}.dashboard .compact-character .avatar{height:38px;width:35px}.dashboard .upgrade-card{padding:9px}.dashboard .upgrade-card p{margin-bottom:6px}.dashboard .upgrade-card h3{margin-top:19px}}
+@media(min-width:900px) and (max-height:760px){.dashboard .shell{grid-template-rows:50px 74px minmax(0,1fr);gap:7px;padding:0 12px 6px}.dashboard .topbar{height:50px}.dashboard .brand small{display:none}.dashboard .metric{padding:6px 10px}.dashboard #factors{font-size:24px}.dashboard .metric strong,.dashboard #kills{font-size:21px}.dashboard .manager-view{padding:10px}.dashboard .manager-tabs{padding:5px}.dashboard .manager-tabs button{padding:8px 2px}.dashboard .battle-heading{display:none}.dashboard .single-session .battle-panel{grid-template-rows:auto minmax(0,1fr) auto auto auto;padding:10px;gap:6px}.dashboard .character-panel>.panel-heading{display:none}.dashboard .character-picker{margin-bottom:8px}.dashboard .character-picker button{min-height:70px;height:auto}.dashboard .compact-character>.character-select{min-height:38px;margin-bottom:6px}.dashboard .compact-character .avatar{height:38px;width:35px}.dashboard .upgrade-card{padding:9px}.dashboard .upgrade-card p{margin-bottom:6px}.dashboard .upgrade-card h3{margin-top:19px}}
 @media(max-width:899px){.dashboard .shell{padding:0 12px}.dashboard .workspace.single-session{display:flex;flex-direction:column}.dashboard .management-panel{width:100%}.dashboard .manager-view{max-height:640px}.dashboard .character-panel>.panel-heading{display:none}.dashboard .single-session #character-list{display:block}.dashboard .compact-character{max-width:none}.dashboard .topbar{margin-bottom:12px}.dashboard .battle-panel{padding:12px}.dashboard .enemy-title{margin-top:10px}.dashboard #session-description{display:none}.dashboard .metrics{margin-bottom:12px}.dashboard .notice{left:12px;right:12px}.dashboard footer>span:first-child{display:none}}
 @media(max-width:400px){.character-picker .picker-name{font-size:12px}.character-picker button{gap:4px;padding:4px}.character-picker .picker-icon{width:27px}.dashboard .upgrade-list{grid-template-columns:1fr}.dashboard .compact-character .character-controls .enhancement-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.dashboard .current-multiplier>span{font-size:12px!important}}
 @media(min-width:900px) and (max-height:650px){
@@ -307,9 +307,55 @@
 
 /* The optional income summary needs its own row, not the battle workspace row. */
 @media(min-width:900px) and (min-height:500px){
- .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:60px 88px auto minmax(0,1fr) 26px}
+ .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:60px 88px auto minmax(0,1fr)}
  .dashboard .shell>.karma-income{margin:0;line-height:1.4}
 }
 @media(min-width:900px) and (min-height:500px) and (max-height:760px){
- .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:50px 74px auto minmax(0,1fr) 22px}
+ .dashboard .shell:has(> .karma-income:not([hidden])){grid-template-rows:50px 74px auto minmax(0,1fr)}
 }
+
+/* User-supplied electric rat: 3 idle frames, 5 attack frames, one down pose. */
+.animated-enemy.electric-rat .enemy-sprite{background-size:300% 100%;animation:electric-rat-idle 1s steps(1,end) infinite}
+@keyframes electric-rat-idle{0%,100%{background-position:0 0}33.333333%{background-position:50% 0}66.666667%{background-position:100% 0}}
+.grounded .electric-rat.enemy-attacking:not(.enemy-defeat) .enemy-sprite{background-size:500% 100%;animation:enemy-attack-frames var(--enemy-attack-duration,.72s) steps(1,end) var(--enemy-attack-delay,0s) both!important;animation-name:electric-rat-attack!important}
+@keyframes electric-rat-attack{0%{background-position:0 0}20%{background-position:25% 0}40%{background-position:50% 0}60%{background-position:75% 0}80%,100%{background-position:100% 0}}
+:is(.electric-rat,.electro-rat).enemy-defeat.has-defeat-sheet .enemy-sprite{background-size:100% 100%;background-position:0 0;animation:none}
+@media(prefers-reduced-motion:reduce){.animated-enemy.electric-rat .enemy-sprite,.grounded .electric-rat.enemy-attacking:not(.enemy-defeat) .enemy-sprite{animation:none!important;background-position:0 0}}
+
+/* The escort's two actions use separate four-frame strips. */
+.grounded .electro-rat.enemy-attacking[data-attack-kind="thunder-wave"]:not(.enemy-defeat) .enemy-sprite{background-image:var(--enemy-wave-image)}
+.grounded :is(.electric-rat,.electro-rat).duo-down .enemy-sprite{position:relative;width:133.333333%;height:100%;left:-16.666667%;top:0;transform:none;background-image:var(--enemy-defeat-image);background-size:100% 100%;background-position:0 0;animation:none!important}
+:is(.electric-rat,.electro-rat).duo-down .enemy-target{display:none}
+
+/* Discharge energizes the plant conduits before the network overloads. */
+
+.plant-electricity,.rat-electricity{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+.electric-sprite-carrier{position:absolute;display:block;animation:fx-life var(--fx-duration) linear var(--fx-delay) both}
+.electric-sprite{display:block;background-repeat:no-repeat;background-size:400% 100%;image-rendering:pixelated;transform:translate(-50%,-50%);animation:fx-frames var(--fx-duration) steps(1,end) var(--fx-delay) both}
+.fx-discharge{background-image:url('./img/fx-discharge-v1.png')}
+.fx-thunderstrike{background-image:url('./img/fx-thunderstrike-v1.png')}
+.fx-electric-shock{background-image:url('./img/fx-electric-shock-v1.png')}
+.fx-thunder-wave{background-image:url('./img/fx-thunder-wave-v1.png');transform:translate(-50%,-50%) scaleX(-1)}
+.electric-travel{animation:fx-travel var(--fx-duration) linear var(--fx-delay) both}
+@keyframes fx-frames{0%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%,100%{background-position:100% 0}}
+@keyframes fx-life{0%{opacity:0}1%,90%{opacity:1}100%{opacity:0}}
+@keyframes fx-travel{0%{transform:translate(0,0);opacity:1}85%{opacity:1}100%{transform:translate(var(--fx-x),var(--fx-y));opacity:0}}
+@media(prefers-reduced-motion:reduce){.rat-electricity,.plant-electricity{display:none}}
+
+/* Center a narrower battlefield while keeping its available height. */
+@media(min-width:900px) and (min-height:500px){.dashboard .arena-viewport{width:84%;max-width:1100px;justify-self:center;margin-inline:auto}}
+.rat-electricity{overflow:hidden}
+
+/* Reclaim the removed summary rows for the battlefield. */
+.dashboard #enemy-rules,.dashboard .hp-block{display:none!important}
+@media(min-width:900px) and (min-height:500px){.dashboard .single-session .battle-panel{grid-template-rows:auto minmax(0,1fr) auto auto}.dashboard .arena-viewport{width:min(100%,calc(84% + 100px));max-width:1200px}}
+.quest-member-tabs{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.quest-member-tabs button{padding:7px 10px;border:1px solid #536865;border-radius:5px;background:#1b2a30;color:#c7d6d7}.quest-member-tabs button[aria-selected=true]{background:#344238;color:#d1eead;border-color:#b2d28a}
+
+.picker-level{font:11px/1.35 var(--mono);color:var(--accent);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+/* Rats make one quick hop and disappear, independent of respawn time. */
+.meta-arena .enemy-art.enemy-defeat.has-defeat-sheet:is(.electric-rat,.electro-rat){animation-name:rat-defeat-pop;animation-timing-function:ease-out}
+@keyframes rat-defeat-pop{0%{transform:translate(-50%,-50%);opacity:1}35%{transform:translate(-50%,calc(-50% - 22px));opacity:1}100%{transform:translate(-50%,calc(-50% - 8px));opacity:0}}
+
+.dashboard footer[hidden]{display:none!important}
+

@@ -65,13 +65,13 @@ test('off-screen misfires remain in their own session and credit kills/damage ex
 test('Tordeliese applies poison from hire, never on a miss, and additive poison bonuses survive the new levels',()=>{
  const s=ready(['tordeliese']);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,4);
  const miss=E.click(s,faces(1,6,6,6,6,5));assert.equal(miss.find(e=>e.type==='attack').hit,false);assert.equal(s.enemies[0].poisonDamage,0);
- for(const [key,expected]of [['folding-gale',8],['severing-storm',12],['for-whom-the-storm',16]]){enable(s,'tordeliese',key);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,expected);}
+ for(const [key,expected]of [['folding-gale',8],['severing-storm',12],['for-whom-the-storm',16]]){enable(s,'tordeliese',key);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,Math.floor(expected*Math.sqrt(E.strengthValue(s,c('tordeliese'),'power')/D.strength.strengthBase)));}
  E.togglePerk(s,'tordeliese','greedy-gale',false);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,0);
 });
 test('Plot Armor AP die is trained, Handout stays selected-only, and GM never shares attack levels',()=>{
  const s=ready(['max','meta']);enable(s,'max','plot-armor');s.levels.meta=51;const m=c('meta');
- assert.equal(E.actionPower(s,m,15,false,faces(4)),38);near(E.actionPower(s,m,15),37);
- enable(s,'max','handout');assert.equal(E.actionPower(s,m,15,false,faces(4)),38);s.selectedCharacterId='meta';assert.equal(E.actionPower(s,m,15,false,faces(5)),48);
+ assert.equal(E.actionPower(s,m,15,false,faces(4)),57);near(E.actionPower(s,m,15),55.5);
+ enable(s,'max','handout');assert.equal(E.actionPower(s,m,15,false,faces(4)),57);s.selectedCharacterId='meta';assert.equal(E.actionPower(s,m,15,false,faces(5)),72);
  assert.equal(E.strengthValue(s,m,'power'),200);assert.equal(E.concentrationPoints(s,'meta'),50);assert.equal(c('max').perks.some(p=>p.id==='western-munchkin'),false);
  const before=E.attackProfile(s,m);s.perkEnabled.max['western-munchkin']=true;assert.deepEqual(E.attackProfile(s,m),before);
 });

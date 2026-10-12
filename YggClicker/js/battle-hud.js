@@ -1,6 +1,7 @@
 (function (root) {
   'use strict';
 
+  const hpPercent=(hp,maxHP)=>{const n=maxHP>0?Math.max(0,Math.min(100,hp/maxHP*100)):0;return n>0&&n<.1?'<0.1%':Number(n.toFixed(1))+'%';};
   function create({ get, setText, format }) {
     const attribute = (node, key, value) => { if (node.getAttribute(key) !== value) node.setAttribute(key, value); };
     const style = (node, key, value) => { if (node.style.getPropertyValue(key) !== value) node.style.setProperty(key, value); };
@@ -34,7 +35,7 @@
       get('ally-status-' + id).hidden = !deployed || !statusText;
       get('ally-rolls-' + id).hidden = !deployed;
       setText('ally-status-' + id, statusText);
-      setText('ally-hp-' + id, (row?(row==='rear'?'後衛 ':'前衛 '):'') + 'HP ' + format(hp) + ' / ' + format(maxHP));
+      setText('ally-hp-' + id, (row?(row==='rear'?'後衛 ':'前衛 '):'') + 'HP ' + hpPercent(hp,maxHP));
       style(hpCell, '--hp-ratio', Math.max(0, Math.min(1, hp / maxHP)) * 100 + '%');
       if(magic){const cell=get('ally-magic-'+id);cell.hidden=!deployed;setText('ally-magic-'+id,'魔力 Lv.'+magic.current+' / '+magic.maximum);}
       setText('ally-runaway-' + id, '暴走率 ' + format(runawayRate) + '%');
@@ -42,7 +43,7 @@
     }
     return { mount, render };
   }
-  const api = { create };
+  const api = { create, hpPercent };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggBattleHUD = api;
 })(typeof window !== 'undefined' ? window : globalThis);

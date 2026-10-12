@@ -12,10 +12,10 @@ test('strength labels equal character level without CP and leave HP/action as ac
 });
 
 test('each strength label includes its own CP multiplier, uses shared display units and caps safely',()=>{
- const s=ready(['meta']);s.levels.meta=201;s.paused=true;assert.equal(E.setConcentration(s,'meta',{action:0,power:20,accuracy:8,evasion:0,vitality:12,armor:0}),true);
+ const s=ready(['meta']);s.levels.meta=201;s.paused=true;assert.equal(E.setConcentration(s,'meta',{power:20,accuracy:8,evasion:0,armor:12}),true);
  const c=character('meta'),hp=E.maxHP(s,c),h=harness(s),cp=E.concentration(s,'meta');h.openAbility('meta');
  for(const stat of ['power','accuracy','evasion','vitality','armor']){
-  const multiplier=Math.exp(E.T.focusLog(cp[stat],200));if(cp[stat]>0)assert.ok(multiplier>1);assert.equal(h.get('ability-value-'+stat+'-meta').textContent,UI.incomeNumber(1+(E.strengthValue(s,c,stat)/100-1)/.02));
+  const multiplier=Math.exp(E.T.focusLog(cp[stat],200));if(cp[stat]>0)assert.ok(multiplier>1);assert.equal(h.get('ability-value-'+stat+'-meta').textContent,UI.incomeNumber(1+(E.strengthValue(s,c,stat)/100-1)/(stat==='vitality'?.04:.02)));
  }
  assert.equal(h.get('ability-maxhp-meta').textContent,'最大HP '+hp);assert.equal(A.strengthLevel(500,D.strength),201);assert.equal(A.strengthLevel(0,D.strength),0);assert.equal(A.strengthLevel(1e100,D.strength),5e99);
 });
@@ -23,7 +23,7 @@ test('each strength label includes its own CP multiplier, uses shared display un
 test('quest strength comparison and enemy abilities display equivalent ally levels without changing actual HP',()=>{
  const s=ready(['meta'],'mohican-solo');s.paused=true;s.questLevels['mohican-solo']=101;E.setQuestLevel(s,'mohican-solo',101);const h=harness(s);
  h.closeAbility();h.click('tab-quests');const q=E.getSession(s),next=E.sessionAtLevel(D.sessions.find(q=>q.id==='mohican-solo'),102),value=UI.incomeNumber(A.strengthLevel(E.enemyStrength(q),D.strength)),expected=value;
- assert.equal(h.get('quest-strength-mohican-solo').textContent,expected);assert.equal(h.get('quest-hp-strength-mohican-solo').textContent,UI.incomeNumber(A.strengthLevel(q.hpStrength,D.strength)));
+ assert.equal(h.get('quest-strength-mohican-solo').textContent,expected);assert.equal(h.get('quest-hp-strength-mohican-solo').textContent,UI.incomeNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));
  const button={disabled:false,dataset:{enemyInfo:'mohican-solo'}};
  h.get('quest-list').listeners.get('click')({target:{closest:selector=>selector==='[data-enemy-info]'?button:null}});
  const html=h.get('enemy-info-content').innerHTML;assert.equal(html.split('<strong>'+value+'</strong>').length-1,1);

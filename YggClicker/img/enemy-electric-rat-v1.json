@@ -1,0 +1,105 @@
+{
+  "version": "0.78.9",
+  "source": "User-provided BMP frames; deterministic transparency and nearest-neighbor packing; no generated artwork.",
+  "idle": {
+    "frames": 3,
+    "cell": [
+      192,
+      224
+    ],
+    "footY": 211
+  },
+  "attack": {
+    "frames": 5,
+    "cell": [
+      320,
+      280
+    ],
+    "footY": 267
+  },
+  "defeat": {
+    "frames": 1,
+    "cell": [
+      256,
+      224
+    ],
+    "footY": 211,
+    "source": "image[039] 05042-010.bmp",
+    "scale": 2,
+    "flipped": false
+  },
+  "registration": [
+    {
+      "source": "004 000-000.bmp",
+      "width": 192,
+      "height": 224,
+      "left": 26,
+      "top": 109,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "005 000-001.bmp",
+      "width": 192,
+      "height": 224,
+      "left": 26,
+      "top": 109,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "006 000-002.bmp",
+      "width": 192,
+      "height": 224,
+      "left": 26,
+      "top": 109,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "075 001-009.bmp",
+      "width": 320,
+      "height": 280,
+      "left": 78,
+      "top": 135,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "076 001-010.bmp",
+      "width": 320,
+      "height": 280,
+      "left": 78,
+      "top": 135,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "077 001-011.bmp",
+      "width": 320,
+      "height": 280,
+      "left": 78,
+      "top": 135,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "078 001-012.bmp",
+      "width": 320,
+      "height": 280,
+      "left": 78,
+      "top": 135,
+      "scale": 2,
+      "flipped": true
+    },
+    {
+      "source": "080 001-013.bmp",
+      "width": 320,
+      "height": 280,
+      "left": 78,
+      "top": 135,
+      "scale": 2,
+      "flipped": true
+    }
+  ]
+}

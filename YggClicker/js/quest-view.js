@@ -13,6 +13,9 @@
   }
   function create({data:D,engine:E,matchup:F,get:$,setText,money,fullNumber,rateFormat,incomeNumber,blocked,tradeControls,renderTrades,questInputDrafts,renderEnemyInfoIfOpen,actualIncome=()=>null}){
     const A=typeof module!=='undefined'&&module.exports?require('./ability-view.js'):root.YggAbilityView;
+    const memberSelections=new Map();
+    const memberTypes=base=>(base.members||[]).filter((m,i,a)=>a.findIndex(x=>x.name===m.name)===i);
+    function selectMember(state,id,index){const base=D.sessions.find(q=>q.id===id);if(!base||!memberTypes(base)[index])return;memberSelections.set(id,index);renderPreview(state,id);}
     function build(){
     $('quest-list').innerHTML = D.sessions.map(s=>`<article class="quest-card" id="quest-card-${s.id}" data-quest-card="${s.id}" tabindex="0" aria-label="？？？">
       <div class="quest-title">
@@ -46,7 +49,9 @@
       <span>能力の期待値</span>
       <span id="quest-preview-${s.id}">現在挑戦中のLv</span>
       </div>
-      <dl class="quest-values">
+      
+      ${s.members?'<div class="quest-member-tabs" role="tablist" aria-label="敵別の能力">'+memberTypes(s).map((m,i)=>'<button type="button" role="tab" id="quest-member-'+s.id+'-'+i+'" data-quest-member="'+s.id+'" data-member-index="'+i+'" aria-selected="'+(i===0)+'" aria-controls="quest-values-'+s.id+'">'+m.name+'</button>').join('')+'</div><p class="option-note">強化Lvと売買はクエスト全体で共通です。</p>':''}
+      <dl class="quest-values" id="quest-values-${s.id}" ${s.members?'role="tabpanel"':''}>
       <div>
       <dt>攻撃強度</dt>
       <dd id="quest-strength-${s.id}">
@@ -133,7 +138,7 @@
       $('formation-open-'+base.id).disabled=blocked()||!unlocked;
       $('quest-enhance-toggle-'+base.id).disabled=blocked()||!unlocked;
       $('quest-lock-'+base.id).hidden=unlocked;
-      setText('quest-lock-'+base.id,'解放条件：所持因子 '+money(base.unlockFactors||0)+' Rd（一度達成すると解放を維持）');
+      setText('quest-lock-'+base.id,'解放条件：'+(base.unlockByEarned?'今周回の累計獲得因子 ':'所持因子 ')+money(base.unlockFactors||0)+' Rd（一度達成すると解放を維持）');
       const card=$('quest-card-'+base.id);
       card.classList.toggle('locked',!unlocked);
       card.setAttribute('aria-disabled',String(blocked()||!unlocked));
@@ -162,20 +167,23 @@
 
     const previewKeys=new Map();
     function renderPreview(state,id){
-      const key=JSON.stringify([state.questLevels[id],state.questActiveLevels[id],questInputDrafts.get(id),state.upgrades.reward,state.sinTotal,state.options]);
+      const key=JSON.stringify([memberSelections.get(id)||0,state.questLevels[id],state.questActiveLevels[id],questInputDrafts.get(id),state.upgrades.reward,state.sinTotal,state.options]);
       if(previewKeys.get(id)===key)return;previewKeys.set(id,key);
       const base=D.sessions.find(q=>q.id===id);if(!base)return;
       const current=E.getSession(state,id),owned=state.questLevels[id],draft=questInputDrafts.get(id),level=Number(draft);
       const valid=draft!==undefined&&String(draft).trim()!==''&&Number.isSafeInteger(level)&&level>=1&&level<=owned;
       const quest=valid?E.sessionAtLevel(base,level):current;
       if(base.members){
-        const specs=base.members.map(m=>E.sessionAtLevel({...base,...m},quest.level));
-        const set=(key,fn)=>setText('quest-'+key+'-'+base.id,specs.map(q=>q.name+' '+fn(q)).join(' / '));
+        const members=memberTypes(base),index=memberSelections.get(id)||0;
+        members.forEach((m,i)=>$('quest-member-'+id+'-'+i).setAttribute('aria-selected',String(i===index)));
+        $('quest-values-'+id).setAttribute('aria-labelledby','quest-member-'+id+'-'+index);
+        const specs=[E.sessionAtLevel({...base,...members[index]},quest.level)];
+        const set=(key,fn)=>setText('quest-'+key+'-'+base.id,specs.map(q=>fn(q)).join(' / '));
         setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level));
         for(const [key,kind]of [['strength','power'],['armor-strength','armor'],['check-strength','accuracy']])set(key,q=>incomeNumber(A.strengthLevel(E.enemyStrength(q,kind),D.strength)));
-        set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength)));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
+        set('hp-strength',q=>incomeNumber(A.strengthLevel(q.hpStrength,D.strength,'vitality')));set('hp',q=>fullNumber(q.hp));set('defense',q=>fullNumber(q.defense));set('resistance',q=>fullNumber(q.resistance));set('action',q=>rateFormat(E.enemyActionValue(q)));
         for(const [key,stat]of [['damage','attack'],['accuracy','accuracy'],['evasion','evasion'],['ss','ss']])set(key,q=>rateFormat(F.expectedRoll(q[stat],stat!=='attack')));
-        setText('quest-reward-'+base.id,money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
+        setText('quest-reward-'+base.id,base.independentRespawns?specs.map(q=>q.name+' '+money(E.incomeAmount(state,E.reward(state,q)))+' Rd').join(' / '):money(E.incomeAmount(state,E.reward(state,quest)))+' Rd');return;
       }
       setText('quest-preview-'+id,valid&&level!==current.level?'プレビュー Lv.'+fullNumber(level)+'（未適用）':'挑戦中 Lv.'+fullNumber(current.level)+(draft!==undefined&&!valid?'（入力は1〜購入済みLvの整数）':''));
       setText('quest-strength-'+base.id,incomeNumber(A.strengthLevel(E.enemyStrength(quest),D.strength)));
@@ -184,7 +192,7 @@
       setText('quest-defense-'+base.id,fullNumber(quest.defense));
 
       setText('quest-hp-'+base.id,fullNumber(quest.hp));
-      setText('quest-hp-strength-'+base.id,incomeNumber(A.strengthLevel(quest.hpStrength,D.strength)));
+      setText('quest-hp-strength-'+base.id,incomeNumber(A.strengthLevel(quest.hpStrength,D.strength,'vitality')));
       setText('quest-reward-'+base.id,`${money(E.incomeAmount(state,E.reward(state,quest)))} Rd`);
 
       const ownedStats=quest;
@@ -200,7 +208,7 @@
       setText('quest-live-'+q.id,(state.paused?'全体一時停止':E.isResting(ctx)?'休憩中（あと'+Math.ceil(E.restOf(ctx).remaining)+'秒）':members?'自動周回中':'部隊未編成')+(E.restOf(ctx).enabled?' · 出撃 '+Math.floor(E.restOf(ctx).elapsed/60)+'分 / '+E.restOf(ctx).defeats+'討伐':'')+' · '+members+'/5人 · '+(E.isWaiting(ctx)?(q.reviveInPlace?'起き上がるまで ':'再出現まで ')+ctx.respawnSeconds.toFixed(1)+'秒':'HP '+fullNumber(ctx.hp)+' / '+fullNumber(E.enemyMaxHP(ctx,ctx.enemies?.find(e=>e.id===ctx.focusedEnemyId&&e.hp>0)||ctx.enemies?.find(e=>e.hp>0)))));
     }
     }
-    return {build,render,renderLive,renderPreview};
+    return {build,render,renderLive,renderPreview,selectMember};
   }
   const api={create,cardSelection};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggQuestView=api;

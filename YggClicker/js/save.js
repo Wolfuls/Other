@@ -5,12 +5,49 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 57;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 59;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
   const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
   const migrations = {
+    58(document){
+      const state=structuredClone(document.state);
+      for(const c of D.characters){
+        const h=state.health?.[c.id];if(!h)continue;
+        record(h,'旧味方状態');
+        const level=number(state.levels?.[c.id]??0,'旧味方Lv',0,Number.MAX_SAFE_INTEGER,true);
+        const cp=number(state.concentration?.[c.id]?.vitality??0,'旧HP配分',0,Math.max(0,level-1),true);
+        const seed=number(state.seedLevels?.gluttony??0,'旧暴食Lv',0,Number.MAX_SAFE_INTEGER,true);
+        const oldStrength=Math.min(1e100,E.T.personalValue(Math.max(0,level-1),cp,Math.max(0,level-1),'power')*Math.min(1e100,1.08**seed));
+        const oldMax=Math.max(1,N.floor(Math.min(1e100,c.maxHP*oldStrength/D.strength.strengthBase)));
+        const hp=number(h.hp,'旧味方HP',-1e100,oldMax,true),max=E.maxHP(state,c);
+        // Keep wounds and incapacitation; only trim HP above the new cap.
+        if(hp>=max){
+          h.hp=h.status==='active'?max:Math.max(0,max-1);
+          if(h.hp===max)h.regenSeconds=0;
+        }
+      }
+      return {...document,schemaVersion:59,state};
+    },
+    57(document){
+      const state=structuredClone(document.state);
+      function addEscorts(battle){
+        if(battle.enemies!==null&&battle.enemies!==undefined&&(!Array.isArray(battle.enemies)||battle.enemies.length!==1))throw new Error('旧電気鼠の人数が正しくありません。');
+        const old=battle.enemies?.[0],ctx={...state,...battle,sessionId:'electric-rat',enemies:null};
+        if(old?.kind!==undefined)throw new Error('旧電気鼠の種別が正しくありません。');
+        const next=number(battle.nextEnemyId??0,'旧敵の識別番号',0,999999999,true);
+        ctx.nextEnemyId=Math.max(next,old?number(old.id,'旧敵の識別番号',0,999999998,true)+1:0);
+        E.ensureEnemies(ctx);
+        const boss=old?{...old,kind:'electric-rat'}:{...ctx.enemies[0],hp:battle.hp,poisonDamage:battle.poisonDamage||0,respawnSeconds:battle.respawnSeconds||0};
+        ctx.enemies[0]=boss;
+        if(boss.respawnSeconds>0)for(const e of ctx.enemies.slice(1))Object.assign(e,{hp:0,respawnSeconds:boss.respawnSeconds});
+        return {...battle,enemies:ctx.enemies,nextEnemyId:ctx.nextEnemyId};
+      }
+      if(state.sessionId==='electric-rat')Object.assign(state,addEscorts(state));
+      if(state.sessionStates?.['electric-rat'])state.sessionStates['electric-rat']=addEscorts(state.sessionStates['electric-rat']);
+      return {...document,schemaVersion:58,state};
+    },
     56(document){return {...document,schemaVersion:57};},
     55(document){return {...document,schemaVersion:56,state:{...document.state,dreamPurchases:{}}};},
     54(document){const state=structuredClone(document.state);if(state.health?.megumin?.stunTurns>1)state.health.megumin.stunTurns=1;for(const field of ['seedLevels','karmaSelections'])if(state[field]&&Object.hasOwn(state[field],'melancholy')){state[field].sloth=state[field].melancholy;delete state[field].melancholy;}return {...document,schemaVersion:55,state};},
@@ -58,7 +95,7 @@
     44(document){return {...document,schemaVersion:45};},
     43(document){return {...document,schemaVersion:44,state:{...record(document.state,'旧セーブ'),runNumber:1}};},
     42(document){
-      const old=record(document.state,'旧セーブ'),memoriesUnlocked=old.factors>D.memoryQuest.unlockFactors;
+      const old=record(document.state,'旧セーブ'),memoriesUnlocked=old.factors>=D.memoryQuest.unlockFactors;
       return {...document,schemaVersion:43,state:{...old,memoriesUnlocked,viewingMemories:memoriesUnlocked&&!!old.viewingMemories}};
     },
     41(document){
@@ -537,7 +574,7 @@
     result.hp = number(raw.hp, '残りHP', result.respawnSeconds>0?0:1, (E.getSession(result).summons?1e100:E.getSession(result).hp));
     if(result.respawnSeconds>0&&result.hp!==0)throw new Error('再出現待ちのHPが正しくありません。');
     result.poisonDamage=raw.poisonDamage===undefined?0:raw.poisonDamage;
-    if(![0,4,8,12,16].includes(result.poisonDamage))throw new Error('猛毒の値が正しくありません。');
+    number(result.poisonDamage,'猛毒',0,1e100,true);
     if(!Number.isInteger(result.hp))throw new Error('残りHPは整数で指定してください。');
     for(const field of ['batchHpFraction','batchDamageFraction']){
       result[field]=number(raw[field]??0,'放置計算の端数',-1,1);
@@ -582,7 +619,9 @@
     if(Object.keys(allocation).some(id=>!D.characters.some(c=>c.id===id)))throw new Error('未対応のキャラクター配分です。');
     for(const c of D.characters){
       if(result.levels[c.id]>1&&!Number.isFinite(E.hireCost({...result,levels:{...result.levels,[c.id]:result.levels[c.id]-1}},c)))throw new Error('育成費が計算範囲外です。');
-      const value=allocation[c.id]??result.concentration[c.id];
+      const value={...record(allocation[c.id]??result.concentration[c.id],'コンセントレイション')};
+      // Retired allocations become unused CP; preserve the remaining allocations.
+      for(const key of ['action','vitality'])if(Object.hasOwn(value,key)){number(value[key],'旧配分',0,Number.MAX_SAFE_INTEGER,true);delete value[key];}
       if(!E.setConcentration(result,c.id,value))throw new Error('配分は保有フリーpt以内の整数で指定してください。');
     }
     const enabled=raw.perkEnabled===undefined?{}:record(raw.perkEnabled,'パーク切替'),unlocked=raw.unlockedPerks===undefined?{}:record(raw.unlockedPerks,'解放済みパーク');
@@ -667,7 +706,7 @@
         if(summon&&respawnSeconds)throw new Error('コグモは自動再出現しません。');
         const hp=number(e.hp,'エネミーHP',respawnSeconds>0||summon?0:1,summon?summonMaxHP:quest.members?E.enemyMaxHP(ctx,e):maxHP),poisonDamage=e.poisonDamage;
         const actionPoints=0;
-        if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||![0,4,8,12,16].includes(poisonDamage)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
+        if(!Number.isInteger(id)||id>=1000000000||ids.has(id)||!Number.isInteger(hp)||(!Number.isInteger(poisonDamage)||poisonDamage<0||poisonDamage>1e100)||(respawnSeconds||summon&&!hp)&&(hp!==0||poisonDamage!==0||actionPoints!==0))throw new Error('個体の状態が正しくありません。');
         const wardSeconds=number(e.wardSeconds??0,'防御のおまじない残り秒',0,10);if(wardSeconds&&(!hp||respawnSeconds))throw new Error('ダウン中の防御強化です。');
         const defensePenalty=number(e.defensePenalty??0,'防御低下',0,3,true),accuracyPenalty=number(e.accuracyPenalty??0,'命中低下',0,15,true);
         const evasionFailure=e.evasionFailure??false;if(typeof evasionFailure!=='boolean'||respawnSeconds&&evasionFailure)throw new Error('回避自動失敗の状態が正しくありません。');
@@ -683,7 +722,7 @@
         if(e.pendingAttack!=null){
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx,e));
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
-          const kind=p.kind||'attack';if(!(quest.members?E.enemySpec(ctx,e).attacks.map(a=>a.id):['attack','flash','absorb']).includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
+          const kind=p.kind||'attack';if(!(E.enemySpec(ctx,e).attacks?.map(a=>a.id)||['attack','flash','absorb']).includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
           pendingAttack={targetId:p.targetId,remaining,count:1,...(p.kind?{kind}:{})};
           if(p.charmApplied!==undefined){if(typeof p.charmApplied!=='boolean'||!['ward','revive'].includes(kind))throw new Error('おまじない状態が不正です。');pendingAttack.charmApplied=p.charmApplied;}
           if(p.taunted!==undefined){if(typeof p.taunted!=='boolean')throw new Error('挑発予約が正しくありません。');pendingAttack.taunted=p.taunted;}

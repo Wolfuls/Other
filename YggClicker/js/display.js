@@ -38,12 +38,12 @@
   }
   // Grow the orbit and its inter-ring distances with the weapon, not the body.
   // Preserve world-space spacing, then fit the complete scene into its viewport.
-  function orbitLayout({ metaScale=1, richterScale=1, metaHired=true, richterHired=false, vishunalHired=false, tordelieseHired=false, maxHired=false, wakuHired=false, jewelHired=false, mitsuruHired=false,queenHired=false,meguminHired=false, width=500, mobile=false, enemyCount=1,enemyScale=1,formationLayout='column', grounded=false,metaCount=60,richterCount=60,availableHeight=null,formationRows={} }) {
+  function orbitLayout({ metaScale=1, richterScale=1, metaHired=true, richterHired=false, vishunalHired=false, tordelieseHired=false, maxHired=false, wakuHired=false, jewelHired=false, mitsuruHired=false,queenHired=false,meguminHired=false, width=500, mobile=false, enemyCount=1,enemyScale=1,formationLayout='column',groundFraction=.66, grounded=false,metaCount=60,richterCount=60,availableHeight=null,formationRows={} }) {
     const orbit = (w,h,size,scale) => ({width:w*scale,height:h*scale,footprint:(Math.max(w,h)+size)*scale});
     const meta=orbit(mobile?180:210,mobile?180:210,mobile?24:28,metaScale);
     const richter=orbit(mobile?204:220,mobile?214:230,mobile?38:42,richterScale);
     meta.footprint=Math.max(224,meta.footprint);richter.footprint=Math.max(240,richter.footprint);
-    if (grounded || vishunalHired || tordelieseHired || maxHired || wakuHired || jewelHired || mitsuruHired || queenHired || meguminHired) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,width,mobile,enemyCount,enemyScale,formationLayout,availableHeight,formationRows});
+    if (grounded || vishunalHired || tordelieseHired || maxHired || wakuHired || jewelHired || mitsuruHired || queenHired || meguminHired) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows});
     const partyWidth=Math.max(meta.footprint,richterHired?richter.footprint:0),enemyWidth=mobile?144:(enemyCount>1?176:200);
     const enemyHeight=enemyCount>1?enemyWidth*224/192:(mobile?154:162);
     const enemyGroupWidth=enemyWidth*(enemyCount>1?1.9:1);
@@ -85,7 +85,8 @@
   }
   // Fit actual visible orbits. Cover cropping determines the pavement line
   // without forcing empty space into a fixed 3:2 canvas.
-  function groundLayout({meta,richter,metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,width,mobile,enemyCount,enemyScale,formationLayout,availableHeight,formationRows={}}) {
+  function groundLayout({meta,richter,metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows={}}) {
+    const floorFraction=groundFraction===.66?.34:1-groundFraction,groundDelta=groundFraction===.66?.16:groundFraction-.5;
     const metaFoot=72,richterFoot=mobile?93:99;
     const enemyWidth=(mobile?144:176)*enemyScale,enemyHeight=enemyWidth*224/192,enemyFoot=enemyHeight*99/224;
     const spriteScale=mobile?105/224:.5;
@@ -109,7 +110,7 @@
     const actors={max,meta,mitsuru,megumin,richter,vishunal,tordeliese,waku,jewel,queen};
     party.sort((a,b)=>Number(formationRows[Object.keys(actors).find(id=>actors[id]===a)]!=='rear')-Number(formationRows[Object.keys(actors).find(id=>actors[id]===b)]!=='rear'));
     const partyWidth=party.reduce((sum,p)=>sum+p.footprint,0)+Math.max(0,party.length-1)*32;
-    const groupWidth=enemyWidth*(enemyCount>1?2.45:1),edge=24,gap=56;
+    const surround=formationLayout==='surround',groupWidth=enemyWidth*(surround?2.8:enemyCount>1?2.45:1),edge=24,gap=56;
     const belowFeet=Math.max(meguminHired?megumin.extentY/2-megumin.footOffset:0,queenHired?queen.extentY/2-queen.footOffset:0,mitsuruHired?mitsuru.extentY/2-mitsuru.footOffset:0,metaHired?meta.extentY/2-metaFoot:0,richterHired?richter.extentY/2-richterFoot:0,vishunalHired?vishunal.extentY/2-vishunal.footOffset:0,tordelieseHired?tordeliese.extentY/2-tordeliese.footOffset:0,maxHired?12:0,wakuHired?waku.extentY/2-waku.footOffset:0,jewelHired?jewel.extentY/2-jewel.footOffset:0);
     const canvasWidth=Math.max(width,partyWidth+groupWidth+gap+edge*2);
     // A centered 3:2 cover image has its safe ground line at the larger of
@@ -117,15 +118,15 @@
     // The frontmost reserve has only 22% of the floor left below its feet.
     const enemyBottomSpace=(enemyHeight/2-enemyFoot+8)/(enemyCount>1?.22:.55);
     const floorNeeded=Math.max(belowFeet+40,enemyBottomSpace);
-    const minimumHeight=Math.max(meguminHired?(megumin.extentY/2+megumin.footOffset-8)/.66:0,queenHired?(queen.extentY/2+queen.footOffset-8)/.66:0,mitsuruHired?(mitsuru.extentY/2+mitsuru.footOffset-8)/.66:0,360,(enemyHeight/2+enemyFoot+16)/(enemyCount>1?.728:.8),floorNeeded/.34,canvasWidth*(.32*2/3)+2*floorNeeded,
-      metaHired?(meta.extentY/2+metaFoot-8)/.66:0,richterHired?(richter.extentY/2+richterFoot-8)/.66:0,tordelieseHired?(tordeliese.extentY/2+tordeliese.footOffset-8)/.66:0,
-      jewelHired?(jewel.extentY/2+jewel.footOffset-8)/.66:0,wakuHired?(waku.extentY/2+waku.footOffset-8)/.66:0,maxHired?(max.extentY/2+max.footOffset+max.hoverHeight-12)/.66:0);
+    const minimumHeight=Math.max(meguminHired?(megumin.extentY/2+megumin.footOffset-8)/groundFraction:0,queenHired?(queen.extentY/2+queen.footOffset-8)/groundFraction:0,mitsuruHired?(mitsuru.extentY/2+mitsuru.footOffset-8)/groundFraction:0,360,((enemyHeight/2+enemyFoot)*(surround?1.5:1)+16)/(enemyCount>1?.728:.8),floorNeeded/floorFraction,canvasWidth*(groundDelta*2*2/3)+2*floorNeeded,
+      metaHired?(meta.extentY/2+metaFoot-8)/groundFraction:0,richterHired?(richter.extentY/2+richterFoot-8)/groundFraction:0,tordelieseHired?(tordeliese.extentY/2+tordeliese.footOffset-8)/groundFraction:0,
+      jewelHired?(jewel.extentY/2+jewel.footOffset-8)/groundFraction:0,wakuHired?(waku.extentY/2+waku.footOffset-8)/groundFraction:0,maxHired?(max.extentY/2+max.footOffset+max.hoverHeight-12)/groundFraction:0);
     // The outer window stays fixed through purchases. Only the world inside
     // scales when actual sprite/orbit bounds no longer fit the available area.
-    const heightLimit=availableHeight>0?Math.max(80,availableHeight):(mobile?420:560);
+    const heightLimit=availableHeight>0?Math.max(80,availableHeight):(mobile?484:560);
     const zoom=Math.min(1,width/canvasWidth,heightLimit/minimumHeight);
     const height=heightLimit/zoom;
-    const groundY=height/2+.16*Math.max(height,canvasWidth/1.5),feetY=groundY+24;
+    const groundY=height/2+groundDelta*Math.max(height,canvasWidth/1.5),feetY=groundY+24;
     let partyLeft=edge;
     for(const p of [...party,...Object.values(actors).filter(p=>!party.includes(p))]){p.x=partyLeft+(p.anchorX??p.footprint/2);if(party.includes(p))partyLeft+=p.footprint+32;}
     meta.y=feetY-metaFoot;meta.footOffset=metaFoot;
@@ -135,9 +136,10 @@
     waku.y=feetY-waku.footOffset;jewel.y=feetY-jewel.footOffset;
     tordeliese.y=feetY-tordeliese.footOffset;max.y=feetY-max.footOffset-max.hoverHeight;
     const floorDepth=height-groundY;
-    const enemyX=canvasWidth-edge-groupWidth+enemyWidth/2,enemyY=feetY-enemyFoot;
+    const enemyX=canvasWidth-edge-groupWidth+(surround?groupWidth/2:enemyWidth/2),enemyY=feetY-enemyFoot*(surround?1.5:1);
     return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,width:canvasWidth,height,groundY,enemyX,enemyY,enemyWidth,enemyHeight,enemyFoot,
-      reserves:enemyCount>1?[{x:enemyWidth*.7,y:-Math.min(14,floorDepth*.04)},{x:enemyWidth*1.4,y:Math.min(14,floorDepth*.04)}]:[],
+      enemyScales:surround?[1.5,.75,.75]:[1,1,1],
+      reserves:surround?[{x:-enemyWidth*.85,y:enemyFoot*.75+12},{x:enemyWidth*.85,y:enemyFoot*.75-12}]:enemyCount>1?[{x:enemyWidth*.7,y:-Math.min(14,floorDepth*.04)},{x:enemyWidth*1.4,y:Math.min(14,floorDepth*.04)}]:[],
       zoom,viewWidth:canvasWidth*zoom,viewHeight:heightLimit,offsetX:(width-canvasWidth*zoom)/2,heightLimit};
   }
   // Formation size is independent of whether the enemies share one sprite.

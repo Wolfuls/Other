@@ -28,7 +28,7 @@ test('committed CP cannot be removed free; draft additions can be undone free',(
 });
 test('reset is charged once on confirm; close cancels both allocation and payment',()=>{
  const s=base(),h=harness(s),cost=E.concentrationResetCost(s,'meta');click(h,'[data-ability]',{ability:'meta'});click(h,'[data-focus-reset]',{focusReset:'meta'});type(h,'power',40);click(h,'[data-focus-reset]',{focusReset:'meta'});click(h,'[data-ability-close]',{abilityClose:'meta'});assert.equal(h.saved().factors,s.factors);assert.equal(h.saved().concentration.meta.power,30);
- click(h,'[data-ability]',{ability:'meta'});click(h,'[data-focus-reset]',{focusReset:'meta'});type(h,'power',40);click(h,'[data-focus-reset]',{focusReset:'meta'});type(h,'vitality',50);click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});assert.equal(h.saved().factors,s.factors-cost);assert.equal(h.saved().concentration.meta.vitality,50);assert.equal(h.saved().health.meta.hp,17);
+ click(h,'[data-ability]',{ability:'meta'});click(h,'[data-focus-reset]',{focusReset:'meta'});type(h,'power',40);click(h,'[data-focus-reset]',{focusReset:'meta'});type(h,'armor',50);click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});assert.equal(h.saved().factors,s.factors-cost);assert.equal(h.saved().concentration.meta.armor,50);assert.equal(h.saved().health.meta.hp,17);
 });
 test('reset fee follows the final draft level and cannot be lost by subsequent level edits',()=>{
  const s=base(),h=harness(s);click(h,'[data-ability]',{ability:'meta'});click(h,'[data-focus-reset]',{focusReset:'meta'});click(h,'[data-hire]',{hire:'meta'});type(h,'power',101);click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});
@@ -39,10 +39,10 @@ test('level sale cannot silently erase committed CP as a free reset',()=>{
  click(h,'[data-ability]',{ability:'meta'});click(h,'[data-trade]',{kind:'level',trade:'sell',id:'meta',count:'1'});click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});
  assert.equal(h.saved().levels.meta,101);assert.equal(h.saved().concentration.meta.power,100);assert.equal(h.saved().factors,s.factors);
 });
-test('old CP allocations persist on migration without healing, illegal HP or broken down status',()=>{
+test('retired HP CP returns to unused points on migration without healing, illegal HP or broken down status',()=>{
  for(const [hp,status,regenSeconds]of [[1000,'active',4],[1,'unconscious',2],[-7,'dying',3]]){
   const s=base();s.concentration.meta={action:0,accuracy:0,evasion:0,power:0,vitality:100,armor:0};s.health.meta={hp,status,regenSeconds};
-  const decoded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:38,state:s}));assert.equal(decoded.concentration.meta.vitality,100);assert.ok(decoded.health.meta.hp<=E.maxHP(decoded,character('meta')));assert.ok(decoded.health.meta.hp<=hp);assert.equal(decoded.health.meta.status,status);assert.deepEqual(roundTrip(decoded),decoded);
+  const decoded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:38,state:s}));assert.equal(decoded.concentration.meta.vitality,undefined);assert.ok(decoded.health.meta.hp<=E.maxHP(decoded,character('meta')));assert.ok(decoded.health.meta.hp<=hp);assert.equal(decoded.health.meta.status,status);assert.deepEqual(roundTrip(decoded),decoded);
  }
 });
 test('recollection is a noncombat quest view: no roster, upgrades, manual attacks or battle resets',()=>{

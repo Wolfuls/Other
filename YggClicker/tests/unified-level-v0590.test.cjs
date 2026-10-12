@@ -9,7 +9,7 @@ const focus=(s,id,values)=>({...s.concentration[id],...values});
 test('every personal strength uses one level, no minimum increment and no former level cap',()=>{
  for(const char of D.characters){const s=ready([char.id]);for(const level of [1,2,11,201,501]){
   s.levels[char.id]=level;for(const t of D.concentration)near(E.strengthValue(s,char,t.id),100*(1+.02*(level-1)));
-  assert.equal(E.actionPower(s,char,2),Math.floor(2*(1+.02*(level-1))));
+  assert.equal(E.actionPower(s,char,2),Math.floor(2*(1+.04*(level-1))));
  }
  s.levels[char.id]=200;s.factors=1e50;assert.ok(E.buyMany(s,'level',char.id,10));assert.equal(roundTrip(s).levels[char.id],210);
  }
@@ -54,11 +54,11 @@ test('all perk tracks unlock from the one character level',()=>{
  assert.ok(E.togglePerk(s,'meta','metal-shield',true));assert.ok(E.togglePerk(s,'meta','spinning-rush',true));
  assert.ok(E.sell(s,'level','meta',1));assert.equal(E.perks(s,c('meta')).find(p=>p.id==='spinning-rush').unlocked,false);
 });
-test('pending level and HP-focus changes can be undone without healing or damaging the original',()=>{
+test('pending level and defense-focus changes can be undone without healing or damaging the original',()=>{
  const s=ready();s.paused=true;s.levels.meta=51;s.health.meta.hp=35;const h=harness(s);h.openAbility('meta');click(h,'[data-ability]',{ability:'meta'});
  click(h,'[data-trade]',{kind:'level',trade:'sell',id:'meta',count:'10'});click(h,'[data-trade]',{kind:'level',trade:'buy',id:'meta',count:'10'});
- click(h,'[data-focus]',{focus:'meta',focusStat:'vitality',step:'1'});assert.equal(h.saved().concentration.meta.vitality,0);
- click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});assert.equal(h.saved().levels.meta,51);assert.equal(h.saved().health.meta.hp,35);assert.equal(h.saved().factors,s.factors);assert.equal(h.saved().concentration.meta.vitality,1);
+ click(h,'[data-focus]',{focus:'meta',focusStat:'armor',step:'1'});assert.equal(h.saved().concentration.meta.armor,0);
+ click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});assert.equal(h.saved().levels.meta,51);assert.equal(h.saved().health.meta.hp,35);assert.equal(h.saved().factors,s.factors);assert.equal(h.saved().concentration.meta.armor,1);
 });
 test('SS has its own base cell, no SS strength; training controls operate on one level',()=>{
  const s=ready();s.paused=true;const h=harness(s),html=h.get('character-list').innerHTML;h.openAbility('meta');
@@ -68,11 +68,11 @@ test('SS has its own base cell, no SS strength; training controls operate on one
 test('typed allocations update the draft immediately and persist only after confirmation',()=>{
  const s=ready();s.paused=true;s.levels.meta=32;s.health.meta.hp=17;const h=harness(s);h.openAbility('meta');
  const type=(track,value)=>h.get('character-list').listeners.get('input')({target:{dataset:{focusInput:'meta',focusStat:track},value:String(value)}});
- click(h,'[data-ability]',{ability:'meta'});type('vitality',12);type('power',19);
+ click(h,'[data-ability]',{ability:'meta'});type('armor',12);type('power',19);
  assert.equal(h.get('focus-remaining-meta').textContent,'残り 0 / 31 CP');assert.equal(h.saved().concentration.meta.power,0);
- click(h,'[data-ability-close]',{abilityClose:'meta'});assert.equal(h.saved().concentration.meta.vitality,0);
- click(h,'[data-ability]',{ability:'meta'});type('vitality',12);type('power',19);click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});
- assert.equal(h.saved().concentration.meta.vitality,12);assert.equal(h.saved().concentration.meta.power,19);assert.equal(h.saved().health.meta.hp,17);
+ click(h,'[data-ability-close]',{abilityClose:'meta'});assert.equal(h.saved().concentration.meta.armor,0);
+ click(h,'[data-ability]',{ability:'meta'});type('armor',12);type('power',19);click(h,'[data-ability-confirm]',{abilityConfirm:'meta'});
+ assert.equal(h.saved().concentration.meta.armor,12);assert.equal(h.saved().concentration.meta.power,19);assert.equal(h.saved().health.meta.hp,17);
 });
 test('large-number formatting is opt-in, changes units cleanly and keeps three decimal places at most',()=>{
  for(const [value,text]of [[999999,'999,999'],[1e6,'1 million'],[1234567,'1.235 million'],[1e9,'1 billion'],[1e12,'1 trillion'],[999999999,'1 billion'],[-1234567890,'-1.235 billion']])assert.equal(UI.fullNumber(value,true),text);

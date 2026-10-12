@@ -34,7 +34,7 @@ function harness(state,source=fs.readFileSync(path.join(__dirname,'../js/app.js'
     focus(){document.activeElement=this;}showModal(){this.open=true;}close(){this.open=false;}select(){}
   }
   const get=id=>{if(!ids.has(id))ids.set(id,new Element('div',id));return ids.get(id);};
-  const document={hidden:false,getElementById:get,createElement:tag=>new Element(tag),body:new Element('body'),
+  const document={hidden:false,getElementById:get,createElement:tag=>new Element(tag),createElementNS:(ns,tag)=>Object.assign(new Element(tag),{namespaceURI:ns}),body:new Element('body'),
     querySelector(sel){if(!selectors.has(sel))selectors.set(sel,new Element());return selectors.get(sel);},addEventListener:(type,fn)=>documentEvents.set(type,fn)};
   const data=new Map([[S.KEY,S.encode(state)]]),storage={getItem:k=>data.get(k)??null,setItem:(k,v)=>{options.beforeStorageWrite?.(k,v);data.set(k,v);},removeItem:k=>data.delete(k)};
   const media={matches:false,addEventListener(type,fn){this.change=fn;}};

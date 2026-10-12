@@ -6,7 +6,7 @@ const click=(h,selector,dataset)=>h.get('character-list').listeners.get('click')
 
 test('pressure breakdown accounts for training, enabled perks, temporary pressure, recovery and factor stabilization',()=>{
  const s=ready(['max']),original=character('max'),c={...original,perks:original.perks.map(p=>({...p,runawayPressure:p.initial?.03:0}))};
- s.levels.max=Math.max(s.levels.max,32);s.concentration.max.action=31;s.runaway.max.runawayRate=70;s.runaway.max.temporaryRunawayPressure=.015;s.upgrades.stabilization=15;
+ s.levels.max=Math.max(s.levels.max,32);s.concentration.max.power=31;s.runaway.max.runawayRate=70;s.runaway.max.temporaryRunawayPressure=.015;s.upgrades.stabilization=15;
  const b=E.runawayPressureBreakdown(s,c);
  assert.equal(b.trainingTotal,31);near(b.training,.05);near(b.perkPressure,.03);near(b.source,.1);near(b.recoveryMultiplier,.7);near(b.generated,.07);near(b.calming,.025);near(b.net,.045);near(E.runawayPressure(s,c),.045);
  assert.deepEqual(b.calmingEntries.map(x=>[x.id,x.level]),[['stabilization',15]]);
@@ -22,20 +22,20 @@ test('OFF and level-ineligible perks keep inspectable values but add no pressure
 
 test('allocated CP contributes once and an ally in another session still generates pressure',()=>{
  const s=ready(['meta','max']);s.levels.meta=11;s.levels.meta=Math.max(s.levels.meta,8);s.levels.meta=Math.max(s.levels.meta,5);s.levels.meta=Math.max(s.levels.meta,6);s.levels.meta=Math.max(s.levels.meta,7);
- s.concentration.meta.action=10;const c=character('meta'),b=E.runawayPressureBreakdown(s,c);assert.equal(b.trainingTotal,10);near(b.training,.01*Math.log2(11));near(b.training,E.trainingRunawayPressure(s,c));
+ s.concentration.meta.power=10;const c=character('meta'),b=E.runawayPressureBreakdown(s,c);assert.equal(b.trainingTotal,10);near(b.training,.01*Math.log2(11));near(b.training,E.trainingRunawayPressure(s,c));
  E.setFormation(s,'mohicans',['meta']);assert.equal(E.runawayPressureBreakdown(s,c).active,true);near(E.runawayPressure(s,c),b.net);
 });
 
 test('benched, incapacitated and collapsed allies apply calming only without hiding their sources',()=>{
  for(const reason of ['undeployed','down','collapsed']){
-  const s=ready(['max']);s.levels.max=Math.max(s.levels.max,32);s.concentration.max.action=31;s.runaway.max.runawayRate=70;s.runaway.max.temporaryRunawayPressure=.015;s.upgrades.stabilization=15;
+  const s=ready(['max']);s.levels.max=Math.max(s.levels.max,32);s.concentration.max.power=31;s.runaway.max.runawayRate=70;s.runaway.max.temporaryRunawayPressure=.015;s.upgrades.stabilization=15;
   if(reason==='undeployed')E.setFormation(s,s.sessionId,[]);if(reason==='down')s.health.max.status='unconscious';if(reason==='collapsed')s.runaway.max.runawayCollapsed=true;
   const b=E.runawayPressureBreakdown(s,character('max'));assert.equal(b.inactiveReason,reason);assert.equal(b.active,false);assert.equal(b.generated,0);near(b.net,-.025);near(b.source,.07+.2/60);
  }
 });
 
 test('the shown pressure is the runtime increment; critical reserve absorbs the same positive pressure',()=>{
- const s=ready(['max']);s.levels.max=Math.max(s.levels.max,32);s.concentration.max.action=31;s.runaway.max.runawayRate=70;s.upgrades.stabilization=15;
+ const s=ready(['max']);s.levels.max=Math.max(s.levels.max,32);s.concentration.max.power=31;s.runaway.max.runawayRate=70;s.upgrades.stabilization=15;
  const c=character('max'),b=E.runawayPressureBreakdown(s,c);s.runaway.max.criticalReserve=.005;
  E.advance(s,1,()=>.5);near(s.runaway.max.runawayRate,70+b.net-.005);assert.equal(s.runaway.max.criticalReserve,0);
 });

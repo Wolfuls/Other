@@ -5,7 +5,7 @@ function memory(){const s=ready(['meta']);s.earned=1e10;s.memoriesUnlocked=true;
 test('sin formula boundaries, monotonic entitlement and floor prices',()=>{
  for(const [c,p] of [[0,0],[999999,0],[1e6,1],[1e7,10],[1e8,40],[1e10,160]])assert.equal(E.sinEntitlement(c),p);
  let previous=0;for(let i=0;i<=100;i++){const p=E.sinEntitlement(10**i);assert.ok(p>=previous);previous=p;}
- const s=memory();for(let level=0;level<100;level++){s.seedLevels.pride=level;assert.equal(E.seedCost(s,'pride'),Math.floor(1.06**level));}
+ const s=memory();for(let level=0;level<100;level++){s.seedLevels.pride=level;assert.equal(E.seedCost(s,'pride'),Math.ceil(1.06**level));}
  assert.equal(E.seedCost(s,'invalid'),Infinity);
 });
 test('shop credits once, freezes all time, saves purchases and carries permanent progression',()=>{
@@ -20,7 +20,7 @@ test('shop credits once, freezes all time, saves purchases and carries permanent
 test('each seed changes its intended strength; greed excludes rewards and refunds; sloth excludes calming',()=>{
  const s=ready(['meta']),c=D.characters.find(c=>c.id==='meta');
  for(const [id,kind]of [['pride','action'],['vanity','evasion'],['envy','accuracy'],['wrath','power'],['gluttony','vitality'],['lust','armor']]){
-  const before=E.strengthValue(s,c,kind);s.seedLevels[id]=3;assert.ok(Math.abs(E.strengthValue(s,c,kind)/before-1.08**3)<1e-12);
+  const before=E.strengthValue(s,c,kind);s.seedLevels[id]=3;assert.ok(Math.abs(E.strengthValue(s,c,kind)/before-1.04**3)<1e-12);
  }
  s.seedLevels.greed=5;for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,D.secondaryIncomeTypes.includes(type)?200:100);}
  const b=E.runawayPressureBreakdown(s,c);s.seedLevels.sloth=4;const a=E.runawayPressureBreakdown(s,c);assert.equal(a.calming,b.calming);assert.ok(Math.abs(a.generated-b.generated*.95**4)<1e-12);
@@ -38,7 +38,7 @@ test('queued Q preserves enemy windup, stun and HP through save, then changes af
 test('Q buys and bulk buys queue without mutating current battle or quote state',()=>{
  const s=ready(['meta']);s.timeline.busySeconds=2;const before=structuredClone(s);E.purchaseQuote(s,'quest','scarecrow',10);assert.deepEqual(s,before);
  assert.ok(E.buyMany(s,'quest','scarecrow',10));assert.equal(E.questLevel(s),1);assert.equal(s.pendingQuestLevels.scarecrow,11);assert.deepEqual(s.enemies,before.enemies);
- assert.ok(E.setQuestLevel(s,'scarecrow',1));assert.equal(E.questChangePending(s),false);assert.equal(E.sell(s,'quest','scarecrow'),false);
+ assert.ok(E.setQuestLevel(s,'scarecrow',1));assert.equal(E.questChangePending(s),false);assert.equal(E.sell(s,'quest','scarecrow'),true);assert.equal(s.questLevels.scarecrow,10);assert.equal(E.questLevel(s),1);
 });
 test('offscreen quest applies queued Q independently',()=>{
  const s=ready(['meta']);s.timeline.busySeconds=.5;s.questLevels.scarecrow=2;E.setQuestLevel(s,'scarecrow',2);E.selectSession(s,'mohican-solo');E.advance(s,.6,()=>.5);assert.equal(E.questLevel(s,'scarecrow'),2);assert.equal(E.questLevel(s,'mohican-solo'),1);roundTrip(s);
@@ -55,3 +55,4 @@ test('failed completion keeps the purchased shop state, and retry starts exactly
  fail=true;h.click('sin-finish');assert.equal(h.saved().runNumber,1);assert.equal(h.saved().seedLevels.gluttony,1);assert.equal(h.get('sin-shop').open,true);assert.match(h.get('sin-message').textContent,/保存/);
  fail=false;h.click('sin-finish');assert.equal(h.saved().runNumber,2);assert.equal(h.saved().sinBalance,159);assert.equal(h.saved().seedLevels.gluttony,1);h.click('sin-finish');assert.equal(h.saved().runNumber,2);
 });
+

@@ -1,0 +1,64 @@
+{
+  "version": "0.79.0",
+  "scale": 2,
+  "flipped": true,
+  "frames": {
+    "idle": {
+      "file": "enemy-electro-rat-idle-v1.png",
+      "cell": [
+        192,
+        224
+      ],
+      "count": 4,
+      "sources": [
+        "01_0-1.png",
+        "01_0-2.png",
+        "01_0-3.png",
+        "01_0-4.png"
+      ],
+      "footY": 211
+    },
+    "shock": {
+      "file": "enemy-electro-rat-shock-v1.png",
+      "cell": [
+        320,
+        280
+      ],
+      "count": 4,
+      "sources": [
+        "02_1100-1.png",
+        "02_1100-2.png",
+        "02_1100-3.png",
+        "02_1100-4.png"
+      ],
+      "footY": 267
+    },
+    "wave": {
+      "file": "enemy-electro-rat-wave-v1.png",
+      "cell": [
+        320,
+        280
+      ],
+      "count": 4,
+      "sources": [
+        "03_3000-1.png",
+        "03_3000-3.png",
+        "03_3000-4.png",
+        "03_3000-5.png"
+      ],
+      "footY": 267
+    },
+    "defeat": {
+      "file": "enemy-electro-rat-defeat-v1.png",
+      "cell": [
+        256,
+        224
+      ],
+      "count": 1,
+      "sources": [
+        "04.png"
+      ],
+      "footY": 211
+    }
+  }
+}

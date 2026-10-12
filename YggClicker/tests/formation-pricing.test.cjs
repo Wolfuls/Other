@@ -23,7 +23,7 @@ test('character and global prices use separate exact growth rates before roundin
 
 test('three individual enemy slots preserve their neighbors and the down snapshot',()=>{
  const s=combatFixture(1000);s.sessionId='mohicans';s.hp=10;s.levels.meta=1;s.selectedCharacterId='meta';freshTarget(s,1);
- const h=harness(s,undefined,{combatRandom:()=>.5}),ids=['enemy-art','enemy-next-1','enemy-next-2'];
+ s.timeline.busySeconds=10; /* Isolate the manual visual from concurrent automatic turns. */ const h=harness(s,undefined,{combatRandom:()=>.5}),ids=['enemy-art','enemy-next-1','enemy-next-2'];
  const appearance=()=>ids.map(id=>h.get(id).dataset.appearance),before=appearance();assert.equal(new Set(before).size,3);
  assert.ok(ids.every(id=>h.get(id).firstElementChild));assert.ok(!h.get('enemy-next-1').hidden);
  h.click('attack');h.advance(700);

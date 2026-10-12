@@ -62,7 +62,7 @@ test('awakening transitions grant area at 50, ward at 60 and fast chanting at 70
 test('fast chanting is added before training scaling and follows suppression without a stray plus one',()=>{
  const s=battle();enable(s,'megumin','crimson-flame');assert.equal(E.ownActionBonus(s,meg()),0);s.levels.megumin=51;s.runaway.megumin.runawayRate=80;
  const actual=E.actionPower(s,meg(),13,false,()=>0); // The shared 80% bonus adds 1 D6, rolled as 1.
- assert.equal(actual,44);assert.ok(E.suppressRunaway(s,'megumin'));assert.equal(E.ownActionBonus(s,meg()),7);assert.equal(E.actionPower(s,meg(),13,false,()=>0),40);
+ assert.equal(actual,66);assert.ok(E.suppressRunaway(s,'megumin'));assert.equal(E.ownActionBonus(s,meg()),7);assert.equal(E.actionPower(s,meg(),13,false,()=>0),60);
 });
 
 test('ward uses consumed magic times five even on an all-miss attack and still rolls damage',()=>{

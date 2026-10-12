@@ -64,7 +64,7 @@ test('damage, overflow and defeat text have independent controls and include bat
 });
 
 test('reward dice can be disabled independently of ambient dice and restored on future impacts',()=>{
- const h=harness(fighter());h.click('attack');h.advance(1200);assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));
+ const s=fighter();s.timeline.busySeconds=10;const h=harness(s);h.click('attack');h.advance(1200);assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));
  h.click('attack');h.advance(800);assert.ok(h.get('reward-rain').children.some(n=>!n.hidden));
  change(h,'reward-dice',false);assert.ok(h.get('reward-rain').children.every(n=>n.hidden));
  assert.ok(h.get('factor-rain').children.some(n=>!n.hidden));

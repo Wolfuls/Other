@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data'),E=require('../js/engine'),F=require('../js/matchup'),N=require('../js/numbers'),{harness}=require('./app-harness.cjs');
 const c=id=>D.characters.find(c=>c.id===id);
-function ready(q='mohican-solo',ids=['meta']){const s=E.createState();s.factors=1e8;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,q,ids);E.selectSession(s,q);E.ensureEnemies(s);return s;}
+function ready(q='mohican-solo',ids=['meta']){const s=E.createState();s.factors=1e8;if(q==='electric-rat')s.earned=1000;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,q,ids);E.selectSession(s,q);E.ensureEnemies(s);return s;}
 test('all quests retain HP/reward/action growth and move combat growth to intensity',()=>{
  for(const q of D.sessions.filter(q=>!q.members)){const s=ready(q.id);s.questLevels[q.id]=s.questActiveLevels[q.id]=12;const next=E.getSession(s);
  for(const k of ['attack','accuracy','evasion','ss'])assert.deepEqual(next[k],q[k]);assert.equal(next.strengthLevel,11);
@@ -46,7 +46,7 @@ test('expected stat values include exploding/fumbling dice and per-roll rounding
 });
 test('lethal enemy sprite stays present in flight, then swaps to a defeat snapshot',()=>{
  const s=ready();s.enemies[0].hp=s.hp=1;s.actionPoints.meta=0;E.selectCharacter(s,'meta');
- const h=harness(s,undefined,{combatRandom:()=>.5});h.click('attack');
+ s.timeline.busySeconds=10; /* Isolate the manual visual from concurrent automatic turns. */ const h=harness(s,undefined,{combatRandom:()=>.5});h.click('attack');
  assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),false);assert.equal(h.get('enemy-defeats').children.length,0);
  h.advance(180);assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),false);
  h.advance(520);assert.equal(h.get('enemy-art').classList.contains('enemy-absent'),true);assert.ok(h.get('enemy-defeats').children.some(n=>n.classList.contains('enemy-defeat')));

@@ -4,7 +4,7 @@ const character=id=>D.characters.find(c=>c.id===id);
 const rng=(seed=17429)=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/2**32);
 const faces=(...v)=>()=>((v.shift()??4)-.5)/6;
 function ready(ids=['meta'],quest='scarecrow'){
- const s=E.createState(1000);s.factors=1e15;s.questActiveLevels=Object.fromEntries(D.sessions.map(q=>[q.id,1]));
+ const s=E.createState(1000);s.factors=1e15;if(quest==='electric-rat')s.earned=1000;s.questActiveLevels=Object.fromEntries(D.sessions.map(q=>[q.id,1]));
  for(const id of ids)s.levels[id]=1;
  E.refreshQuestUnlocks(s);E.setFormation(s,quest,ids);E.selectSession(s,quest);E.ensureEnemies(s);s.selectedCharacterId=ids[0]||null;
  return s;

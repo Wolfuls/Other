@@ -320,7 +320,19 @@
   const ozmorn=quests.find(q=>q.id==='ozmorn');
   Object.assign(ozmorn,{attackElements:['shock'],resistances:['shock'],weaknesses:['blast']});
   Object.assign(ozmorn.summon,{attackElements:[],resistances:['shock'],weaknesses:['blast']});
+  quests.push({id:'electric-rat',sheet:'./img/enemy-electric-rat-idle-v1.png',spriteFrames:3,attackSheet:'./img/enemy-electric-rat-attack-v1.png',defeatSheet:'./img/enemy-electric-rat-defeat-v2.png',combatRules:'ほうでん［射程1～3・全体］：使用時にエレキフィールドが発動。参加者全員に4点の感電・非接触ダメージ（攻撃強度倍率の0.75乗で増加）。らいげき［射程1～3・単体］：命中時、対象の行動値を5秒間50%低下。',code:'07',name:'ユグドラ民は電気鼠の夢を見るか',enemy:'バッドアスエレクトロラット',area:'中層 / 動力プラント【 ニザヴェリール 】',description:'ユグドラシル全土の約60％の動力を担う最大の動力プラント。増設を重ねた巨大施設にはパイプラインが複雑に絡み合う。管理権限は上層のグングニルが持つ。',unlockFactors:1000,unlockByEarned:true,hp:25,defense:3,resistance:2,ss:{flat:8,dice:1},accuracy:{flat:13,dice:1},evasion:{flat:14,dice:1},action:14,actionDice:{flat:7,dice:2},attack:{dice:2,flat:6},attackElements:['shock'],resistances:['shock'],resistanceLabel:'無効',weaknesses:[],reward:30,rewardTransition:100,row:'front',attackRange:[1,3],formationCount:1,traits:[],attackSeconds:.72,attacks:[{id:'discharge',name:'ほうでん',range:[1,3],area:true,electricField:true},{id:'thunderstrike',name:'らいげき',range:[1,3],actionSlowRate:.5}]});
   quests.pending=[];
+  const electricEncounter=quests.find(q=>q.id==='electric-rat');
+  const electroRat={name:'エレクトロラット',enemy:'エレクトロラット',spriteKind:'electro-rat',hp:15,ss:{flat:5,dice:1},accuracy:{flat:10,dice:1},evasion:{flat:11,dice:1},defense:2,resistance:1,action:13,actionDice:{flat:6,dice:2},attack:{dice:1,flat:6},attackElements:['shock'],resistances:['shock'],resistanceLabel:'無効',weaknesses:[],row:'front',attackRange:[1,3],attackSeconds:.72,sheet:'./img/enemy-electro-rat-idle-v1.png',spriteFrames:4,attackSheet:'./img/enemy-electro-rat-shock-v1.png',waveSheet:'./img/enemy-electro-rat-wave-v1.png',defeatSheet:'./img/enemy-electro-rat-defeat-v1.png',combatRules:'でんきショック［射程1～3・単体］：1d6＋6の感電攻撃。でんじは［射程1～3・単体］：ダメージなし。命中時、対象の行動力を5秒間50%低下。',attacks:[{id:'electric-shock',name:'でんきショック',range:[1,3]},{id:'thunder-wave',name:'でんじは',range:[1,3],noDamage:true,actionSlowRate:.5}]};
+  electricEncounter.members=[{...electricEncounter,name:electricEncounter.enemy},{...electroRat,id:'electro-rat-a'},{...electroRat,id:'electro-rat-b'}];
+  Object.assign(electricEncounter,{formationCount:3,sharedHP:false,independentRespawns:true,reviveInPlace:false,reward:8,formationLayout:'surround',groundFraction:.72,background:'./img/nidavellir-reactor-v3.png',traits:['swarm']});
+  electricEncounter.members.forEach((member,index)=>{member.reward=index===0?12:8;});
+  // Session numbers are display metadata; keep persistent quest IDs unchanged.
+  for(const q of quests){
+    q.code=q.id==='electric-rat'?'04':String(Number(q.code)>=4?Number(q.code)+1:Number(q.code)).padStart(2,'0');
+    if(q.members)for(const member of q.members)if(member.id===q.id)member.code=q.code;
+  }
+  quests.sort((a,b)=>Number(a.code)-Number(b.code));
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;
 })(typeof window!=='undefined'?window:globalThis);

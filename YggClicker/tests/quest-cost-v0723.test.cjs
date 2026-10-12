@@ -7,7 +7,7 @@ test('new quest unlock boundaries include exact threshold and persist after spen
  }
 });
 test('all quest initial prices use unmodified initial reward and retain growth for buy/sell',()=>{
- const s=E.createState(1000);s.factors=1e30;E.refreshQuestUnlocks(s);
+ const s=E.createState(1000);s.factors=1e30;s.earned=1000;E.refreshQuestUnlocks(s);
  for(const q of D.sessions){
   s.questLevels[q.id]=1;s.upgrades.reward=100;assert.equal(E.questCost(s,q.id),q.reward*20);
   for(const L of [1,2,25,170,500]){s.questLevels[q.id]=L;const base=q.reward*20;assert.equal(E.questCost(s,q.id),Math.min(N.geometric(base,D.questGrowth.costGrowth,L-1),N.floor(N.curveValue(base,L-1,D.questGrowth.rewardCurve))));}

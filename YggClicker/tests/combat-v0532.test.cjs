@@ -7,7 +7,7 @@ const clickControl=(h,selector,dataset)=>h.get('character-list').listeners.get('
 test('legacy linear training helper retains its minimum growth; combat training grows intensity',()=>{
  for(const base of [-4,0,1,2,6,13,20,50])for(const rate of [.05,.1])for(let lv=1;lv<=100;lv++)assert.ok(N.training(base,rate,lv)-N.training(base,rate,lv-1)>=1);
  const s=ready(['tordeliese']);s.levels.tordeliese=11;assert.equal(E.armor(s,c('tordeliese')),0);assert.equal(E.armor(s,c('tordeliese'),true),2);
- s.levels.tordeliese=11;assert.equal(E.actionPower(s,c('tordeliese')),N.floor(13*1.2));
+ s.levels.tordeliese=11;assert.equal(E.actionPower(s,c('tordeliese')),N.floor(13*1.4));
  s.levels.tordeliese=11;const spec=E.accuracySpec(s,c('tordeliese'));assert.equal(E.combatRoll({...spec,flat:0},faces(1,6)).total,-5);
  s.levels.tordeliese=11;assert.ok(Math.abs(E.attackProfile(s,c('tordeliese')).damageLogRatio-Math.log(1.2))<1e-12);
 });

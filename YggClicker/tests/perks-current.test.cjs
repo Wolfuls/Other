@@ -27,7 +27,7 @@ test('poison starts only on a hit, triggers once per attack and cannot reach a r
 });
 test('poison strength follows its three upgrade tracks and OFF removes only future application',()=>{
  const s=ready(['tordeliese']);enable(s,'tordeliese','greedy-gale','severing-storm','demonic-hammer','annihilation','folding-gale','for-whom-the-storm');
- const p=E.attackProfile(s,c('tordeliese'));assert.equal(p.poisonDamage,16);assert.equal(p.doubleHitDamage,40);assert.equal(p.accuracy.flat,32);
+ const p=E.attackProfile(s,c('tordeliese'));assert.equal(p.poisonDamage,Math.floor(16*Math.sqrt(E.strengthValue(s,c('tordeliese'),'power')/D.strength.strengthBase)));assert.equal(p.doubleHitDamage,40);assert.equal(p.accuracy.flat,32);
  s.enemies[0].poisonDamage=16;E.togglePerk(s,'tordeliese','greedy-gale',false);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,0);assert.equal(s.enemies[0].poisonDamage,16);
 });
 test('GM selects the chosen ally, gives a free action and falls back to normal Max attacks alone',()=>{

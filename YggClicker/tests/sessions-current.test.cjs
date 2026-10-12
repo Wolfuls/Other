@@ -8,8 +8,8 @@ for(const q of D.sessions.filter(q=>!q.members))test(`${q.id}: original stats, f
  assert.deepEqual(E.formationIds(s),['meta']);assert.equal(roundTrip(s).questActiveLevels[q.id],30);
 });
 test('all quest unlocks remain after wallet falls, and the current roster/order are stable',()=>{
- const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor','egg-or-chicken']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
- s.factors=1e7;E.refreshQuestUnlocks(s);s.factors=0;for(const q of D.sessions)assert.equal(E.isQuestUnlocked(roundTrip(s),q.id),true);
+ const s=E.createState();assert.deepEqual(D.sessions.map(q=>q.id),['mohican-solo','scarecrow','mohicans','electric-rat','ozmorn','dementor','egg-or-chicken']);assert.equal(E.isQuestUnlocked(s,'ozmorn'),false);
+ s.factors=1e7;s.earned=1000;E.refreshQuestUnlocks(s);s.factors=0;for(const q of D.sessions)assert.equal(E.isQuestUnlocked(roundTrip(s),q.id),true);
 });
 test('formations move occupied characters atomically, keep five-unit cap and preserve explicit empty parties',()=>{
  const s=ready(D.characters.slice(0,5).map(c=>c.id));for(const char of D.characters)s.levels[char.id]=1;
@@ -36,7 +36,7 @@ test('theory shares exclude down characters and passive targets',()=>{
  s.health.meta.stunTurns=20;const e=s.enemies[1];e.hp=0;e.respawnSeconds=5;E.advance(s,4.99,()=>.5);assert.equal(e.hp,0);E.advance(s,.02,()=>.5);assert.ok(e.hp>0);
 });test('concentration belongs to the character, is free and cannot exceed earned points',()=>{
  const s=ready(['meta','richter']);s.levels.meta=11;const before=s.factors,base=E.strengthValue(s,c('meta'),'armor'),other=E.strengthValue(s,c('richter'),'armor');
- assert.ok(E.setConcentration(s,'meta',{power:3,armor:5,evasion:1,action:1,accuracy:0,vitality:0}));assert.equal(s.factors,before);assert.ok(E.strengthValue(s,c('meta'),'armor')>base);assert.equal(E.strengthValue(s,c('richter'),'armor'),other);assert.equal(E.attackProfile(s,c('meta')).flat,5);
+ assert.ok(E.setConcentration(s,'meta',{power:3,armor:5,evasion:1,accuracy:1}));assert.equal(s.factors,before);assert.ok(E.strengthValue(s,c('meta'),'armor')>base);assert.equal(E.strengthValue(s,c('richter'),'armor'),other);assert.equal(E.attackProfile(s,c('meta')).flat,5);
  assert.equal(E.setConcentration(s,'meta',{...s.concentration.meta,power:4}),false);E.setFormation(s,'mohicans',['meta']);assert.equal(s.concentration.meta.armor,5);
 });
 

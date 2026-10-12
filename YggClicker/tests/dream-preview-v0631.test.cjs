@@ -4,19 +4,19 @@ const {D,E,S,ready,character,roundTrip}=require('./current-fixtures.cjs');
 const {harness}=require('./app-harness.cjs');
 function memoryState(){const s=ready(['jewel']);s.paused=true;s.earned=1234567;s.previousRunsEarned=7654321;E.selectMemories(s);return s;}
 function selectMemory(h){h.get('quest-list').listeners.get('click')({target:{closest:s=>s==='[data-memories]'?{disabled:false}:null}});}
-test('memory is invisible through exactly one million held factors and cannot be opened through the engine/UI',()=>{
- for(const factors of [0,999999,1000000]){const s=E.createState(1000);s.paused=true;s.factors=factors;s.earned=1e10;
+test('memory is invisible below one million held factors and cannot be opened through the engine/UI',()=>{
+ for(const factors of [0,999999]){const s=E.createState(1000);s.paused=true;s.factors=factors;s.earned=1e10;
   assert.equal(E.isMemoriesUnlocked(s),false);assert.equal(E.selectMemories(s),false);
   const h=harness(s);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,true);assert.equal(h.get('quest-select-memories').disabled,true);selectMemory(h);assert.equal(h.saved().viewingMemories,false);h.click('memory-monolith');assert.ok(!h.get('dream-dialog').open);
  }
 });
-test('exceeding one million unlocks memory permanently, including across spending and saves',()=>{
- const s=E.createState(1000);s.factors=1000000;E.grantIncome(s,1,'questReward');assert.equal(s.memoriesUnlocked,true);s.factors=0;
+test('reaching one million unlocks memory permanently, including across spending and saves',()=>{
+ const s=E.createState(1000);s.factors=999999;E.grantIncome(s,1,'questReward');assert.equal(s.memoriesUnlocked,true);s.factors=0;
  const loaded=roundTrip(s);assert.equal(E.isMemoriesUnlocked(loaded),true);assert.ok(E.selectMemories(loaded));loaded.paused=true;const h=harness(loaded);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,false);
 });
 test('schema42 migration applies the current-wallet threshold without resetting any progress',()=>{
  for(const factors of [1000000,1000001]){const s=memoryState();s.factors=factors;delete s.memoriesUnlocked;const b=E.battleSnapshot(s);
-  const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:42,state:s}));assert.equal(loaded.memoriesUnlocked,factors>1000000);assert.equal(loaded.viewingMemories,factors>1000000);
+  const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:42,state:s}));assert.equal(loaded.memoriesUnlocked,factors>=1000000);assert.equal(loaded.viewingMemories,factors>=1000000);
   assert.deepEqual(E.battleSnapshot(loaded),b);assert.equal(loaded.earned,s.earned);assert.equal(loaded.previousRunsEarned,s.previousRunsEarned);assert.equal(loaded.factors,factors);assert.deepEqual(loaded.levels,s.levels);assert.deepEqual(roundTrip(loaded),loaded);
  }
 });

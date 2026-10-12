@@ -2,11 +2,11 @@
   'use strict';
   const tracks = [
     { id: 'action', name: '行動力', base: '基礎行動力' },
-    { id: 'accuracy', name: '命中強度', base: '命中力' },
-    { id: 'evasion', name: '回避強度', base: '回避力' },
-    { id: 'power', name: '攻撃強度', base: '攻撃力' },
     { id: 'vitality', name: 'HP強度', base: '基礎HP' },
-    { id: 'armor', name: '防御強度', base: '防御 / 抵抗' }
+    { id: 'power', name: '攻撃強度', base: '攻撃力' },
+    { id: 'armor', name: '防御強度', base: '防御 / 抵抗' },
+    { id: 'accuracy', name: '命中強度', base: '命中力' },
+    { id: 'evasion', name: '回避強度', base: '回避力' }
   ];
 
   // Both dialogs share this geometry; only the values and optional controls differ.
@@ -18,7 +18,7 @@
     }).join('');
   }
   // Display units only. Combat continues to use the engine's strength values.
-  const strengthLevel = (strength, config) => Math.min(1e100, Math.max(0, 1 + (strength / config.strengthBase - 1) / config.personalGrowth));
+  const strengthLevel = (strength, config, kind = 'power') => Math.min(1e100, Math.max(0, 1 + (strength / config.strengthBase - 1) / (config.personalGrowthByKind?.[kind]??config.personalGrowth)));
   const api = { tracks, rows, strengthLevel };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggAbilityView = api;

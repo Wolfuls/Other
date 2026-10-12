@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready}=require('./current-fixtures.cjs'),N=require('../js/numbers');
-const config={'mohican-solo':[2,100],scarecrow:[10,100],mohicans:[2,98],dementor:[70,108],ozmorn:[50,100],'egg-or-chicken':[100000000,100]};
+const config={'mohican-solo':[2,100],scarecrow:[10,100],mohicans:[2,98],dementor:[70,108],ozmorn:[50,100],'egg-or-chicken':[100000000,100],'electric-rat':[8,100]};
 test('quest reward transitions preserve Q1, fallback, monotonicity and numeric cap',()=>{
  for(const q of D.sessions){assert.deepEqual([q.reward,q.rewardTransition],config[q.id]);assert.equal(E.sessionAtLevel(q,1).reward,q.reward);
   let previous=0;for(let level=1;level<=500;level++){const actual=E.sessionAtLevel(q,level).reward;assert.ok(actual>=previous);previous=actual;}

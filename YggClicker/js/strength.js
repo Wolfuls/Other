@@ -28,7 +28,7 @@
   const focusLog=(points,total=0)=>total>0?Math.log(config().focusGrowth)*Math.max(0,points)/(1+config().focusDiminishing*Math.max(0,points)/total):0;
   const effectiveCP=(points,total=0)=>total>0?Math.max(0,points)/(1+config().focusDiminishing*Math.max(0,points)/total):0;
   const focusMultiplier=(points,total=0,kind='power')=>kind==='action'?1+.08*effectiveCP(points,total):Math.exp(Math.min(Math.log(1e100),focusLog(points,total)));
-  const personalValue=(level,points=0,total=level,kind='power')=>{const linear=config().strengthBase*(1+config().personalGrowth*Math.max(0,level)),focus=kind==='action'?Math.log(focusMultiplier(points,total,kind)):focusLog(points,total);return Math.log(linear)+focus>=Math.log(1e100)?1e100:linear*Math.exp(focus);};
+  const personalValue=(level,points=0,total=level,kind='power')=>{const linear=config().strengthBase*(1+(config().personalGrowthByKind?.[kind]??config().personalGrowth)*Math.max(0,level)),focus=kind==='action'?Math.log(focusMultiplier(points,total,kind)):focusLog(points,total);return Math.log(linear)+focus>=Math.log(1e100)?1e100:linear*Math.exp(focus);};
   const relativeLog=(left,right)=>Math.log(left)-Math.log(right);
   const absoluteLog=(left,right)=>(Math.log(left/config().strengthBase)+Math.log(right/config().strengthBase))/2;
   const transform=(v,s)=>Math.floor(v*(s.resultScale??1));

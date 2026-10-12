@@ -25,7 +25,7 @@ test('each explosion carries the spent magic after the simulation resets it, inc
 
 test('casting keeps circles through impact, uses the dedicated scaled blast, then leaves no stale charge',()=>{
  const s=ready(['megumin']);enable(s,'megumin','laws-of-heaven');s.health.megumin.magicLevel=4;s.enemies[0].evasionFailure=true;s.forecast=true;
- const h=harness(s,undefined,{combatRandom:()=>.4});h.click('attack');
+ s.timeline.busySeconds=10; /* Isolate the manual visual from concurrent automatic turns. */ const h=harness(s,undefined,{combatRandom:()=>.4});h.click('attack');
  const actor=h.get('megumin-combatant'),axis=h.get('megumin-charge-axis');
  assert.ok(actor.classList.contains('spell-casting'));assert.equal(axis.children.filter(x=>!x.hidden).length,4);
  h.advance(800);assert.ok(actor.classList.contains('spell-casting'));assert.equal(axis.children.filter(x=>!x.hidden).length,4);

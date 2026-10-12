@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.78.6",
+  "version": "0.80.5",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -18,7 +18,6 @@
   ],
   "secondaryIncomeTypes": [
     "secondaryIncome",
-    "jewelSideIncome",
     "jewelDoubleHitIncome",
     "jewelDamageIncome"
   ],
@@ -26,6 +25,7 @@
     "strengthBase": 100,
     "strengthGrowth": 1.1,
     "personalGrowth": 0.02,
+    "personalGrowthByKind": {"action": 0.04, "vitality": 0.04},
     "focusGrowth": 1.08,
     "focusDiminishing": 2.5,
     "hitStrengthExponent": 1,
@@ -469,10 +469,6 @@
   },
   "concentration": [
     {
-      "id": "action",
-      "name": "行動"
-    },
-    {
       "id": "accuracy",
       "name": "命中"
     },
@@ -483,10 +479,6 @@
     {
       "id": "power",
       "name": "攻撃"
-    },
-    {
-      "id": "vitality",
-      "name": "HP"
     },
     {
       "id": "armor",

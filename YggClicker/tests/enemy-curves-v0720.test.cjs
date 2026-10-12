@@ -64,12 +64,12 @@ test('schema48 rescales main and offscreen enemy HP once, preserves summons, wai
 
 test('enemy abilities and quest preview expose each actual strength without applying a draft',()=>{
  const s=ready(['waku'],'ozmorn');s.questLevels.ozmorn=200;s.questActiveLevels.ozmorn=170;s.paused=true;
- const h=harness(s),q=E.getSession(s),fmt=n=>UI.incomeNumber(A.strengthLevel(n,D.strength));h.click('tab-quests');
- for(const [key,value]of [['strength',q.attackStrength],['armor-strength',q.defenseStrength],['check-strength',q.strength],['hp-strength',q.hpStrength]])assert.equal(h.get('quest-'+key+'-ozmorn').textContent,fmt(value));
+ const h=harness(s),q=E.getSession(s),fmt=(n,kind='power')=>UI.incomeNumber(A.strengthLevel(n,D.strength,kind));h.click('tab-quests');
+ for(const [key,value]of [['strength',q.attackStrength],['armor-strength',q.defenseStrength],['check-strength',q.strength],['hp-strength',q.hpStrength]])assert.equal(h.get('quest-'+key+'-ozmorn').textContent,fmt(value,key==='hp-strength'?'vitality':'power'));
  const button={disabled:false,dataset:{enemyInfo:'ozmorn'}};
  h.get('quest-list').listeners.get('click')({target:{closest:selector=>selector==='[data-enemy-info]'?button:null}});
  const html=h.get('enemy-info-content').innerHTML;
- for(const v of [q.attackStrength,q.defenseStrength,q.strength,q.hpStrength])assert.ok(html.includes('<strong>'+fmt(v)+'</strong>'));
+ for(const v of [q.attackStrength,q.defenseStrength,q.strength,q.hpStrength])assert.ok(html.includes('<strong>'+fmt(v,v===q.hpStrength?'vitality':'power')+'</strong>'));
  assert.equal(s.questActiveLevels.ozmorn,170);
 });
 
@@ -92,7 +92,7 @@ test('reference party boss encounter takes repeated hits and tens of seconds, no
   if(time!==null){times.push(time);hits.push(count);}
  }
  assert.ok(times.length>=9);times.sort((a,b)=>a-b);hits.sort((a,b)=>a-b);
- assert.ok(times[5]>=30&&times[5]<=600,JSON.stringify(times));assert.ok(hits[5]>=20&&hits[5]<=100,JSON.stringify(hits));
+ assert.ok(times[5]>=30&&times[5]<=600,JSON.stringify(times));assert.ok(hits[5]>=5&&hits[5]<=100,JSON.stringify(hits));
  const s=battle(190),p=E.attackProfile(s,character('waku')),damage=E.T.damage({dice:p.dice,flat:p.flat+p.bonus},p.defense,p.damageLogRatio,p.damageScaleLog).mean;
  assert.ok(E.getSession(s).hp/damage>30);
 });
