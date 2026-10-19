@@ -22,7 +22,7 @@ test('each seed changes its intended strength; greed excludes rewards and refund
  for(const [id,kind]of [['pride','action'],['vanity','evasion'],['envy','accuracy'],['wrath','power'],['gluttony','vitality'],['lust','armor']]){
   const before=E.strengthValue(s,c,kind);s.seedLevels[id]=3;assert.ok(Math.abs(E.strengthValue(s,c,kind)/before-1.04**3)<1e-12);
  }
- s.seedLevels.greed=5;for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,D.secondaryIncomeTypes.includes(type)?200:100);}
+ s.seedLevels.greed=5;for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,100);}
  const b=E.runawayPressureBreakdown(s,c);s.seedLevels.sloth=4;const a=E.runawayPressureBreakdown(s,c);assert.equal(a.calming,b.calming);assert.ok(Math.abs(a.generated-b.generated*.95**4)<1e-12);
 });
 test('schema54 converts retired seed name and shortens existing Megumin stun only',()=>{

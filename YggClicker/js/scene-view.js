@@ -62,7 +62,6 @@
       $('arena-viewport').hidden=memories;
       const income=E.incomeRecord(state);
       setText('memory-run','第'+(state.runNumber||1)+'周');
-      setText('run-number','第'+(state.runNumber||1)+'周');
       setText('memory-current',money(income.currentRun)+' Rd');
       setText('memory-total',money(income.allRuns)+' Rd');
       if(memories)return;

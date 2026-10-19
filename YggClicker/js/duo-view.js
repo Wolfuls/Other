@@ -54,13 +54,18 @@
  }
  const sequences={fists:[0,1,2,3,4,5,1,2,3,4,5,0],boulder:[0,6,7,8,9,10,11,5,0],slash:[0,1,2,3,4,5,0],boomerang:[0,6,7,8,9,9,10,11,0],blizzard:[12,13,14,15,16,15,16,17,0]};
  function frameAt(kind,progress){if(kind==='blizzard'){if(progress<.2)return 12;if(progress<.32)return 13;if(progress<.32)return 14;if(progress<.92)return 15;return 17;}const frames=sequences[kind]||[0];return frames[Math.min(frames.length-1,Math.max(0,Math.floor(progress*frames.length)))];}
+ let active=true,animationRequest=0;
+ function queue(){if(active&&nodes.size&&!document.hidden&&!animationRequest)animationRequest=requestAnimationFrame(tick);}
+ function setActive(value){active=!!value;if(!active||document.hidden){if(animationRequest)cancelAnimationFrame(animationRequest);animationRequest=0;}else queue();}
+ document.addEventListener('visibilitychange',()=>setActive(active));
  function mount(node,kind){
   sourceImage('eggra-chest-cross-v1.png');for(const spec of Object.values(special))sourceImage(spec.file);
   nodes.add(node);node.classList.add('duo-combatant');node.dataset.duoKind=kind;
   let canvas=node.querySelector('canvas');if(!canvas){canvas=document.createElement('canvas');canvas.width=224;canvas.height=288;canvas.setAttribute('aria-hidden','true');node.firstElementChild.append(canvas);}
-  paint(canvas,kind);
+  paint(canvas,kind);queue();
  }
  function tick(t){
+  animationRequest=0;if(!active||document.hidden)return;
   if(!document.hidden)for(const node of nodes){
    if(!node.isConnected){nodes.delete(node);continue;}if(node.hidden||node.closest('[hidden]')||!node.classList.contains('duo-combatant'))continue;
    const kind=node.dataset.duoKind,canvas=node.querySelector('canvas');if(!canvas)continue;
@@ -81,9 +86,8 @@
    }else {clock.attackStarted=null;if(reduced)frame=0;}
    paint(canvas,kind,frame,reduced?0:clock.time,action,progress);
   }
-  requestAnimationFrame(tick);
+  queue();
  }
- if(typeof requestAnimationFrame==='function')requestAnimationFrame(tick);
  // Projectiles share the queued attack duration, including resumed windups.
  function attack(node,event,arena,targetNodes){
   node.dataset.duoAttack=event.kind;node.dataset.duoDuration=event.duration;node.dataset.duoStarted=String(performance.now()-(event.duration-(event.remaining??event.duration))*1000/(Number(node.dataset.battleSpeed)||1));
@@ -134,7 +138,7 @@
   arena.append(layer);return layer;
  }
  function finish(layer,immediate=false){if(!layer)return;if(!immediate&&layer.dataset?.duoEffect==='blizzard'){scheduleTail(()=>layer.remove(),1200);return;}if(!immediate&&layer.dataset?.duoEffect==='boulder'&&!matchMedia('(prefers-reduced-motion:reduce)').matches){layer.classList.add('duo-impact-fade');scheduleTail(()=>layer.remove(),1000);}else layer.remove();}
- root.YggDuoView={setScheduler(fn){scheduleTail=fn;},mount,paint,attack,frameAt,finish};
+ root.YggDuoView={setScheduler(fn){scheduleTail=fn;},mount,paint,attack,frameAt,finish,setActive};
 })(window);
 
 

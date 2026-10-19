@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.84.5",
+  "version": "0.89.14",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -76,7 +76,7 @@
       "envy": "hitStrength",
       "wrath": "attackStrength",
       "sloth": "pressure",
-      "greed": "secondaryIncome",
+      "greed": "creditsIncome",
       "gluttony": "maxHP",
       "lust": "defenseStrength"
     },
@@ -148,7 +148,7 @@
     "unlockFactors": 1000000,
     "name": "追憶",
     "background": "./img/memory-nebula-v3.png",
-    "monolith": "./img/memory-monolith-v2.png"
+    "monolith": "./img/memory-monolith-v3.png"
   },
   "vishunalVisual": {
     "sheet": "./img/vishunal-poses-v2.png",

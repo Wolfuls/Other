@@ -64,17 +64,17 @@ test('OFF does not erase rainbow, enemy debuffs, protection or pending enemy pro
  const loaded=S.decode(S.encode(s));assert.deepEqual(loaded.enemies[0].pendingAttack.profile,s.enemies[0].pendingAttack.profile);assert.equal(loaded.enemies[0].evasionPenalty,6);
 });
 test('income classification excludes refunds/quest/overkill from greed',()=>{
- const s=ready();s.seedLevels.greed=100;D.seedSystem.enabled=true;try{for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,D.secondaryIncomeTypes.includes(type)?2100:100);}}finally{D.seedSystem.enabled=true;}
+ const s=ready();s.seedLevels.greed=100;D.seedSystem.enabled=true;try{for(const type of D.incomeTypes){const before=s.factors;E.grantIncome(s,100,type);assert.equal(s.factors-before,100);}}finally{D.seedSystem.enabled=true;}
 });
 test('Jewel income uses current wallet, never triggers on clear, is gated by deployment/health/pause',()=>{
- const s=ready(['jewel'],'scarecrow');s.factors=10000;s.selectedCharacterId=null;s.hp=s.enemies[0].hp=1;E.click(s,()=>0);assert.equal(s.incomeTotals.jewelSideIncome,undefined);
- const before=s.factors;E.jewelSideIncome(s,()=>.5);assert.equal(s.factors-before,Math.floor(before*.01));
+ const s=ready(['jewel'],'scarecrow');s.credits=10000;s.selectedCharacterId=null;s.hp=s.enemies[0].hp=1;E.click(s,()=>0);assert.equal(s.incomeTotals.jewelSideIncome,undefined);
+ const before=s.credits;E.jewelSideIncome(s,()=>.5);assert.equal(s.credits-before,Math.floor(before*.01));
  s.health.jewel.status='unconscious';s.health.jewel.hp=1;assert.equal(E.jewelSideIncome(s,()=>.5),0);s.paused=true;const snapshot=JSON.stringify(s);E.advance(s,100,()=>0);assert.equal(JSON.stringify(s),snapshot);
  assert.equal(Object.keys(s).some(k=>/nextIncome|countdown/i.test(k)),false);
 });
 test('offline Poisson event count is consistent with mean interval without per-second income draws',()=>{
  const old=D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds;D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=30;
- try{let count=0;for(let i=0;i<100;i++){const s=ready(['jewel'],'scarecrow');s.levels.jewel=Math.max(s.levels.jewel,1);s.runaway.jewel.baseRunawayPressure=0;s.paused=false;const before=s.factors;E.advance(s,120,rng(Math.imul(9+i,2654435761)>>>0),true,true);const received=s.incomeTotals.jewelSideIncome||0;assert.ok(s.factors>=before);count+=Math.log1p(received/before)/Math.log(1.01);assert.equal(Object.keys(s).some(k=>/incomeAt|nextIncome/i.test(k)),false);}assert.ok(Math.abs(count-400)<4*Math.sqrt(400),'events '+count);}finally{D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=old;}
+ try{let count=0;for(let i=0;i<100;i++){const s=ready(['jewel'],'scarecrow');s.levels.jewel=Math.max(s.levels.jewel,1);s.runaway.jewel.baseRunawayPressure=0;s.paused=false;s.credits=1e10;const before=s.credits;E.advance(s,120,rng(Math.imul(9+i,2654435761)>>>0),true,true);const received=s.creditsEarned||0;assert.ok(s.credits>=before);count+=Math.log1p(received/before)/Math.log(1.01);assert.equal(Object.keys(s).some(k=>/incomeAt|nextIncome/i.test(k)),false);}assert.ok(Math.abs(count-400)<4*Math.sqrt(400),'events '+count);}finally{D.runtimeBalance.jewelSideIncomeMeanIntervalSeconds=old;}
 });
 test('activation stacks and original extra dice accumulate without changing intensity',()=>{
  const s=ready();for(const type of ['augment','reaction','sense','recovery','awakening']){s.runaway.meta.activationType=type;for(const [rate,stacks,dice]of [[49,0,0],[50,1,0],[60,2,0],[70,3,0],[80,3,1],[90,3,2]]){s.runaway.meta.runawayRate=rate;const a=E.activation(s,c('meta'));assert.equal(a.stacks,stacks);assert.equal(a.dice,dice);assert.equal(a.damage,type==='augment'?stacks:0);assert.equal(E.attackProfile(s,c('meta')).damageLogRatio,0);}}

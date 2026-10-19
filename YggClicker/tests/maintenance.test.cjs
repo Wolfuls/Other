@@ -20,3 +20,6 @@ test('delete UI defaults to cancel, cancellation preserves save, and confirmatio
  const imported={...s,factors:6789};h.get('save-text').value=S.encode(imported);h.click('preview-import');h.click('confirm-import');
  h.click('option-delete');h.click('delete-confirm');assert.equal(h.get('factors').textContent,'0');assert.equal(h.get('save-text').value,'');h.advance(10001);const clean=h.saved();assert.equal(clean.factors,0);assert.equal(clean.levels.meta,0);h.click('restore-import');assert.match(h.get('save-message').textContent,/まだありません/);
 });
+
+test('local file refresh skips unsupported fetch before page reload',async()=>{let calls=0;const result=await M.refresh(['file:///C:/game/index.html','file:///C:/game/img/a.png'],async()=>{calls++;throw Error('file fetch forbidden')});assert.equal(result.ok,true);assert.equal(calls,0)});
+test('all catalog images exist on disk',()=>{const fs=require('fs'),path=require('path'),D=require('../js/data.js');function visit(v){if(typeof v==='string'&&v.startsWith('./img/'))assert.ok(fs.existsSync(path.join(__dirname,'..',v)),v);else if(v&&typeof v==='object')Object.values(v).forEach(visit)}visit(D)});

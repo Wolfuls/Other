@@ -7,7 +7,7 @@ function selectMemory(h){h.get('quest-list').listeners.get('click')({target:{clo
 test('memory is invisible below one million held factors and cannot be opened through the engine/UI',()=>{
  for(const factors of [0,999999]){const s=E.createState(1000);s.paused=true;s.factors=factors;s.earned=1e10;
   assert.equal(E.isMemoriesUnlocked(s),false);assert.equal(E.selectMemories(s),false);
-  const h=harness(s);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,true);assert.equal(h.get('quest-select-memories').disabled,true);selectMemory(h);assert.equal(h.saved().viewingMemories,false);h.click('memory-monolith');assert.ok(!h.get('dream-dialog').open);
+  const h=harness(s);h.click('tab-quests');assert.equal(h.get('quest-card-memories').hidden,true);assert.equal(h.get('quest-card-memories').getAttribute('aria-disabled'),'true');selectMemory(h);assert.equal(h.saved().viewingMemories,false);h.click('memory-monolith');assert.ok(!h.get('dream-dialog').open);
  }
 });
 test('reaching one million unlocks memory permanently, including across spending and saves',()=>{

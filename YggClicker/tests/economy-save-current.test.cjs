@@ -24,7 +24,7 @@ test('early quest quotes retain 1.15 growth and retired reward upgrades no longe
 });
 test('quest/overkill/refund credits remain separated; current save never repays them',()=>{
  const s=ready(['meta'],'mohican-solo');s.selectedCharacterId='meta';s.upgrades.overkill=1;s.enemies[0].hp=1;s.enemies[0].poisonDamage=0;
- {const events=E.click(s,()=>.5);assert.ok(events.some(e=>e.type==='clear'&&e.overkillBonus));assert.equal(s.incomeTotals.questReward,2);assert.equal(s.incomeTotals.overkillReward,1);}
+ {const events=E.click(s,()=>.5);assert.ok(events.some(e=>e.type==='clear'&&e.overkillBonus));assert.equal(s.incomeTotals.questReward,1);assert.equal(s.incomeTotals.overkillReward,1);}
  const again=roundTrip(s);assert.equal(again.factors,s.factors);assert.deepEqual(again.incomeTotals,s.incomeTotals);
 });
 test('all schema33 purchased perks refund their historical costs once with original funds and progress retained',()=>{
@@ -53,10 +53,17 @@ test('future schemas cannot overwrite storage; broken primary falls back to vali
  const values=new Map(),storage={getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)};const s=ready();assert.ok(S.persist(storage,s).ok);const doc=JSON.parse(S.encode(s));doc.schemaVersion=S.VERSION+1;values.set(S.KEY,JSON.stringify(doc));assert.ok(S.load(storage).blocked);assert.equal(JSON.parse(values.get(S.KEY)).schemaVersion,S.VERSION+1);
  values.set(S.BACKUP_KEY,S.encode(s));values.set(S.KEY,'broken');assert.equal(S.load(storage).state.factors,s.factors);
 });
-test('paused offline time is not banked; catch-up is capped at eight hours and tolerates clock rollback',()=>{
- const s=ready();s.paused=true;const before=s.factors;const paused=E.catchUp(s,100000,rng());assert.equal(paused.kills,0);assert.equal(s.factors,before);assert.equal(s.savedAt,100000);s.paused=false;
- const report=E.catchUp(s,100000+48*3600e3,rng());assert.equal(report.seconds,28800);assert.equal(E.catchUp(s,0,rng()).seconds,0);assert.doesNotThrow(()=>roundTrip(s));
+test('closed-browser time advances only missions, including while paused and after eight hours',()=>{
+ for(const paused of [false,true]){
+  const s=ready();s.paused=paused;s.levels.queen=1;s.missions={sorting:{members:['queen'],remaining:900}};
+  const before=structuredClone(s);const first=E.catchUp(s,s.savedAt+300000);
+  assert.equal(first.kills,0);assert.equal(first.factors,0);assert.equal(s.missions.sorting.remaining,600);
+  before.savedAt=s.savedAt;before.missions.sorting.remaining=600;assert.deepEqual(s,before);
+  const report=E.catchUp(s,s.savedAt+48*3600e3);assert.equal(report.seconds,48*3600);assert.equal(s.missions.sorting.remaining,0);
+  assert.equal(E.catchUp(s,s.savedAt).seconds,0);assert.equal(E.catchUp(s,0).seconds,0);assert.doesNotThrow(()=>roundTrip(s));
+ }
 });
+
 test('currency formatting floors fractions and retains full grouped large balances',()=>{
  for(const [n,text]of [[2.8,'2'],[1234567.8,'1,234,567'],[1e21,'1,000,000,000,000,000,000,000']])assert.equal(UI.currencyNumber(n),text);
 });

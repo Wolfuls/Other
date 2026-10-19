@@ -549,6 +549,14 @@
       if(!r.enabled&&r.remaining>0)throw new Error('無効な休憩状態');
     }
     result.runNumber=number(raw.runNumber,'周回数',1,Number.MAX_SAFE_INTEGER,true);
+    for(const key of ['credits','prestige'])result[key]=number(raw[key]??0,key);
+    result.creditsEarned=number(raw.creditsEarned??raw.credits??0,'creditsEarned');
+    const chars=record(raw.characterUnlocks??{},'仲間解放');if(Object.keys(chars).some(id=>!D.characters.some(c=>c.id===id))||Object.values(chars).some(v=>typeof v!=='boolean'))throw Error('仲間解放が不正です');result.characterUnlocks={...chars};
+    const counts=record(raw.defeatCounts??{},'討伐記録');result.defeatCounts={};for(const [id,n]of Object.entries(counts)){if(!D.sessions.some(q=>q.id===id))throw Error('討伐記録が不正です');result.defeatCounts[id]=number(n,'討伐数',0,Number.MAX_SAFE_INTEGER,true);}
+    const rescue=record(raw.rescue??E.newRescue(),'逃げ遅れた者');
+    result.rescue={dementorClears:number(rescue.dementorClears,'旧き看守討伐数',0,Number.MAX_SAFE_INTEGER,true),appearances:number(rescue.appearances,'救助発生回数',0,Number.MAX_SAFE_INTEGER,true),remaining:number(rescue.remaining,'救助残り時間',0,600)};
+    for(const key of ['completed','open','unread']){if(typeof rescue[key]!=='boolean')throw new Error('救助状態が不正です');result.rescue[key]=rescue[key];}
+    if(rescue.completed&&(rescue.open||rescue.remaining||rescue.unread))throw new Error('完了済みの救助状態が不正です');
     for (const key of ['factors', 'earned', 'previousRunsEarned', 'totalDamage']) { result[key] = number(raw[key], key); if(!Number.isInteger(result[key]))throw new Error(`${key}は整数で指定してください。`); }
     for (const key of ['kills', 'clicks']) {
       result[key] = number(raw[key], key);
@@ -678,7 +686,7 @@
       const h=health[c.id]??{hp:E.maxHP(result,c),status:'active',regenSeconds:0};record(h,'味方の状態');
       const hp=number(h.hp,'味方HP',-1e100,E.maxHP(result,c)),regenSeconds=number(h.regenSeconds,'回復周期',0,D.balance.recoverySeconds);
       if(!Number.isInteger(hp)||regenSeconds>=D.balance.recoverySeconds||!['active','unconscious','dying'].includes(h.status)||hp<0&&h.status!=='dying'||hp===E.maxHP(result,c)&&(h.status!=='active'||regenSeconds!==0)||!result.levels[c.id]&&(hp!==E.maxHP(result,c)||h.status!=='active'))throw new Error('味方HP・戦闘不能状態が正しくありません。');
-      result.health[c.id]={hp,status:h.status,regenSeconds};if(h.summonDelaySeconds!==undefined)result.health[c.id].summonDelaySeconds=number(h.summonDelaySeconds,'召喚待機秒',0,5);if(h.turnSlowSeconds!==undefined){result.health[c.id].turnSlowSeconds=number(h.turnSlowSeconds,'行動妨害秒',0,5);result.health[c.id].turnSlowRate=number(h.turnSlowRate,'行動妨害率',0,.5);}
+      result.health[c.id]={hp,status:h.status,regenSeconds};if(h.revivalTurns!==undefined){if(h.status==='active')throw new Error('復活待機状態が不正です');result.health[c.id].revivalTurns=number(h.revivalTurns,'復活までの手数',1,10,true);result.health[c.id].revivalSeconds=number(h.revivalSeconds??10,'復活待機秒',0,10);}if(h.summonDelaySeconds!==undefined)result.health[c.id].summonDelaySeconds=number(h.summonDelaySeconds,'召喚待機秒',0,5);if(h.turnSlowSeconds!==undefined){result.health[c.id].turnSlowSeconds=number(h.turnSlowSeconds,'行動妨害秒',0,5);result.health[c.id].turnSlowRate=number(h.turnSlowRate,'行動妨害率',0,.5);}
       if(h.pomBombs!==undefined){if(c.id!=='richter'||!Array.isArray(h.pomBombs)||h.pomBombs.length>2)throw new Error('ポムポムボムの保存値が不正です');result.health[c.id].pomBombs=h.pomBombs.map((b,i)=>{record(b,'ポムポムボム');if(!D.sessions.some(q=>q.id===b.sessionId))throw new Error('召喚先が不正です');const maxHP=number(b.maxHP,'召喚HP上限',1,1e100,true);return {id:'pom-'+i,sessionId:b.sessionId,hp:number(b.hp,'召喚HP',0,maxHP,true),maxHP,power:number(b.power,'召喚強度',1,1e100),dice:number(b.dice,'召喚攻撃D',5,8,true),flat:number(b.flat,'召喚固定値',0,8,true)};});}
       if(h.fireBonus!==undefined){if(c.id!=='cherry')throw new Error('火炎強化の対象が不正です');result.health[c.id].fireBonus=number(h.fireBonus,'火炎強化',0,1e100,true);}
       for(const key of ['stunTurns','blastTurns','blastEvasion','magicLevel'])if(h[key]!==undefined)result.health[c.id][key]=number(h[key],key,0,key==='stunTurns'?5:key==='blastTurns'?1:key==='magicLevel'?7:35,true);
@@ -789,7 +797,9 @@
     for (const u of D.upgrades) result.upgrades[u.id] = number(raw.upgrades[u.id] ?? 0, u.name, 0, u.max ?? Number.MAX_SAFE_INTEGER, true);
     for(const q of D.sessions){const ctx=E.battleContext(result,q.id);E.normalizeEnemyActions(ctx);if(q.id!==result.sessionId&&result.sessionStates[q.id])result.sessionStates[q.id]=E.battleSnapshot(ctx);}
     for(const q of D.sessions)if(!E.isQuestUnlocked(result,q.id)&&(result.questLevels[q.id]>1||E.formationIds(result,q.id).length))throw new Error('未解放のクエストに進行データがあります。');
-    return result;
+    (commonJS?require('./missions.js'):root.YggMissions).validate(raw,result,E);
+    (commonJS?require('./shop.js'):root.YggShop).validate(raw,result);
+    E.refreshCharacterUnlocks(result);return result;
   }
   function encode(state, now = Date.now()) {
     return JSON.stringify({ gameId: D.gameId, schemaVersion: VERSION, gameVersion: D.version, exportedAt: new Date(now).toISOString(), state: validateState(state) }, null, 2);

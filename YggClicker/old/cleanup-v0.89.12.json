@@ -1,0 +1,605 @@
+{
+  "version": "0.89.12",
+  "date": "2026-10-18",
+  "reason": "Unused images and retired merchant WebGL payload; original paths and SHA-256 allow restoration.",
+  "images": 82,
+  "imageBytes": 87992297,
+  "programs": 1,
+  "moves": [
+    {
+      "path": "img/blizzard-plume-v1.png",
+      "bytes": 2199118,
+      "refs": [],
+      "to": "img/old/v0.89.12/blizzard-plume-v1.png",
+      "hash": "4DF9EE657BB3D22AAD370861EDED930BF9B38E14974DEF16B7A839DC25EF0EB3"
+    },
+    {
+      "path": "img/cherry-attack-frame-0-v2.png",
+      "bytes": 124263,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-attack-frame-0-v2.png",
+      "hash": "9DF2542508671973552ADEEDCC1CDFDC2FF3796BF22A1C6AF6D5C659DE46DFB0"
+    },
+    {
+      "path": "img/cherry-attack-frame-1-v2.png",
+      "bytes": 131940,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-attack-frame-1-v2.png",
+      "hash": "929AE4ACF1C5C7F8AE7313CCA95182F58DBF48AF2099DFFBDD812CFC3532B611"
+    },
+    {
+      "path": "img/cherry-attack-frame-2-v2.png",
+      "bytes": 137310,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-attack-frame-2-v2.png",
+      "hash": "6DF9C607B45171261F278936A955F3F94EAB535BD420BCF2667D9C89367E3FE6"
+    },
+    {
+      "path": "img/cherry-attack-frame-3-v2.png",
+      "bytes": 124043,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-attack-frame-3-v2.png",
+      "hash": "A6BABBA2EEB9889D4F153E8240DACEF6E64418D8FB23DF12A64E8BE06FC85F91"
+    },
+    {
+      "path": "img/cherry-attack-v1.png",
+      "bytes": 150239,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-attack-v1.png",
+      "hash": "C9BF4092D878796C5FD62068CE21A2AE3E6C1AC6047521B344562C5AAB1F89C9"
+    },
+    {
+      "path": "img/cherry-down-frame-0-v2.png",
+      "bytes": 124134,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-down-frame-0-v2.png",
+      "hash": "CFD02BAB593519E95D7D873FC718E116DD2DB79D146CDB6B04524B0E5501A0F5"
+    },
+    {
+      "path": "img/cherry-down-frame-1-v2.png",
+      "bytes": 113128,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-down-frame-1-v2.png",
+      "hash": "B899EB2694FCB299EE88AE452D20779E7800ACC7B7E40FC4ECE86B39018DEDB7"
+    },
+    {
+      "path": "img/cherry-down-frame-2-v2.png",
+      "bytes": 103416,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-down-frame-2-v2.png",
+      "hash": "70B69AA0F5D97421EA69D0C08DC983E7992A9B3E0BF07D50EB6B295B89DB3006"
+    },
+    {
+      "path": "img/cherry-down-v1.png",
+      "bytes": 97343,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-down-v1.png",
+      "hash": "B155E31EAE6B091D2F54EF9FEA63567297563DF61FB44C2E4BD3EFF9CD3A2142"
+    },
+    {
+      "path": "img/cherry-fire-frame-0-v2.png",
+      "bytes": 39659,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-fire-frame-0-v2.png",
+      "hash": "EACBDAE98989CB0A4D048C5C5238AC85A28C6D0252D90D8C89B684BB84E64221"
+    },
+    {
+      "path": "img/cherry-fire-frame-1-v2.png",
+      "bytes": 69503,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-fire-frame-1-v2.png",
+      "hash": "07041A6FD0F0396C2255EC928EAD4946C72FA9122A27117DD6437B93A70D96D0"
+    },
+    {
+      "path": "img/cherry-fire-frame-2-v2.png",
+      "bytes": 100020,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-fire-frame-2-v2.png",
+      "hash": "4D208D4ED2F4BCBDDCA61C4BC4B01A96C6EAF9161D3423340E7C7C459F32A6E1"
+    },
+    {
+      "path": "img/cherry-fire-frame-3-v2.png",
+      "bytes": 61688,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-fire-frame-3-v2.png",
+      "hash": "0991BCD05FDF5F8180CADF933C6E801771743F839BB82289513CCB2F3BDFB3CE"
+    },
+    {
+      "path": "img/cherry-idle-frame-1-v2.png",
+      "bytes": 114686,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-idle-frame-1-v2.png",
+      "hash": "BCC18E423F1F82D0901C7C7345225D218B1DB946513CA7FB424EE51DA3463392"
+    },
+    {
+      "path": "img/cherry-idle-frame-2-v2.png",
+      "bytes": 116633,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-idle-frame-2-v2.png",
+      "hash": "A8EC3CA575380C4F88379E42EE341E3584CD0B3BE5146D79BA8C60EE856AAC6D"
+    },
+    {
+      "path": "img/cherry-idle-frame-3-v2.png",
+      "bytes": 115066,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-idle-frame-3-v2.png",
+      "hash": "FB739E91BDFA1B660C3318A1908514C82D3BB3EFFF640B4B41CC0175656A4E37"
+    },
+    {
+      "path": "img/cherry-idle-v1.png",
+      "bytes": 109578,
+      "refs": [],
+      "to": "img/old/v0.89.12/cherry-idle-v1.png",
+      "hash": "CB138A072B8A8EF56D13E3105C175624C55132ECFC94472F0E5FD1E330E63B70"
+    },
+    {
+      "path": "img/chikira-actions-v1.png",
+      "bytes": 1096978,
+      "refs": [],
+      "to": "img/old/v0.89.12/chikira-actions-v1.png",
+      "hash": "0FC0968610B530AA3707B9C855802C902F28D90AAC5C3496C2E14D7B1E4E3D55"
+    },
+    {
+      "path": "img/eggra-actions-v1.png",
+      "bytes": 757670,
+      "refs": [],
+      "to": "img/old/v0.89.12/eggra-actions-v1.png",
+      "hash": "11E4409247EC4B9BCA4F89CC1C6A522D366E5AAB4FD7C452A38ED7FF2A261C7F"
+    },
+    {
+      "path": "img/eggra-cross-slash-v4.png",
+      "bytes": 899005,
+      "refs": [],
+      "to": "img/old/v0.89.12/eggra-cross-slash-v4.png",
+      "hash": "E7D8EF1C31C112196299E7F39A2EDC2179AF852453927380A337FE350B01FC3F"
+    },
+    {
+      "path": "img/eggra-slash-v3.png",
+      "bytes": 833326,
+      "refs": [],
+      "to": "img/old/v0.89.12/eggra-slash-v3.png",
+      "hash": "E605537DA6279EC8B452F03D6A3C1AD768915C111F233A6358781561EF266F50"
+    },
+    {
+      "path": "img/enemy-electric-rat-defeat-v1.png",
+      "bytes": 14830,
+      "refs": [],
+      "to": "img/old/v0.89.12/enemy-electric-rat-defeat-v1.png",
+      "hash": "98EB0EAF93B24E78EC4F8B536CB6D7AAF74165584A4136CDE9D7E8E8A660464B"
+    },
+    {
+      "path": "img/infirmary-background-v1.png",
+      "bytes": 1973669,
+      "refs": [],
+      "to": "img/old/v0.89.12/infirmary-background-v1.png",
+      "hash": "D3D7531AC13310DF3E6427A3B43C6A3D46843714E6C93E874005F8A1E06A116E"
+    },
+    {
+      "path": "img/nidavellir-power-plant-v1.png",
+      "bytes": 2828189,
+      "refs": [],
+      "to": "img/old/v0.89.12/nidavellir-power-plant-v1.png",
+      "hash": "9928B5CC69CF76E4A06CCBC51F726E314FC006452921D664BFE1BD5DC63559F0"
+    },
+    {
+      "path": "img/nidavellir-power-plant-v2.png",
+      "bytes": 2588002,
+      "refs": [],
+      "to": "img/old/v0.89.12/nidavellir-power-plant-v2.png",
+      "hash": "5C7A1FD5EAED1731D232EA7E39F5035CCBB22A2AF25A947EAF8756FD906CD848"
+    },
+    {
+      "path": "img/pine-animation-v1.png",
+      "bytes": 1219284,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-animation-v1.png",
+      "hash": "99F81F53E56B0DA7662365C18695FB01CCDBCE018C17C061B59763A91BC4260A"
+    },
+    {
+      "path": "img/pine-animation-v2.png",
+      "bytes": 1268518,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-animation-v2.png",
+      "hash": "537825B6572F32798EFE49A26418D1838E038CD3C5B052E075EED946CD0731C0"
+    },
+    {
+      "path": "img/pine-animation-v6.png",
+      "bytes": 1259308,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-animation-v6.png",
+      "hash": "84E82D9663F6AEE30B8203CCE4B3B3CDD9EFD371E1D670DAD68EFF75E0E44355"
+    },
+    {
+      "path": "img/pine-animation-v7.png",
+      "bytes": 1295043,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-animation-v7.png",
+      "hash": "D843E10F69D57C659C0E50A0F827563A4C5A138B038F2EAED97A19642AB03600"
+    },
+    {
+      "path": "img/pine-animation-v8.png",
+      "bytes": 1347392,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-animation-v8.png",
+      "hash": "4AA8BA3E66FFFA47526DE9F8663DF6D91615C935A25D6FBF64BB643B3BAC77AE"
+    },
+    {
+      "path": "img/pine-burst-v4.png",
+      "bytes": 1189346,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-burst-v4.png",
+      "hash": "6518E49834D859F52FE7948D9F7F756572516CAF0FD1A93097B12A95E2CE3262"
+    },
+    {
+      "path": "img/pine-burst-v5.png",
+      "bytes": 1145985,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-burst-v5.png",
+      "hash": "1B2B0F65221CA21CCC3B8E7A2A5921594B4504AFB1C98B249C6CD3A2C858736D"
+    },
+    {
+      "path": "img/pine-burst-v6.png",
+      "bytes": 1135309,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-burst-v6.png",
+      "hash": "D9D4C2D6593B80624419CCB3E9B4E6D47B050603D8B857B598AADE24D5B1FA8C"
+    },
+    {
+      "path": "img/pine-burst-v7.png",
+      "bytes": 1118896,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-burst-v7.png",
+      "hash": "EDD30CC62FB14952C26B3773EEDE5D4997EA4739A91C6ADA150EFAFC230C810D"
+    },
+    {
+      "path": "img/pine-burst-v8.png",
+      "bytes": 1194312,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-burst-v8.png",
+      "hash": "DC0FF4CBDF195E7874C06C07BCA58EC5CE25BFEFA1B4563DFF92182EBC02FCE2"
+    },
+    {
+      "path": "img/pine-combat-v3.png",
+      "bytes": 1233870,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-combat-v3.png",
+      "hash": "EBCAE3D5E016B6411F1E3A722CD46D744367EB44892B622224ABDC7899FA63AE"
+    },
+    {
+      "path": "img/pine-down-v11.png",
+      "bytes": 645363,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-down-v11.png",
+      "hash": "0B7EE2185C25E747AA05F21E0DBEA8EC318E2C044A8BE9D06BE602CAD3AB5958"
+    },
+    {
+      "path": "img/pine-down-v12.png",
+      "bytes": 890262,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-down-v12.png",
+      "hash": "29B28A48A79715710DE706330E64B099499AA38D5D6528FA5ACE6CB1AFC5E7C6"
+    },
+    {
+      "path": "img/pine-down-v13.png",
+      "bytes": 888925,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-down-v13.png",
+      "hash": "6D8E5E51382CE5A0BA4002700F4C60267C0A20025589D9898C57D60E82DE66B5"
+    },
+    {
+      "path": "img/pine-down-v9.png",
+      "bytes": 649652,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-down-v9.png",
+      "hash": "A742E7BE9046C6B2FDDA17B3AB3CB778C74D4084A5C4FBCCA418DF2004C2B2E1"
+    },
+    {
+      "path": "img/pine-fist-v1.png",
+      "bytes": 623717,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-fist-v1.png",
+      "hash": "631DC13492DF58AE8621641D626645EF4B56FCAF83E3D262BDD56CD85B68A5B0"
+    },
+    {
+      "path": "img/pine-fist-v2.png",
+      "bytes": 722750,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-fist-v2.png",
+      "hash": "CE006036114041E5B0B57994F0843298D0D9836B7543480BC5D134AD943FFA1D"
+    },
+    {
+      "path": "img/pine-followthrough-v10.png",
+      "bytes": 582395,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-followthrough-v10.png",
+      "hash": "9B627E667198FE0B8CFD41163ED36E64C012287FD283E92373F1A62E65ED7C90"
+    },
+    {
+      "path": "img/pine-front-followthrough-v10.png",
+      "bytes": 640535,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-front-followthrough-v10.png",
+      "hash": "00EC964FA4D93B7CB67E573706A831EFD8265F55313CA43C9D402E3F8ECC5BD1"
+    },
+    {
+      "path": "img/pine-heavy-v4.png",
+      "bytes": 1449713,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-heavy-v4.png",
+      "hash": "46E96EEE81C30513DF69ADC737CA406143C12980BD8986E00E70B6D914FE0506"
+    },
+    {
+      "path": "img/pine-heavy-v5.png",
+      "bytes": 1481751,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-heavy-v5.png",
+      "hash": "03353C6757C0ACD82EE40DDDDA844577CD48BC10892C03A5B21E8574218B7B1A"
+    },
+    {
+      "path": "img/pine-heavy-v6.png",
+      "bytes": 1432386,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-heavy-v6.png",
+      "hash": "F7E09FFCEC65D578AB76A17DDD0B000CC406E49534E599FB987FB11320F6070B"
+    },
+    {
+      "path": "img/pine-heavy-v7.png",
+      "bytes": 1493478,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-heavy-v7.png",
+      "hash": "2729EF2C8106BE7AA212BDA99917E9F3556AF536F0FDDBD97933016FCD70AAAE"
+    },
+    {
+      "path": "img/pine-heavy-v8.png",
+      "bytes": 1531418,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-heavy-v8.png",
+      "hash": "B37BDB161D2928530A2340FD66BCC9FA8E2580C570D07353B4F79AAA4D4BD7EA"
+    },
+    {
+      "path": "img/pine-mid-v4.png",
+      "bytes": 793072,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-mid-v4.png",
+      "hash": "D5501891CFED3FA744CFB1B003523270F6BE4ACFE1D49CE34DC9622AFA0E7208"
+    },
+    {
+      "path": "img/pine-mid-v6.png",
+      "bytes": 768205,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-mid-v6.png",
+      "hash": "84E0AF60B8667678E3E9F7F9D6F9736A5A545785B6C424147933B6E94CF19BDA"
+    },
+    {
+      "path": "img/pine-mid-v7.png",
+      "bytes": 825470,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-mid-v7.png",
+      "hash": "C6E5CBEB2452055C043AFE6B1A29CE59214AD1E93E40C5DF482BA93E7E4C783A"
+    },
+    {
+      "path": "img/pine-mid-v8.png",
+      "bytes": 842702,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-mid-v8.png",
+      "hash": "5A1E7D5B8131FC2DFB9BA00D1A7E0AB689257B1F9CF7D4BF64BD2763D779C1F3"
+    },
+    {
+      "path": "img/pine-pixel-v11.png",
+      "bytes": 1364006,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-pixel-v11.png",
+      "hash": "A5A7FC61931418F912FCAAAE6A1C0A546ABCA7028D38A1FE5CE05BB793633AE7"
+    },
+    {
+      "path": "img/pine-pixel-v12.png",
+      "bytes": 1728534,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-pixel-v12.png",
+      "hash": "2FB8DBC146BB1E94ECDF58CB3F5E4BF0B665D8CECF935D2C8AE62DA48921D0BF"
+    },
+    {
+      "path": "img/pine-pixel-v13.png",
+      "bytes": 1726323,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-pixel-v13.png",
+      "hash": "9C1E1E328BB942EBB5868F4AC2BB641F8D3A95F66A6AA0E62DDEA2EE4919CA59"
+    },
+    {
+      "path": "img/pine-user-v9.png",
+      "bytes": 1293107,
+      "refs": [],
+      "to": "img/old/v0.89.12/pine-user-v9.png",
+      "hash": "0CAA47429E4283E9DF2A0322DAD503A0F300CB954695A4F4400C4FB38A8E5D90"
+    },
+    {
+      "path": "img/poultry-plant-v1.png",
+      "bytes": 2759448,
+      "refs": [],
+      "to": "img/old/v0.89.12/poultry-plant-v1.png",
+      "hash": "F23B5B4621461DE5850228091F274C58AA75D4B0B24467C907B75569ACD77DED"
+    },
+    {
+      "path": "img/production-plant-v1.png",
+      "bytes": 2503910,
+      "refs": [],
+      "to": "img/old/v0.89.12/production-plant-v1.png",
+      "hash": "33422453A80B42374F849CD5C5B26BC2B0EDA30B8762DC7670B0B7838D32C537"
+    },
+    {
+      "path": "img/shop-interior-v1.png",
+      "bytes": 2595084,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-interior-v1.png",
+      "hash": "5028578DC41585F96AF3C7A1A50FD47A57859C59418EB8FD9E6F4CA536D9BDF7"
+    },
+    {
+      "path": "img/shop-merchant-cels-v1.png",
+      "bytes": 1261407,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-cels-v1.png",
+      "hash": "8E5348AD6483EBA171393AF0CFB04D595FA97E55DE64152628B5191C72E4740F"
+    },
+    {
+      "path": "img/shop-merchant-cels-v2.png",
+      "bytes": 1243054,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-cels-v2.png",
+      "hash": "19F334BA1819CE4B39E780FD31B4A95E5E1376C750C5E2A12DCEFD6FC2E30D7D"
+    },
+    {
+      "path": "img/shop-merchant-down-left-v2.png",
+      "bytes": 1525942,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-down-left-v2.png",
+      "hash": "24C4BCFDD59D8F7C659C666276BEEBFF30BE2E9B015D7FCC882A57D5E683975E"
+    },
+    {
+      "path": "img/shop-merchant-down-left-v3.png",
+      "bytes": 1746236,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-down-left-v3.png",
+      "hash": "708BC861755618BB6FC6C36214BC750093EBEA60FA4C7966875D85545E0112B9"
+    },
+    {
+      "path": "img/shop-merchant-down-left-v4.png",
+      "bytes": 1688735,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-down-left-v4.png",
+      "hash": "82FC78CDCA921C5820E74F7FC32B83A3983787BC10E319B52CBBFE9BC12C85BC"
+    },
+    {
+      "path": "img/shop-merchant-down-left-v5.png",
+      "bytes": 1763036,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-down-left-v5.png",
+      "hash": "554378149FC5C9FFDFAAC9C2B66F13FD0ED8B2160C82ACFD6E17C9F52328EEB2"
+    },
+    {
+      "path": "img/shop-merchant-idle-v1.png",
+      "bytes": 2315875,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-idle-v1.png",
+      "hash": "23052F0C77804BD1C844C2F7DD6E536C769E39F0B810A8E24546D52C37018860"
+    },
+    {
+      "path": "img/shop-merchant-idle-v2.png",
+      "bytes": 2300831,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-idle-v2.png",
+      "hash": "8F59FCE33F79FB5DAA9290066563D1A89BF532C309556B7FB29B78C30503BD74"
+    },
+    {
+      "path": "img/shop-merchant-idle-v3.png",
+      "bytes": 2305167,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-idle-v3.png",
+      "hash": "56584725F6625C7AB116C4E6DC62C6B252CB20CC4ED40D792F7D55999BFFD8C0"
+    },
+    {
+      "path": "img/shop-merchant-idle-v4.png",
+      "bytes": 2298663,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-idle-v4.png",
+      "hash": "760F9E44E4025F45896363FA459F292305A7C64325A5C6BABD2A374DE8316497"
+    },
+    {
+      "path": "img/shop-merchant-idle-v5.png",
+      "bytes": 2140516,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-idle-v5.png",
+      "hash": "668B75CCE7ABF666E1EA4CF8884265B1A7F5368AFC74F88ECE6287B10EE23208"
+    },
+    {
+      "path": "img/shop-merchant-pixel-v1.png",
+      "bytes": 863189,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-pixel-v1.png",
+      "hash": "BEF5B6A74AC69940373C86DC753C10EBB48BC09F12322A4733806515BDD0C41A"
+    },
+    {
+      "path": "img/shop-merchant-v1.png",
+      "bytes": 1090925,
+      "refs": [],
+      "to": "img/old/v0.89.12/shop-merchant-v1.png",
+      "hash": "EDAC235963AB2BA310596AD8EE2899AD0EAD18FDD0379E48F10AFC2E07DE3910"
+    },
+    {
+      "path": "img/toki-seated-v2.png",
+      "bytes": 1250121,
+      "refs": [],
+      "to": "img/old/v0.89.12/toki-seated-v2.png",
+      "hash": "1F489149181AF662F93A07EEE4E417A80452A7E0F4BB401262660CB312F8FFD8"
+    },
+    {
+      "path": "img/tordeliese-kick-v1.png",
+      "bytes": 549083,
+      "refs": [],
+      "to": "img/old/v0.89.12/tordeliese-kick-v1.png",
+      "hash": "859A48DDDA245DA3599F113686C5413F62D293EEFE5D5D9D19EF6EC24D621D5A"
+    },
+    {
+      "path": "img/tordeliese-melee-v4.png",
+      "bytes": 1019967,
+      "refs": [],
+      "to": "img/old/v0.89.12/tordeliese-melee-v4.png",
+      "hash": "B61FF89BD1D9D27BCB935B2AC62CEC784CE2AC029BCD22E9374224490BF37C42"
+    },
+    {
+      "path": "img/tordeliese-melee-v5.png",
+      "bytes": 1000200,
+      "refs": [],
+      "to": "img/old/v0.89.12/tordeliese-melee-v5.png",
+      "hash": "9BBED88CEC0E382B54D9F189C6A9786B3A7CD97620C7A239162874A9E9E5D1CB"
+    },
+    {
+      "path": "img/tordeliese-melee-v6.png",
+      "bytes": 990705,
+      "refs": [],
+      "to": "img/old/v0.89.12/tordeliese-melee-v6.png",
+      "hash": "1C2D6F84998EED251157E06192EB2DF00FF271EB151854A6D544A83C429607A4"
+    },
+    {
+      "path": "img/vishunal-down-v1.png",
+      "bytes": 45728,
+      "refs": [],
+      "to": "img/old/v0.89.12/vishunal-down-v1.png",
+      "hash": "FF1969880E7E8F76EA503C272847AC8CD45834A71B6F01ECF01AD63994709428"
+    },
+    {
+      "path": "img/waku-stab-v1.png",
+      "bytes": 582285,
+      "refs": [],
+      "to": "img/old/v0.89.12/waku-stab-v1.png",
+      "hash": "F13E4076E4CD1772DCDFFE194EC8A54561EC7E569213050336802E5A08E55D46"
+    },
+    {
+      "path": "js/shop-portrait.js",
+      "to": "old/js/shop-portrait.js",
+      "bytes": 1150969,
+      "hash": "DCA3B1FE5EDF3D4C4F5ED8D1FE694DFBE585B7379D336994B2A9668B3DE76528"
+    },
+    {
+      "path": "img/memory-monolith-v2.png",
+      "to": "img/old/v0.89.12/memory-monolith-v2.png",
+      "bytes": 1347727,
+      "hash": "7B7893728A94C84FAB6E360FC397424757ABBBDF387A9B3D546A7A02EBBD7057"
+    }
+  ],
+  "modified": [
+    "js/engine.js",
+    "js/app.js",
+    "js/data.js",
+    "js/recovery-worker.js",
+    "js/pine-view.js",
+    "js/duo-view.js",
+    "js/poultry-scene.js",
+    "js/shop-scene.js",
+    "index.html",
+    "package.json",
+    "ARCHITECTURE.md",
+    "CHANGELOG.md",
+    "tests/credits-v0866.test.cjs",
+    "tests/economy-save-current.test.cjs"
+  ]
+}

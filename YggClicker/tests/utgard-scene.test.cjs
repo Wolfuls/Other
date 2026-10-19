@@ -31,10 +31,10 @@ test('the gang quest uses Utgard, hides the individual enemy title and includes 
  assert.equal(moveTestParty(s,'practice'),false);assert.ok(h.get('enemy-name').hidden);
 });
 
-test('cumulative clears retain full grouped digits beyond exponential notation; save transfer remains unchanged',()=>{
+test('removed cumulative clear counter retains the underlying save value',()=>{
  for(const[kills,label]of [[1234567,'1,234,567'],[1234567890123,'1,234,567,890,123'],[1e21,'1,000,000,000,000,000,000,000']]){
   const s=combatFixture(1000);s.kills=kills;s.paused=true;s.factors=123;s.upgrades.stabilization=7;s.levels.meta=15;s.levels.meta=Math.max(s.levels.meta,36);
   const doc=JSON.parse(S.encode(s));doc.gameVersion='0.24.0';assert.deepEqual(S.decode(JSON.stringify(doc)),S.validateState(s));
-  assert.equal(harness(s).get('kills').textContent,label);
+  assert.equal(harness(s).saved().kills,kills);
  }
 });

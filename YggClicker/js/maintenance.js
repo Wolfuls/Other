@@ -22,7 +22,8 @@
     documentUrls.forEach(add);visit(data);return [...result];
   }
   async function refresh(urls,fetchResource){
-    const pending=[...new Set(urls)],failed=[];let index=0;
+    // file: resources cannot be fetched by browsers. The caller reloads the saved local page.
+    const pending=[...new Set(urls)].filter(url=>new URL(url).protocol!=='file:'),failed=[];let index=0;
     await Promise.all(Array.from({length:Math.min(4,pending.length)},async()=>{
       while(index<pending.length){const url=pending[index++];try{const response=await fetchResource(url,{cache:'reload',credentials:'same-origin'});if(!response.ok)throw Error('取得失敗');await response.arrayBuffer();}catch{failed.push(url);}}
     }));

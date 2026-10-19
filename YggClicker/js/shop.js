@@ -1,0 +1,6 @@
+(function(root){'use strict';const items=typeof module!=='undefined'&&module.exports?require('./shop-catalogue'):root.YggShopItems;
+const price=i=>items[i]?.cost;
+function buy(state,index,quantity=1){if(![1,10,100].includes(quantity)||!state.rescue?.completed||index===1||!Number.isInteger(index)||!items[index]||state.dreamShop)return false;const cost=price(index)*quantity,owned=state.inventory?.[index]||0;if(!Number.isFinite(cost)||(state.credits||0)<cost||owned+quantity>9999)return false;(typeof module!=='undefined'&&module.exports?require('./engine.js'):root.YggEngine).refreshQuestUnlocks(state);state.inventory||={};state.credits-=cost;state.inventory[index]=owned+quantity;return true;}
+// Retired catalogue slots 4..20 remain in saves, but cannot be purchased.
+function validate(raw,state){const inventory=raw.inventory??{};if(!inventory||typeof inventory!=='object'||Array.isArray(inventory))throw Error('所持品が正しくありません。');state.inventory={};for(const [key,count] of Object.entries(inventory)){const i=Number(key);if(String(i)!==key||!Number.isInteger(i)||(i<0||i>20)||!Number.isInteger(count)||count<0||count>9999)throw Error('所持品が正しくありません。');if(count)state.inventory[key]=count;}}
+const api={items,price,buy,validate};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggShop=api;})(typeof globalThis!=='undefined'?globalThis:this);

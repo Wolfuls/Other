@@ -2,11 +2,14 @@
  'use strict';
  if(typeof Image==='undefined'||typeof requestAnimationFrame==='undefined')return;
  let image=null;const hosts=new Set();
- function scan(){for(const host of document.querySelectorAll('[data-poultry],#arena-viewport'))hosts.add(host);}
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+ function scan(){for(const host of document.querySelectorAll('[data-poultry],#arena-viewport'))hosts.add(host);queue();}
  const reduced=matchMedia('(prefers-reduced-motion: reduce)'),scenes=new Map();let last=0,time=0;
+ let active=true,animationRequest=0;
+ function queue(){if(active&&!document.hidden&&!animationRequest&&[...hosts].some(h=>h.isConnected&&!h.hidden&&h.dataset.poultry==='true'))animationRequest=requestAnimationFrame(tick);}
+ function setActive(value){active=!!value;if(!active||document.hidden){if(animationRequest)cancelAnimationFrame(animationRequest);animationRequest=0;last=0;if(!active)for(const canvas of scenes.values())canvas.hidden=true;}else queue();}
+ document.addEventListener('visibilitychange',()=>setActive(active));
  function tick(now){
-  requestAnimationFrame(tick);if(now-last<83)return;const dt=Math.min((now-last)/1000,.15);last=now;
+  animationRequest=0;if(!active||document.hidden)return;queue();if(now-last<83)return;const dt=Math.min((now-last)/1000,.15);last=now;
   if(document.hidden)return;if(!reduced.matches)time+=dt;
   for(const host of hosts){
    if(!host.isConnected){hosts.delete(host);scenes.delete(host);continue;}
@@ -26,5 +29,6 @@
    ctx.restore();
   }
  }
- requestAnimationFrame(tick);
+ window.YggPoultryScene={setActive};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
 })();

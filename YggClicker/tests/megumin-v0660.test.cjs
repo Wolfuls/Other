@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character,roundTrip,enable}=require('./current-fixtures.cjs');
 const {harness}=require('./app-harness.cjs'),FX=require('../js/combat-effects'),F=require('../js/matchup');
 const meg=()=>character('megumin'),random=()=>.4;
-function battle(ids=['megumin'],q='scarecrow'){const s=ready(ids,q);s.forecast=true;E.selectCharacter(s,'megumin');return s;}
+function battle(ids=['megumin'],q='scarecrow'){const s=ready(ids,q);s.inventory={2:20};s.forecast=true;E.selectCharacter(s,'megumin');return s;}
 function act(s){s.enemies.forEach(e=>e.evasionFailure=true);return E.click(s,random);}
 function cast(s){s.health.megumin.magicLevel=E.magicState(s,meg()).maximum;return act(s).filter(e=>e.type==='attack');}
 function turn(s){s.timeline.busySeconds=0;s.timeline.priorities["a:megumin"]=1e6;return E.advance(s,.01,random);}
@@ -98,7 +98,7 @@ test('schema 46 migration retires old ward effects and perk IDs but preserves pr
 });
 
 test('new saves reject invalid charge or ward values and older saves still gain an unhired Megumin',()=>{
- const s=ready(['meta']);for(const k of ['levels','health','runaway','actionPoints','concentration','perkEnabled','purchasedPerks','unlockedPerks'])delete s[k].megumin;
+ const s=ready(['meta']);s.inventory={2:20};for(const k of ['levels','health','runaway','actionPoints','concentration','perkEnabled','purchasedPerks','unlockedPerks'])delete s[k].megumin;
  const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:45,state:s}));assert.equal(loaded.levels.megumin,0);assert.equal(loaded.factors,s.factors);
  const t=battle();for(const bad of [-1,8,1.5]){t.health.megumin.magicLevel=bad;assert.throws(()=>S.encode(t));}delete t.health.megumin.magicLevel;t.health.megumin.blastEvasion=5;assert.throws(()=>S.encode(t));
 });

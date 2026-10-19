@@ -46,6 +46,6 @@ test('Waku first-hit defense loss, repeated AP loss and one-use accuracy/evasion
 });
 test('Jewel investment decreases on sale; crystal debuff and rainbow expire by recipient turns',()=>{
  const s=ready(['jewel']);enable(s,'jewel','crimson-fist','crystal-radiance','rainbow-armor','black-egg');s.levels.jewel=1001;s.concentration.jewel.accuracy=700;s.questLevels.scarecrow=100;s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',100);s.selectedCharacterId='jewel';
- E.click(s,()=>.5);assert.ok(s.incomeTotals.jewelDoubleHitIncome>0);assert.equal(s.rainbowTurns,2);assert.equal(s.enemies[0].evasionPenalty,6);assert.equal(s.enemies[0].evasionPenaltyTurns,2);
+ E.click(s,()=>.5);assert.ok(s.credits>0);assert.equal(s.rainbowTurns,2);assert.equal(s.enemies[0].evasionPenalty,6);assert.equal(s.enemies[0].evasionPenaltyTurns,2);
  const before=E.armor(s,c('jewel'));E.sell(s,'power','jewel',90);assert.ok(E.armor(s,c('jewel'))<=before);
 });

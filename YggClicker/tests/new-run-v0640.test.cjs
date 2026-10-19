@@ -17,7 +17,7 @@ test('schema43 starts on run one and introduces Mitsuru without touching previou
 test('confirmation commits one new run at the dark midpoint and reveals the fresh battle',()=>{
  const h=harness(memory());h.click('dream-yes');assert.ok(!h.get('dream-transition').open);h.click('memory-monolith');h.click('dream-yes');
  h.advance(1500);assert.equal(h.saved().runNumber,3);h.click('memory-monolith');h.click('dream-yes');h.advance(400);assert.equal(h.saved().runNumber,3);assert.equal(h.saved().dreamShop,true);assert.equal(h.get('dream-transition').open,true);
- h.advance(1900);h.click('sin-finish');assert.equal(h.get('dream-transition').open,false);assert.equal(h.get('memory-scene').hidden,true);assert.equal(h.saved().factors,0);assert.equal(h.saved().previousRunsEarned,8888888);assert.equal(h.get('run-number').textContent,'第4周');h.click('dream-yes');h.advance(4000);assert.equal(h.saved().runNumber,4);
+ h.advance(1900);h.click('sin-finish');assert.equal(h.get('dream-transition').open,false);assert.equal(h.get('memory-scene').hidden,true);assert.equal(h.saved().factors,0);assert.equal(h.saved().previousRunsEarned,8888888);assert.equal(h.get('memory-run').textContent,'第4周');h.click('dream-yes');h.advance(4000);assert.equal(h.saved().runNumber,4);
 });
 test('hidden tabs, Escape and reduced motion finish a confirmed run exactly once',()=>{
  for(const mode of ['hidden','escape','reduced']){const h=harness(memory());if(mode==='reduced')h.media.matches=true;h.click('memory-monolith');h.click('dream-yes');

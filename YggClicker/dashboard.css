@@ -368,7 +368,7 @@
 .cherry-placeholder:disabled{opacity:1}.cherry-placeholder:active{transform:none!important}
 .cherry-combatant.attacking .cherry-placeholder{background-image:url('./img/cherry-attack-sheet-v2.png');animation:cherry-attack .64s steps(1,end) forwards}
 .cherry-down-animation{display:none;pointer-events:none;background-image:url('./img/cherry-down-sheet-v2.png');animation:cherry-down .52s steps(1,end) forwards}
-.cherry-combatant.downed .cherry-placeholder{visibility:hidden}.cherry-combatant.downed .cherry-down-animation{display:block}
+.cherry-combatant.downed .cherry-placeholder{opacity:0;visibility:visible;pointer-events:auto;z-index:2}.cherry-combatant.downed .cherry-down-animation{display:block}
 #cherry-combatant .ally-down-sprite{display:none}.cherry-combatant.is-paused>*{animation-play-state:paused}
 .cherry-fire-sprite{display:block;width:100%;height:100%;background:url('./img/cherry-fire-sheet-v2.png') 0 0/400% 100% no-repeat;image-rendering:pixelated;animation:cherry-frames .48s steps(1,end) infinite;pointer-events:none}
 .cherry-flame{position:absolute;transform:translate(-50%,-75%);pointer-events:none;animation:cherry-flame-fade .6s ease-out forwards}
@@ -450,12 +450,12 @@ button.pom-unit{pointer-events:auto;cursor:pointer;border:0;padding:0;background
 
 /* Pine: generated four-column, three-row animation sheet. */
 .pine-combatant{position:absolute;width:220px;height:220px;transform:translate(-50%,-50%);--down-width:220px}
-.pine-sprite{display:block;width:220px;height:220px;border:0;padding:0;background:transparent url('./img/pine-animation-v1.png') 0 0/400% 300% no-repeat;image-rendering:pixelated;animation:pine-idle 1s steps(1) infinite;cursor:pointer}
+.pine-sprite{display:block;width:220px;height:220px;border:0;padding:0;background:transparent;image-rendering:pixelated;animation:pine-idle 1s steps(1) infinite;cursor:pointer}
 .pine-combatant.attacking .pine-sprite{animation:pine-punch .56s steps(1) forwards}
 .pine-combatant.downed .pine-sprite{animation:pine-down .52s steps(1) forwards}
 .pine-combatant .ally-down-sprite{display:none!important}
 .pine-combatant.is-paused .pine-sprite{animation-play-state:paused}
-.pine-avatar{display:block;width:38px;height:38px;background-size:400% 300%;background-position:0 0;image-rendering:pixelated}
+.pine-avatar{display:block;width:38px;height:38px;background-size:400% 400%;background-position:0 0;image-rendering:pixelated}
 @keyframes pine-idle{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
 @keyframes pine-punch{0%{background-position:0 50%}25%{background-position:33.333333% 50%}50%{background-position:66.666667% 50%}75%,100%{background-position:100% 50%}}
 @keyframes pine-down{0%{background-position:0 100%;transform:translateX(0)}25%{background-position:33.333333% 100%;transform:translateX(0)}50%{background-position:66.666667% 100%;transform:translateX(calc(var(--pine-down-shift,24px) / 2))}75%,100%{background-position:100% 100%;transform:translateX(var(--pine-down-shift,24px))}}
@@ -468,3 +468,11 @@ button.pom-unit{pointer-events:auto;cursor:pointer;border:0;padding:0;background
 .pine-fist{position:absolute;width:140px;height:70px;background:url('./img/pine-fist-v3.png') center/contain no-repeat;image-rendering:pixelated;pointer-events:none;z-index:8;animation:pine-fist-flight .42s ease-in forwards}
 .pine-fist-burst{width:100px;height:50px}
 @keyframes pine-fist-flight{0%{opacity:0;transform:translate(-50%,-50%) rotate(var(--fist-angle,0deg)) scale(.6)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--fist-x)),calc(-50% + var(--fist-y))) rotate(var(--fist-angle,0deg)) scale(1.15)}}
+
+/* Resource columns fit the fixed-height desktop header. */
+@media(min-width:900px){.dashboard .metrics{grid-template-columns:repeat(3,minmax(105px,1fr)) minmax(105px,.8fr) minmax(150px,1.2fr) repeat(2,minmax(90px,.7fr));}}
+
+.assignment-tabs{display:flex;gap:8px;padding:0 0 14px;border-bottom:1px solid var(--line);margin-bottom:14px}.assignment-tabs button{flex:1;padding:12px;color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer}.assignment-tabs button[aria-selected="true"]{color:var(--accent);background:#c4db7d18;border-color:#829761}.dashboard .assignment-panel>.manager-view{padding:0;overflow:visible;max-height:none}.dashboard .suppression-toolbar{justify-content:flex-end}.shop-scene{position:relative;min-height:450px;background-size:cover;background-position:center;image-rendering:pixelated;overflow:hidden}.shop-scene-caption{position:absolute;left:0;right:0;bottom:0;padding:28px;background:linear-gradient(transparent,#0a1215ee);color:#eedebc}.shop-scene-caption span,.shop-kicker{font-size:12px;letter-spacing:.16em;color:#bd9c66}.shop-scene-caption h2{font-size:30px;margin:8px 0}.shop-menu h2{font-size:25px;margin:12px 0 24px}.shop-status{display:inline-block;padding:7px 15px;border:1px solid #a18552;color:#d9b979;background:#a1855219;border-radius:4px}.shop-menu>p{line-height:1.9}.shop-menu>button{width:100%;margin-top:24px}@media(max-width:899px){.shop-scene{width:100%;min-height:350px;aspect-ratio:3/2}.assignment-panel{max-height:none!important}}
+
+/* Counteract camera zoom so health and runaway labels retain screen size. */
+.ally-vitals{transform:translateX(-50%) scale(var(--gauge-scale,1));transform-origin:50% 0;min-width:112px}.enemy-health{transform:translateX(-50%) scale(var(--gauge-scale,1));transform-origin:50% 0;min-width:112px;font-size:14px}.ally-vitals .ally-health,.ally-vitals .ally-runaway{font-size:14px;padding:4px 6px 6px}.ally-health:after,.enemy-health:after{height:3px}

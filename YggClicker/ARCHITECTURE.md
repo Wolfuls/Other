@@ -109,3 +109,23 @@ Expected action power may be fractional; actionThreshold floors the final double
 ### 演出駆動の手番（v0.76.3）
 上記の1秒／半秒境界による手番選択を廃止。演出の残り時間をイベント境界として次の手番へ進む。実時間の周期処理とは独立する。詳細は ANIMATION_TIMELINE_v0763.md。
 
+
+## 効果のセッション境界
+
+各効果は敵味方を問わず、同じセッション内の対象にのみ作用し、セッション外には影響しません。
+対象の抽出は発生元のbattleContextを基準にし、味方はその編成、敵・召喚物はその戦闘状態から選びます。表示中のセッションや全キャラクター一覧を効果対象の代用にしません。全体効果・連鎖・遅延・非表示中の戦闘処理にも同じ原則を適用します。
+
+### Missions and locked shop (0.86.0)
+Missions use engine elapsed seconds, including pause and offline catch-up. Dispatch requires active, free recruits. Save validation rejects duplicate members and invalid timers. A completed mission pays fixed rewards once and releases its members. Muffin growth compounds at 1.1 per clear with integral rewards rounded down; bankruptcy is drawn after paying the completed run. New runs reset dispatches but preserve muffin growth, C and Ps.
+The 21-item locked shop catalogue comes from the local YggRW/rw-charadata-item.html counterpart of the requested URL (online access was unavailable). No purchase or item-use logic is enabled.
+
+### Shop and dispatch revision (0.86.1)
+The mission dialog holds only draft IDs until dispatch. Dispatch validates the complete roster before changing any formation, then uses engine setFormation so moved-out sessions reset encounters. Revival uses the existing modal and payment flow; no downed member can dispatch. Canceling the selection does not move members.
+Shop inventory is persisted independently of the catalogue. Purchase charges the published Rd amount without income modifiers; old saves default to empty inventory. Inventory carries into new runs with C and Ps. Item use/combat effects are not yet enabled. Merchant/background images are unmodified provided originals, composed with CSS; breathing anchors the hand position and honors reduced motion.
+
+### Merchant animation (0.86.2, historical implementation)
+shop-scene.js renders the original transparent portrait through a 64x40 WebGL mesh. Vertex weights animate chest, shoulders, head and collar separately; all displacement is zero below source y=0.86, preserving the hand. Canvas refresh is capped at 30fps and stops when the shop or document is hidden; reduced motion draws once. A static CSS portrait remains as fallback. Local file texture security is handled by lazily loading shop-portrait.js, a byte-identical base64 copy of the original PNG, only when opening the shop on file URLs. No source artwork was redrawn.
+
+### Asset cleanup and active rendering (0.89.12)
+The live merchant uses shop-scene.js with shop-merchant-cels-v3.png and a four-frame 2D canvas. The retired WebGL base64 payload is archived under old/js. Unreferenced images are archived under img/old/v0.89.12; the accompanying archive manifest records original paths and hashes. Preview pages and test utilities remain supported.
+Pine, duo combatants and the poultry background schedule animation frames only while their scene is active; visibility changes suspend the loops. Shop info only changes DOM text when the underlying value changes. Recovery workers load missions.js before engine.js. Offline catch-up advances only mission timers, with no combat or recovery simulation. Background catch-up while the page remains open continues using the worker.

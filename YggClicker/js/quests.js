@@ -316,7 +316,7 @@
     {id:'eggra',name:'エッグラ',enemy:'エッグラ',hp:90,initialHP:2800,attack:{dice:3,flat:5},defense:5,resistance:5,action:5,accuracy:{flat:21,dice:2},evasion:{flat:11,dice:2},ss:{flat:15,dice:2},sheet:'./img/eggra-actions-v2.png',spriteFrames:6,attackSeconds:1.4,
       attacks:[{id:'slash',name:'曲剣斬り',range:[1,1],frame:1},{id:'boomerang',name:'曲剣投げ',range:[2,3],frame:2},{id:'ward',name:'防御のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'revive',name:'蘇生のおまじない',range:[1,3],attackSeconds:4,support:true,frame:4},{id:'blizzard',attackSeconds:3.2,name:'吹雪のブレス',range:[1,3],area:true,frame:3}]}
   ];
-  quests.push({...members[0],id:'egg-or-chicken',rewardTransition:100,code:'06',name:'卵が先か鶏が先か',enemy:'チキーラ＆エッグラ',area:'中層 / 畜産プラント',description:'鶏と卵があふれる畜産プラントで待ち構える二人組。二人とも倒すと討伐完了。',unlockFactors:10000000,reward:100000000,formationCount:2,formationLayout:'staggered',members,sharedHP:false,reviveInPlace:true,traits:['swarm'],row:'front',attackRange:[1,3],background:'./img/poultry-plant-v2.png',enemyScale:1.4});
+  quests.push({...members[0],id:'egg-or-chicken',rewardTransition:100,code:'06',name:'卵が先か鶏が先か',enemy:'チキーラ＆エッグラ',area:'中層 / 畜産プラント',description:'鶏と卵があふれる畜産プラントで待ち構える二人組。二人とも倒すと討伐完了。',unlockFactors:10000000,reward:1000,costRewardBase:100000000,formationCount:2,formationLayout:'staggered',members,sharedHP:false,reviveInPlace:true,traits:['swarm'],row:'front',attackRange:[1,3],background:'./img/poultry-plant-v2.png',enemyScale:1.4});
   const ozmorn=quests.find(q=>q.id==='ozmorn');
   Object.assign(ozmorn,{attackElements:['shock'],resistances:['shock'],weaknesses:['blast']});
   Object.assign(ozmorn.summon,{attackElements:[],resistances:['shock'],weaknesses:['blast']});
@@ -326,7 +326,7 @@
   const electroRat={name:'エレクトロラット',enemy:'エレクトロラット',spriteKind:'electro-rat',hp:15,ss:{flat:5,dice:1},accuracy:{flat:10,dice:1},evasion:{flat:11,dice:1},defense:2,resistance:1,action:13,actionDice:{flat:6,dice:2},attack:{dice:1,flat:6},attackElements:['shock'],resistances:['shock'],resistanceLabel:'無効',weaknesses:[],row:'front',attackRange:[1,3],attackSeconds:.72,sheet:'./img/enemy-electro-rat-idle-v1.png',spriteFrames:4,attackSheet:'./img/enemy-electro-rat-shock-v1.png',waveSheet:'./img/enemy-electro-rat-wave-v1.png',defeatSheet:'./img/enemy-electro-rat-defeat-v1.png',combatRules:'でんきショック［射程1～3・単体］：1d6＋6の感電攻撃。でんじは［射程1～3・単体］：ダメージなし。命中時、対象の行動力を5秒間50%低下。',attacks:[{id:'electric-shock',name:'でんきショック',range:[1,3]},{id:'thunder-wave',name:'でんじは',range:[1,3],noDamage:true,actionSlowRate:.5}]};
   electricEncounter.members=[{...electricEncounter,name:electricEncounter.enemy},{...electroRat,id:'electro-rat-a'},{...electroRat,id:'electro-rat-b'}];
   Object.assign(electricEncounter,{formationCount:3,sharedHP:false,independentRespawns:true,reviveInPlace:false,reward:8,formationLayout:'surround',groundFraction:.72,background:'./img/nidavellir-reactor-v3.png',traits:['swarm']});
-  electricEncounter.members.forEach((member,index)=>{member.reward=index===0?12:8;});
+  electricEncounter.members.forEach((member,index)=>{member.reward=index===0?5:2;});
   // Session numbers are display metadata; keep persistent quest IDs unchanged.
   for(const q of quests){
     q.code=q.id==='electric-rat'?'04':String(Number(q.code)>=4?Number(q.code)+1:Number(q.code)).padStart(2,'0');
@@ -334,6 +334,14 @@
   }
   quests.sort((a,b)=>Number(a.code)-Number(b.code));
   quests.push({id:'infirmary',code:'00',name:'死神の宿',enemy:'トキ',medical:true,background:'img/infirmary-background-v2.png',description:'敵のいない休養用クエスト。参加者は2秒ごとに最大HPの1%を回復する。暴走圧・鎮静圧は無視し、暴走率−10%/分に置換する。',hp:1,reward:0,action:0,attack:{dice:0,flat:0},accuracy:{dice:0,flat:0},evasion:{dice:0,flat:0},ss:{dice:0,flat:0},defense:0,resistance:0,traits:[],unlockFactors:0});
+  for(const [id,value]of Object.entries({'electric-rat':2,ozmorn:30,dementor:60})){const q=quests.find(x=>x.id===id);q.costRewardBase??=q.reward;q.reward=value;}
+  Object.assign(quests.find(q=>q.id==='dementor'),{attackElements:['break'],combatRules:'ブレイク：受けたダメージの最大HPに対する割合（%）÷3だけ暴走率が上昇する。オーバーキル分も含む（上限150%）。'});
+  // Fixed C/Ps rewards are independent of quest level and Rd income modifiers.
+  const fixedRewards={'mohican-solo':[100,0],mohicans:[150,0],'electric-rat':[1000,0],ozmorn:[10000,2],dementor:[12000,3],'egg-or-chicken':[1000000,50]};
+  for(const q of quests){const [creditsReward,prestigeReward]=fixedRewards[q.id]||[0,0];Object.assign(q,{creditsReward,prestigeReward});}
+  electricEncounter.members.forEach((m,i)=>Object.assign(m,{creditsReward:i===0?2500:1000,prestigeReward:i===0?1:0}));
+  const access={'mohican-solo':{resource:'factors',amount:0},scarecrow:{resource:'factors',amount:0},mohicans:{resource:'mohicanDefeats',amount:51},'electric-rat':{resource:'prestige',amount:1000},ozmorn:{resource:'factors',amount:1500},dementor:{resource:'factors',amount:5000}};
+  for(const q of quests){if(access[q.id]){q.unlockRequirement=access[q.id];delete q.unlockByEarned;}if(['mohican-solo','mohicans'].includes(q.id)){q.costRewardBase??=q.reward;q.reward=1;}}
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;
 })(typeof window!=='undefined'?window:globalThis);

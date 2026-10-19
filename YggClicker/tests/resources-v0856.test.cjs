@@ -1,0 +1,2 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),E=require('../js/engine'),S=require('../js/save');
+test('new resources default, roundtrip, legacy and reject invalid',()=>{const s=E.createState();assert.equal(s.credits,0);assert.equal(s.prestige,0);s.credits=120;s.prestige=34;const parsed=S.decode(S.encode(s));assert.equal(parsed.credits,120);assert.equal(parsed.prestige,34);delete s.credits;delete s.prestige;const old=S.decode(S.encode(s));assert.equal(old.credits,0);assert.equal(old.prestige,0);s.credits=-1;assert.throws(()=>S.encode(s));});
