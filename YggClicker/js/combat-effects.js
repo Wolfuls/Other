@@ -188,7 +188,7 @@
     for(const f of frames){
       const projectile=(f.metaAttacks||f.richterAttacks||f.vishunalAttacks||f.wakuAttacks||f.continuation||!f.actorId);
       const maxWindup=f.maxAttacks||f.maxTransfers?670+Math.max(0,Math.min(24,(f.maxAttacks||0)+(f.maxTransfers||0))-1)*45:0;
-      const impact=Math.max(f.meguminAttacks?720:0,f.queenAttacks||f.mitsuruAttacks?380:0,f.jewelAttacks?260:0,f.maxAttacks?maxWindup+320:0,f.tordelieseAttacks?820:0,projectile?780+Math.max(0,Math.min(24,f.count)-1)*45:0,f.poisonTick?560:0);
+      const impact=Math.max(f.actorId==='hayato'?560:0,f.meguminAttacks?720:0,f.queenAttacks||f.mitsuruAttacks?380:0,f.jewelAttacks?260:0,f.maxAttacks?maxWindup+320:0,f.tordelieseAttacks?820:0,projectile?780+Math.max(0,Math.min(24,f.count)-1)*45:0,f.poisonTick?560:0);
       const pose=Math.max(f.meguminAttacks?1400:0,f.maxTransfers||f.maxAttacks?1180:0,f.wakuAttacks||f.tordelieseAttacks?880:0,800);
       // Include the explosion, down/summon effect and damage text after impact.
       end=Math.max(end,offset+pose,offset+impact+(f.meguminAttacks?1600:f.clears?1120:850));offset+=f.gap;

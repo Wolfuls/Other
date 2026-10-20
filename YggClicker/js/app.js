@@ -178,11 +178,11 @@
   function build() {
     for(const c of D.characters){
       if(c.placeholder){let actor=document.getElementById(c.id+'-combatant');if(!actor){actor=document.createElement('div');actor.id=c.id+'-combatant';actor.className='combatant cherry-combatant';const button=document.createElement('button');button.id=c.id+'-select';button.className='cherry-placeholder';button.textContent=c.shortName;actor.append(button);$('arena').append(actor);}battleHUD.mount(c,actor,document);continue;}
-      const actor=$(c.id+'-combatant'),down=document.createElement('img');if(c.id!=='pine')down.src=c.downSprite;down.alt=c.name+'：ダウン';down.className='ally-down-sprite pixel-art';down.style.setProperty('--down-bottom-gap',((c.downContact.height-c.downContact.bottom)/c.downContact.height*100)+'%');actor.append(down);
+      const actor=$(c.id+'-combatant'),down=document.createElement('img');if(!['pine','hayato'].includes(c.id))down.src=c.downSprite;down.alt=c.name+'：ダウン';down.className='ally-down-sprite pixel-art';down.style.setProperty('--down-bottom-gap',((c.downContact.height-c.downContact.bottom)/c.downContact.height*100)+'%');actor.append(down);
       battleHUD.mount(c,actor,document);
     }
 
-    window.YggPineView?.mount($('pine-combatant'));
+    window.YggPineView?.mount($('pine-combatant'));window.YggHayatoView?.mount($('hayato-combatant'));
     // Allocate a fixed pool once; CSS animates it independently of game ticks.
     for (let i=0; i<UI.MAX_FACTOR_CRYSTALS; i++) {
       const crystal=document.createElement('span'),die=UI.factorDieAppearance(i); crystal.className='factor-crystal factor-die'; crystal.hidden=true;
@@ -431,6 +431,7 @@
           e.summonDelaySeconds>0?'召喚待機 '+e.summonDelaySeconds.toFixed(1)+'秒':'',
           e.wardSeconds>0?'防御＋5 '+e.wardSeconds.toFixed(1)+'秒':'',
           e.defensePenalty?'防御−'+e.defensePenalty:'',e.accuracyPenalty?'次の命中−'+e.accuracyPenalty:'',
+          e.confusion?'混乱（解除 '+Math.round(e.confusion.releaseChance*100)+'%）':'',e.sightDebuff?'命中−'+e.sightDebuff.accuracy+' / 回避−'+e.sightDebuff.evasion+' '+e.sightDebuff.turns+'R':'',
           e.evasionPenalty?'回避−6 '+e.evasionPenaltyTurns+'R':'',e.evasionFailure?'次の回避失敗':'',
           e.tauntId?'挑発 ミツル':'',e.slowSeconds?'行動−'+e.actionPenalty+' '+e.slowSeconds.toFixed(1)+'秒':''
         ].filter(Boolean);
@@ -602,7 +603,7 @@
   }
   function renderVisualActivity(){
     const visible=managerTab!=='shop'&&!state.rescue?.open&&!state.viewingMemories&&!state.dreamShop;
-    window.YggPineView?.setActive?.(visible&&E.isDeployed(state,'pine'));
+    window.YggPineView?.setActive?.(visible&&E.isDeployed(state,'pine'));window.YggHayatoView?.setActive?.(visible&&E.isDeployed(state,'hayato'));
     window.YggDuoView?.setActive?.(visible&&state.sessionId==='egg-or-chicken');
     window.YggPoultryScene?.setActive?.(visible&&state.sessionId==='egg-or-chicken');
   }
@@ -730,6 +731,7 @@
     $('richter-select').setAttribute('aria-pressed', state.selectedCharacterId === 'richter');
     renderVishunal();
     if((managerTab==='characters'&&inspectedCharacter==='pine')||E.isDeployed(state,'pine'))for(const portrait of document.querySelectorAll('[data-pine-portrait]'))portrait.style.backgroundImage='url("'+portrait.dataset.pinePortrait+'")';
+    $('hayato-combatant').dataset.battleSpeed=String(E.battleSpeed(state));$('hayato-combatant').hidden=!E.isDeployed(state,'hayato');$('hayato-select').disabled=blocked()||!E.isDeployed(state,'hayato');$('hayato-combatant').classList.toggle('is-paused',state.paused||blocked()||document.hidden);$('hayato-combatant').classList.toggle('manual-selected',state.selectedCharacterId==='hayato');$('hayato-select').setAttribute('aria-pressed',String(state.selectedCharacterId==='hayato'));
     $('pine-combatant').dataset.battleSpeed=String(E.battleSpeed(state));$('pine-combatant').hidden=!E.isDeployed(state,'pine');$('pine-select').disabled=blocked()||!E.isDeployed(state,'pine');$('pine-combatant').classList.toggle('is-paused',state.paused||blocked()||document.hidden);
     renderTordeliese();renderMax();renderWaku();renderJewel();renderMitsuru();renderQueen();renderMegumin();$('cherry-combatant').hidden=!E.isDeployed(state,'cherry');$('cherry-select').textContent='';$('cherry-combatant').classList.toggle('is-paused',state.paused||blocked()||document.hidden);$('hit-effects').classList.toggle('cherry-paused',state.paused||blocked()||document.hidden);$('cherry-select').disabled=blocked()||!E.isDeployed(state,'cherry');
     renderBattleLayout();
@@ -850,7 +852,7 @@
     arenaViewportWidth = width || $('arena-viewport').clientWidth || 300;
     const options = {metaScale:E.weaponScale(state,'meta'),richterScale:E.weaponScale(state,'richter'),metaCount:0,richterCount:0,
       formationRows:state.formationRows,groundFraction:E.getSession(state).groundFraction||.66,availableHeight:window.matchMedia('(min-width:900px) and (min-height:500px)').matches?$('arena-viewport').clientHeight:null,
-      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),pineHired:E.isDeployed(state,'pine'),cherryHired:E.isDeployed(state,'cherry'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
+      metaHired:E.isDeployed(state,'meta'),richterHired:E.isDeployed(state,'richter'),vishunalHired:E.isDeployed(state,'vishunal'),tordelieseHired:E.isDeployed(state,'tordeliese'),maxHired:E.isDeployed(state,'max'),wakuHired:E.isDeployed(state,'waku'),jewelHired:E.isDeployed(state,'jewel'),mitsuruHired:E.isDeployed(state,'mitsuru'),queenHired:E.isDeployed(state,'queen'),hayatoHired:E.isDeployed(state,'hayato'),pineHired:E.isDeployed(state,'pine'),cherryHired:E.isDeployed(state,'cherry'),meguminHired:E.isDeployed(state,'megumin'),enemyCount:E.getSession(state).summons?3:UI.enemyFormationSize(E.getSession(state)),enemyScale:E.getSession(state).enemyScale||1,formationLayout:E.getSession(state).formationLayout,grounded:true,width:arenaViewportWidth,mobile:window.matchMedia('(max-width:600px)').matches};
     const key = JSON.stringify([options,E.getSession(state).medical,E.formationIds(state)]);
     if (key === battleLayoutKey) return;
     battleLayoutKey = key;
@@ -877,7 +879,7 @@
       actor.style.setProperty('--enemy-foot',(layout.enemyFoot||0)*scale+'px');
     }
     layout.reserves.forEach((p,i)=>{arena.style.setProperty(`--reserve-${i+1}-x`,`${p.x}px`);arena.style.setProperty(`--reserve-${i+1}-y`,`${p.y}px`);});
-    for (const id of ['meta','richter']) {
+    for (const id of ['meta','richter','hayato']) {
       const placement = layout[id], actor = $(`${id}-combatant`);
       actor.style.left = `${placement.x}px`; actor.style.top = `${placement.y}px`;
       actor.style.setProperty('--body-foot', `${placement.footOffset || 0}px`);
@@ -1207,6 +1209,7 @@
     return last+520;
   }
   function resetCombatVisuals(resetRoll = false) {
+    window.YggHayatoView?.reset();
     window.YggPineView?.reset();for(const n of Array.from($('hit-effects').children).filter(n=>n.classList.contains('pine-fist')))n.remove();
     for(const node of Array.from($('arena').children))if(node.classList.contains('plant-electricity'))node.remove();
     for(const id of ['mitsuru','waku','tordeliese'])$(id+'-combatant').classList.remove('range-motion');
@@ -1326,6 +1329,8 @@
     if (displayedHP === null && Number.isFinite(frame.hpBefore)) displayedHP = frame.hpBefore;
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate,frame.targetSlot||0) : 0;
     const richter = frame.richterAttacks ? animateRichterAttack(frame.richterAttacks,frame.volleyRichterCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch,frame.pomAssisted||frame.pomDice>0) : 0;
+    if(frame.confusionAttack){const slot=E.ensureEnemies(state).findIndex(e=>e.id===frame.sourceEnemyId),source=$(slot>0?'enemy-next-'+slot:'enemy-art');source?.classList.add('enemy-attacking');deferVisual(()=>source?.classList.remove('enemy-attacking'),600);return {impact:320};}
+    let hayato=0;if(frame.actorId==='hayato'){window.YggHayatoView?.attack(frame);hayato=560;}
     let pine=0;if(frame.actorId==='pine'){const burst=window.YggPineView?.attack(frame);pineFists(frame,burst);pine=280;}
     const cherry=frame.actorId==='cherry'&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)?animateCherryAttack(frame):0;
     const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch):0;
@@ -1338,7 +1343,7 @@
     const maxActions=(frame.maxAttacks||0)+(frame.maxTransfers||0);
     const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0,frame.manualLaunch):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
-    return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(pine,cherry,frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
+    return {meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,impact:frame.poisonTick?FX.PROJECTILE_FLIGHT_MS:Math.max(hayato,pine,cherry,frame.meguminAttacks?720:0,frame.queenAttacks?380:0,frame.mitsuruAttacks?380:0,frame.jewelAttacks?260:0,frame.maxAttacks?max+320:0,frame.tordelieseAttacks?tordeliese:0,(frame.metaAttacks||frame.richterAttacks||frame.vishunalAttacks||frame.wakuAttacks||frame.continuation||!frame.actorId)?Math.max(meta||0,richter||0,vishunal||0,waku||0,continuation)+FX.PROJECTILE_FLIGHT_MS:0)};
   }
   function showImpact(frame) {
     if(frame.summons?.length)for(const e of frame.summons)showCloudCreation(e);

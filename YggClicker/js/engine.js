@@ -405,7 +405,7 @@
       defenseReduction:Math.max(0,...active.map(p=>p.defenseReduction||0)),
       apReductionRate:Math.max(0,...active.map(p=>p.apReductionRate||0)),
       apReduction:active.reduce((n,p)=>n+(p.apReduction||0),0),tauntId:active.some(p=>p.taunt)?character.id:null,
-      accuracyPenaltyChance:Math.max(0,...active.map(p=>p.accuracyPenaltyChance||0)),
+      accuracyRetries:Math.max(0,...active.map(p=>p.accuracyRetries||0)),enemyCriticalRetries:Math.max(0,...active.map(p=>p.enemyCriticalRetries||0)),sightDebuff:active.some(p=>p.sightDebuff)?{accuracy:active.some(p=>p.sightDebuffUpgrade)?10:4,evasion:active.some(p=>p.sightDebuffUpgrade)?5:4,turns:3}:null,confusion:active.some(p=>p.confusion)?{releaseChance:Math.max(0,.4-active.reduce((n,p)=>n+(p.confusionReleaseReduction||0),0)),friendlyFire:active.some(p=>p.confusionFriendlyFire)}:null,accuracyPenaltyChance:Math.max(0,...active.map(p=>p.accuracyPenaltyChance||0)),
       accuracyPenalty:Math.max(0,...active.map(p=>p.accuracyPenalty||0)),
       extraAttackChance:Math.max(0,...active.map(p=>p.extraAttackChance||0)),
       autoHitChance:Math.max(0,...active.map(p=>p.autoHitChance||0)),evasionFailureChance:Math.max(0,...active.map(p=>p.evasionFailureChance||0)),doubleHitDamage:active.reduce((n,p)=>n+(p.doubleHitDamage||0),0),
@@ -457,7 +457,7 @@
       dice:b.base.dice + b.perk.dice+(character?activation(state,character).dice:0), flat:b.base.flat + b.perk.flat + b.upgrade.flat + b.item.flat+(character?activation(state,character).damage:0),
       bonus:b.perk.conditional, multiplier:(1 + b.upgrade.rate) * b.levelMultiplier,
       autoHitChance:b.autoHitChance,evasionFailureChance:b.evasionFailureChance,doubleHitDamage:b.doubleHitDamage,
-      defense:b.defense, mental:b.mental, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, areaAttack:b.areaAttack, extraAttackChance:b.extraAttackChance,poisonDamage:b.poisonDamage,defenseReduction:b.defenseReduction,apReductionRate:b.apReductionRate,apReduction:b.apReduction,tauntId:b.tauntId,accuracyPenaltyChance:b.accuracyPenaltyChance,accuracyPenalty:b.accuracyPenalty,
+      defense:b.defense, mental:b.mental, ignoreDefense:b.ignoreDefense, penetrationBlocked:b.penetrationBlocked, areaAttack:b.areaAttack, extraAttackChance:b.extraAttackChance,poisonDamage:b.poisonDamage,defenseReduction:b.defenseReduction,apReductionRate:b.apReductionRate,apReduction:b.apReduction,tauntId:b.tauntId,accuracyRetries:b.accuracyRetries,enemyCriticalRetries:b.enemyCriticalRetries,sightDebuff:b.sightDebuff,confusion:b.confusion,accuracyPenaltyChance:b.accuracyPenaltyChance,accuracyPenalty:b.accuracyPenalty,
       afterAttackStun:b.afterAttackStun,noAreaPenalty:b.noAreaPenalty,magicLevel:b.magicLevel,magicMaximum:b.magicMaximum,blastEvasionPerMagic:b.blastEvasionPerMagic,
       minimumLevelBonus:0,preLevelMultiplier:1+b.upgrade.rate,
       overkillThreshold:state.upgrades.overkill ? D.upgrades.find(u=>u.id==='overkill').threshold : 0, breakdown };
@@ -694,7 +694,15 @@
     return {doubleHit,smashCritical,bonusDice:Number(doubleHit)+smashCritical};
   }
   const opposedCache=new Map();
-  function judgmentOutcomes(accuracy,evasion,ratio=0){return T.outcomes(accuracy,evasion,ratio);}
+  function judgmentOutcomes(accuracy,evasion,ratio=0,retries=0,criticalRetries=0){
+    if(!retries&&!criticalRetries||!accuracy||!evasion)return T.outcomes(accuracy,evasion,ratio);
+    const key=JSON.stringify([accuracy,evasion,ratio,retries,criticalRetries]);if(opposedCache.has(key))return opposedCache.get(key);
+    const left=T.distribution(accuracy,true,true),right=T.distribution(evasion,true,true),criticalMass=right.reduce((n,[,k,p])=>n+(k?p:0),0),correction=T.hit(accuracy,evasion,ratio).correction,conditional=new Map(),bonuses=new Map();let chance=0;
+    for(const [b,k,q]of right){const rw=q*(k?criticalMass**criticalRetries:Array.from({length:criticalRetries+1},(_,i)=>criticalMass**i).reduce((n,v)=>n+v,0));const fail=left.reduce((n,[a,,p])=>n+(a+correction<=b?p:0),0),factor=Array.from({length:retries+1},(_,i)=>fail**i).reduce((n,v)=>n+v,0);
+      for(const [a,k,p]of left){if(a+correction<=b)continue;const double=Number(a+correction>=2*b),extra=double+Math.floor(k/2),w=p*factor*rw,id=extra+','+double;chance+=w;conditional.set(id,(conditional.get(id)||0)+w);bonuses.set(extra,(bonuses.get(extra)||0)+w);}
+    }
+    const result={chance,bonuses:[...bonuses],conditional:[...conditional].map(([key,p])=>[...key.split(',').map(Number),p])};if(opposedCache.size>=128)opposedCache.clear();opposedCache.set(key,result);return result;
+  }
   const opposedHitChance=(accuracy,evasion)=>judgmentOutcomes(accuracy,evasion).chance;
   function healAlly(state,c,amount,events,sessionId){
     const h=state.health[c.id],before=h.hp,max=maxHP(state,c);h.hp=Math.min(max,h.hp+amount);
@@ -744,6 +752,31 @@
     const q=enemySpec(state,enemy),distance=combatDistance(state,target.id,enemy,true);
     return (q.attacks||[]).filter(a=>inRange(a.range,distance)&&(a.id!=='revive'||ensureEnemies(state).some(e=>e.kind==='chikira'&&e.hp<=0)));
   }
+  function confusionTarget(state,enemy,random,events){
+    const effect=enemy.confusion;if(!effect)return null;
+    if(random()<effect.releaseChance){delete enemy.confusion;if(events)events.push({type:'confusionEnd',enemyId:enemy.id});return null;}
+    effect.releaseChance=Math.min(1,effect.releaseChance+.1);
+    if(random()>=.5)return null;
+    const candidates=livingEnemies(state).map(e=>({side:'enemy',enemy:e}));
+    if(!effect.friendlyFire)candidates.push(...activeCharacters(state).map(c=>({side:'ally',actor:c})));
+    return candidates[Math.min(candidates.length-1,Math.floor(random()*candidates.length))]||null;
+  }
+  function finishSightTurn(enemy){if(enemy.sightDebuff&&--enemy.sightDebuff.turns<=0)delete enemy.sightDebuff;}
+  function confusedEnemyAttack(state,source,target,area,random,events){
+    const attacker=enemySpec(state,source),mental=attacker.attackType==='mental',attackStrength=enemyStrength(attacker);
+    const targets=area?[...livingEnemies(state)]:[target];
+    for(const defender of targets){
+      if(defender.hp<=0||defender.respawnSeconds)continue;
+      const q=enemySpec(state,defender),accuracySpec={...(mental?attacker.ss:attacker.accuracy)},evasionDice={...(mental?q.ss:q.evasion)};
+      accuracySpec.flat-=(source.accuracyPenalty||0)+(source.sightDebuff?.accuracy||0);evasionDice.flat-=(defender.evasionPenalty||0)+(defender.sightDebuff?.evasion||0);
+      const p={mental,accuracySpec,evasionDice,attack:enemyAttackSpec(state,source),areaAttack:area,reduction:attacker.ignoreDefense?0:Math.max(0,mental?q.resistance:q.defense+(defender.wardSeconds>0?5:0)-(defender.defensePenalty||0)),damageElementMultiplier:attributeMultiplier(q,attacker.attackElements),hitLogRatio:T.relativeLog(enemyStrength(attacker,'accuracy'),enemyStrength(q,'evasion')),damageLogRatio:T.relativeLog(attackStrength,enemyStrength(q,'armor')),damageScaleLog:T.absoluteLog(attackStrength,enemyStrength(q,'armor'))};
+      const result=rollEnemyHit(p,random),start=events?.length||0;
+      if(result.hit)applyDamage(state,result.damage,events,attacker.enemy+'（混乱）',null,random,{fixedDamage:result.damage,forceSingleTarget:true,areaAttack:area},false,[defender],true);
+      else if(events)events.push({type:'attack',actor:attacker.enemy+'（混乱）',actorId:null,enemyId:defender.id,targetSlot:state.enemies.indexOf(defender),damage:0,hpBefore:defender.hp,hpAfter:defender.hp,hit:false});
+      if(events)for(const e of events.slice(start))if(e.type==='attack'&&!e.poisonTick){Object.assign(e,{confusionAttack:true,sourceEnemyId:source.id,accuracy:result.accuracy,evasion:result.evasion,...result.judgment});}
+    }
+    source.accuracyPenalty=0;
+  }
   function enemyActions(state,random,events,selectedEnemy){
     if(isResting(state))return;
     const session=getSession(state);
@@ -753,15 +786,17 @@
       if(enemy.respawnSeconds||enemy.hp<=0)continue;
       const individual=enemySpec(state,enemy),spec=individual.actionDice;
       if(enemy!==selectedEnemy||enemy.pendingAttack||!enemyTargetCandidates(state,enemy).length)continue;
+      const confused=confusionTarget(state,enemy,random,events);
       const count=1;
-      const target=chooseEnemyTarget(state,random,enemy);
-      const choices=enemyAttackChoices(state,enemy,target),pattern=choices.length?choices[Math.min(choices.length-1,Math.floor(random()*choices.length))]:null;
-      const kind=pattern?pattern.id:session.summons&&enemy.kind!=='kogumo'&&livingEnemies(state).some(e=>e.kind==='kogumo')&&random()<.2?'absorb':individual.apAttack?'flash':'attack';
+      const target=confused?.side==='ally'?confused.actor:chooseEnemyTarget(state,random,enemy);
+      const choices=confused?(individual.attacks||[]).filter(a=>!a.support):enemyAttackChoices(state,enemy,target),pattern=choices.length?choices[Math.min(choices.length-1,Math.floor(random()*choices.length))]:null;
+      const kind=pattern?pattern.id:confused?'attack':session.summons&&enemy.kind!=='kogumo'&&livingEnemies(state).some(e=>e.kind==='kogumo')&&random()<.2?'absorb':individual.apAttack?'flash':'attack';
+      if(confused?.side==='enemy'){confusedEnemyAttack(state,enemy,confused.enemy,!!pattern?.area,random,events);finishSightTurn(enemy);continue;}
       const duration=enemyAttackDuration(state,enemy,kind);
       const taunted=kind!=='absorb'&&enemy.tauntId===target.id;
       if(kind!=='absorb')enemy.tauntId=null;
       preparePerkFailures(state,random);
-      enemy.pendingAttack={targetId:target.id,remaining:duration,count:pattern?.support?1:count,kind,...(taunted?{taunted:true}:{}),profile:{...enemyHitProfile(state,enemy,target),areaAttack:!!pattern?.area}};delete state.perkFailures;
+      enemy.pendingAttack={confused:!!confused,targetId:target.id,remaining:duration,count:pattern?.support?1:count,kind,...(taunted?{taunted:true}:{}),profile:{...enemyHitProfile(state,enemy,target),areaAttack:!!pattern?.area}};delete state.perkFailures;finishSightTurn(enemy);
       if(events)events.push({type:'enemyWindup',targetId:target.id,enemyId:enemy.id,targetSlot:slot,duration,count,kind});
     }
   }
@@ -780,9 +815,9 @@
     const mental=session.attackType==='mental',ps=activePerks(state,c),ignoreDefense=!!session.ignoreDefense&&!penetrationImmune(c);
     const attackStrength=enemyStrength(session),defenseStrength=strengthValue(state,c,'armor');
     const accuracySpec={...(mental?session.ss:session.accuracy)};
-    const accuracyPenalty=enemy.accuracyPenalty||0;accuracySpec.flat-=accuracyPenalty;
+    const accuracyPenalty=(enemy.accuracyPenalty||0)+(enemy.sightDebuff?.accuracy||0);accuracySpec.flat-=accuracyPenalty;
     return {damageElementMultiplier:attributeMultiplier(allyElements(state,c),session.attackElements),...turnEffects(state,c.id),mental,accuracyPenalty,accuracySpec,evasionDice:evasionSpec(state,c,mental),
-      reversal:!!state.upgrades.reversal,retake:!!state.upgrades.retake,
+      enemyCriticalRetries:Math.max(0,...ps.map(p=>p.enemyCriticalRetries||0)),reversal:!!state.upgrades.reversal,retake:!!state.upgrades.retake,
       nullifyChance:Math.max(0,...ps.map(p=>p.nullifyChance||0)),attack:enemyAttackSpec(state,enemy),
       hitLogRatio:T.relativeLog(enemyStrength(session,'accuracy'),strengthValue(state,c,'evasion')),
       damageLogRatio:T.relativeLog(attackStrength,defenseStrength),damageScaleLog:T.absoluteLog(attackStrength,defenseStrength),
@@ -795,6 +830,7 @@
     let accuracy=automaticHit?null:combatRoll(p.accuracySpec,random),evasion;
     const accuracyReroll=!automaticHit&&p.reversal&&accuracy.critical;
     if(accuracyReroll){const original=accuracy;accuracy={...combatRoll(p.accuracySpec,random),original};}
+    if(!automaticHit)for(let i=0;i<(p.enemyCriticalRetries||0)&&accuracy.critical;i++){const original=accuracy;accuracy={...combatRoll(p.accuracySpec,random),original};}
     evasion=automaticHit?null:combatRoll(p.evasionDice,random);
     const evasionReroll=!automaticHit&&p.retake&&evasion.fumble;
     if(evasionReroll){const original=evasion;evasion={...combatRoll(p.evasionDice,random),original};}
@@ -829,7 +865,7 @@
         clearEnemy(state,e,state.enemies.indexOf(e),false,'hp',events,random);
         if(e.pendingAttack&&events)events.push({type:'enemyCancel',enemyId:e.id,targetSlot:state.enemies.indexOf(e)});
         Object.assign(e,{respawnSeconds:respawnDelay(state),pendingAttack:null,poisonDamage:0,actionPoints:0,wardSeconds:0,defensePenalty:0,accuracyPenalty:0,evasionPenalty:0,evasionPenaltyTurns:0,evasionFailure:false,tauntId:null,slowSeconds:0,actionPenalty:0,queenCancels:0});
-        delete e.turnSlowRate;delete e.turnSlowSeconds;if(state.timeline)delete state.timeline.priorities['e:'+e.id];
+        delete e.confusion;delete e.sightDebuff;delete e.turnSlowRate;delete e.turnSlowSeconds;if(state.timeline)delete state.timeline.priorities['e:'+e.id];
       }
     }syncFront(state);
   }
@@ -848,14 +884,14 @@
     pending.count=1; // Retired AP volleys never create extra timeline actions.
     if(pending.profile?.areaAttack&&!pending.areaResolved){
       damagePoms(state,b=>pomIncoming(state,b,enemySpec(state,enemy)),random,events);
-      const targets=enemyTargetCandidates(state,enemy),penalty=enemy.accuracyPenalty||0,turns=enemy.evasionPenaltyTurns;
+      const targets=pending.confused?activeCharacters(state):enemyTargetCandidates(state,enemy),penalty=enemy.accuracyPenalty||0,turns=enemy.evasionPenaltyTurns;
       const covers=new Map(),guards=pending.profile.nonContact||pending.profile.mental||enemySpec(state,enemy).attackType==='mental'?[]:coveringAllies(state).filter(c=>targets.some(t=>t.id===c.id));
       const rears=targets.filter(c=>formationRow(state,c.id)==='rear');while(guards.length&&rears.length){const guard=guards.splice(Math.floor(random()*guards.length),1)[0],rear=rears.splice(Math.floor(random()*rears.length),1)[0];covers.set(guard.id,rear.id);}
       const protectedIds=new Set(covers.values());
       for(const c of targets){
         if(protectedIds.has(c.id))continue;
         enemy.accuracyPenalty=penalty;enemy.evasionPenaltyTurns=turns;
-        const protectedId=covers.get(c.id),profile={...enemyHitProfile(state,enemy,c),areaAttack:true,covering:!!protectedId,coverDoubleHit:!!protectedId};
+        const protectedId=covers.get(c.id),baseProfile=enemyHitProfile(state,enemy,c),profile={...baseProfile,accuracySpec:pending.profile.accuracySpec,accuracyPenalty:pending.profile.accuracyPenalty,areaAttack:true,covering:!!protectedId,coverDoubleHit:!!protectedId};
         for(let hitIndex=0;hitIndex<(protectedId?2:1);hitIndex++){enemy.pendingAttack={...pending,targetId:c.id,areaResolved:true,covering:!!protectedId,coveredTargetId:protectedId,coverHitIndex:hitIndex+1,profile};resolveEnemyAttack(state,enemy,slot,random,events);}
       }
       enemy.accuracyPenalty=0;enemy.evasionPenaltyTurns=Math.max(0,turns-1);if(!enemy.evasionPenaltyTurns)enemy.evasionPenalty=0;
@@ -910,7 +946,7 @@
   function interceptEnemyAttack(state,enemy,c,slot,random,events){
     const successes=enemy.queenCancels||0;
     if(successes>=4||!rangedPerks(state,c,combatDistance(state,c.id,enemy)).some(p=>p.interceptAttack))return false;
-    const q=enemySpec(state,enemy),spec=accuracySpec(state,c,true),defender={...q.ss,flat:q.ss.flat-(enemy.evasionPenalty||0)};
+    const q=enemySpec(state,enemy),spec=accuracySpec(state,c,true),defender={...q.ss,flat:q.ss.flat-((enemy.evasionPenalty||0)+(enemy.sightDebuff?.evasion||0))};
     const raw=combatRoll(spec,random),correction=T.hit(spec,defender,T.relativeLog(strengthValue(state,c,'accuracy'),enemyStrength(q,'evasion'))).correction;
     const accuracy={...raw,rawTotal:raw.total,total:raw.total+correction,strengthCorrection:correction},evasion=combatRoll(defender,random);
     const forced=!!enemy.evasionFailure;enemy.evasionFailure=false;
@@ -948,7 +984,7 @@
     if(events)events.push({type:'clear',reward:gain,credits,prestige,overkillBonus:bonusGain,overkills:overkill?1:0,reason,targetSlot:slot,enemyId:enemy.id,hpAfter:state.hp});
 
   }
-  const targetEvasion=(profile,enemy)=>{const base=enemy?.kind==='kogumo'?{flat:enemy.creationDamage,dice:2}:profile.evasion;return base?{...base,flat:base.flat-(enemy?.evasionPenalty||0)}:null;};
+  const targetEvasion=(profile,enemy)=>{const base=enemy?.kind==='kogumo'?{flat:enemy.creationDamage,dice:2}:profile.evasion;return base?{...base,flat:base.flat-(enemy?.evasionPenalty||0)-(enemy?.sightDebuff?.evasion||0)}:null;};
   const targetDefense=(profile,enemy)=>profile.ignoreDefense?0:Math.max(0,(enemy?.kind==='kogumo'?0:profile.defense)+(!profile.mental&&enemy?.hp>0&&enemy?.wardSeconds>0?5:0)-(profile.mental?0:Math.max(enemy?.defensePenalty||0,profile.defenseReduction||0)));
   function attackDamage(profile,enemy,amount,doubleHit=false){
     if(profile.fixedDamage!=null)return attributeDamage(profile.fixedDamage,profile.damageElementMultiplier);
@@ -958,6 +994,8 @@
   }
   function applyHitEffects(state,enemy,profile,count,random){
     if(enemy.hp<=0||enemy.respawnSeconds)return;
+    if(profile.sightDebuff)enemy.sightDebuff={...profile.sightDebuff};
+    if(profile.confusion)enemy.confusion={...profile.confusion};
     if(profile.tauntId)enemy.tauntId=profile.tauntId;
     if(profile.apReduction)slowAction(enemy,profile.apReduction,enemyMaxHP(state,enemy));
     enemy.defensePenalty=Math.max(enemy.defensePenalty||0,profile.defenseReduction||0);
@@ -988,9 +1026,11 @@
       const burnBefore=enemy.burnDamage||0;
       const poisonBefore=enemy.poisonDamage;
       const bHit=T.hit(profile.accuracy,targetEvasion(profile,enemy),profile.hitLogRatio||0).correction;
-      const accuracy=rawAccuracy?{...rawAccuracy,rawTotal:rawAccuracy.total,total:rawAccuracy.total+bHit,strengthCorrection:bHit}:null;
+      let accuracy=rawAccuracy?{...rawAccuracy,rawTotal:rawAccuracy.total,total:rawAccuracy.total+bHit,strengthCorrection:bHit}:null;
       const slot=enemies.indexOf(enemy),forcedEvasionFailure=!!accuracy&&!!enemy.evasionFailure;
-      const evasion=accuracy?combatRoll(targetEvasion(profile,enemy),random):null;
+      let evasion=accuracy?combatRoll(targetEvasion(profile,enemy),random):null;
+      if(evasion)for(let i=0;i<(profile.enemyCriticalRetries||0)&&evasion.critical;i++){const original=evasion;evasion={...combatRoll(targetEvasion(profile,enemy),random),original};}
+      if(accuracy&&!forcedEvasionFailure)for(let i=0;i<(profile.accuracyRetries||0)&&accuracy.total<=evasion.total;i++){const original=accuracy,raw=combatRoll(profile.accuracy,random);accuracy={...raw,rawTotal:raw.total,total:raw.total+bHit,strengthCorrection:bHit,original};}
       if(forcedEvasionFailure)enemy.evasionFailure=false;
       if(accuracy&&!forcedEvasionFailure&&accuracy.total<=evasion.total){
         if(events)events.push({type:'attack',actor,actorId,pomAssisted:!!profile.pomDice,motion:profile.motion,distance:profile.distance,apDamage:!!profile.apAttack,magicLevel:profile.magicLevel||0,damage:0,hit:false,accuracy,evasion,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,areaAttack:!!profile.areaAttack,continuation:targetIndex>0,extraAttack});
@@ -1028,7 +1068,7 @@
         if(!enemy.hp||knockedOut){
           clearEnemy(state,enemy,slot,!poisonTick&&profile.overkillThreshold>0&&damage-before>=profile.overkillThreshold,knockedOut?'knockout':'hp',events,random);
           if(enemy.pendingAttack&&events)events.push({type:'enemyCancel',enemyId:enemy.id,targetSlot:slot});
-          enemy.hp=0;if(state.timeline)delete state.timeline.priorities["e:"+enemy.id];delete enemy.turnSlowRate;delete enemy.turnSlowSeconds;enemy.wardSeconds=0;enemy.poisonDamage=0;enemy.respawnSeconds=enemy.kind==='kogumo'?0:respawnDelay(state);enemy.actionPoints=0;enemy.pendingAttack=null;enemy.defensePenalty=0;enemy.accuracyPenalty=0;enemy.evasionPenalty=0;enemy.evasionPenaltyTurns=0;enemy.evasionFailure=false;enemy.tauntId=null;enemy.slowSeconds=0;enemy.actionPenalty=0;enemy.queenCancels=0;
+          enemy.hp=0;if(state.timeline)delete state.timeline.priorities["e:"+enemy.id];delete enemy.confusion;delete enemy.sightDebuff;delete enemy.turnSlowRate;delete enemy.turnSlowSeconds;enemy.wardSeconds=0;enemy.poisonDamage=0;enemy.respawnSeconds=enemy.kind==='kogumo'?0:respawnDelay(state);enemy.actionPoints=0;enemy.pendingAttack=null;enemy.defensePenalty=0;enemy.accuracyPenalty=0;enemy.evasionPenalty=0;enemy.evasionPenaltyTurns=0;enemy.evasionFailure=false;enemy.tauntId=null;enemy.slowSeconds=0;enemy.actionPenalty=0;enemy.queenCancels=0;
           if(state.focusedEnemyId===enemy.id)state.focusedEnemyId=null;return true;
         }
         if(!poisonTick&&!profile.nonContact&&getSession(state).summons&&enemy.kind!=='kogumo')spawnKogumo(state,damage,events);
@@ -1332,7 +1372,7 @@
     const original=p;
     const average=enemy=>{const c=D.characters.find(c=>c.id===original.actorId),ctx=c?.magicPower?{...state,health:{...state.health,[c.id]:{...healthOf(state,c.id),magicLevel:original.magicLevel}}}:state;
       const p=c&&enemy&&(getSession(state).members||enemy.kind==='kogumo'||combatDistance(state,c.id,enemy)!==original.distance)?attackProfile(ctx,c,false,enemySpec(state,enemy),enemy):original;
-      const outcomes=judgmentOutcomes(p.accuracy,targetEvasion(p,enemy),p.hitLogRatio||0),auto=p.autoHitChance||0,defense=targetDefense(p,enemy);
+      const outcomes=judgmentOutcomes(p.accuracy,targetEvasion(p,enemy),p.hitLogRatio||0,p.accuracyRetries,p.enemyCriticalRetries),auto=p.autoHitChance||0,defense=targetDefense(p,enemy);
       const mean=(extra=0,double=0)=>{const spec={dice:p.dice+extra-(p.areaAttack?double:0),flat:p.flat+(p.bonus||0)+double*(p.doubleHitDamage||0),resultScale:p.resultScale??1},b=T.damage(spec,defense,p.damageLogRatio||0,p.damageScaleLog||0).correction;
         return T.distribution(spec,false).reduce((n,[a,,w])=>{const d=Math.max(1,attributeDamage(a+b,p.damageElementMultiplier)-defense);return n+(p.damageElementMultiplier===0?0:p.areaAttack&&!p.noAreaPenalty&&!double?Math.max(1,Math.floor(d/2)):d)*w;},0);};
       return auto*mean()+(1-auto)*(outcomes.conditional.reduce((n,[extra,double,w])=>n+w*mean(extra,double),0)+(enemy?.evasionFailure?(1-outcomes.chance)*mean():0));};
@@ -1587,7 +1627,7 @@
     return grantPerkIncome(state,Math.floor(state.credits*D.runtimeBalance.jewelSideIncomeRate),'臨時収入',events);
   }
 
-  const api = { revivalUsesSeconds,hireCurrency,refreshCharacterUnlocks,requirementMet,receiveBreak, newRescue,rescueAvailable,rescueClear,advanceRescue,openRescue,closeRescue,completeRescue, healWithMagtough, creditAmount:Missions.creditAmount,grantCredits:Missions.grantCredits, attackRecoilDice,rareEventChance,isCharacterUnlocked, pineGummy, partyCapacity,pomUnits,consumePoms,summonPoms,damagePoms,pomIncoming,allyElements,receiveFire,cherryDamage,fireField,cherryExtra,clearBurns,sinIncomeMultiplier,incomeAmount, queueManualAttack, refundSeed, attributeMultiplier,attributeDamage,attributeSummary,elementNames,elementalPerk, resetDreamPurchases,sinEntitlement,beginDream,seedCost,buySeed,seedMultiplier,questChangePending,battleSpeed,SUMMON_DELAY_SECONDS,markSummoned,newTimeline,actionWeight,smoothTurn,timelineUnits,timelineView,slowAction,MAX_TURN_ACTIONS,MAX_CHAIN_HITS,advanceSteps, observeIncome, combatKey, dpsKey, newAutoRest,restOf,isResting,setAutoRest, formationRow,inRange,combatDistance,canReach,reachableEnemies,hasReachableTarget,enemyCanReach,rangedPerks,attackMotion, magicState, ownActionBonus, attackForecastProfile, isStunned, turnEffects, nextRun, isMemoriesUnlocked, incomeRecord, rolloverIncome, enemyStrength, selectMemories, concentrationResetCost, resetConcentration, strengthValue, concentrationPoints, clampHealth, hpStrength, hpFromStrength, enemyActionValue, suppressionQuote,suppressRunaway,newRunaway,runawayOf,activation,trainingRunawayPressure,runawayPressureBreakdown,runawayPressure,criticalFactorReward,changeRunaway,symptomRoll,thresholdEvent,jewelEligible,jewelSideIncome, T, grantIncome, refreshPerkUnlocks, togglePerk, profileAverage, enemyHitProfile, rollEnemyHit, enemySpec, scaledCombatTotal, trainingPlan, judgmentBonus, judgmentOutcomes, enemyActionPower, accuracySpec, opposedHitChance, maxHP, armor, statLevel, enemyTargetCandidates, targetDefense, targetEvasion, evasionSpec, enemyAttackSpec, setQuestLevel, isQuestUnlocked, refreshQuestUnlocks, concentration, setConcentration, normalizeEnemyActions, livingEnemies, selectEnemy, enemyAttackDuration, revivalCost, revive, healthOf, canAct, ensureEnemies, combatRoll, battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasAreaAttack, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyPerk, buyUpgrade, selectSession, dps, characterDps };
+  const api = { confusionTarget,confusedEnemyAttack,finishSightTurn,enemyActions,resolveEnemyAttack,revivalUsesSeconds,hireCurrency,refreshCharacterUnlocks,requirementMet,receiveBreak, newRescue,rescueAvailable,rescueClear,advanceRescue,openRescue,closeRescue,completeRescue, healWithMagtough, creditAmount:Missions.creditAmount,grantCredits:Missions.grantCredits, attackRecoilDice,rareEventChance,isCharacterUnlocked, pineGummy, partyCapacity,pomUnits,consumePoms,summonPoms,damagePoms,pomIncoming,allyElements,receiveFire,cherryDamage,fireField,cherryExtra,clearBurns,sinIncomeMultiplier,incomeAmount, queueManualAttack, refundSeed, attributeMultiplier,attributeDamage,attributeSummary,elementNames,elementalPerk, resetDreamPurchases,sinEntitlement,beginDream,seedCost,buySeed,seedMultiplier,questChangePending,battleSpeed,SUMMON_DELAY_SECONDS,markSummoned,newTimeline,actionWeight,smoothTurn,timelineUnits,timelineView,slowAction,MAX_TURN_ACTIONS,MAX_CHAIN_HITS,advanceSteps, observeIncome, combatKey, dpsKey, newAutoRest,restOf,isResting,setAutoRest, formationRow,inRange,combatDistance,canReach,reachableEnemies,hasReachableTarget,enemyCanReach,rangedPerks,attackMotion, magicState, ownActionBonus, attackForecastProfile, isStunned, turnEffects, nextRun, isMemoriesUnlocked, incomeRecord, rolloverIncome, enemyStrength, selectMemories, concentrationResetCost, resetConcentration, strengthValue, concentrationPoints, clampHealth, hpStrength, hpFromStrength, enemyActionValue, suppressionQuote,suppressRunaway,newRunaway,runawayOf,activation,trainingRunawayPressure,runawayPressureBreakdown,runawayPressure,criticalFactorReward,changeRunaway,symptomRoll,thresholdEvent,jewelEligible,jewelSideIncome, T, grantIncome, refreshPerkUnlocks, togglePerk, profileAverage, enemyHitProfile, rollEnemyHit, enemySpec, scaledCombatTotal, trainingPlan, judgmentBonus, judgmentOutcomes, enemyActionPower, accuracySpec, opposedHitChance, maxHP, armor, statLevel, enemyTargetCandidates, targetDefense, targetEvasion, evasionSpec, enemyAttackSpec, setQuestLevel, isQuestUnlocked, refreshQuestUnlocks, concentration, setConcentration, normalizeEnemyActions, livingEnemies, selectEnemy, enemyAttackDuration, revivalCost, revive, healthOf, canAct, ensureEnemies, combatRoll, battleContext, battleSnapshot, respawnDelay, isWaiting, formationOwner, totalDps, combatUptime, MAX_PARTY_SIZE, formationIds, isDeployed, activeCharacters, setFormation, averageAttackDamage, characterMetrics, isActionDonor, automaticActionRate, createState, getSession, questLevel, sessionAtLevel, questCost, buyQuest, purchaseQuote, buyMany, saleQuote, sell, perks, hasAreaAttack, stats, manualStats, selectedCharacter, selectCharacter, sawCount, bombCount, weaponScale, enemyDefense, attackBreakdown, attackProfile, reward, overkillBonus, hireCost, actionPower, freeActionChance, attackRate, effectiveAttackRate, chainAttackCount, actionCost, upgradeCost, roll, click, advance, catchUp, hire, buyPerk, buyUpgrade, selectSession, dps, characterDps };
   Object.assign(api,{enemyAttackChoices,enemyMaxHP,trainingInvestment,perkLevel,rainbowActive,enemyTargetWeights});
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.YggEngine = api;

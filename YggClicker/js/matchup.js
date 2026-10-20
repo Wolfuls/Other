@@ -16,7 +16,7 @@
     if(cache.has(key))return {...cache.get(key),id:c.id,name:c.name};
     let seed=0x5F3759DF;
     const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
-    const samples=4096,hit=E.T.hit(profile.accuracy,profile.evasion,profile.hitLogRatio),normalDamage=E.T.damage({dice:profile.dice,flat:profile.flat+profile.bonus,resultScale:profile.resultScale},profile.defense,profile.damageLogRatio,profile.damageScaleLog||0);let evades=0,damage=0,incomingHits=0;
+    const samples=4096,hit={...E.T.hit(profile.accuracy,profile.evasion,profile.hitLogRatio),chance:E.judgmentOutcomes(profile.accuracy,E.targetEvasion(profile,enemy),profile.hitLogRatio,profile.accuracyRetries,profile.enemyCriticalRetries).chance},normalDamage=E.T.damage({dice:profile.dice,flat:profile.flat+profile.bonus,resultScale:profile.resultScale},profile.defense,profile.damageLogRatio,profile.damageScaleLog||0);let evades=0,damage=0,incomingHits=0;
     // Use the actual battle's opposed rolls, rerolls and mitigation. A fixed
     // sequence makes the estimate stable when reopening or editing a party.
     for(let i=0;i<samples;i++){

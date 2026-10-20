@@ -39,12 +39,12 @@
   }
   // Grow the orbit and its inter-ring distances with the weapon, not the body.
   // Preserve world-space spacing, then fit the complete scene into its viewport.
-  function orbitLayout({ metaScale=1, richterScale=1, metaHired=true, richterHired=false, vishunalHired=false, tordelieseHired=false, maxHired=false, wakuHired=false, jewelHired=false, mitsuruHired=false,queenHired=false,meguminHired=false,pineHired=false,cherryHired=false, width=500, mobile=false, enemyCount=1,enemyScale=1,formationLayout='column',groundFraction=.66, grounded=false,metaCount=60,richterCount=60,availableHeight=null,formationRows={} }) {
+  function orbitLayout({ metaScale=1, richterScale=1, metaHired=true, richterHired=false, vishunalHired=false, tordelieseHired=false, maxHired=false, wakuHired=false, jewelHired=false, mitsuruHired=false,queenHired=false,meguminHired=false,hayatoHired=false,pineHired=false,cherryHired=false, width=500, mobile=false, enemyCount=1,enemyScale=1,formationLayout='column',groundFraction=.66, grounded=false,metaCount=60,richterCount=60,availableHeight=null,formationRows={} }) {
     const orbit = (w,h,size,scale) => ({width:w*scale,height:h*scale,footprint:(Math.max(w,h)+size)*scale});
     const meta=orbit(mobile?180:210,mobile?180:210,mobile?24:28,metaScale);
     const richter=orbit(mobile?204:220,mobile?214:230,mobile?38:42,richterScale);
     meta.footprint=Math.max(224,meta.footprint);richter.footprint=Math.max(240,richter.footprint);
-    if (grounded || vishunalHired || tordelieseHired || maxHired || wakuHired || jewelHired || mitsuruHired || queenHired || meguminHired || cherryHired || pineHired) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,pineHired,cherryHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows});
+    if (grounded || vishunalHired || tordelieseHired || maxHired || wakuHired || jewelHired || mitsuruHired || queenHired || meguminHired || cherryHired || pineHired || hayatoHired) return groundLayout({meta:visibleOrbit('meta',meta,metaCount,metaScale,mobile),richter:visibleOrbit('richter',richter,richterCount,richterScale,mobile),metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,hayatoHired,pineHired,cherryHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows});
     const partyWidth=Math.max(meta.footprint,richterHired?richter.footprint:0),enemyWidth=mobile?144:(enemyCount>1?176:200);
     const enemyHeight=enemyCount>1?enemyWidth*224/192:(mobile?154:162);
     const enemyGroupWidth=enemyWidth*(enemyCount>1?1.9:1);
@@ -86,7 +86,7 @@
   }
   // Fit actual visible orbits. Cover cropping determines the pavement line
   // without forcing empty space into a fixed 3:2 canvas.
-  function groundLayout({meta,richter,metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,pineHired,cherryHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows={}}) {
+  function groundLayout({meta,richter,metaHired,richterHired,vishunalHired,tordelieseHired,maxHired,wakuHired,jewelHired,mitsuruHired,queenHired,meguminHired,hayatoHired,pineHired,cherryHired,width,mobile,enemyCount,enemyScale,formationLayout,groundFraction,availableHeight,formationRows={}}) {
     const floorFraction=groundFraction===.66?.34:1-groundFraction,groundDelta=groundFraction===.66?.16:groundFraction-.5;
     const metaFoot=72,richterFoot=mobile?93:99;
     const enemyWidth=(mobile?144:176)*enemyScale,enemyHeight=enemyWidth*224/192,enemyFoot=enemyHeight*99/224;
@@ -104,13 +104,14 @@
     const meguminSize=mobile?188:200;
     // Reserve forward space for the horizontal staff and six charge circles.
     const megumin={width:meguminSize,height:meguminSize,footprint:meguminSize*1.68,anchorX:meguminSize*.475,extentY:meguminSize,footOffset:(360/384-.5)*meguminSize,spriteSize:meguminSize};
+    const hayato={width:240,height:220,footprint:170,extentY:220,footOffset:95,spriteSize:240};
     const pine={width:220,height:220,footprint:180,extentY:220,footOffset:104,spriteSize:220};
     const cherry={width:150,height:150,footprint:150,extentY:150,footOffset:65.625,spriteSize:150};
     const jewel={width:224,height:224,footprint:210,extentY:224,footOffset:101.5,spriteSize:224};
     const maxSize=180;
     const max={width:maxSize,height:maxSize,footprint:maxSize,extentY:maxSize,footOffset:100*maxSize/224,spriteSize:maxSize,hoverHeight:mobile?88:100};
-    const party=[...(pineHired?[pine]:[]),...(cherryHired?[cherry]:[]),...(maxHired?[max]:[]),...(metaHired?[meta]:[]),...(mitsuruHired?[mitsuru]:[]),...(meguminHired?[megumin]:[]),...(richterHired?[richter]:[]),...(vishunalHired?[vishunal]:[]),...(tordelieseHired?[tordeliese]:[]),...(wakuHired?[waku]:[]),...(jewelHired?[jewel]:[]),...(queenHired?[queen]:[])];
-    const actors={pine,cherry,max,meta,mitsuru,megumin,richter,vishunal,tordeliese,waku,jewel,queen};
+    const party=[...(hayatoHired?[hayato]:[]),...(pineHired?[pine]:[]),...(cherryHired?[cherry]:[]),...(maxHired?[max]:[]),...(metaHired?[meta]:[]),...(mitsuruHired?[mitsuru]:[]),...(meguminHired?[megumin]:[]),...(richterHired?[richter]:[]),...(vishunalHired?[vishunal]:[]),...(tordelieseHired?[tordeliese]:[]),...(wakuHired?[waku]:[]),...(jewelHired?[jewel]:[]),...(queenHired?[queen]:[])];
+    const actors={hayato,pine,cherry,max,meta,mitsuru,megumin,richter,vishunal,tordeliese,waku,jewel,queen};
     party.sort((a,b)=>Number(formationRows[Object.keys(actors).find(id=>actors[id]===a)]!=='rear')-Number(formationRows[Object.keys(actors).find(id=>actors[id]===b)]!=='rear'));
     const partyWidth=party.reduce((sum,p)=>sum+p.footprint,0)+Math.max(0,party.length-1)*32;
     const surround=formationLayout==='surround',groupWidth=enemyWidth*(surround?2.8:enemyCount>1?2.45:1),edge=24,gap=56;
@@ -132,6 +133,7 @@
     const groundY=height/2+groundDelta*Math.max(height,canvasWidth/1.5),feetY=groundY+24;
     let partyLeft=edge;
     for(const p of [...party,...Object.values(actors).filter(p=>!party.includes(p))]){p.x=partyLeft+(p.anchorX??p.footprint/2);if(party.includes(p))partyLeft+=p.footprint+32;}
+    hayato.y=feetY-hayato.footOffset;
     pine.y=feetY-pine.footOffset;
     cherry.y=feetY-cherry.footOffset;
     meta.y=feetY-metaFoot;meta.footOffset=metaFoot;
@@ -142,7 +144,7 @@
     tordeliese.y=feetY-tordeliese.footOffset;max.y=feetY-max.footOffset-max.hoverHeight;
     const floorDepth=height-groundY;
     const enemyX=canvasWidth-edge-groupWidth+(surround?groupWidth/2:enemyWidth/2),enemyY=feetY-enemyFoot*(surround?1.5:1);
-    return {pine,cherry,meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,width:canvasWidth,height,groundY,enemyX,enemyY,enemyWidth,enemyHeight,enemyFoot,
+    return {hayato,pine,cherry,meta,richter,vishunal,tordeliese,max,waku,jewel,mitsuru,queen,megumin,width:canvasWidth,height,groundY,enemyX,enemyY,enemyWidth,enemyHeight,enemyFoot,
       enemyScales:surround?[1.5,.75,.75]:[1,1,1],
       reserves:surround?[{x:-enemyWidth*.85,y:enemyFoot*.75+12},{x:enemyWidth*.85,y:enemyFoot*.75-12}]:enemyCount>1?[{x:enemyWidth*.7,y:-Math.min(14,floorDepth*.04)},{x:enemyWidth*1.4,y:Math.min(14,floorDepth*.04)}]:[],
       zoom,viewWidth:canvasWidth*zoom,viewHeight:heightLimit,offsetX:(width-canvasWidth*zoom)/2,heightLimit};

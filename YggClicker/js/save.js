@@ -737,6 +737,9 @@
         const evasionPenalty=number(e.evasionPenalty??0,'回避低下',0,6,true),evasionPenaltyTurns=number(e.evasionPenaltyTurns??0,'回避低下の残り手番',0,2,true);
         if(![0,6].includes(evasionPenalty)||!!evasionPenalty!==!!evasionPenaltyTurns||respawnSeconds&&(evasionPenalty||evasionPenaltyTurns))throw new Error('回避低下の状態が正しくありません。');
         if(![0,3].includes(defensePenalty)||![0,15].includes(accuracyPenalty)||respawnSeconds&&(defensePenalty||accuracyPenalty))throw new Error('敵の弱体効果が正しくありません。');
+        let sightDebuff,confusion;
+        if(e.sightDebuff!=null){const d=record(e.sightDebuff,'立ち眩み');sightDebuff={accuracy:number(d.accuracy,'命中低下',4,10,true),evasion:number(d.evasion,'回避低下',4,5,true),turns:number(d.turns,'残り手番',1,3,true)};if(!([4,4].every((n,i)=>n===[sightDebuff.accuracy,sightDebuff.evasion][i])||sightDebuff.accuracy===10&&sightDebuff.evasion===5)||!hp||respawnSeconds)throw Error('立ち眩みの状態が不正です。');}
+        if(e.confusion!=null){const d=record(e.confusion,'混乱');if(typeof d.friendlyFire!=='boolean'||!hp||respawnSeconds)throw Error('混乱の状態が不正です。');confusion={releaseChance:number(d.releaseChance,'混乱解除率',0,1),friendlyFire:d.friendlyFire};}
         const tauntId=e.tauntId??null;
         const queenCancels=number(e.queenCancels??0,'女王の迎撃回数',0,4,true);
         if(tauntId!==null&&!D.characters.some(c=>c.id===tauntId))throw new Error('挑発対象が正しくありません。');
@@ -747,7 +750,7 @@
           const p=record(e.pendingAttack,'攻撃待機'),remaining=number(p.remaining,'攻撃の残り時間',Number.MIN_VALUE,E.enemyAttackDuration(ctx,e));
           if(!hp||respawnSeconds||!D.characters.some(c=>c.id===p.targetId&&result.levels[c.id]>0))throw new Error('攻撃対象が正しくありません。');
           const kind=p.kind||'attack';if(!(E.enemySpec(ctx,e).attacks?.map(a=>a.id)||['attack','flash','absorb']).includes(kind)||kind==='flash'&&!summon||kind==='absorb'&&(!quest.summons||summon))throw new Error('敵の行動が正しくありません。');
-          pendingAttack={targetId:p.targetId,remaining,count:1,...(p.kind?{kind}:{})};
+          pendingAttack={...(p.confused===true?{confused:true}:{}),targetId:p.targetId,remaining,count:1,...(p.kind?{kind}:{})};
           if(p.charmApplied!==undefined){if(typeof p.charmApplied!=='boolean'||!['ward','revive'].includes(kind))throw new Error('おまじない状態が不正です。');pendingAttack.charmApplied=p.charmApplied;}
           if(p.taunted!==undefined){if(typeof p.taunted!=='boolean')throw new Error('挑発予約が正しくありません。');pendingAttack.taunted=p.taunted;}
 
@@ -760,7 +763,7 @@
           }
         }
         const row=e.row??'front';if(!['front','rear'].includes(row))throw new Error('敵の前衛・後衛が正しくありません。');
-        ids.add(id);return {...(e.burnDamage!==undefined?{burnDamage:number(e.burnDamage,'炎上',0,1e100,true)}:{}),...(e.summonDelaySeconds!==undefined?{summonDelaySeconds:number(e.summonDelaySeconds,'召喚待機秒',0,5)}:{}),...(e.turnSlowSeconds!==undefined?{turnSlowSeconds:number(e.turnSlowSeconds,'行動妨害秒',0,5),turnSlowRate:number(e.turnSlowRate,'行動妨害率',0,.5)}:{}),row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
+        ids.add(id);return {...(sightDebuff?{sightDebuff}:{}),...(confusion?{confusion}:{}),...(e.burnDamage!==undefined?{burnDamage:number(e.burnDamage,'炎上',0,1e100,true)}:{}),...(e.summonDelaySeconds!==undefined?{summonDelaySeconds:number(e.summonDelaySeconds,'召喚待機秒',0,5)}:{}),...(e.turnSlowSeconds!==undefined?{turnSlowSeconds:number(e.turnSlowSeconds,'行動妨害秒',0,5),turnSlowRate:number(e.turnSlowRate,'行動妨害率',0,.5)}:{}),row,...(quest.members?{kind:e.kind}:summon?{kind:'kogumo',creationDamage,maxHP:summonMaxHP}:{}),id,hp,poisonDamage,respawnSeconds,actionPoints,pendingAttack,wardSeconds,defensePenalty,accuracyPenalty,evasionPenalty,evasionPenaltyTurns,evasionFailure,tauntId,slowSeconds,actionPenalty,queenCancels};
       });
       if(quest.summons&&!normalized[0].hp&&normalized.some(e=>e.kind==='kogumo'&&e.hp>0))throw new Error('ボス不在のコグモです。');
       const living=normalized.filter(e=>e.hp>0),target=living.find(e=>e.id===focusedEnemyId)||living[0];
