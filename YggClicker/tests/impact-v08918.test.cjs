@@ -1,0 +1,3 @@
+const test=require('node:test'),assert=require('node:assert/strict'),I=require('../js/impact-feedback');
+test('physical impact only; misses, zero damage, mental, AP and non-contact excluded',()=>{assert.equal(I.canStop({hit:true,damage:1}),true);for(const change of [{hit:false},{damage:0},{mental:true},{actorId:'queen'},{actorId:'hayato'},{apDamage:true},{nonContact:true},{poisonTick:true}])assert.equal(I.canStop({hit:true,damage:4,...change}),false);});
+test('recoil alternates and decays to exactly zero',()=>{const frames=I.shakeFrames(),xs=frames.map(f=>parseFloat(f.translate));assert.equal(xs[0],0);assert.equal(xs.at(-1),0);for(let i=2;i<xs.length-1;i++){assert.ok(Math.abs(xs[i])<Math.abs(xs[i-1]));assert.ok(xs[i]*xs[i-1]<0);}});

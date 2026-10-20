@@ -1033,7 +1033,7 @@
       if(accuracy&&!forcedEvasionFailure)for(let i=0;i<(profile.accuracyRetries||0)&&accuracy.total<=evasion.total;i++){const original=accuracy,raw=combatRoll(profile.accuracy,random);accuracy={...raw,rawTotal:raw.total,total:raw.total+bHit,strengthCorrection:bHit,original};}
       if(forcedEvasionFailure)enemy.evasionFailure=false;
       if(accuracy&&!forcedEvasionFailure&&accuracy.total<=evasion.total){
-        if(events)events.push({type:'attack',actor,actorId,pomAssisted:!!profile.pomDice,motion:profile.motion,distance:profile.distance,apDamage:!!profile.apAttack,magicLevel:profile.magicLevel||0,damage:0,hit:false,accuracy,evasion,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,areaAttack:!!profile.areaAttack,continuation:targetIndex>0,extraAttack});
+        if(events)events.push({type:'attack',mental:!!profile.mental,actor,actorId,pomAssisted:!!profile.pomDice,motion:profile.motion,distance:profile.distance,apDamage:!!profile.apAttack,magicLevel:profile.magicLevel||0,damage:0,hit:false,accuracy,evasion,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,areaAttack:!!profile.areaAttack,continuation:targetIndex>0,extraAttack});
         continue;
       }
       if(!profile.nonContact)applyHitEffects(state,enemy,profile,1,random);
@@ -1054,7 +1054,7 @@
       const damage=attackDamage(profile,enemy,powered,judgment.doubleHit);
       if(profile.apAttack){
         const apBefore=0;const slow=slowAction(enemy,damage,enemyMaxHP(state,enemy));
-        if(events)events.push({type:'attack',actor,actorId,motion:profile.motion,distance:profile.distance,damage:Math.round(slow*100),rolledDamage:damage,apDamage:true,actionSlow:true,apBefore,apAfter:0,hit:true,accuracy,evasion,...judgment,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,extraAttack});
+        if(events)events.push({type:'attack',mental:!!profile.mental,actor,actorId,motion:profile.motion,distance:profile.distance,damage:Math.round(slow*100),rolledDamage:damage,apDamage:true,actionSlow:true,apBefore,apAfter:0,hit:true,accuracy,evasion,...judgment,poisonBefore,poisonAfter:poisonBefore,hpBefore:enemy.hp,hpAfter:enemy.hp,targetSlot:slot,enemyId:enemy.id,extraAttack});
         continue;
       }
       if(judgment.doubleHit&&ps.some(p=>p.doubleHitIncome))grantPerkIncome(state,Math.min(enemy.hp,damage),'紅の拳',events);
@@ -1063,7 +1063,7 @@
         const before=enemy.hp;state.totalDamage+=Math.min(before,damage);enemy.hp=Math.max(0,before-damage);
         const knockoutRoll=damage>0&&enemy.hp>0&&enemy.hp<=D.balance.knockoutHP?roll(1,0,random):null;
         const knockedOut=knockoutRoll!==null&&knockoutRoll%2===1;
-        if(events)events.push({type:'attack',actor:poisonTick?'猛毒':actor,actorId:poisonTick?null:actorId,motion:profile.motion,distance:profile.distance,magicLevel:poisonTick?0:profile.magicLevel||0,damage,elementMultiplier:poisonTick?1:profile.damageElementMultiplier,hit:true,nonContact:poisonTick||!!profile.nonContact,automaticHit:poisonTick||automaticHit,forcedEvasionFailure:poisonTick?false:forcedEvasionFailure,accuracy:poisonTick?null:accuracy,evasion:poisonTick?null:evasion,...(poisonTick?{}:judgment),poisonBefore,poisonAfter:enemy.hp>0&&!knockedOut?enemy.poisonDamage:0,hpBefore:before,hpAfter:enemy.hp,
+        if(events)events.push({type:'attack',mental:!!profile.mental,actor:poisonTick?'猛毒':actor,actorId:poisonTick?null:actorId,motion:profile.motion,distance:profile.distance,magicLevel:poisonTick?0:profile.magicLevel||0,damage,elementMultiplier:poisonTick?1:profile.damageElementMultiplier,hit:true,nonContact:poisonTick||!!profile.nonContact,automaticHit:poisonTick||automaticHit,forcedEvasionFailure:poisonTick?false:forcedEvasionFailure,accuracy:poisonTick?null:accuracy,evasion:poisonTick?null:evasion,...(poisonTick?{}:judgment),poisonBefore,poisonAfter:enemy.hp>0&&!knockedOut?enemy.poisonDamage:0,hpBefore:before,hpAfter:enemy.hp,
           targetSlot:slot,enemyId:enemy.id,areaAttack:!!profile.areaAttack,continuation:targetIndex>0,extraAttack,pomDice:poisonTick?0:profile.pomDice||0,pomFlat:poisonTick?0:profile.pomFlat||0,poisonTick,knockoutRoll,knockedOut});
         if(!enemy.hp||knockedOut){
           clearEnemy(state,enemy,slot,!poisonTick&&profile.overkillThreshold>0&&damage-before>=profile.overkillThreshold,knockedOut?'knockout':'hp',events,random);

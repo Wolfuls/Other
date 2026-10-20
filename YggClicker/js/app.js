@@ -499,7 +499,7 @@
   }
   let receivedFloatSequence=0;
   function showEnemyAttack(e){
-    stopEnemyAttack(e.enemyId);
+    const physicalStop=window.YggImpact.canStop(e)&&!e.source;if(physicalStop){const slot=E.ensureEnemies(state).findIndex(enemy=>enemy.id===e.enemyId),source=$(slot>0?'enemy-next-'+slot:'enemy-art');window.YggImpact.stop(source);deferVisual(()=>stopEnemyAttack(e.enemyId),90);}else stopEnemyAttack(e.enemyId);
     if(!E.isDeployed(state,e.targetId)||document.hidden)return;
     const actor=$(e.targetId+'-combatant'),text=document.createElement('span');text.className='damage-float ally-damage';text.textContent=e.hit&&e.elementMultiplier===0?'無効':e.hit?(e.apDamage?'行動 −'+e.damage+'%':e.fightingSpirit?'闘志 · HP1':(e.elementMultiplier>1?'弱点 ':'')+(e.badLuck?'悪運 ':'')+'−'+e.damage):e.nullified?'無効':'回避';
     if(e.hit){const bonuses=[e.covering?'カバーリング'+(e.coverHitIndex?' '+e.coverHitIndex+'/2':''):'',e.doubleHit?'倍差命中':'',e.smashCritical?'スマッシュクリティカル'+(e.smashCritical>1?' ×'+e.smashCritical:''):''].filter(Boolean);if(bonuses.length){const detail=document.createElement('small');detail.textContent=bonuses.join(' / ');text.append(detail);}}
@@ -508,7 +508,7 @@
     text.style.setProperty('--float-drift',lane*20+'px');text.style.setProperty('--float-rise','-65px');
     if(state.options.showDamageNumbers){while($('damage-floats').children.length>=FX.MAX_STEPS)$('damage-floats').firstElementChild.remove();$('damage-floats').append(text);deferVisual(()=>text.remove(),1150);}
     if(e.hit&&!e.source&&!reducedMotion.matches&&state.sessionId==='ozmorn')cloudImpact(actor,e.apDamage);
-    if(e.hit&&!reducedMotion.matches){actor.classList.add('ally-hit');deferVisual(()=>actor.classList.remove('ally-hit'),180);}
+    if(e.hit&&e.damage>0&&!e.apDamage){window.YggImpact.shake(actor.querySelector('.meta-body')||actor.querySelector('canvas')||actor);if(physicalStop)window.YggImpact.stop(actor);}
     if(e.covering){setText('last-roll',D.characters.find(c=>c.id===e.targetId).name+'が'+D.characters.find(c=>c.id===e.coveredTargetId)?.name+'をカバー：自動命中・'+e.damage+'ダメージ');return;}
     if(e.source){setText('last-roll',D.characters.find(c=>c.id===e.targetId).name+'：'+(e.source==='misfire'?'暴発':e.source==='反動'?'反動':'暴走')+' '+e.damage+'ダメージ');return;}
     setText('last-roll',(e.enemyName||E.getSession(state).enemy)+' → '+D.characters.find(c=>c.id===e.targetId).name+(e.mental?' / 精神攻撃 SS ':' / 命中 ')+e.accuracy.total+(e.accuracyReroll?'（逆転）':'')+' 対 '+(e.mental?'SS回避 ':'回避 ')+e.evasion.total+(e.evasionReroll?'（リテイク）':'')+'：'+(e.hit?(e.apDamage?'行動 −'+e.damage+'%':e.damage+' ダメージ'):e.nullified?'無効':'回避'));
@@ -976,17 +976,30 @@
     actor.classList.toggle('is-paused',state.paused||blocked());actor.classList.toggle('manual-selected',state.selectedCharacterId==='waku');
     $('waku-select').disabled=blocked()||!hired;$('waku-select').setAttribute('aria-pressed',state.selectedCharacterId==='waku');
   }
-  function animateWakuAttack(count=1,volleyCount=1,summarized=false,targetSlot=0,motion='shoot'){
+  function animateWakuAttack(count=1,volleyCount=1,summarized=false,targetSlot=0,motion='shoot',extraAttack=false){
     if(!E.canAct(state,'waku')||reducedMotion.matches||document.hidden)return 0;
-    const actor=$('waku-combatant'),now=performance.now(),burst=count>1||volleyCount>1||now-lastWakuShot<280;
+    const actor=$('waku-combatant'),now=performance.now(),burst=extraAttack||count>1||volleyCount>1||now-lastWakuShot<280;
     lastWakuShot=now;cancelVisual(wakuAttackTimer);
-    if(burst){actor.classList.remove('range-motion','attacking');actor.classList.add('bursting');wakuAttackTimer=deferVisual(()=>actor.classList.remove('bursting'),600);}
-    else if(motion==='stab'){actor.classList.remove('bursting','attacking');actor.classList.add('range-motion');restartAnimation($('waku-standing'),'waku-melee');wakuAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),880);}
-    else{actor.classList.remove('range-motion','bursting');actor.classList.add('attacking');restartAnimation($('waku-standing'),'waku-fire');wakuAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),560);}
+    if(motion==='shoot'&&(burst||window.YggWakuRanged.isPlaying())){
+      actor.classList.remove('range-motion','attacking','bursting');
+      window.YggWakuRanged.start(actor,({x,y,spread})=>{
+        const g=targetedGeometry(targetSlot),layer=$('waku-projectiles'),bullet=document.createElement('span');
+        if(layer.children.length>=32)return;
+        const dx=g.enemyX-g.wakuX-x,dy=g.enemyY-g.wakuY-y+spread;
+        bullet.className='waku-bullet waku-scatter-bullet';bullet.style.left=(g.wakuX+x)+'px';bullet.style.top=(g.wakuY+y)+'px';
+        bullet.style.setProperty('--travel',dx+'px');bullet.style.setProperty('--rise',dy+'px');
+        bullet.style.setProperty('--bullet-angle',Math.atan2(dy,dx)+'rad');bullet.style.setProperty('--launch-delay','0ms');
+        layer.append(bullet);deferVisual(()=>bullet.remove(),360);
+      });return 0;
+    }
+    else if(burst){window.YggWakuRanged.reset();actor.classList.remove('remote-combo','range-motion','attacking');actor.classList.add('bursting');wakuAttackTimer=deferVisual(()=>actor.classList.remove('bursting'),700);}
+    else if(motion==='stab'){window.YggWakuRanged.reset();actor.classList.remove('remote-combo','bursting','attacking');actor.classList.add('range-motion');restartAnimation($('waku-standing'),'waku-melee');wakuAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),880);}
+    else{window.YggWakuRanged.reset();actor.classList.remove('remote-combo','range-motion','bursting');actor.classList.add('attacking');restartAnimation($('waku-standing'),'waku-fire');wakuAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),560);}
     const layer=$('waku-projectiles'),g=targetedGeometry(targetSlot),melee=motion==='stab',groups=FX.projectileGroups(count,Math.floor((24-layer.children.length)/(melee?1:2)),summarized);
     groups.forEach((amount,i)=>{const delay=110+i*45,bullet=document.createElement('span');bullet.className=melee?'waku-slash':'waku-bullet';bullet.dataset.attackCount=amount;
       bullet.style.left=(melee?g.enemyX:g.wakuX+82)+'px';bullet.style.top=(melee?g.enemyY:g.wakuY-22)+'px';bullet.style.setProperty('--travel',(g.enemyX-g.wakuX-82)+'px');bullet.style.setProperty('--rise',(g.enemyY-g.wakuY+22)+'px');bullet.style.setProperty('--launch-delay',(delay+(melee?FX.PROJECTILE_FLIGHT_MS-180:0))+'ms');bullet.style.setProperty('--slash-angle',(i%2?40:-35)+'deg');
       layer.append(bullet);deferVisual(()=>bullet.remove(),delay+FX.PROJECTILE_FLIGHT_MS+20);
+      if(melee){const box=document.createElement('span');box.className='waku-hitbox';box.style.left=(g.wakuX+55)+'px';box.style.top=(g.wakuY-12)+'px';box.style.setProperty('--launch-delay',(delay+FX.PROJECTILE_FLIGHT_MS-180)+'ms');layer.append(box);deferVisual(()=>box.remove(),delay+FX.PROJECTILE_FLIGHT_MS+40);}
       if(!melee){const flash=document.createElement('span');flash.className='waku-muzzle';flash.style.left=(g.wakuX+82)+'px';flash.style.top=(g.wakuY-22)+'px';flash.style.setProperty('--launch-delay',delay+'ms');layer.append(flash);deferVisual(()=>flash.remove(),delay+120);}
     });return groups.length?110+(groups.length-1)*45:0;
   }
@@ -1063,6 +1076,10 @@
     for (const animation of element.getAnimations()) if (animation.animationName === name) animation.currentTime = 0;
   }
   function finishBurst(actor) {
+    if(manualAnimationActive(actor)){
+      if(!manualFinishWait.has(actor))manualFinishWait.set(actor,deferVisual(()=>{manualFinishWait.delete(actor);finishBurst(actor);},200));
+      return;
+    }
     // Every game tick will supply another multi-hit volley: keep the same cycle
     // across that tick boundary. Finite/manual bursts still end at last release.
     if (continuousBurst(actor)) return;
@@ -1184,10 +1201,12 @@
     });
     return delay;
   }
-  function animateTordelieseAttack(count,volleyCount=count,summarized=false,targetSlot=0,motion='normal'){
+  function animateTordelieseAttack(count,volleyCount=count,summarized=false,targetSlot=0,motion='normal',extraAttack=false){
     if(!E.canAct(state,'tordeliese')||reducedMotion.matches||document.hidden)return 0;
-    const actor=$('tordeliese-combatant'),now=performance.now(),burst=volleyCount>1||count>1||now-lastTordelieseShot<280;
+    const actor=$('tordeliese-combatant'),now=performance.now(),burst=extraAttack||volleyCount>1||count>1||now-lastTordelieseShot<280;
     lastTordelieseShot=now;cancelVisual(tordelieseAttackTimer);actor.classList.remove('range-motion');
+    if(motion==='kick'&&(burst||window.YggTordelieseKick.isPlaying())){actor.classList.remove('attacking','bursting','range-motion');window.YggTordelieseKick.start(actor);return 360;}
+    window.YggTordelieseKick.reset();
     if(motion==='kick'){actor.classList.remove('attacking','bursting');actor.classList.add('range-motion');restartAnimation($('tordeliese-standing'),'tordeliese-melee');tordelieseAttackTimer=deferVisual(()=>actor.classList.remove('range-motion'),880);return 360;}
     if(burst||actor.classList.contains('bursting')){actor.classList.remove('attacking');actor.classList.add('bursting');}
     else{actor.classList.add('attacking');restartAnimation($('tordeliese-standing'),'tordeliese-strike');tordelieseAttackTimer=deferVisual(()=>actor.classList.remove('attacking'),800);}
@@ -1209,6 +1228,10 @@
     return last+520;
   }
   function resetCombatVisuals(resetRoll = false) {
+    manualAnimationUntil.clear();manualFinishWait.clear();
+    window.YggTordelieseKick.reset();
+    window.YggWakuRanged.reset();
+    window.YggImpact.reset();
     window.YggHayatoView?.reset();
     window.YggPineView?.reset();for(const n of Array.from($('hit-effects').children).filter(n=>n.classList.contains('pine-fist')))n.remove();
     for(const node of Array.from($('arena').children))if(node.classList.contains('plant-electricity'))node.remove();
@@ -1227,7 +1250,7 @@
     $('mitsuru-combatant').classList.remove('attacking','bursting');$('mitsuru-effects').replaceChildren();lastMitsuruShot=-Infinity;
     $('queen-combatant').classList.remove('attacking','bursting');lastQueenShot=-Infinity;
     $('megumin-combatant').classList.remove('attacking','bursting','spell-casting');$('megumin-effects').replaceChildren();meguminCastMagic=0;
-    $('waku-combatant').classList.remove('attacking','bursting');$('waku-projectiles').replaceChildren();lastWakuShot=-Infinity;
+    $('waku-combatant').classList.remove('remote-combo','attacking','bursting');$('waku-projectiles').replaceChildren();lastWakuShot=-Infinity;
     $('max-combatant').classList.remove('attacking','bursting');$('max-tubs').replaceChildren();lastMaxShot=-Infinity;
     $('tordeliese-combatant').classList.remove('attacking','bursting');$('tordeliese-tendrils').replaceChildren();lastTordelieseShot=-Infinity;tordelieseLashIndex=0;
     displayedHP = null; lastRichterShot = -Infinity; visualHitId++;
@@ -1324,7 +1347,20 @@
     const a=$('pine-combatant'),target=readCombatGeometry().enemySlots[frame.targetSlot||0],layer=$('hit-effects');
     for(let i=0;i<18;i++){const path=window.YggPineView.fistTrajectory();deferVisual(()=>{if(a.hidden||a.classList.contains('downed'))return;while(Array.from(layer.children).filter(n=>n.classList.contains('pine-fist')).length>=36)Array.from(layer.children).find(n=>n.classList.contains('pine-fist')).remove();const n=document.createElement('span'),dx=target.x+path.tx-a.offsetLeft-path.sx,dy=target.y+path.ty-a.offsetTop-path.sy;n.className='pine-fist pine-fist-burst';n.setAttribute('aria-hidden','true');n.style.left=(a.offsetLeft+path.sx)+'px';n.style.top=(a.offsetTop+path.sy)+'px';n.style.width=path.size+'px';n.style.height=path.size/2+'px';n.style.setProperty('--fist-x',dx+'px');n.style.setProperty('--fist-y',dy+'px');n.style.setProperty('--fist-angle',Math.atan2(dy,dx)*180/Math.PI+'deg');layer.append(n);deferVisual(()=>n.remove(),480);},i*25+path.delay);}
   }
+  const manualAnimationUntil=new Map(),manualFinishWait=new Map();
+  function manualAnimationActive(id){
+    if(!id||!manualAnimationUntil.has(id))return false;
+    if(performance.now()<manualAnimationUntil.get(id)||(state.timeline?.manualAttacks||[]).some(a=>a.actorId===id))return true;
+    if(id==='waku'&&window.YggWakuRanged.isPlaying()||id==='tordeliese'&&window.YggTordelieseKick.isPlaying())return true;
+    manualAnimationUntil.delete(id);return false;
+  }
   function showLaunch(frame) {
+    if(frame.manualLaunch&&frame.actorId)manualAnimationUntil.set(frame.actorId,performance.now()+1000);
+    if(!frame.manualLaunch){
+      // Only presentation is masked; the original frame still resolves its damage and HP display.
+      const suppressed=D.characters.filter(c=>manualAnimationActive(c.id));
+      if(suppressed.length){frame={...frame};for(const c of suppressed){frame[c.id+'Attacks']=0;if(c.id==='max')frame.maxTransfers=0;if(frame.actorId===c.id){frame.actorId=null;frame.continuation=false;}}}
+    }
     $('arena').classList.add('combat-playing');
     if (displayedHP === null && Number.isFinite(frame.hpBefore)) displayedHP = frame.hpBefore;
     const meta = frame.metaAttacks ? animateMetaAttack(frame.metaAttacks,frame.volleyMetaCount,frame.approximate,frame.targetSlot||0) : 0;
@@ -1334,12 +1370,12 @@
     let pine=0;if(frame.actorId==='pine'){const burst=window.YggPineView?.attack(frame);pineFists(frame,burst);pine=280;}
     const cherry=frame.actorId==='cherry'&&!['VOLCANO','DISSATISFACTION'].includes(frame.actor)?animateCherryAttack(frame):0;
     const vishunal=frame.vishunalAttacks?animateVishunalAttack(frame.vishunalAttacks,frame.volleyVishunalCount,frame.approximate,frame.targetSlot||0,frame.manualLaunch):0;
-    const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
+    const tordeliese=frame.tordelieseAttacks?animateTordelieseAttack(frame.tordelieseAttacks,frame.volleyTordelieseCount,frame.approximate,frame.targetSlot||0,frame.motion,frame.extraAttack):0;
     const mitsuru=frame.mitsuruAttacks?animateMitsuruAttack(frame.mitsuruAttacks,frame.volleyMitsuruCount,frame.targetSlot||0,frame.hit,frame.motion):0;
     const queen=frame.queenAttacks?animateQueenAttack(frame.queenAttacks,frame.volleyQueenCount,frame.targetSlot||0,frame.hit):0;
     const megumin=frame.meguminAttacks?animateMeguminAttack(frame.meguminAttacks,frame.volleyMeguminCount,frame.targetSlot||0,frame.hit,frame.magicLevel):0;
     const jewel=frame.jewelAttacks?animateJewelAttack(frame.jewelAttacks,frame.volleyJewelCount):0;
-    const waku=frame.wakuAttacks?animateWakuAttack(frame.wakuAttacks,frame.volleyWakuCount,frame.approximate,frame.targetSlot||0,frame.motion):0;
+    const waku=frame.wakuAttacks?animateWakuAttack(frame.wakuAttacks,frame.volleyWakuCount,frame.approximate,frame.targetSlot||0,frame.motion,frame.extraAttack):0;
     const maxActions=(frame.maxAttacks||0)+(frame.maxTransfers||0);
     const max=maxActions?animateMaxAttack(maxActions,frame.volleyMaxCount,frame.approximate,frame.maxAttacks||0,frame.targetSlot||0,frame.manualLaunch):0;
     const continuation = frame.continuation ? (continuousBurst(frame.actorId||'richter') ? 80 : 200) : 0;
@@ -1407,15 +1443,10 @@
       deferVisual(() => floating.remove(), 850);
     }
     $('last-roll').textContent = `${frame.actor} / ${frame.hit===false?'MISS':frame.elementMultiplier===0?'無効':(frame.elementMultiplier>1?'弱点 ':'')+format(frame.damage)+(frame.apDamage?'% 行動低下':' DMG')}${frame.continuation ? '・全体攻撃' : ''}${frame.count > 1 ? `・${format(frame.count)}${frame.continuation ? '体' : '回'}（合計）` : ''}${frame.knockoutRoll ? ` / 気絶判定${frame.knockoutRoll}：${frame.knockedOut ? '気絶' : '回避'}` : ''}`;
-    cancelVisual(hitTimers.get(impactTarget));hitTimers.delete(impactTarget);impactTarget.classList.remove('enemy-hit');
-    if (frame.hit!==false&&!frame.clears) {
-      const target = impactTarget;
-      target.style.setProperty('--hit-x', `${motion.recoilX}px`);
-      target.style.setProperty('--hit-y', `${motion.recoilY}px`);
-      target.style.setProperty('--hit-angle', `${motion.recoilAngle}deg`);
-      target.classList.add('enemy-hit');
-      restartAnimation(target, 'enemy-impact-varied');
-      hitTimers.set(target,deferVisual(()=>{target.classList.remove('enemy-hit');hitTimers.delete(target);},180));
+    if(frame.hit!==false&&frame.damage>0&&!frame.apDamage){
+      window.YggImpact.shake(impactTarget);
+      const character=D.characters.find(c=>c.id===frame.actorId),mental=frame.mental??(character?E.attackProfile(state,character).mental:false);
+      if(window.YggImpact.canStop({...frame,mental})){window.YggImpact.stop(impactTarget);if(character&&(frame.manualImpact||frame.manualLaunch||!manualAnimationActive(character.id)))window.YggImpact.stop($(character.id+'-combatant'));}
     }
     if (frame.clears||frame.removed) {
       pendingEnemyDefeats.delete(frame.enemyId);
@@ -1531,7 +1562,7 @@
     const otherClears=events.filter(e=>e.type==='clear'&&e.sessionId&&e.sessionId!==state.sessionId);
     if(otherClears.length)log('別セッションで '+fullNumber(otherClears.reduce((n,e)=>n+(e.count||1),0))+'周。因子 +'+money(otherClears.reduce((n,e)=>n+e.reward,0))+'Rd / +'+money(otherClears.reduce((n,e)=>n+(e.credits||0),0))+'C / +'+money(otherClears.reduce((n,e)=>n+(e.prestige||0),0))+'Ps');
     events=events.filter(e=>!e.sessionId||e.sessionId===state.sessionId);
-    if(events.some(e=>e.type==='timelineTurn'&&e.actorId==='richter')&&!document.hidden&&!reducedMotion.matches)hidePomsForAttack(FX.turnDuration(events)===.25?250:700);
+    if(events.some(e=>e.type==='timelineTurn'&&e.actorId==='richter'&&!manualAnimationActive('richter'))&&!document.hidden&&!reducedMotion.matches)hidePomsForAttack(FX.turnDuration(events)===.25?250:700);
     const fireSkills=new Set(events.map(e=>e.actor||e.source).filter(name=>['VOLCANO','DISSATISFACTION'].includes(name)));for(const kind of fireSkills){const impact=events.find(e=>e.actor===kind&&Number.isInteger(e.targetSlot));cherrySpread(kind,impact?.targetSlot||0);}
     for(const launch of events.filter(e=>e.type==='manualLaunch'&&!e.charging))if(!document.hidden&&!reducedMotion.matches){
       const frame=FX.plan([{...launch,type:'attack',manualLaunch:true}])[0];if(!frame)continue;
@@ -1541,7 +1572,7 @@
     events=events.filter(e=>e.type!=='manualLaunch');
     if(FX.turnDuration(events)===.25){
       const turn=events.find(e=>e.type==='timelineTurn'),actor=turn?.actorId&&$(turn.actorId+'-combatant');
-      if(actor){actor.classList.add('status-turn');deferVisual(()=>actor.classList.remove('status-turn'),250);}
+      if(actor&&!manualAnimationActive(turn.actorId)){actor.classList.add('status-turn');deferVisual(()=>actor.classList.remove('status-turn'),250);}
     }
     if(!document.hidden&&!reducedMotion.matches)for(const event of events)if(event.type==='clear'||event.type==='enemyRemoved')pendingEnemyDefeats.add(event.enemyId);
     for(const event of events){
@@ -2087,3 +2118,4 @@
     }).catch(() => initialize(true));
   } else initialize(true);
 })();
+

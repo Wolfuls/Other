@@ -27,3 +27,27 @@
 .waku-combatant.range-motion .waku-standing{position:absolute;left:-16px;top:-56px;width:320px;height:256px;background-image:url('./img/waku-melee-v4.png');background-size:800% 100%;animation:waku-melee .88s steps(1,end) both}
 
 @keyframes waku-melee{0%{background-position:0% 0}12%{background-position:14.285714285714285% 0}24%{background-position:28.57142857142857% 0}36%{background-position:42.857142857142854% 0}49%{background-position:57.14285714285714% 0}63%{background-position:71.42857142857143% 0}78%{background-position:85.71428571428571% 0}91%{background-position:100% 0}100%{background-position:100% 0}}
+/* Semi-transparent fighting-game hitboxes, drawn independently of damage math. */
+.waku-bullet::after{content:"";position:absolute;inset:-5px -4px;border:1px solid #ff3b44;background:#ff182d55;box-shadow:0 0 3px #ff2c4588}
+.waku-hitbox{position:absolute;pointer-events:none;width:92px;height:30px;border:2px solid #ff3b44;background:#ff182d55;z-index:7;animation:waku-hitbox-flash .2s var(--launch-delay,0ms) steps(1,end) both}
+@keyframes waku-hitbox-flash{0%{opacity:0}5%,75%{opacity:1}100%{opacity:0}}
+.waku-combatant.remote-combo .waku-standing{visibility:hidden}
+.waku-ranged-canvas{position:absolute;left:0;top:0;width:320px;height:224px;pointer-events:none;image-rendering:pixelated;z-index:2}
+.waku-spin-hitbox{position:absolute;left:112px;top:104px;width:1000px;height:12px;transform-origin:0 50%;transform-style:preserve-3d;pointer-events:none;z-index:3;will-change:transform}
+.waku-spin-face{position:absolute;inset:0;border:2px solid #ff6670;background:#ff182d55;backface-visibility:visible;opacity:var(--sweep-opacity,1)}
+.waku-spin-face-front{transform:translateZ(48px)}
+.waku-spin-face-back{transform:translateZ(-48px)}
+.waku-spin-face-top,.waku-spin-face-bottom{height:96px;bottom:auto;background:#ff7b8444;transform:rotateX(90deg)}
+.waku-spin-face-top{top:-48px}
+.waku-spin-face-bottom{top:-36px}
+.waku-spin-face-tip,.waku-spin-face-root{width:96px;right:auto;background:#ff364b66;transform:rotateY(90deg)}
+.waku-spin-face-tip{left:calc(100% - 48px)}
+.waku-spin-face-root{left:-48px}
+.waku-scatter-bullet{animation:waku-scatter-shot 340ms linear both}
+@keyframes waku-scatter-shot{0%{transform:translate(0,0) rotate(var(--bullet-angle));opacity:1}85%{opacity:1}100%{transform:translate(var(--travel),var(--rise)) rotate(var(--bullet-angle));opacity:0}}
+.arena-viewport[data-hit-effects=off] .waku-spin-hitbox{display:none}
+.arena-viewport[data-hit-effects=translucent] .waku-spin-hitbox{filter:opacity(.28)}
+@media(prefers-reduced-motion:reduce){.waku-spin-hitbox{display:none}}
+[data-impact-stop=true] *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.waku-hitbox,.waku-combatant.remote-combo .meta-body::after{display:none}.waku-combatant.remote-combo .waku-standing{animation:none}}
+

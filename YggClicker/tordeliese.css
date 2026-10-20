@@ -22,3 +22,6 @@
 .tordeliese-combatant.range-motion .tordeliese-standing{left:-23.307292%;top:-31.25%;width:166.666667%;height:133.333333%;background-image:url('./img/tordeliese-melee-v7.png');background-size:800% 100%;animation:tordeliese-melee .88s steps(1,end) both}
 
 @keyframes tordeliese-melee{0%{background-position:0% 0}12%{background-position:14.285714285714285% 0}24%{background-position:28.57142857142857% 0}36%{background-position:42.857142857142854% 0}49%{background-position:57.14285714285714% 0}63%{background-position:71.42857142857143% 0}78%{background-position:85.71428571428571% 0}91%{background-position:100% 0}100%{background-position:100% 0}}
+
+.tordeliese-combatant.kick-combo .tordeliese-standing{visibility:hidden}
+.tordeliese-kick-canvas{position:absolute;left:0;top:0;width:133.333333%;height:100%;pointer-events:none;image-rendering:pixelated}

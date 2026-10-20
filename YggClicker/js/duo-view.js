@@ -70,7 +70,7 @@
    if(!node.isConnected){nodes.delete(node);continue;}if(node.hidden||node.closest('[hidden]')||!node.classList.contains('duo-combatant'))continue;
    const kind=node.dataset.duoKind,canvas=node.querySelector('canvas');if(!canvas)continue;
    if(node.dataset.previewSlash){paintSpecial(canvas,'slash',Number(node.dataset.previewSlash));continue;}
-   const rate=Number(node.dataset.battleSpeed)||1,reduced=motion.matches,paused=!!node.closest('.enemy-paused');
+   const rate=Number(node.dataset.battleSpeed)||1,reduced=motion.matches,paused=!!node.closest('.enemy-paused')||!!node.closest('[data-impact-stop=true]');
    const clock=node._duoClock||(node._duoClock={last:t,time:t,down:false,downAt:t});
    if(!paused)clock.time+=Math.min(100,t-clock.last)*rate;clock.last=t;
    const down=node.classList.contains('duo-down');if(down&&!clock.down)clock.downAt=clock.time;clock.down=down;
