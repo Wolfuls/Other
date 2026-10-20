@@ -8,10 +8,10 @@
     if(!spec)return 0;
     return E.T.distribution(spec,judgment).reduce((sum,[value,,p])=>sum+(spec.multiplier?N.linear(value,spec.multiplier-1,1):value)*p,0);
   }
-  function matchup(state,c){
-    const q=E.getSession(state),profile=E.attackForecastProfile(state,c),incoming=E.enemyHitProfile(state,{},c);
-    const enemyReachable=E.enemyCanReach(state,{row:q.row||'front'},c);
-    const maxHP=E.maxHP(state,c),passive=E.enemyActionPower(state)===0;
+  function matchup(state,c,enemy=null){
+    const q=enemy?E.enemySpec(state,enemy):E.getSession(state),profile=E.attackForecastProfile(state,c,enemy),incoming=E.enemyHitProfile(state,enemy||{},c);
+    const enemyReachable=E.enemyCanReach(state,enemy||{row:q.row||'front'},c);
+    const maxHP=E.maxHP(state,c),passive=E.enemyActionPower(state,undefined,enemy)===0;
     const key=JSON.stringify([profile,incoming,maxHP,passive,enemyReachable]);
     if(cache.has(key))return {...cache.get(key),id:c.id,name:c.name};
     let seed=0x5F3759DF;
@@ -26,15 +26,16 @@
       if(result.hit){incomingHits++;damage+=result.damage;}
     }
     const mean=enemyReachable?damage/samples:0;
-    const result={reachable:profile.reachable!==false,enemyReachable,hitRate:profile.reachable===false?0:(profile.autoHitChance||0)+(1-(profile.autoHitChance||0))*hit.chance,hitCorrection:hit.correction,damageCorrection:normalDamage.correction,averageDamage:E.averageAttackDamage(state,c),averageAPDamage:profile.apAttack?E.profileAverage(state,profile):0,apAttack:!!profile.apAttack,enemyHitCorrection:E.T.hit(incoming.accuracySpec,incoming.evasionDice,incoming.hitLogRatio).correction,enemyDamageCorrection:E.T.damage(incoming.attack,incoming.reduction,incoming.damageLogRatio,incoming.damageScaleLog||0).correction,evadeRate:evades/samples,damageOnHit:incomingHits?damage/incomingHits:0,damagePerAttack:mean,endurance:passive||!mean?Infinity:Math.max(1,maxHP/mean),passive};
+    const result={reachable:profile.reachable!==false,enemyReachable,hitRate:profile.reachable===false?0:(profile.autoHitChance||0)+(1-(profile.autoHitChance||0))*hit.chance,hitCorrection:hit.correction,damageCorrection:normalDamage.correction,averageDamage:profile.apAttack?0:E.profileAverage(state,profile),averageAPDamage:profile.apAttack?E.profileAverage(state,profile):0,apAttack:!!profile.apAttack,enemyHitCorrection:E.T.hit(incoming.accuracySpec,incoming.evasionDice,incoming.hitLogRatio).correction,enemyDamageCorrection:E.T.damage(incoming.attack,incoming.reduction,incoming.damageLogRatio,incoming.damageScaleLog||0).correction,evadeRate:evades/samples,damageOnHit:incomingHits?damage/incomingHits:0,damagePerAttack:mean,endurance:passive||!mean?Infinity:Math.max(1,maxHP/mean),passive};
     if(cache.size>=128)cache.clear();cache.set(key,result);return {...result,id:c.id,name:c.name};
   }
-  function party(state){
+  function party(state,memberId=null){
     // Preview a fresh engagement without mutating the saved or draft formation.
     const ctx={...state,rainbowTurns:0,enemies:null,respawnSeconds:0,focusedEnemyId:null,
       health:Object.fromEntries(D.characters.map(c=>[c.id,{hp:E.maxHP(state,c),status:'active',regenSeconds:0}]))};
     ctx.hp=E.getSession(ctx).hp;
-    return {state:ctx,rows:E.formationIds(ctx).map(id=>matchup(ctx,D.characters.find(c=>c.id===id)))};
+    const enemy=memberId?E.ensureEnemies(ctx).find(e=>e.kind===memberId):null;
+    return {state:ctx,rows:E.formationIds(ctx).map(id=>matchup(ctx,D.characters.find(c=>c.id===id),enemy))};
   }
   const api={expectedRoll,party,matchup};if(common)module.exports=api;else root.YggMatchup=api;
 })(typeof window!=='undefined'?window:globalThis);

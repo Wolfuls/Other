@@ -1710,13 +1710,18 @@
       });
     });
   }
+  function enemyMatchupHTML(ctx,q,forecast){
+    const percent=v=>(v*100).toFixed(1)+'%',finite=v=>Number.isFinite(v)?'約'+rateFormat(v)+'回':'—';
+    const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">'+(r.reachable?'約'+percent(r.hitRate):'射程外')+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+(r.apAttack?'換算前 '+rateFormat(r.averageAPDamage):rateFormat(r.averageDamage))+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':!r.enemyReachable?'敵の射程外':finite(r.endurance))+'</td></tr>').join('');
+    return '<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>');
+  }
   function renderEnemyInfo(ctx,node){
     const encounter=E.getSession(ctx);
     if(encounter.members){
       const html=encounter.members.map(member=>{
         const q=E.enemySpec(ctx,{kind:member.id}),strength=kind=>{const value=window.YggAbilityView.strengthLevel(E.enemyStrength(q,kind),D.strength);return strengthNumber(value);};
         const bases={action:q.actionDice?rollText(q.actionDice):fullNumber(q.action),accuracy:rollText(q.accuracy),evasion:rollText(q.evasion),power:rollText(q.attack),vitality:fullNumber(q.baseHP),armor:fullNumber(q.defense)+' / '+fullNumber(q.resistance)};
-        return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?strengthNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>'+(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+'</p>';
+        return '<div class="enemy-info-heading"><h4>'+q.enemy+'</h4><small>挑戦Lv.'+q.level+'</small></div><div class="enemy-ability-rows">'+window.YggAbilityView.rows({enemy:true,baseCell:t=>'<strong>'+bases[t.id]+'</strong>',valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?strengthNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'})+'</div><p>'+q.attacks.map(a=>a.name+'［射程'+rangeText(a.range)+'・'+(a.area?'全体':'単体')+'］').join(' / ')+'</p>'+(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+'</p>'+enemyMatchupHTML(ctx,q,window.YggMatchup.party(ctx,member.id));
       }).join('')+(encounter.independentRespawns?'<p>1体倒すごとに報酬を獲得し、倒した枠へ次の個体が乱入します。'+encounter.members.map(member=>member.name+' '+money(E.incomeAmount(ctx,E.reward(ctx,E.enemySpec(ctx,{kind:member.id})) ))+' Rd').join(' / ')+'</p>':'<p>'+encounter.members.length+'体すべて倒すと報酬 '+money(E.reward(ctx))+' Rd。先に倒した相手はダウンしたまま待機し、討伐後に全員が復帰します。</p>');
       if(node.innerHTML!==html)node.innerHTML=html;return;
     }
@@ -1728,9 +1733,8 @@
       valueCell:t=>'<strong>'+(t.id==='action'?fullNumber(E.enemyActionValue(q)):t.id==='vitality'?strengthNumber(window.YggAbilityView.strengthLevel(q.hpStrength,D.strength,'vitality')):strength(t.id))+'</strong>',
       hp:'<small class="ability-hp">最大HP '+fullNumber(q.hp)+'</small>',ss:'<strong>'+rollText(q.ss)+'</strong>'
     })+'</div>';
-    const percent=v=>(v*100).toFixed(1)+'%',finite=v=>Number.isFinite(v)?'約'+rateFormat(v)+'回':'—';
-    const rows=forecast.rows.map(r=>'<tr><th scope="row">'+r.name+'</th><td class="matchup-hit">'+(r.reachable?'約'+percent(r.hitRate):'射程外')+'</td><td>'+(r.passive?'—':'約'+percent(r.evadeRate))+'</td><td>'+ (r.passive?'—':rateFormat(r.damageOnHit))+'</td><td>'+signed(r.hitCorrection)+' / '+signed(r.damageCorrection)+'</td><td>'+(r.apAttack?'換算前 '+rateFormat(r.averageAPDamage):rateFormat(r.averageDamage))+'</td><td>'+signed(r.enemyHitCorrection)+' / '+signed(r.enemyDamageCorrection)+'</td><td class="matchup-endurance">'+(r.passive?'攻撃なし':!r.enemyReachable?'敵の射程外':finite(r.endurance))+'</td></tr>').join('');
-    const html=(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+(q.summons?'（コグモも同じ）':'')+'</p><div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+'<h5>部隊との相性 <small>挑戦中 Lv.'+q.level+'</small></h5>'+(rows?'<div class="matchup-scroll"><table class="matchup-table"><thead><tr><th>キャラクター</th><th>命中率</th><th>回避率</th><th>平均被ダメージ<small>被弾1回</small></th><th>味方の補正<small>命中 / ダメージ</small></th><th>平均与ダメージ<small>1回の攻撃</small></th><th>敵の補正<small>命中 / ダメージ</small></th><th>耐久目安<small>敵の攻撃回数</small></th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="option-note">部隊を編成すると、仲間ごとの相性が表示されます。</p>')+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
+
+    const html=(q.combatRules?'<p>'+q.combatRules+'</p>':'')+'<p>'+E.attributeSummary(q)+(q.summons?'（コグモも同じ）':'')+'</p><div class="enemy-info-heading"><div><small>ENEMY / Lv.'+q.level+'</small><h4>'+q.enemy+'</h4></div><span>'+ (q.attackType==='mental'?'精神攻撃':q.ignoreDefense?'防御貫通':'物理攻撃')+'</span></div>'+stats+enemyMatchupHTML(ctx,q,forecast)+'<p class="matchup-note">補正は通常命中時。平均与ダメージはMISSと命中ボーナス込み。耐久は満HPからの概算（回復・気絶等を除く）。'+(q.summons?'オズモーン本体との比較。':'')+'</p>';
     if(node.innerHTML!==html)node.innerHTML=html;
   }
   function renderFormationDraft(){

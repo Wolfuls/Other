@@ -1340,10 +1340,10 @@
     if(state.enemies?.some(e=>e.hp>0)&&!targets.length)return 0;
     if(!targets.length)return average(null)*(p.areaAttack?3:1);const total=targets.reduce((n,e)=>n+average(e),0);return p.areaAttack?total:total/targets.length;
   }
-  function attackForecastProfile(state,c){
-    if(!c?.magicPower)return attackProfile(state,c);
+  function attackForecastProfile(state,c,target=null){
+    if(!c?.magicPower)return target?attackProfile(state,c,false,enemySpec(state,target),target):attackProfile(state,c);
     const m=magicState(state,c),forecast={...state,health:{...state.health,[c.id]:{...healthOf(state,c.id),magicLevel:m.maximum}}};
-    return attackProfile(forecast,c);
+    return target?attackProfile(forecast,c,false,enemySpec(forecast,target),target):attackProfile(forecast,c);
   }
   const averageAttackDamage=(state,c)=>{const p=attackForecastProfile(state,c);return p.apAttack?0:profileAverage(state,p);};
   function characterMetrics(state,c,uptime=combatUptime(state)){
