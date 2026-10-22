@@ -706,11 +706,13 @@
       if(assigned.has(id))throw new Error('同じ仲間を複数のクエストに編成できません。');assigned.add(id);
     }
     function validateProtection(value,ctx){
-      const floorClipTargetId=value.floorClipTargetId??null,floorClipSeconds=number(value.floorClipSeconds??0,'保護対象の更新待ち',0,10);
-      if(floorClipTargetId!==null&&(!E.formationIds(ctx).includes(floorClipTargetId)||floorClipSeconds===0))throw new Error('保護対象が正しくありません。');
+      const floorClipTargetId=value.floorClipTargetId??null;
+      // Legacy seconds-based protection lasts until Waku's next turn after loading.
+      const floorClipTurns=value.floorClipTurns===undefined?Number(number(value.floorClipSeconds??0,'旧保護対象の更新待ち',0,10)>0):number(value.floorClipTurns,'保護対象の残り手番',0,1,true);
+      if(floorClipTargetId!==null&&(!E.formationIds(ctx).includes(floorClipTargetId)||floorClipTurns===0))throw new Error('保護対象が正しくありません。');
       const rainbowTurns=number(value.rainbowTurns??0,'虹の装甲の残り手番',0,3,true);
       if(rainbowTurns&&!E.isDeployed(ctx,'jewel'))throw new Error('虹の装甲の対象が編成されていません。');
-      return {floorClipTargetId,floorClipSeconds,rainbowTurns};
+      return {floorClipTargetId,floorClipTurns,rainbowTurns};
     }
     function validateEnemies(value,ctx){
       if(E.getSession(ctx).medical){if(value.enemies!=null&&(!Array.isArray(value.enemies)||value.enemies.length))throw new Error('医務室に敵は配置できません。');return {enemies:value.enemies??null,nextEnemyId:0,focusedEnemyId:null};}

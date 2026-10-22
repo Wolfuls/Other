@@ -268,7 +268,7 @@
       seedLevels:Object.fromEntries(Object.keys(D.seedSystem.effects).map(k=>[k,0])),karmaSelections:{},sinTotal:0,sinBalance:0,dreamShop:false,dreamGain:0,dreamPurchases:{},pendingQuestLevels:{},
       characterUnlocks:{},defeatCounts:{},rescue:newRescue(), inventory:{}, missions:{}, muffinLevel:0, credits:0, creditsEarned:0, prestige:0, factors: D.balance.initialFactors, earned: 0, previousRunsEarned: 0, runNumber:1, kills: 0, clicks: 0, totalDamage: 0,
       viewingMemories:false, memoriesUnlocked:false, sessionId: D.sessions[0].id, hp: D.sessions[0].hp, poisonDamage:0, paused: false, battleSpeed:1, options: {...D.displayDefaults},
-      rainbowTurns:0, floorClipTargetId:null, floorClipSeconds:0, respawnSeconds:0, sessionStates:{}, enemies:null, nextEnemyId:0, focusedEnemyId:null,
+      rainbowTurns:0, floorClipTargetId:null, floorClipTurns:0, respawnSeconds:0, sessionStates:{}, enemies:null, nextEnemyId:0, focusedEnemyId:null,
       health:Object.fromEntries(D.characters.map(c=>[c.id,{hp:c.maxHP,status:'active',regenSeconds:0}])),
       formationRows:Object.fromEntries(D.characters.map(c=>[c.id,'front'])),
       formations: Object.fromEntries(D.sessions.map(s=>[s.id,null])),
@@ -281,13 +281,13 @@
       purchasedPerks: Object.fromEntries(D.characters.map(c => [c.id, []])),
       upgrades: Object.fromEntries(D.upgrades.map(u => [u.id, 0])), savedAt: now };
   }
-  const BATTLE_FIELDS=['timeline','hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId','enemies','nextEnemyId','focusedEnemyId','floorClipTargetId','floorClipSeconds','rainbowTurns'];
+  const BATTLE_FIELDS=['timeline','hp','poisonDamage','batchHpFraction','batchDamageFraction','respawnSeconds','selectedCharacterId','enemies','nextEnemyId','focusedEnemyId','floorClipTargetId','floorClipTurns','rainbowTurns'];
   const respawnDelay=()=>5;
   const isWaiting=state=>getSession(state).medical?false:state.enemies?state.enemies.every(e=>e.hp<=0):(state.respawnSeconds||0)>0;
   function battleSnapshot(state){return Object.fromEntries(BATTLE_FIELDS.map(k=>[k,k==='timeline'?structuredClone(state.timeline||newTimeline()):k==='enemies'?(state.enemies?structuredClone(state.enemies):null):state[k]??(['selectedCharacterId','focusedEnemyId','floorClipTargetId'].includes(k)?null:0)]));}
   function battleContext(state,id=state.sessionId){
     if(id===state.sessionId)return state;
-    return {...state,timeline:newTimeline(),rainbowTurns:0,floorClipTargetId:null,floorClipSeconds:0,hp:getSession(state,id).hp,poisonDamage:0,batchHpFraction:0,batchDamageFraction:0,respawnSeconds:0,selectedCharacterId:null,enemies:null,nextEnemyId:0,focusedEnemyId:null,
+    return {...state,timeline:newTimeline(),rainbowTurns:0,floorClipTargetId:null,floorClipTurns:0,hp:getSession(state,id).hp,poisonDamage:0,batchHpFraction:0,batchDamageFraction:0,respawnSeconds:0,selectedCharacterId:null,enemies:null,nextEnemyId:0,focusedEnemyId:null,
       ...state.sessionStates?.[id],sessionId:id,formations:Object.fromEntries(D.sessions.map(q=>[q.id,formationIds(state,q.id)]))};
   }
   // Only the initially viewed, untouched quest auto-fills unassigned recruits.
@@ -485,7 +485,7 @@
     for(const actorId of formationIds(ctx)){state.actionPoints[actorId]=0;}
     ctx.enemies=null;ctx.hp=maximum;ctx.poisonDamage=0;ctx.respawnSeconds=0;ensureEnemies(ctx);
     for(const [i,e]of ctx.enemies.entries())if(waits[i]>0){e.hp=0;e.respawnSeconds=waits[i];e.pendingAttack=null;}
-    if(ctx.timeline)for(const key of Object.keys(ctx.timeline.priorities))if(key.startsWith('e:'))delete ctx.timeline.priorities[key];ctx.focusedEnemyId=null;ctx.floorClipTargetId=null;ctx.floorClipSeconds=0;ctx.rainbowTurns=0;
+    if(ctx.timeline)for(const key of Object.keys(ctx.timeline.priorities))if(key.startsWith('e:'))delete ctx.timeline.priorities[key];ctx.focusedEnemyId=null;ctx.floorClipTargetId=null;ctx.floorClipTurns=0;ctx.rainbowTurns=0;
     syncFront(ctx);ctx.batchHpFraction=0;ctx.batchDamageFraction=0;
     if(id!==state.sessionId)state.sessionStates={...state.sessionStates,[id]:battleSnapshot(ctx)};
   }
@@ -727,11 +727,11 @@
 
   const enemyAttackDuration=(state,enemy=null,kind=enemy?.pendingAttack?.kind)=>enemySpec(state,enemy).attacks?.find(a=>a.id===kind)?.attackSeconds||enemySpec(state,enemy).attackSeconds||.72;
   function refreshFloorClip(state,force=false){
-    if(!supportPerks(state).some(p=>p.protectLowestHP)){if(!state.floorClipSeconds||force){state.floorClipTargetId=null;state.floorClipSeconds=0;}return;}
-    if(!force&&state.floorClipSeconds>1e-9)return;
+    if(!supportPerks(state).some(p=>p.protectLowestHP)){if(!state.floorClipTurns||force){state.floorClipTargetId=null;state.floorClipTurns=0;}return;}
+    if(!force&&state.floorClipTurns>0)return;
     const active=formationIds(state).filter(id=>canAct(state,id));
     state.floorClipTargetId=active.reduce((best,id)=>best===null||healthOf(state,id).hp<healthOf(state,best).hp?id:best,null);
-    state.floorClipSeconds=10;
+    state.floorClipTurns=1;
   }
   function enemyTargetCandidates(state,enemy=null){
     refreshFloorClip(state);
@@ -1145,6 +1145,7 @@
   function automaticTick(state,random,events){
     state.timeline||=newTimeline();const units=timelineUnits(state,random).filter(u=>!(u.actor?.magicPower&&state.timeline.manualAttacks?.some(p=>p.actorId===u.id))),chosen=smoothTurn(units,state.timeline.priorities);
     if(!chosen)return;state.timeline.turns=Math.min(1e100,state.timeline.turns+1);
+    if(chosen.side==='ally'&&chosen.id==='waku')refreshFloorClip(state,true);
     if(events)events.push({type:'timelineTurn',unitKey:chosen.key,actorId:chosen.side==='ally'?chosen.id:null,enemyId:chosen.side==='enemy'?chosen.id:null});
     if(chosen.side==='enemy'){enemyActions(state,random,events,chosen.enemy);advanceRevivalTurns(state,events);return;}
     const c=chosen.actor,count=isStunned(state,c.id)||isActionDonor(state,c)?1:Math.min(MAX_TURN_ACTIONS,chainAttackCount(freeActionChance(state,c),random));
@@ -1170,7 +1171,7 @@
       let remaining=dt;
       while(remaining>1e-10){
         const timers=contexts.filter(ctx=>!isResting(ctx)).flatMap(ctx=>ensureEnemies(ctx).flatMap(e=>[duoWaiting(ctx)?Infinity:e.respawnSeconds||Infinity,e.pendingAttack?.remaining??Infinity,isCharm(e.pendingAttack?.kind)&&!e.pendingAttack.charmApplied?Math.max(1e-9,e.pendingAttack.remaining-.48):Infinity,e.wardSeconds||Infinity]));
-        const step=Math.min(remaining,...timers.map(t=>t/speed),...contexts.map(restBoundary),...contexts.filter(ctx=>!isResting(ctx)).map(ctx=>(ctx.floorClipSeconds||Infinity)/speed));Missions.advance(state,step);advanceRescue(state,step);recoverAllies(state,step,events,contexts);remaining=Math.max(0,remaining-step);elapsed+=step;
+        const step=Math.min(remaining,...timers.map(t=>t/speed),...contexts.map(restBoundary));Missions.advance(state,step);advanceRescue(state,step);recoverAllies(state,step,events,contexts);remaining=Math.max(0,remaining-step);elapsed+=step;
         for(const h of Object.values(state.health||{}))if(h.turnSlowSeconds>0){h.turnSlowSeconds=Math.max(0,h.turnSlowSeconds-step*speed);if(h.turnSlowSeconds<1e-9){h.turnSlowSeconds=0;h.turnSlowRate=0;}}
         for(const h of Object.values(state.health||{}))elapseSummonDelay(h,step*speed);
         for(const ctx of contexts){
@@ -1184,7 +1185,7 @@
           const incomeBefore={factors:ctx.factors,earned:ctx.earned,credits:ctx.credits,creditsEarned:ctx.creditsEarned,prestige:ctx.prestige,kills:ctx.kills,totalDamage:ctx.totalDamage};
           const due=(ctx.timeline?.manualAttacks||[]).filter(p=>p.remaining<1e-9);
           if(due.length){ctx.timeline.manualAttacks=ctx.timeline.manualAttacks.filter(p=>p.remaining>=1e-9);for(const p of due)local.push(...resolveManualAttack(ctx,p,random));}
-          ctx.floorClipSeconds=Math.max(0,(ctx.floorClipSeconds||0)-step*speed);
+          // Protection expires at Waku's next automatic turn, never on a wall-clock deadline.
           const holdDown=duoWaiting(ctx);
           for(const [slot,e]of ensureEnemies(ctx).entries()){
             if(e.wardSeconds>0)e.wardSeconds=Math.max(0,e.wardSeconds-step*speed);
@@ -1220,7 +1221,7 @@
     while(elapsed<duration-1e-10){
       const deadlines=contexts.flatMap(ctx=>{
         if(isResting(ctx))return [restBoundary(ctx)];
-        return [...(ctx.timeline?.manualAttacks||[]).map(p=>p.remaining/speed),(ctx.timeline?.busySeconds||Infinity)/speed,(ctx.floorClipSeconds||Infinity)/speed,...ensureEnemies(ctx).flatMap(e=>[(duoWaiting(ctx)?Infinity:e.respawnSeconds||Infinity)/speed,(e.pendingAttack?.remaining??Infinity)/speed,(e.summonDelaySeconds||Infinity)/speed])];
+        return [...(ctx.timeline?.manualAttacks||[]).map(p=>p.remaining/speed),(ctx.timeline?.busySeconds||Infinity)/speed,...ensureEnemies(ctx).flatMap(e=>[(duoWaiting(ctx)?Infinity:e.respawnSeconds||Infinity)/speed,(e.pendingAttack?.remaining??Infinity)/speed,(e.summonDelaySeconds||Infinity)/speed])];
       });
       const step=Math.min(duration-elapsed,Math.max(1e-9,wallAt-elapsed),...deadlines.filter(t=>t>1e-8),...Object.values(state.health).map(h=>(h.summonDelaySeconds||Infinity)/speed));
       elapse(step);
