@@ -103,7 +103,7 @@ function updateDialogue(){
  if(key!==dialogueKey){dialogueKey=key;panel.classList.toggle('narration',line.speaker!=='ミロード');$('portrait').hidden=line.speaker!=='ミロード';paintPortrait(line.expression);panel.classList.remove('blocking');$('speaker').textContent=line.speaker||'';}
  const text=sceneLine?game.openingText():game.storyText();
  if($('dialogueText').textContent!==text)$('dialogueText').textContent=text;
- $('dialogueSkip').hidden=!!sceneLine;$('dialogueAuto').hidden=!!sceneLine;$('dialogueNext').hidden=false;
+ $('dialogueSkip').hidden=!!sceneLine||game.stageDialogue();$('dialogueAuto').hidden=!!sceneLine||game.stageDialogue();$('dialogueNext').hidden=false;
  const typing=text!==line.text;$('dialogueNext').classList.toggle('typing',typing);$('dialogueNext').setAttribute('aria-label',typing?'全文表示':'次へ');
 }
 $('dialogueNext').onclick=advanceMessage;

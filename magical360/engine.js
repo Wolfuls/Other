@@ -99,6 +99,7 @@ class Game{
  }
  get location(){return{chapter:this.chapter,stage:this.stage+1,area:this.area+1};}
  messagePaused(){return !!this.story&&(this.chapter===0||this.story.blocking)&&['playing','event','celebrating'].includes(this.state);}
+ stageDialogue(){return !!this.story&&!this.story.blocking;}
  setAutoDialogue(value){this.autoDialogue=!!value;if(this.story)this.story.readElapsed=0;if(this.cinematic)this.cinematic.readElapsed=0;}
  readingSeconds(text){return clamp(1.3+Array.from(text).length*.055,1.6,4.8);}
  beginStory(event){if(this.story||this.state!=='playing')return false;this.activateStory({...event,index:0});return true;}
@@ -161,7 +162,7 @@ class Game{
   this.storyQueue=this.storyQueue.filter(e=>this.storyValid(e));this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
   if(this.story?.reaction&&!this.storyValid(this.story)){this.story=null;this.storyScene=null;}
   const urgent=this.storyQueue[0];if(this.story&&!this.story.blocking&&urgent?.priority>=50&&urgent.priority>(this.story.priority||0)){if(!this.story.reaction)this.storyQueue.push(this.story);this.story=null;this.storyScene=null;}
-  if(this.story){const full=this.storyText()===this.story.lines[this.story.index].text;this.story.elapsed+=dt;if(full)this.story.readElapsed+=dt;if((this.autoDialogue||this.story.auto)&&this.story.readElapsed>=this.readingSeconds(this.story.lines[this.story.index].text))this.advanceStory();}
+  if(this.story){const full=this.storyText()===this.story.lines[this.story.index].text;this.story.elapsed+=dt;if(full)this.story.readElapsed+=dt;if((this.stageDialogue()||this.autoDialogue||this.story.auto)&&this.story.readElapsed>=this.readingSeconds(this.story.lines[this.story.index].text))this.advanceStory();}
   if(!this.story&&this.state==='playing'&&this.storyQueue.length&&this.storyGap<=0){const next=this.storyQueue[0];if(next.blocking&&!this.player.grounded)return;if(next.safe&&this.enemies.some(e=>e.state==='alive'&&Math.abs(e.x-this.player.x)<190))return;this.activateStory(this.storyQueue.shift());}
  }
  chapterEvent(id){return CONTENT.chapterOne.find(e=>e.id===id);}
