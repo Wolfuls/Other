@@ -1,6 +1,6 @@
 {
   "name": "yggclicker",
-  "version": "0.89.34",
+  "version": "0.89.36",
   "private": true,
   "description": "Local-first incremental fan game prototype for Yggdrasill RW",
   "scripts": {

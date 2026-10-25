@@ -3,7 +3,7 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,character:c,faces,ready,enable,neutralHealth}=require('./current-fixtures.cjs');
 function symptom(s,id,value){s.runaway[id].runawayRate=75;s.runaway[id].runawaySymptom=value;}
 test('assigned activation types and provisional pressure values match the roster',()=>{
- for(const [id,type,pressure]of [['meta','awakening',.02],['richter','awakening',.02],['jewel','awakening',.02],['vishunal','reaction',.01],['waku','reaction',.01],['tordeliese','recovery',.005],['max','recovery',.005]]){const s=ready([id]);assert.equal(s.runaway[id].activationType,type);assert.equal(E.runawayPressure(s,c(id)),pressure+c(id).perks.filter(p=>p.initial).reduce((sum,p)=>sum+p.runawayPressure,0));}
+ for(const [id,type,pressure]of [['meta','awakening',.02],['richter','awakening',.02],['jewel','awakening',.02],['vishunal','reaction',.01],['waku','reaction',.01],['max','recovery',.005]]){const s=ready([id]);assert.equal(s.runaway[id].activationType,type);assert.equal(E.runawayPressure(s,c(id)),pressure+c(id).perks.filter(p=>p.initial).reduce((sum,p)=>sum+p.runawayPressure,0));}
 });
 test('oblivion skips actions, control substitutes a self/ally/enemy attack, overload follows the attack',()=>{
  const s=ready();symptom(s,'meta','oblivion');assert.equal(E.click(s,()=>.25)[0].type,'runawaySkip');assert.equal(s.hp,35);
@@ -16,10 +16,6 @@ test('vision halves original fixed terms, memory/hearing halve totals, body halv
  symptom(s,'meta','memory');assert.equal(E.combatRoll(E.accuracySpec(s,c('meta')),faces(4)).total,Math.floor((a.flat+4)/2));
  symptom(s,'meta','hearing');assert.equal(E.combatRoll(E.evasionSpec(s,c('meta')),faces(4)).total,Math.floor((v.flat+4)/2));
  symptom(s,'meta','body');const p=E.attackProfile(s,c('meta'));assert.equal(p.resultScale,.5);assert.equal(E.scaledCombatTotal(9,p),4);
-});
-test('mind can fail an otherwise winning defense; ability/language can suppress a special perk while attack remains',()=>{
- const s=ready();symptom(s,'meta','mind');const p=E.enemyHitProfile(s,s.enemies[0],c('meta'));p.accuracySpec={flat:0,dice:0};p.evasionDice={flat:100,dice:0};assert.equal(E.rollEnemyHit(p,()=>.25).hit,true);assert.equal(E.rollEnemyHit(p,()=>.75).hit,false);
- for(const value of ['ability','language']){const a=ready(['tordeliese']);enable(a,'tordeliese','greedy-gale');symptom(a,'tordeliese',value);const ev=E.click(a,()=>.25);assert.ok(ev.some(e=>e.type==='attack'&&e.hit));assert.equal(a.enemies[0].poisonDamage,0);assert.equal(a.perkFailures,undefined);}
 });
 test('GM recipient resolves its own overload and oblivion without spending its AP',()=>{
  for(const value of ['overload','oblivion']){const s=ready(['max','meta']);s.selectedCharacterId='meta';symptom(s,'meta',value);s.timeline.priorities["a:max"]=1e6;const events=E.advance(s,.01,()=>.25);assert.ok(events.some(e=>e.delegatedBy==='max'));assert.ok(events.some(e=>e.type===(value==='overload'?'runawayDamage':'runawaySkip')));assert.equal(events.filter(e=>e.type==="timelineTurn").length,1);assert.doesNotThrow(()=>S.encode(s));}

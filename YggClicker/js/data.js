@@ -3,7 +3,7 @@
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.89.34",
+  "version": "0.89.36",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -82,17 +82,7 @@
     },
     "karmaEffects": {}
   },
-  "tordelieseVisual": {
-    "sheet": "./img/tordeliese-animation-v13.png",
-    "tendrilFrames": [
-      "./img/tordeliese-tendril-1-v6.png",
-      "./img/tordeliese-tendril-2-v6.png",
-      "./img/tordeliese-tendril-3-v6.png",
-      "./img/tordeliese-tendril-4-v6.png",
-      "./img/tordeliese-tendril-5-v6.png",
-      "./img/tordeliese-tendril-6-v6.png"
-    ]
-  },
+  
   "questGrowth": {
     "costRewardMultiplier": 20,
     "costGrowth": 1.15,

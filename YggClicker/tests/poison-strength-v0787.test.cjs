@@ -1,5 +1,2 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,ready,character,roundTrip}=require('./current-fixtures.cjs');
-test('poison uses square root of personal attack strength including CP and seeds',()=>{const s=ready(['tordeliese'],'ozmorn'),c=character('tordeliese');assert.equal(E.attackProfile(s,c).poisonDamage,4);s.levels[c.id]=100;s.concentration[c.id].power=20;s.seedLevels.wrath=3;const b=E.perks(s,c).filter(p=>p.unlocked),base=Math.max(...b.map(p=>p.poisonDamage||0))+b.reduce((n,p)=>n+(p.poisonBonus||0),0);const amount=E.attackProfile(s,c).poisonDamage;assert.equal(amount,Math.floor(base*Math.sqrt(E.strengthValue(s,c,'power')/D.strength.strengthBase)));assert.ok(amount>4);s.poisonDamage=s.enemies[0].poisonDamage=amount;assert.equal(roundTrip(s).poisonDamage,amount);});
-test('old fixed poison saves still load and invalid poison is rejected',()=>{const s=ready(['tordeliese'],'ozmorn');for(const n of [0,4,8,12,16]){s.poisonDamage=s.enemies[0].poisonDamage=n;assert.equal(roundTrip(s).poisonDamage,n);}s.enemies[0].poisonDamage=-1;assert.throws(()=>roundTrip(s));});
-

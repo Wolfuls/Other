@@ -56,7 +56,6 @@ test('melee and ranged motions and conditional reattacks follow target distance'
  const s=rearBattle('waku'),c=character('waku');enable(s,'waku','monado-smash','expanded-hurtbox','next-frame');
  const far=E.attackProfile(s,c,false,E.getSession(s),s.enemies[1]);assert.equal(far.motion,'shoot');assert.equal(far.defenseReduction,0);assert.equal(far.ignoreDefense,false);assert.equal(far.evasionFailureChance,0);
  s.formationRows.waku='front';const near=E.attackProfile(s,c,false,E.getSession(s),s.enemies[0]);assert.equal(near.motion,'stab');assert.equal(near.defenseReduction,3);assert.equal(near.ignoreDefense,true);
- const t=ready(['tordeliese']);enable(t,'tordeliese','demonic-hammer');assert.equal(E.attackProfile(t,character('tordeliese')).motion,'kick');
  const m=ready(['meta','max']);enable(m,'meta','spinning-rush');assert.equal(E.attackProfile(m,character('meta')).extraAttackChance,0);m.formationRows.meta='rear';assert.equal(E.attackProfile(m,character('meta')).extraAttackChance,.25);
 });
 test('layout places rear allies behind front allies, with consistent foot anchors',()=>{

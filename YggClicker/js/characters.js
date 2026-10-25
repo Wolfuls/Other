@@ -697,122 +697,7 @@
     },
     "activationType": "reaction"
   },
-  {
-    "id": "tordeliese",
-    "defense": 0,
-    "resistance": 2,
-    "maxHP": 15,
-    "evasion": {
-      "flat": 12,
-      "dice": 1
-    },
-    "ss": {
-      "flat": 12,
-      "dice": 1
-    },
-    "downSprite": "./img/tordeliese-down-v2.png",
-    "name": "トルデリーゼ・トルンヴァルト",
-    "initials": "TT",
-    "title": "ムカデの触手",
-    "role": "猛毒・連鎖する追加攻撃",
-    "cost": 2500,
-    "powerCost": 500,
-    "actionCost": 625,
-    "dice": 3,
-    "flat": 1,
-    "action": 13,
-    "color": "#e59bab",
-    "portrait": "./img/tordeliese-standing-v7.png",
-    "description": "ムカデ型の触手で攻撃し、猛毒で仲間の攻撃にも持続ダメージを添える。",
-    "source": "ユーザー提供のキャラクター設定・参考画像",
-    "perks": [
-      {
-        "id": "greedy-gale",
-        "level": 0,
-        "cost": 0,
-        "name": "貪戻の凩",
-        "inflictPoison": true,
-        "poisonDamage": 4,
-        "poisonStrengthExponent": 0.5,
-        "description": "攻撃命中時に猛毒を付与。猛毒状態の敵は被弾ごとに4点の非接触ダメージ。攻撃強度に応じて猛毒ダメージも上昇する。",
-        "runawayPressure": 0.005,
-        "initial": true
-      },
-      {
-        "id": "retreating-wind",
-        "level": 25,
-        "cost": 300000,
-        "name": "退嬰の風",
-        "extraAttackChance": 0.3,
-        "description": "攻撃時、30%で追加攻撃。連続発動する。",
-        "runawayPressure": 0.005
-      },
-      {
-        "id": "folding-gale",
-        "name": "畳なわる颯",
-        "levelType": "accuracy",
-        "level": 50,
-        "cost": 300000,
-        "accuracyBonus": 12,
-        "poisonBonus": 4,
-        "description": "命中判定＋12、猛毒ダメージ＋4。",
-        "runawayPressure": 0.008333333333333333
-      },
-      {
-        "id": "severing-storm",
-        "level": 75,
-        "cost": 3000000,
-        "name": "断ち切る颶",
-        "flat": 12,
-        "poisonDamage": 8,
-        "description": "攻撃力＋12。猛毒ダメージを8に強化。",
-        "runawayPressure": 0.008333333333333333
-      },
-      {
-        "id": "demonic-hammer",
-        "level": 100,
-        "cost": 100000000,
-        "name": "天魔の鉄槌",
-        "ignoreDefense": true,
-        "description": "防御を無視する（貫通無効を除く）。",
-        "runawayPressure": 0.008333333333333333
-      },
-      {
-        "id": "for-whom-the-storm",
-        "name": "誰が為の颶",
-        "levelType": "action",
-        "level": 125,
-        "cost": 100000000,
-        "actionBonus": 12,
-        "poisonBonus": 4,
-        "description": "行動力＋12、猛毒ダメージ＋4。",
-        "runawayPressure": 0.013333333333333334
-      },
-      {
-        "id": "annihilation",
-        "level": 150,
-        "cost": 1000000000,
-        "name": "染滅",
-        "description": "倍差命中時、ダメージ判定＋40。",
-        "doubleHitDamage": 40,
-        "runawayPressure": 0.03333333333333333
-      }
-    ],
-    "accuracy": {
-      "flat": 20,
-      "dice": 1
-    },
-    "actionDice": {
-      "flat": 6,
-      "dice": 2
-    },
-    "downContact": {
-      "width": 252,
-      "height": 256,
-      "bottom": 236
-    },
-    "activationType": "recovery"
-  },
+  
   {
     "id": "max",
     "defense": 1,
@@ -1189,12 +1074,12 @@
       if(['spark-shot','spaghetti-code'].includes(p.id))p.description='[付加：感電] '+p.description;
     }
   }
-  const basic={hayato:[1,3],pine:[1,1],cherry:[1,3],meta:[1,3],mitsuru:[1,2],megumin:[1,3],richter:[1,3],vishunal:[1,3],tordeliese:[1,2],waku:[1,3],max:[1,3],jewel:[1,1],queen:[1,1]};
-  const ranges={meta:{'metal-blade':['attackRange',1,3],'spinning-rush':['effectRange',2,3]},mitsuru:{'spark-shot':['attackRange',3,3],'spaghetti-code':['attackRange',1,1],'radioactivity':['effectRange',1,2]},richter:{'bom-ber':['effectRange',1,3],'gx-bom':['effectRange',1,3]},tordeliese:{'retreating-wind':['effectRange',1,2],'demonic-hammer':['attackRange',1,1],'annihilation':['effectRange',1,1]},waku:{'expanded-hurtbox':['effectRange',1,1],'monado-smash':['effectRange',1,1],'invisible-wall':['effectRange',1,1],'vanishing-hitbox':['effectRange',1,1],'full-screen-hurtbox':['effectRange',1,3],'next-frame':['effectRange',1,1]},jewel:{'crimson-fist':['effectRange',1,1],'crystal-radiance':['effectRange',1,3],'adamant-fist':['effectRange',1,1],'rainbow-armor':['effectRange',1,1]},queen:{'queens-bless':['attackRange',1,3],'insolent':['attackRange',1,3],'killer-queen':['effectRange',1,3]}};
+  const basic={hayato:[1,3],pine:[1,1],cherry:[1,3],meta:[1,3],mitsuru:[1,2],megumin:[1,3],richter:[1,3],vishunal:[1,3],waku:[1,3],max:[1,3],jewel:[1,1],queen:[1,1]};
+  const ranges={meta:{'metal-blade':['attackRange',1,3],'spinning-rush':['effectRange',2,3]},mitsuru:{'spark-shot':['attackRange',3,3],'spaghetti-code':['attackRange',1,1],'radioactivity':['effectRange',1,2]},richter:{'bom-ber':['effectRange',1,3],'gx-bom':['effectRange',1,3]},waku:{'expanded-hurtbox':['effectRange',1,1],'monado-smash':['effectRange',1,1],'invisible-wall':['effectRange',1,1],'vanishing-hitbox':['effectRange',1,1],'full-screen-hurtbox':['effectRange',1,3],'next-frame':['effectRange',1,1]},jewel:{'crimson-fist':['effectRange',1,1],'crystal-radiance':['effectRange',1,3],'adamant-fist':['effectRange',1,1],'rainbow-armor':['effectRange',1,1]},queen:{'queens-bless':['attackRange',1,3],'insolent':['attackRange',1,3],'killer-queen':['effectRange',1,3]}};
   for(const c of characters){c.attackRange=basic[c.id];for(const p of c.perks){const r=ranges[c.id]?.[p.id];if(r)p[r[0]]=r.slice(1);if(p.id==='metal-blade')p.name='レアメタルブレード';}}
   for(const c of characters)c.perks.push({id:'covering',name:'カバーリング',level:1,common:true,covering:true,cost:0,runawayPressure:0,description:'前衛時のみ有効。後衛への物理攻撃を自身の防御で肩代わりし、回避せず自動命中となる。'});
   for(const c of characters)c.perks.push({id:'revival-burst',name:'復活バースト',level:1,common:true,autoRevive:true,cost:0,runawayPressure:0,description:'ON時、戦闘クエスト参加中にHPでダウンすると、因子を支払い、所属セッションの敵味方合計10手後（手番が進まない場合は10秒後）にHP全回復で自動復帰する。'});
-  const recruitment={pine:['prestige',150,'factors',16000],richter:['credits',100000,'credits',50000],meta:['kills',1,'credits',500],megumin:['factors',50,'credits',5000],mitsuru:['prestige',10,'prestige',10],vishunal:['prestige',100,'prestige',100],tordeliese:['prestige',50,'credits',25000],waku:['prestige',10,'credits',20000],cherry:['credits',25000,'credits',10000],jewel:['credits',1000000,'credits',300000],max:['prestige',100,'credits',500000],queen:['prestige',1000000,'prestige',1000000]};
+  const recruitment={pine:['prestige',150,'factors',16000],richter:['credits',100000,'credits',50000],meta:['kills',1,'credits',500],megumin:['factors',50,'credits',5000],mitsuru:['prestige',10,'prestige',10],vishunal:['prestige',100,'prestige',100],waku:['prestige',10,'credits',20000],cherry:['credits',25000,'credits',10000],jewel:['credits',1000000,'credits',300000],max:['prestige',100,'credits',500000],queen:['prestige',1000000,'prestige',1000000]};
   for(const c of characters)if(recruitment[c.id]){const [resource,amount,currency,price]=recruitment[c.id];c.recruitUnlock={resource,amount};c.hireCurrency=currency;c.hirePrice=price;delete c.unlockEarned;delete c.unlockCreditsEarned;}
   if(typeof module!=='undefined'&&module.exports)module.exports=characters;else root.YggCharacters=characters;
 })(typeof window!=='undefined'?window:globalThis);

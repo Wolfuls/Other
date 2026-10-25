@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data'),E=require('../js/engine'),S=require('../js/save');
 const UI=require('../js/display');
-test('large AP balances keep stateful cloud actions bounded and retain unprocessed AP',()=>{const s=ready(['tordeliese']);s.questLevels.ozmorn=200;s.questActiveLevels.ozmorn=200;E.setQuestLevel(s,'ozmorn',199);E.setQuestLevel(s,'ozmorn',200);s.actionPoints.tordeliese=1e12;const events=E.advance(s,1,faces(4));assert.ok(s.actionPoints.tordeliese>1e11);assert.ok(events.length<=125);assert.doesNotThrow(()=>S.encode(s));});
+test('large AP balances keep stateful cloud actions bounded and retain unprocessed AP',()=>{const s=ready(['hayato']);s.questLevels.ozmorn=200;s.questActiveLevels.ozmorn=200;E.setQuestLevel(s,'ozmorn',199);E.setQuestLevel(s,'ozmorn',200);s.actionPoints.hayato=1e12;const events=E.advance(s,1,faces(4));assert.ok(s.actionPoints.hayato>1e11);assert.ok(events.length<=125);assert.doesNotThrow(()=>S.encode(s));});
 const c=id=>D.characters.find(c=>c.id===id),faces=(...v)=>()=>((v.shift()??4)-.5)/6;
 function ready(ids=[]){const s=E.createState(1000);s.factors=1e9;for(const id of ids)s.levels[id]=1;E.refreshQuestUnlocks(s);E.setFormation(s,'ozmorn',ids);E.selectSession(s,'ozmorn');E.ensureEnemies(s);return s;}
 function spawn(s,count=1){for(let i=0;i<count;i++){if(i)E.selectEnemy(s,s.enemies[0].id);E.click(s,faces(4));}return s.enemies.filter(e=>e.kind==='kogumo'&&e.hp>0);}

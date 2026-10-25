@@ -5,12 +5,33 @@
   const E = commonJS ? require('./engine.js') : root.YggEngine;
   const N = commonJS ? require('./numbers.js') : root.YggNumbers;
   // Neither repository name nor pathname participates in the save key.
-  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 64;
+  const KEY = 'yggclicker.save', BACKUP_KEY = 'yggclicker.backup', VERSION = 65;
   const retiredSessionHP = { practice:10, patrol:40, heavy:150 };
   const RETIRED = ['hollow', 'jamie'];
   const MAX_BYTES = 1024 * 1024;
-  const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"tordeliese":{"greedy-gale":30000,"retreating-wind":300000,"severing-storm":3000000,"demonic-hammer":100000000,"annihilation":1000000000,"folding-gale":300000,"for-whom-the-storm":100000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
+  const legacyPerkCostsV33={"meta":{"attack-plus":50,"mohican-slayer":1000,"metal-blade":50000,"metal-storm":30000,"full-metal-burst":30000000,"lock-plus":50,"spinning-rush":50000,"metal-shield":1000},"richter":{"z-bom":100,"dx-bom":1000,"bom-ber":10000,"vx-bom":3000000,"ex-bom":100000000},"vishunal":{"legal-launcher":15000,"mad-dog":150000,"missile-missile":3000000},"max":{"gm":0,"western-munchkin":100000,"handout":1000000,"plot-armor":10000000,"mouth-wrestling":100000000,"named-npc":1000000000},"waku":{"expanded-hurtbox":50000,"invisible-wall":500000,"monado-smash":5000000,"next-frame":500000000,"deceptive-hitbox":50000,"floor-clip":500000,"vanishing-hurtbox":5000000,"vanishing-hitbox":500000000,"full-screen-hurtbox":500000000},"jewel":{"side-income":0,"crimson-fist":100000,"adamant-fist":1000000,"rainbow-armor":1000000000,"crystal-radiance":10000000,"yellow-glow":100000,"iolite-shield":10000000,"black-egg":1000000000}};
+  // Only the retired ID remains, to safely import saves from older releases.
+  function removeRetiredCharacter(input){
+    const id='tordeliese',state=structuredClone(input);
+    // Dispatches containing the retired member return their other members to standby.
+    for(const [key,mission]of Object.entries(state.missions||{}))if(mission?.members?.includes(id))delete state.missions[key];
+    for(const battle of [state,...Object.values(state.sessionStates||{})]){
+      // Retire the character's lingering poison as well as their roster entries.
+      battle.poisonDamage=0;
+      if(battle.selectedCharacterId===id)battle.selectedCharacterId=null;
+      if(battle.floorClipTargetId===id){battle.floorClipTargetId=null;battle.floorClipTurns=0;battle.floorClipSeconds=0;}
+      if(battle.timeline){delete battle.timeline.priorities?.['a:'+id];if(Array.isArray(battle.timeline.manualAttacks))battle.timeline.manualAttacks=battle.timeline.manualAttacks.filter(a=>a.actorId!==id);}
+      for(const enemy of battle.enemies||[]){enemy.poisonDamage=0;if(enemy.pendingAttack&&(enemy.pendingAttack.targetId===id||enemy.pendingAttack.coveredTargetId===id))enemy.pendingAttack=null;if(enemy.tauntId===id)delete enemy.tauntId;}
+    }
+    function clean(value){
+      if(Array.isArray(value))return value.filter(v=>v!==id).map(clean);
+      if(value&&typeof value==='object')return Object.fromEntries(Object.entries(value).filter(([key])=>key!==id).map(([key,v])=>[key,clean(v)]));
+      return value;
+    }
+    return clean(state);
+  }
   const migrations = {
+    64(document){return {...document,state:removeRetiredCharacter(document.state),schemaVersion:65};},
     63(document){const state=structuredClone(document.state),oldIds=state.formations?.infirmary||[];state.formations=Object.fromEntries(D.sessions.map(q=>[q.id,q.id==='infirmary'?[]:E.formationIds(state,q.id)]));for(const id of oldIds)if(state.health?.[id])state.health[id].regenSeconds=0;state.sessionStates={...state.sessionStates};delete state.sessionStates.infirmary;if(state.sessionId==='infirmary'){state.selectedCharacterId=null;state.timeline=E.newTimeline();state.floorClipTargetId=null;state.floorClipSeconds=0;state.rainbowTurns=0;}return {...document,state,schemaVersion:64};},
     62(document){return {...document,schemaVersion:63};},
     61(document){
@@ -114,7 +135,7 @@
     41(document){
       const old=record(document.state,'旧セーブ'),perkEnabled=structuredClone(old.perkEnabled||{});
       // Preserve choices for previously available perks; enable newly initial ones.
-      for(const [id,key,previousLevel]of [['vishunal','mad-dog',25],['tordeliese','greedy-gale',10]]){
+      for(const [id,key,previousLevel]of [['vishunal','mad-dog',25]]){
         const available=(old.levels?.[id]||0)>=previousLevel||(old.unlockedPerks?.[id]||[]).includes(key)||(old.purchasedPerks?.[id]||[]).includes(key);
         perkEnabled[id]||={};if(!available)perkEnabled[id][key]=true;
       }
@@ -397,7 +418,7 @@
       const timers = record(oldState.timers, '旧攻撃待ち時間');
       const levels = record(oldState.levels, '旧威力レベル');
       // Freeze historical intervals: current base action may now be zero.
-      const oldIntervals = { meta: 1.8, richter:4, vishunal:4, tordeliese:1.25, max:2, hollow: 2.4, jamie: 3.5 };
+      const oldIntervals = { meta: 1.8, richter:4, vishunal:4, max:2, hollow: 2.4, jamie: 3.5 };
       for (const values of [speedLevels, timers]) {
         if (Object.keys(values).some(id => !D.characters.some(c => c.id === id) && !RETIRED.includes(id))) throw new Error('未対応のキャラクターが含まれています。');
       }
@@ -821,6 +842,7 @@
       error.code = 'NEWER_VERSION';
       throw error;
     }
+    if(document.schemaVersion<65)document={...document,state:removeRetiredCharacter(document.state)};
     while (document.schemaVersion < VERSION) {
       const migration = migrations[document.schemaVersion];
       if (!migration) throw new Error('この旧形式にはまだ対応していません。');

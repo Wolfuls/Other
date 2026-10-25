@@ -19,17 +19,6 @@ for(const [id,perk]of [['meta','metal-storm'],['richter','bom-ber'],['vishunal',
  const events=E.click(s,()=>.5),hits=events.filter(e=>e.type==='attack'&&!e.poisonTick);assert.equal(hits.length,3);assert.equal(new Set(hits.map(e=>e.enemyId)).size,3);assert.equal(hits.filter(e=>!e.continuation).length,1);
  E.setFormation(s,'mohican-solo',[id]);E.selectSession(s,'mohican-solo');assert.equal(E.attackProfile(s,c(id)).areaAttack,false);
 });
-test('poison starts only on a hit, triggers once per attack and cannot reach a replacement victim',()=>{
- const s=ready(['tordeliese','meta']);enable(s,'tordeliese','greedy-gale');
- const hit=E.click(s,()=>.5);assert.equal(hit.filter(e=>e.poisonTick).length,1);assert.equal(s.enemies[0].poisonDamage,4);
- s.questLevels.scarecrow=600;s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',600);s.enemies[0].poisonDamage=4;const hp=s.hp,miss=E.click(s,()=>.5);assert.equal(miss[0].hit,false);assert.equal(s.hp,hp);assert.equal(miss.some(e=>e.poisonTick),false);
- s.timeline.busySeconds=0;E.setQuestLevel(s,'scarecrow',1);s.enemies[0].hp=1;E.click(s,()=>.5);assert.equal(s.enemies[0].poisonDamage,0);assert.equal(s.enemies[0].respawnSeconds,5);
-});
-test('poison strength follows its three upgrade tracks and OFF removes only future application',()=>{
- const s=ready(['tordeliese']);enable(s,'tordeliese','greedy-gale','severing-storm','demonic-hammer','annihilation','folding-gale','for-whom-the-storm');
- const p=E.attackProfile(s,c('tordeliese'));assert.equal(p.poisonDamage,Math.floor(16*Math.sqrt(E.strengthValue(s,c('tordeliese'),'power')/D.strength.strengthBase)));assert.equal(p.doubleHitDamage,40);assert.equal(p.accuracy.flat,32);
- s.enemies[0].poisonDamage=16;E.togglePerk(s,'tordeliese','greedy-gale',false);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,0);assert.equal(s.enemies[0].poisonDamage,16);
-});
 test('GM selects the chosen ally, gives a free action and falls back to normal Max attacks alone',()=>{
  const s=ready(['max','meta']);s.selectedCharacterId='meta';s.timeline.priorities["a:max"]=1e6;s.actionPoints.meta=0;
  const events=E.advance(s,1,()=>.5);assert.ok(events.some(e=>e.delegatedBy==='max'&&e.actorId==='meta'));assert.equal(events.filter(e=>e.type==="timelineTurn").length,1);

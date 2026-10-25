@@ -14,14 +14,6 @@ test('all quests and summons use challenge level minus one, keeping zero-action 
   if(q.summons)assert.equal(E.enemyActionPower(s,13,s.enemies[1]),N.floor(13*(E.T.enemyValue(lv-1)/100)));
  }}
 });
-test('fixed perk bonuses are grown before concentration; a downed unit keeps its forecast but cannot gain AP',()=>{
- const s=ready(['tordeliese']);enable(s,'tordeliese','for-whom-the-storm');const c=character('tordeliese');
- const grown=N.floor((c.action+12)*(1+.08*124));
- assert.equal(E.actionPower(s,c),grown);s.concentration[c.id].action=2;
- assert.equal(E.actionPower(s,c),N.floor((c.action+12)*(1+.08*124)));
- s.health[c.id].status='unconscious';assert.equal(E.actionPower(s,c),0);
- assert.equal(E.actionPower(s,c,c.action,true),N.floor(c.action*(1+.08*124)));
-});
 test('action metrics retain the growth curve without AP accumulation',()=>{
  const s=ready(['meta']);s.levels.meta=51;const c=character('meta'),expected=N.floor(c.action*5);
  assert.equal(E.characterMetrics(s,c).action,expected);assert.equal(E.actionPower(roundTrip(s),c),expected);

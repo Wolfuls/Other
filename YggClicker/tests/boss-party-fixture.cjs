@@ -1,4 +1,4 @@
-// Reproducible combat-only balance fixture; no player save/history is required.
+// Reproducible combat-only balance fixture.
 module.exports={
   "levels": {
     "meta": 150,
@@ -6,7 +6,6 @@ module.exports={
     "megumin": 261,
     "vishunal": 123,
     "richter": 118,
-    "tordeliese": 124,
     "waku": 232,
     "max": 244,
     "jewel": 116,
@@ -50,14 +49,6 @@ module.exports={
       "accuracy": 0,
       "evasion": 0,
       "power": 30,
-      "vitality": 0,
-      "armor": 0
-    },
-    "tordeliese": {
-      "action": 0,
-      "accuracy": 0,
-      "evasion": 0,
-      "power": 0,
       "vitality": 0,
       "armor": 0
     },
@@ -139,15 +130,6 @@ module.exports={
       "gx-bom": true,
       "vx-bom": true,
       "ex-bom": true
-    },
-    "tordeliese": {
-      "greedy-gale": true,
-      "retreating-wind": true,
-      "folding-gale": true,
-      "severing-storm": true,
-      "demonic-hammer": true,
-      "for-whom-the-storm": false,
-      "annihilation": false
     },
     "waku": {
       "deceptive-hitbox": true,
@@ -282,25 +264,6 @@ module.exports={
         "150": true
       }
     },
-    "tordeliese": {
-      "runawayRate": 0,
-      "criticalReserve": 0,
-      "activationType": "recovery",
-      "runawayCollapsed": false,
-      "runawaySymptom": null,
-      "baseRunawayPressure": 0.005,
-      "temporaryRunawayPressure": 0,
-      "thresholdArmedState": {
-        "50": true,
-        "70": true,
-        "90": true,
-        "110": true,
-        "120": true,
-        "130": true,
-        "140": true,
-        "150": true
-      }
-    },
     "waku": {
       "runawayRate": 18.014043265592147,
       "criticalReserve": 0,
@@ -393,7 +356,6 @@ module.exports={
     "megumin": "rear",
     "vishunal": "front",
     "richter": "front",
-    "tordeliese": "front",
     "waku": "front",
     "max": "rear",
     "jewel": "front",
@@ -444,14 +406,6 @@ module.exports={
       "vx-bom",
       "ex-bom",
       "gx-bom"
-    ],
-    "tordeliese": [
-      "greedy-gale",
-      "retreating-wind",
-      "severing-storm",
-      "demonic-hammer",
-      "folding-gale",
-      "for-whom-the-storm"
     ],
     "waku": [
       "deceptive-hitbox",

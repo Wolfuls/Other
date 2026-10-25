@@ -2,12 +2,12 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {ready,enable}=require('./current-fixtures.cjs'),UI=require('../js/display'),{harness}=require('./app-harness.cjs');
 
-test('Megumin uses the same ground anchor as Meta and Tordeliese after shrinking at either breakpoint',()=>{
+test('Megumin uses the same ground anchor as Meta and Waku after shrinking at either breakpoint',()=>{
  for(const mobile of [false,true])for(const width of [390,1280]){
-  const l=UI.orbitLayout({width,mobile,grounded:true,metaHired:true,tordelieseHired:true,meguminHired:true,metaCount:0});
+  const l=UI.orbitLayout({width,mobile,grounded:true,metaHired:true,wakuHired:true,meguminHired:true,metaCount:0});
   assert.equal(l.megumin.y+l.megumin.footOffset,l.meta.y+l.meta.footOffset);
-  assert.equal(l.megumin.y+l.megumin.footOffset,l.tordeliese.y+l.tordeliese.footOffset);
-  assert.ok(l.megumin.spriteSize<l.tordeliese.spriteSize&&l.megumin.spriteSize<=200);
+  assert.equal(l.megumin.y+l.megumin.footOffset,l.waku.y+l.waku.footOffset);
+  assert.ok(l.megumin.spriteSize<l.waku.spriteSize&&l.megumin.spriteSize<=200);
   assert.ok(l.megumin.y-l.megumin.height/2>=0);
  }
 });

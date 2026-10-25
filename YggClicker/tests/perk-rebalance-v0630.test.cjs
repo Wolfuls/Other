@@ -5,7 +5,6 @@ const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-10,`${a} != ${b}`);
 const active=(s,id,key)=>E.perks(s,c(id)).find(p=>p.id===key).unlocked;
 const tables={
  vishunal:[['mad-dog',0,1],['legal-launcher',25,1],['missile-missile',75,1],['rabid-dog',100,0]],
- tordeliese:[['greedy-gale',0,.3],['retreating-wind',25,.3],['folding-gale',50,.5],['severing-storm',75,.5],['demonic-hammer',100,.5],['for-whom-the-storm',125,.8],['annihilation',150,2]],
  max:[['gm',0,.2],['handout',25,.5],['plot-armor',50,.5],['mouth-wrestling',75,.8],['named-npc',100,1]],
  jewel:[['side-income',0,0],['yellow-glow',10,.1],['crimson-fist',25,.1],['crystal-radiance',50,.3],['iolite-shield',75,.4],['adamant-fist',100,.6],['rainbow-armor',125,1],['black-egg',150,1.2]]
 };
@@ -62,12 +61,6 @@ test('off-screen misfires remain in their own session and credit kills/damage ex
  const hp=s.enemies[0].hp,before=s.kills,damage=s.totalDamage;s.health.meta.stunTurns=5;const ev=E.advance(s,1,()=>.75);
  const hits=ev.filter(e=>e.type==='attack'&&e.actorId==='vishunal');assert.equal(hits.length,1);assert.equal(hits[0].sessionId,'mohican-solo');assert.equal(s.enemies[0].hp,hp);assert.equal(s.kills,before+1);assert.equal(s.totalDamage,damage+hits[0].hpBefore);assert.equal(s.sessionStates['mohican-solo'].enemies[0].hp,0);assert.doesNotThrow(()=>S.encode(s));
 });
-test('Tordeliese applies poison from hire, never on a miss, and additive poison bonuses survive the new levels',()=>{
- const s=ready(['tordeliese']);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,4);
- const miss=E.click(s,faces(1,6,6,6,6,5));assert.equal(miss.find(e=>e.type==='attack').hit,false);assert.equal(s.enemies[0].poisonDamage,0);
- for(const [key,expected]of [['folding-gale',8],['severing-storm',12],['for-whom-the-storm',16]]){enable(s,'tordeliese',key);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,Math.floor(expected*Math.sqrt(E.strengthValue(s,c('tordeliese'),'power')/D.strength.strengthBase)));}
- E.togglePerk(s,'tordeliese','greedy-gale',false);assert.equal(E.attackProfile(s,c('tordeliese')).poisonDamage,0);
-});
 test('Plot Armor AP die is trained, Handout stays selected-only, and GM never shares attack levels',()=>{
  const s=ready(['max','meta']);enable(s,'max','plot-armor');s.levels.meta=51;const m=c('meta');
  assert.equal(E.actionPower(s,m,15,false,faces(4)),95);near(E.actionPower(s,m,15),92.5);
@@ -77,11 +70,11 @@ test('Plot Armor AP die is trained, Handout stays selected-only, and GM never sh
 });
 test('schema41 adds initial perks only when previously unavailable, preserves toggle choices and strips Western Munchkin',()=>{
  for(const previous of [false,true])for(const enabled of [false,true]){
-  const s=ready(['vishunal','tordeliese','max']);
-  for(const [id,key,level]of [['vishunal','mad-dog',25],['tordeliese','greedy-gale',10]]){s.levels[id]=previous?level:1;s.perkEnabled[id][key]=enabled;s.unlockedPerks[id]=previous?[key]:[];}
-  s.perkEnabled.max['western-munchkin']=true;s.purchasedPerks.max=['western-munchkin'];s.unlockedPerks.max=['western-munchkin'];s.health.tordeliese={hp:-2,status:'dying',regenSeconds:3};s.runaway.max.runawayRate=22;
+  const s=ready(['vishunal','max']);
+  for(const [id,key,level]of [['vishunal','mad-dog',25]]){s.levels[id]=previous?level:1;s.perkEnabled[id][key]=enabled;s.unlockedPerks[id]=previous?[key]:[];}
+  s.perkEnabled.max['western-munchkin']=true;s.purchasedPerks.max=['western-munchkin'];s.unlockedPerks.max=['western-munchkin'];s.runaway.max.runawayRate=22;
   const loaded=S.decode(JSON.stringify({gameId:D.gameId,schemaVersion:41,state:s}));
-  assert.equal(loaded.perkEnabled.vishunal['mad-dog'],previous?enabled:true);assert.equal(loaded.perkEnabled.tordeliese['greedy-gale'],previous?enabled:true);
+  assert.equal(loaded.perkEnabled.vishunal['mad-dog'],previous?enabled:true);
   assert.equal(loaded.perkEnabled.max['western-munchkin'],undefined);assert.equal(loaded.purchasedPerks.max.includes('western-munchkin'),false);assert.equal(loaded.unlockedPerks.max.includes('western-munchkin'),false);
   assert.deepEqual(loaded.health,s.health);assert.deepEqual(loaded.runaway,s.runaway);assert.equal(loaded.factors,s.factors);assert.equal(loaded.earned,s.earned);assert.deepEqual(roundTrip(loaded),loaded);
  }

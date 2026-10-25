@@ -153,8 +153,8 @@
 /* Dedicated combat layers keep translucency from moving FX behind sprites. */
 #damage-floats{position:absolute;inset:0;z-index:40;pointer-events:none}
 .ally-down-sprite{display:none;position:absolute;left:50%;bottom:calc(50% - var(--down-foot,var(--body-foot,75px)));transform:translate(-50%,var(--down-bottom-gap,0%));width:var(--down-width,160px);height:auto;z-index:3;pointer-events:none}
-.downed .ally-down-sprite{display:block}.downed>.meta-body,.downed>.max-float,.downed>.tordeliese-standing{visibility:hidden}
-#meta-combatant{--down-width:128px}#richter-combatant{--down-width:185px}#vishunal-combatant{--down-width:96px}#tordeliese-combatant{--down-width:170px}#max-combatant{--down-width:166px}
+.downed .ally-down-sprite{display:block}.downed>.meta-body,.downed>.max-float{visibility:hidden}
+#meta-combatant{--down-width:128px}#richter-combatant{--down-width:185px}#vishunal-combatant{--down-width:96px}#max-combatant{--down-width:166px}
 .ally-health,.enemy-health{position:absolute;display:block;left:50%;transform:translateX(-50%);min-width:94px;padding:3px 5px 5px;white-space:nowrap;line-height:1.2;font:12px var(--mono);color:#f1f5ef;background:#071014c9;border-radius:3px;z-index:7;pointer-events:none}
 .ally-health{top:calc(50% + var(--down-foot,var(--body-foot,75px)) + 7px)}.enemy-health{top:calc(50% + var(--enemy-foot) + 7px)}
 .ally-vitals{position:absolute;top:calc(50% + var(--down-foot,var(--body-foot,75px)) + 7px);left:50%;transform:translateX(-50%);min-width:94px;z-index:7;pointer-events:none}
@@ -196,7 +196,7 @@
 .soul-drain::after{content:'';position:absolute;left:25%;right:25%;height:45%;top:50%;background:linear-gradient(#b5ffe970,transparent);border-radius:50%;filter:blur(4px)}
 @keyframes soul-extract{0%{transform:translate(0,0) scale(1);opacity:0}18%{transform:translate(0,-25px) scale(1);opacity:.85}72%{opacity:.7}100%{transform:translate(var(--soul-x),var(--soul-y)) scale(.06);opacity:0}}
 .enemy-paused .soul-drain{animation-play-state:paused}
-.ally-hit .meta-body,.ally-hit .vishunal-body,.ally-hit .tordeliese-body,.ally-hit .max-body{filter:brightness(1.8) sepia(.6) saturate(1.5)}
+.ally-hit .meta-body,.ally-hit .vishunal-body,.ally-hit .max-body{filter:brightness(1.8) sepia(.6) saturate(1.5)}
 #revive-dialog{width:min(520px,calc(100vw - 32px))}#revive-cost{font-variant-numeric:tabular-nums;color:#ffdc98}.dialog-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
 .concentration-panel{margin-top:16px;padding:14px 12px;background:#102124;border:1px solid #425752;border-radius:8px}
 .concentration-heading{display:flex;justify-content:space-between;gap:8px;align-items:center}.concentration-heading h4{margin:0;font-size:16px}.concentration-heading strong{white-space:nowrap;color:#d0edac}

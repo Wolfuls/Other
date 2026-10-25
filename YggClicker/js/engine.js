@@ -78,7 +78,6 @@
   function attackMotion(state,c,distance){
     if(c?.id==='waku')return distance===1?'stab':'shoot';
     if(c?.id==='mitsuru'&&distance===3)return 'spark';
-    if(c?.id==='tordeliese'&&distance===1&&rangedPerks(state,c,distance).some(p=>p.id==='demonic-hammer'))return 'kick';
     return 'normal';
   }
   function enemyCanReach(state,enemy,c){return inRange(enemySpec(state,enemy).attackRange,combatDistance(state,c.id,enemy,true));}
