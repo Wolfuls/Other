@@ -47,11 +47,11 @@ function openingFrame(t){
 }
 class Game{
  constructor(seed=1,options={}){this.reset(seed,options);}
- reset(seed,options={}){this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:1;this.area=0;this.room=0;this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=2;this.maxLife=2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
- emit(type,data={}){if(this.storySignals)this.storySignals.add(type);this.events.push({type,...data});}
+ reset(seed,options={}){this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:1;this.area=0;this.room=0;this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=2;this.maxLife=2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
+ emit(type,data={}){if(this.storySignals){this.storySignals.add(type);this.signalTimes[type]=this.time;}this.events.push({type,...data});}
  pick(xs){return xs[Math.floor(this.rng()*xs.length)];}
  loadStage(){
-  this.hitStop=0;this.encounter=null;this.story=null;if(this.chapter!==0)this.area=0;
+  this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter!==0)this.area=0;
   this.platforms=[];this.enemies=[];this.sweets=[];this.drops=[];this.bullets=[];this.hostile=[];this.particles=[];this.texts=[];this.swapTarget=null;this.arenaLocked=false;this.bossAwake=false;
   if(this.chapter===0){this.loadTutorial();return;}
   const runRng=this.rng;this.rng=random(9013+this.stage);
@@ -92,19 +92,37 @@ class Game{
   }else{this.worldWidth=960;this.platforms=[{x:0,y:458,w:960,h:100,ground:true}];this.exit={x:760,y:373,w:54,h:85};}
   Object.assign(this.player,{x:this.area===2?530:this.area===0&&this.room===0?315:85,y:402,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,walkPhase:0,runPhase:0,dashing:false});this.camera=0;this.emit('stage',{stage:0});if(this.area===2){this.player.inv=0;if(this.state==='playing')this.beginStory(CONTENT.farewell);}
  }
- tutorialReady(){if(this.chapter!==0)return true;if(this.story||this.storyQueue.length)return false;
-  if(this.area===0){if(this.room===0)return this.finishedStories.has('home-start')&&this.tutorialSeen.has('moved');if(this.room===1)return this.finishedStories.has('home-step')&&this.tutorialSeen.has('jumpRoute');return this.storySignals.has('firstEaten')&&this.finishedStories.has('cookie-eaten');}
-  return this.area===1?this.gardenKills>=3&&this.finishedStories.has('placed-eaten'):this.finishedStories.has('forest-sound');
+ tutorialReady(skipMessages=false){if(this.chapter!==0)return skipMessages||!this.storyEnabled||(!this.story&&this.finishedStories.has(CONTENT.chapterOneExits[this.stage]));if(!skipMessages&&(this.story||this.storyQueue.length))return false;
+  const explained=id=>skipMessages||this.finishedStories.has(id);
+  if(this.area===0){if(this.room===0)return explained('home-start')&&this.tutorialSeen.has('moved');if(this.room===1)return explained('home-step')&&this.tutorialSeen.has('jumpRoute');return this.storySignals.has('firstEaten')&&explained('cookie-eaten');}
+  return this.area===1?this.gardenKills>=3&&(skipMessages?this.storySignals.has('placedEaten'):this.finishedStories.has('placed-eaten')):this.finishedStories.has('forest-sound');
  }
  get location(){return{chapter:this.chapter,stage:this.stage+1,area:this.area+1};}
- messagePaused(){return this.chapter===0&&!!this.story&&['playing','event'].includes(this.state);}
- beginStory(event){if(this.story||this.state!=='playing')return false;this.story={...event,index:0,remaining:0};this.setStoryLine();if(event.blocking)this.state='event';if(this.chapter===0)this.emit('dialoguePause');return true;}
- setStoryLine(){const line=this.story.lines[this.story.index];this.story.elapsed=0;this.story.revealed=false;this.story.remaining=line.duration??(Array.from(line.text).length/22+1.7);if(line.se)this.events.push({type:line.se});}
+ messagePaused(){return !!this.story&&(this.chapter===0||this.story.blocking)&&['playing','event','celebrating'].includes(this.state);}
+ setAutoDialogue(value){this.autoDialogue=!!value;if(this.story)this.story.readElapsed=0;if(this.cinematic)this.cinematic.readElapsed=0;}
+ readingSeconds(text){return clamp(1.3+Array.from(text).length*.055,1.6,4.8);}
+ beginStory(event){if(this.story||this.state!=='playing')return false;this.activateStory({...event,index:0});return true;}
+ activateStory(story){this.story=story;this.seenStories.add(story.id);if(story.elapsed==null)this.setStoryLine();
+  if(story.scene)this.storyScene={kind:story.scene,t:0,x:this.player.x,actorX:clamp(this.player.x+180,this.camera+420,this.camera+660)};
+  if(story.blocking){this.state='event';this.player.vx=0;this.player.dashing=false;this.emit('presentationStart');}
+  if(this.chapter===0)this.emit('dialoguePause');
+ }
+ setStoryLine(){const line=this.story.lines[this.story.index];this.story.elapsed=0;this.story.readElapsed=0;this.story.revealed=false;this.story.remaining=line.duration??(Array.from(line.text).length/22+this.readingSeconds(line.text));if(line.se)this.events.push({type:line.se});}
  storyText(){if(!this.story)return '';const l=this.story.lines[this.story.index],n=this.story.revealed?Infinity:Math.floor(this.story.elapsed*22);return Array.from(l.text).slice(0,n).join('');}
- advanceStory(manual=false){if(!this.story)return;if(manual&&this.storyText()!==this.story.lines[this.story.index].text){this.story.revealed=true;return;}this.story.index++;if(this.story.index>=this.story.lines.length)this.finishStory();else this.setStoryLine();}
+ advanceStory(manual=false){if(!this.story)return;if(manual&&this.storyText()!==this.story.lines[this.story.index].text){this.story.revealed=true;this.story.readElapsed=0;return;}
+  if(this.story.index===this.story.lines.length-1&&this.story.minScene&&(this.storyScene?.t||0)<this.story.minScene)return;
+  this.story.index++;if(this.story.index>=this.story.lines.length)this.finishStory();else this.setStoryLine();
+ }
  skipStory(){this.finishStory(true);}
- finishStory(skipped=false){if(!this.story)return;const id=this.story.id,blocking=this.story.blocking;this.finishedStories.add(id);this.story=null;if(blocking&&this.state==='event')this.state='playing';if(this.chapter===0)this.emit('dialoguePause');if(id==='first-encounter')this.beginEncounter();if(id==='departure'){if(skipped)this.beginChapterOne();else this.beginDepartureWalk();}if(id==='tutorial-death'){this.state='lost';this.emit('lost');}}
-
+ finishStory(skipped=false){if(!this.story)return;const id=this.story.id,blocking=this.story.blocking;this.finishedStories.add(id);this.story=null;this.storyScene=null;if(blocking&&this.state==='event')this.state='playing';if(this.chapter===0||blocking)this.emit('dialoguePause');
+  if(id==='first-encounter')this.beginEncounter();
+  if(id==='departure'){if(skipped)this.beginChapterOne();else this.beginDepartureWalk();}
+  if(id==='tutorial-death'||id==='c1-death')this.finishDefeat();
+  if(id==='c1-king'){this.bossAwake=true;this.arenaLocked=true;this.player.inv=Math.max(this.player.inv,.6);}
+  if(id==='c1-feast'){this.celebration.read=true;this.state='celebrating';}
+  if(id==='c1-ending'){this.state='chapterClear';this.clearFade=0;this.emit('presentationStart');}
+  if(this.chapter===1&&!blocking)this.storyGap=.45;
+ }
  // A separate presentation clock keeps the first attack harmless and readable.
  beginEncounter(){const enemy=this.enemies.find(e=>e.lessonFirst);if(!enemy||enemy.state!=='alive'){this.storySignals.add('dodgeComplete');return;}
   const p=this.player;this.encounter={t:0,enemy,startX:p.x,approachX:480,enemyX:enemy.x,walkTime:Math.abs(480-p.x)/CFG.speed};this.state='encounter';this.bullets=[];this.hostile=[];
@@ -122,17 +140,33 @@ class Game{
  }
  beginDepartureWalk(){this.state='leaving';this.leaving={t:0,startX:this.player.x,speed:112,targetX:CFG.width+96};Object.assign(this.player,{vx:112,vy:0,facing:1,grounded:true,dashing:false,inv:0,attack:0,eat:0,hurt:0});this.camera=0;this.emit('presentationStart');}
  skipDeparture(){if(this.state==='leaving')this.beginChapterOne();}
- advanceOpening(){if(this.state!=='cinematic')return;const line=openingLine(this.cinematic.t);if(!line)return;const shown=this.cinematic.revealId===line.id||Math.floor((this.cinematic.t-line.at)*22)>=Array.from(line.text).length;if(!shown)this.cinematic.revealId=line.id;else this.cinematic.t=Math.min(OPENING.end,line.at+line.duration);}
- tickStory(dt){
-  if(this.chapter===0&&this.state==='playing')for(const e of CONTENT.story){
-   if(e.chapter!==this.chapter||e.stage!==this.stage+1||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after))continue;
-   this.seenStories.add(e.id);this.storyQueue.push({...e,index:0,remaining:0});
-  }
-  this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
-  // Urgent reactions interrupt at a readable line boundary; the remaining lines resume afterward.
-  if(this.story){this.story.elapsed+=dt;if(this.story.auto||(!this.story.blocking&&this.chapter!==0)){this.story.remaining-=dt;if(this.story.remaining<=0){this.advanceStory();if(this.story&&!this.story.blocking&&this.storyQueue[0]?.priority>(this.story.priority||0)){this.storyQueue.push(this.story);this.story=null;this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));}}}}
-  if(!this.story&&this.state==='playing'&&this.storyQueue.length){this.story=this.storyQueue.shift();if(!this.story.remaining)this.setStoryLine();if(this.story.blocking)this.state='event';if(this.chapter===0)this.emit('dialoguePause');}
+ openingCurrent(){return this.cinematic?openingLine(this.cinematic.t):null;}
+ openingText(){const line=this.openingCurrent();if(!line)return '';return Array.from(line.text).slice(0,this.cinematic.revealId===line.id?Infinity:Math.floor((this.cinematic.lineElapsed||0)*22)).join('');}
+ advanceOpening(){if(this.state!=='cinematic')return;const line=this.openingCurrent();if(!line)return;if(this.openingText()!==line.text){this.cinematic.revealId=line.id;this.cinematic.readElapsed=0;}else{this.cinematic.t=Math.min(OPENING.end,line.at+line.duration);this.cinematic.lineId=null;}}
+ tickOpening(dt){const c=this.cinematic,line=this.openingCurrent(),before=c.t;
+  if(line){if(c.lineId!==line.id){c.lineId=line.id;c.lineElapsed=0;c.readElapsed=0;}const full=this.openingText()===line.text;c.lineElapsed+=dt;if(full)c.readElapsed+=dt;c.t=Math.min(c.t+dt,line.at+line.duration-1e-6);if(this.autoDialogue&&c.t>=line.at+line.duration-1e-6&&c.readElapsed>=this.readingSeconds(line.text))this.advanceOpening();}
+  else{const next=CONTENT.openingLines.find(l=>l.at>c.t);c.t=Math.min(c.t+dt,next?next.at:OPENING.end);}
+  if(before<OPENING.transform&&c.t>=OPENING.transform)this.events.push({type:'transform'});if(c.t>=OPENING.end)this.finishOpening();
  }
+ storyValid(e){if(e.chapter!==1)return true;if(e.stage!=null&&e.stage!==this.stage+1)return false;if(e.ttl&&this.time-(this.signalTimes[e.signal]??-Infinity)>e.ttl)return false;
+  const boss=this.enemies.find(e=>e.type==='boss');if(['c1-wave','c1-rush','c1-half','c1-revived'].includes(e.id)&&boss?.state!=='alive')return false;if(e.id==='c1-cake'&&boss?.state!=='candy')return false;if(e.id==='c1-hurt'&&this.life<=1)return false;return true;
+ }
+ tickStory(dt){
+  if(this.storyScene)this.storyScene.t+=dt;this.storyGap=Math.max(0,this.storyGap-dt);
+  const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?CONTENT.chapterOne:[]);
+  if(this.state==='playing')for(const e of catalogue){
+   if(e.direct||e.chapter!==this.chapter||(e.stage!=null&&e.stage!==this.stage+1)||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after))continue;
+   this.seenStories.add(e.id);if(this.storyValid(e))this.storyQueue.push({...e,index:0});
+  }
+  this.storyQueue=this.storyQueue.filter(e=>this.storyValid(e));this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
+  if(this.story?.reaction&&!this.storyValid(this.story)){this.story=null;this.storyScene=null;}
+  const urgent=this.storyQueue[0];if(this.story&&!this.story.blocking&&urgent?.priority>=50&&urgent.priority>(this.story.priority||0)){if(!this.story.reaction)this.storyQueue.push(this.story);this.story=null;this.storyScene=null;}
+  if(this.story){const full=this.storyText()===this.story.lines[this.story.index].text;this.story.elapsed+=dt;if(full)this.story.readElapsed+=dt;if((this.autoDialogue||this.story.auto)&&this.story.readElapsed>=this.readingSeconds(this.story.lines[this.story.index].text))this.advanceStory();}
+  if(!this.story&&this.state==='playing'&&this.storyQueue.length&&this.storyGap<=0){const next=this.storyQueue[0];if(next.blocking&&!this.player.grounded)return;if(next.safe&&this.enemies.some(e=>e.state==='alive'&&Math.abs(e.x-this.player.x)<190))return;this.activateStory(this.storyQueue.shift());}
+ }
+ chapterEvent(id){return CONTENT.chapterOne.find(e=>e.id===id);}
+ beginVictory(){this.story=null;this.storyQueue=[];this.storyScene=null;this.hostile=[];this.bullets=[];this.shake=0;this.state='victoryLanding';this.celebration=null;Object.assign(this.player,{vx:0,attack:0,eat:0,hurt:0,damageBlink:0,dashing:false});this.emit('presentationStart');if(this.player.grounded)this.beginCelebration();}
+ beginCelebration(){this.state='playing';this.celebration={t:0,y:this.player.y,read:!this.storyEnabled};if(this.storyEnabled)this.beginStory(this.chapterEvent('c1-feast'));this.state='celebrating';this.player.vy=0;this.player.eat=.22;}
  tutorialHint(){if(this.chapter!==0)return '';if(this.area===0){
   if(this.room===0)return this.tutorialReady()?'ドアの前で Space：物置へ':'A / D・← / → で移動。同じ方向を2回押すとダッシュ。';
   if(this.room===1)return this.tutorialReady()?'ドアの前で Space：奥の部屋へ':'W / ↑ でジャンプ。家具を越えて奥のドアへ。';
@@ -150,13 +184,16 @@ class Game{
   if(this.life===this.maxLife)this.happiness=Math.min(99,this.happiness+value);
   else if(this.happiness+value>=100){this.happiness=0;this.life=Math.min(this.maxLife,this.life+1);this.emit('heal');this.popup('♥ +1',this.player.x,this.player.y-25,'#f3aeba');}
   else this.happiness+=value;
-  if(s.placedLesson)this.storySignals.add('placedEaten');if(s.enemy){if(s.enemy.garden){this.gardenKills++;if(this.gardenKills>=3)this.storySignals.add('gardenCleared');}if(s.enemy.lessonFirst)this.storySignals.add('firstEaten');this.storySignals.add('enemyEaten');s.enemy.state='dead';this.defeated++;if(s.enemy.type==='boss'){this.state='celebrating';this.hostile=[];this.bullets=[];this.celebration={t:0,y:this.player.y};Object.assign(this.player,{vx:0,vy:0,attack:0,hurt:0,damageBlink:0,dashing:false});this.emit('presentationStart');}}
+  if(s.placedLesson)this.storySignals.add('placedEaten');if(s.enemy){if(s.enemy.garden){this.gardenKills++;if(this.gardenKills>=3)this.storySignals.add('gardenCleared');}if(s.enemy.lessonFirst)this.storySignals.add('firstEaten');this.storySignals.add('enemyEaten');s.enemy.state='dead';this.defeated++;if(s.enemy.type==='boss'){this.beginVictory();}}
+  if(this.chapter===1&&s.enemy&&s.enemy.type!=='boss'&&this.stage===0)this.emit('forestMeal');if(this.chapter===1&&!s.enemy&&s.y<CFG.ground-65)this.emit('sideSweet');
   this.popup('+'+value+'%',s.x,s.y-6,'#efd396');this.burst(s.x+10,s.y+9,SWEETS[s.kind].color,9);this.emit('eat',{kind:s.kind});
  }
  transform(e,wand){if(e.state!=='alive')return;e.state='candy';e.candyTime=CFG.candySeconds;const boss=e.type==='boss';let choices=TABLES[e.type];if(wand==='sugar'&&!boss)choices=['cookie','macaron','cake','pudding'];const kind=boss?'cake':e.lessonFirst?'cookie':e.candyKind||this.pick(choices);const s=this.sweet(e.x+e.w/2-11,e.y+e.h-20,kind,e);
-  if(boss){s.scale=BOSS.cakeScale;s.w=22*s.scale;s.h=24*s.scale;s.x=e.x+e.w/2-s.w/2;s.y=e.y+e.h-s.h;this.hitStop=BOSS.hitStop;this.hostile=[];this.emit('hitStop');}
+  if(boss){s.scale=BOSS.cakeScale;s.w=22*s.scale;s.h=24*s.scale;s.x=e.x+e.w/2-s.w/2;s.y=e.y+e.h-s.h;this.hitStop=BOSS.hitStop;this.hostile=[];this.emit('hitStop');this.emit('bossCake');}
   this.sweets.push(s);e.sweet=s;this.burst(e.x+e.w/2,e.y+e.h/2,'#d1a9f0',22);if(e.lessonFirst)this.storySignals.add('firstRestored');this.emit('transform');}
- hurt(sourceX){if(this.state!=='playing'||this.hitStop>0||this.player.inv>0)return false;this.life--;this.player.inv=CFG.invincible;this.player.damageBlink=CFG.invincible;this.player.hurt=.3;this.player.dashing=false;this.player.vx=(this.player.x<sourceX?-1:1)*215;this.player.vy=-235;this.shake=.24;this.emit('hurt');if(this.life<=0){this.life=0;if(this.chapter===0){this.story=null;this.storyQueue=[];this.beginStory(CONTENT.death);}else{this.state='lost';this.emit('lost');}}return true;}
+ hurt(sourceX){if(this.state!=='playing'||this.hitStop>0||this.player.inv>0)return false;this.life--;this.player.inv=CFG.invincible;this.player.damageBlink=CFG.invincible;this.player.hurt=.3;this.player.dashing=false;this.player.vx=(this.player.x<sourceX?-1:1)*215;this.player.vy=-235;this.shake=.24;this.emit('hurt');if(this.life===1)this.emit('lowLife');if(this.life<=0){this.beginDefeat();}return true;}
+ beginDefeat(){if(this.defeat||this.state==='lost')return;if(this.chapter===1){this.finishDefeat();return;}this.life=0;this.defeat={elapsed:0};this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];this.hitStop=0;Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});const event=this.chapter===0?CONTENT.death:this.storyEnabled?this.chapterEvent('c1-death'):null;if(event)this.beginStory(event);else this.finishDefeat();}
+ finishDefeat(){if(this.state==='lost')return;this.deathMessage=this.chapter===1&&this.storyEnabled?this.chapterEvent('c1-death').lines[0]:null;this.life=0;this.shake=0;this.hitStop=0;this.defeat=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});this.state='lost';this.emit('lost');}
  shoot(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return false;const p=this.player,k=this.inventory[this.slot],w=WANDS[k];if(p.fire>0)return false;if(this.energy+1e-8<w.cost){p.dry=.25;return false;}this.energy=Math.max(0,this.energy-w.cost);p.fire=w.cooldown;p.attack=.25;const aim=aimFor(p),angles=k==='spread'?[-.19,0,.19]:[0];for(const offset of angles){const angle=aim.angle+offset;this.bullets.push({x:aim.x-6,y:aim.y-5,w:12,h:10,vx:w.speed*Math.cos(angle),vy:w.speed*Math.sin(angle),life:w.life,damage:w.damage,wand:k,hits:new Set()});}this.emit('shoot',{wand:k});return true;}
  // Grounded attacks leave jump and retreat routes without warning overlays or windup pauses.
  stepBoss(e,dt){
@@ -167,29 +204,33 @@ class Game{
   const recovery=e.hp<=e.maxHp/2?BOSS.enragedRecovery:BOSS.recovery;
   if(e.phase==='dash'){e.phase='recover';e.phaseTime=recovery;return;}
   e.move=e.nextMove;e.chargeDir=this.player.x+this.player.w/2<e.x+e.w/2?-1:1;
-  if(e.move==='wave'){
+  if(e.move==='wave'){this.emit('bossWave');
    const x=e.x+e.w/2,y=CFG.ground-17;
    for(const angle of [-Math.PI,-Math.PI*3/4,-Math.PI/2,-Math.PI/4,0])this.enemyShot(x,y,x+Math.cos(angle)*200,y+Math.sin(angle)*200,BOSS.waveSpeed);
    e.phase='recover';e.phaseTime=recovery;e.nextMove='dash';
-  }else{e.phase='dash';e.phaseTime=BOSS.dashSeconds;e.nextMove='wave';}
+  }else{this.emit('bossRush');e.phase='dash';e.phaseTime=BOSS.dashSeconds;e.nextMove='wave';}
  }
 
  popup(text,x,y,color){this.texts.push({text,x,y,color,t:1.05});}
  burst(x,y,color,n){for(let i=0;i<n;i++)this.particles.push({x,y,vx:(this.rng()-.5)*170,vy:(this.rng()-.6)*190,t:.35+this.rng()*.45,color,size:2+Math.floor(this.rng()*3)});}
  dropNear(){return this.drops.find(d=>d.cooldown<=0&&Math.abs(d.x+13-(this.player.x+12))<49&&Math.abs(d.y+15-(this.player.y+this.player.h/2))<65);}
- interact(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;const d=this.dropNear();if(d){if(d.type==='heart'){this.drops=this.drops.filter(x=>x!==d);if(this.maxLife<CFG.maxHearts){this.maxLife++;this.popup('♥ MAX +1',d.x,d.y-20,'#efaaba');}else this.popup('MAX',d.x,d.y-20,'#efaaba');return;}
+ interact(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;const d=this.dropNear();if(d){if(d.type==='heart'){this.drops=this.drops.filter(x=>x!==d);if(this.maxLife<CFG.maxHearts){this.maxLife++;this.life=Math.min(this.maxLife,this.life+1);this.emit('heartUpgrade');this.popup('♥ +1 / MAX +1',d.x,d.y-20,'#efaaba');}else this.popup('MAX',d.x,d.y-20,'#efaaba');return;}
    if(this.inventory.length<2){this.inventory.push(d.wand);this.slot=this.inventory.length-1;this.drops=this.drops.filter(x=>x!==d);this.emit('pickup',{name:WANDS[d.wand].name});}
    else{this.swapTarget=d;this.state='swap';this.emit('swap',{wand:d.wand});}return;}
  }
- canEnterDoor(){const p=this.player;return this.state==='playing'&&this.hitStop<=0&&this.tutorialReady()&&this.stage<2&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-CFG.ground)<12;}
- enterDoor(){if(!this.canEnterDoor())return false;if(this.chapter===0&&this.area===2){this.beginStory(CONTENT.farewell);this.player.vx=0;this.emit('presentationStart');return true;}this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
+ canEnterDoor(){const p=this.player;return (this.state==='playing'||this.state==='event'&&!!this.story)&&this.life>0&&!this.defeat&&this.hitStop<=0&&this.tutorialReady(true)&&this.stage<2&&!(this.chapter===0&&this.area===2)&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-CFG.ground)<12;}
+ enterDoor(){if(!this.canEnterDoor())return false;
+  // Leaving explicitly skips this room's active and queued dialogue.
+  this.skipStory();for(const event of this.storyQueue){this.seenStories.add(event.id);this.finishedStories.add(event.id);}this.storyQueue=[];this.storyScene=null;this.storyGap=0;
+  this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
  beginEntrance(){this.transition={t:.45,loaded:true,entrance:true,chapter:this.chapter,stage:this.stage};this.state='transition';this.emit('presentationStart');}
  stepPresentation(dt){
-  if(this.state==='celebrating'){const c=this.celebration,p=this.player;c.t+=dt;const h=c.t<.65?0:c.t<1.25?Math.sin((c.t-.65)/.6*Math.PI)*38:c.t<1.85?Math.sin((c.t-1.25)/.6*Math.PI)*26:0;p.y=c.y-h;p.grounded=h<=0;p.vy=c.t<.95||c.t>=1.25&&c.t<1.55?-1:1;p.eat=c.t<.6?.22:0;if(c.t>=3.1){p.y=c.y;p.grounded=true;p.vy=0;this.celebration=null;this.state='won';this.emit('won');}return;}
-
+  if(this.state==='victoryLanding'){this.physics(this.player,dt);if(this.player.grounded)this.beginCelebration();return;}
+  if(this.state==='chapterClear'){this.clearFade+=dt;if(this.clearFade>=.75){this.state='won';this.emit('won');}return;}
+  if(this.state==='celebrating'){const c=this.celebration,p=this.player;c.t+=dt;this.tickStory(dt);const h=c.t<.65?0:c.t<1.25?Math.sin((c.t-.65)/.6*Math.PI)*38:c.t<1.85?Math.sin((c.t-1.25)/.6*Math.PI)*26:0;p.y=c.y-h;p.grounded=h<=0;p.vy=c.t<.95||c.t>=1.25&&c.t<1.55?-1:1;p.eat=c.t<.6?.22:0;if(c.t>=3.1&&c.read){p.y=c.y;p.grounded=true;p.vy=0;this.celebration=null;this.state='playing';if(this.storyEnabled)this.beginStory(this.chapterEvent('c1-ending'));else{this.state='won';this.emit('won');}}return;}
   if(this.state==='encounter'){this.stepEncounter(dt);return;}
   if(this.state==='leaving'){const d=this.leaving;d.t+=dt;this.player.x=Math.min(d.targetX,d.startX+d.t*d.speed);this.player.walkPhase=(this.player.x-d.startX)/21%8;if(this.player.x===d.targetX)this.player.vx=0;if(d.t>=(d.targetX-d.startX)/d.speed+1)this.beginChapterOne();return;}
-  if(this.state==='cinematic'){const before=this.cinematic.t;this.cinematic.t+=dt;if(before<OPENING.transform&&this.cinematic.t>=OPENING.transform)this.events.push({type:'transform'});if(this.cinematic.t>=OPENING.end)this.finishOpening();return;}
+  if(this.state==='cinematic'){this.tickOpening(dt);return;}
   if(this.state!=='transition')return;const tr=this.transition;tr.t+=dt;
   if(!tr.loaded&&tr.t>=.45){tr.loaded=true;if(this.chapter===0&&tr.chapter===1){this.reset(this.seed);this.emit('tutorialComplete');}else if(this.chapter===0){this.area=tr.area;this.room=tr.room??0;this.loadTutorial();}else{this.stage=tr.stage;this.loadStage();}this.transition=tr;this.state='transition';}
   if(tr.t>=2.35){this.transition=null;if(tr.entrance&&this.chapter===0){this.state='cinematic';this.cinematic={t:0};}else{this.state='playing';if(this.chapter===0&&this.area===2)this.beginStory(CONTENT.farewell);this.emit('presentationEnd');}}
@@ -198,9 +239,13 @@ class Game{
  swap(slot){if(this.state!=='swap'||!this.swapTarget)return;const d=this.swapTarget;if(slot!==null){const old=this.inventory[slot];this.inventory[slot]=d.wand;this.slot=slot;d.wand=old;d.cooldown=.6;this.emit('pickup',{name:WANDS[this.inventory[slot]].name});}this.swapTarget=null;this.state='playing';}
  physics(a,dt){const bottom=a.y+a.h;a.vy+=CFG.gravity*dt;a.y+=a.vy*dt;a.grounded=false;if(a.vy>=0){for(const pf of this.platforms){if(a.x+a.w>pf.x&&a.x<pf.x+pf.w&&bottom<=pf.y+2&&a.y+a.h>=pf.y){a.y=pf.y-a.h;a.vy=0;a.grounded=true;break;}}}}
  step(dt,input={}){
-  if(['transition','cinematic','leaving','encounter','celebrating'].includes(this.state)){this.stepPresentation(Math.min(dt,1/30));return;}
+  if(this.chapter===1&&this.life<=0&&['playing','event','swap'].includes(this.state)){this.finishDefeat();return;}
+  if(input.enter&&this.enterDoor())return;
+  // Defeat presentation has its own bounded clock; dialogue and gameplay cannot trap it.
+  if(this.defeat&&['playing','event'].includes(this.state)){dt=Math.min(dt,1/30);this.defeat.elapsed+=dt;this.shake=Math.max(0,this.shake-dt);this.tickStory(dt);if(this.defeat&&this.defeat.elapsed>=5)this.finishDefeat();return;}
+  if(['transition','cinematic','leaving','encounter','celebrating','victoryLanding','chapterClear'].includes(this.state)){this.stepPresentation(Math.min(dt,1/30));return;}
   if(this.state==='playing'&&this.hitStop>0){this.hitStop=Math.max(0,this.hitStop-Math.min(dt,1/30));return;}
-  if(this.state==='event'){this.tickStory(Math.min(dt,1/30));return;}if(this.state!=='playing')return;this.tickStory(Math.min(dt,1/30));if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;if(input.enter&&this.enterDoor())return;dt=Math.min(dt,1/30);this.time+=dt;this.shake=Math.max(0,this.shake-dt);const p=this.player;
+  if(this.state==='event'){this.tickStory(Math.min(dt,1/30));return;}if(this.state!=='playing')return;this.tickStory(Math.min(dt,1/30));if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;dt=Math.min(dt,1/30);this.time+=dt;this.shake=Math.max(0,this.shake-dt);const p=this.player;
   this.energy=Math.min(CFG.maxEnergy,this.energy+CFG.energyRegen*dt);
   for(const k of ['inv','damageBlink','fire','attack','eat','hurt','dry'])p[k]=Math.max(0,p[k]-dt);
   p.coyote=p.grounded?.1:Math.max(0,p.coyote-dt);p.jumpBuffer=input.jump?.13:Math.max(0,p.jumpBuffer-dt);
@@ -214,11 +259,11 @@ class Game{
   else if(p.grounded&&p.vx===0)p.walkPhase=0;
   for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=previousX+p.w<=pf.x+2?pf.x-p.w:pf.x+pf.w;p.vx=0;}}this.physics(p,dt);if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
   this.camera+=(clamp(p.x-335,0,this.worldWidth-CFG.width)-this.camera)*Math.min(1,dt*7);
-  if(this.stage===2&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
+  if(this.stage===2&&!this.storyEnabled&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
   for(const d of this.drops)d.cooldown=Math.max(0,d.cooldown-dt);
   for(const e of this.enemies){
    e.t+=dt;e.flash=Math.max(0,e.flash-dt);
-   if(e.state==='candy'){e.candyTime=Math.max(0,e.candyTime-dt);if(e.candyTime<=0){e.state='alive';e.hp=e.maxHp;e.x=e.sweet.x+(e.type==='boss'?(e.sweet.w-e.w)/2:0);e.y=e.sweet.y+e.sweet.h-e.h;e.sweet.removed=true;e.vy=0;e.attack=1.5;e.charge=0;e.phase='rest';e.phaseTime=BOSS.rest;e.telegraph=0;this.burst(e.x+e.w/2,e.y+e.h/2,'#bd8dd4',16);if(e.lessonFirst&&!this.storySignals.has('firstEaten'))this.storySignals.add('firstRevived');this.emit('revive');}continue;}
+   if(e.state==='candy'){e.candyTime=Math.max(0,e.candyTime-dt);if(e.candyTime<=0){e.state='alive';e.hp=e.maxHp;e.x=e.sweet.x+(e.type==='boss'?(e.sweet.w-e.w)/2:0);e.y=e.sweet.y+e.sweet.h-e.h;e.sweet.removed=true;e.vy=0;e.attack=1.5;e.charge=0;e.phase='rest';e.phaseTime=BOSS.rest;e.telegraph=0;this.burst(e.x+e.w/2,e.y+e.h/2,'#bd8dd4',16);if(e.lessonFirst&&!this.storySignals.has('firstEaten'))this.storySignals.add('firstRevived');if(e.type==='boss')this.emit('bossRevived');this.emit('revive');}continue;}
    if(e.state!=='alive')continue;if(e.type==='boss'&&!this.bossAwake)continue;
    const near=Math.abs(e.x-p.x)<650;
    if(e.type==='slime'){
@@ -237,7 +282,7 @@ class Game{
    if(e.type==='boss')this.stepBoss(e,dt);
    if(overlap(p,e)){this.hurt(e.x+e.w/2);if(this.state!=='playing')return;}
   }
-  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;for(const e of this.enemies){if(e.state!=='alive'||(e.type==='boss'&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
+  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;for(const e of this.enemies){if(e.state!=='alive'||(e.type==='boss'&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
   this.bullets=this.bullets.filter(b=>b.life>0);
   for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
   this.hostile=this.hostile.filter(b=>b.life>0);

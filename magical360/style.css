@@ -35,3 +35,8 @@ footer{justify-content:flex-end;padding-top:12px;padding-bottom:20px}.intro-cont
 @keyframes message-typing{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes message-wait{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(-2px);opacity:1}}
 @media(prefers-reduced-motion:reduce){.dialogue #dialogueNext,.dialogue #dialogueNext.typing{animation:none}}
+
+.scene-controls{display:flex;gap:8px}.dialogue button[aria-pressed="true"],.scene-controls button[aria-pressed="true"]{background:#bca678;color:#152333;border-color:#e6d5ad}.dialogue{top:102px;left:15%;right:15%}.dialogue button:focus-visible,.scene-controls button:focus-visible{outline:2px solid #e6d5ad;outline-offset:3px}@media(max-width:600px){.dialogue{top:85px;left:4%;right:4%}.dialogue>div{gap:7px}.dialogue button{padding:4px 7px}}
+
+/* Keep the retry controls visible even in a narrow game panel. */
+.result-actions{display:flex;flex-direction:column;align-items:center;gap:8px}.result-modal .result-actions button{margin:0}.result-modal .defeat-line{font-size:11px;line-height:1.6;margin:8px 0}@media(max-width:600px){.result-modal{padding:10px 12px}.result-modal h2{font-size:18px;margin:3px 0 5px}.result-modal .defeat-line{font-size:10px;line-height:1.4;margin:5px 0}.result-modal .run-result{padding:5px 0;margin:6px 0}.result-modal .run-result strong{font-size:18px}.result-modal .run-result span{font-size:8px}.result-actions{flex-direction:row;gap:7px}.result-modal .result-actions button{width:50%;min-width:0;padding:8px 4px;font-size:10px;letter-spacing:0}.result-modal .result-actions .primary{min-width:0;gap:0}}
