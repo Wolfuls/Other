@@ -5,7 +5,8 @@ const elements=(n,name)=>Array.from(n.getElementsByTagNameNS('*',name));
 window.readCharacterXlsx=async function(file,mode){
  if(file.size>20*1024*1024)throw Error('20MB以下の.xlsxファイルを選んでください');
  if(!/\.xlsx$/i.test(file.name))throw Error('.xlsx形式を選んでください（.xlsには未対応）');
- const zip=await JSZip.loadAsync(await file.arrayBuffer());
+ // A File selected in an independent window belongs to another JS realm.
+ const zip=await JSZip.loadAsync(new Uint8Array(await file.arrayBuffer()));
  const read=async p=>{const f=zip.file(p);if(!f)throw Error('Excelの必須ファイルがありません：'+p);return xml(await f.async('string'));};
  const wb=await read('xl/workbook.xml'),rel=await read('xl/_rels/workbook.xml.rels');
  const relations=Object.fromEntries(elements(rel,'Relationship').map(e=>[e.getAttribute('Id'),e.getAttribute('Target')]));
@@ -16,6 +17,6 @@ window.readCharacterXlsx=async function(file,mode){
  if(type==='s')value=strings[Number(value)];else if(type==='inlineStr')value=elements(c,'t').map(x=>x.textContent).join('');
  if(type==='e')value=null;cells[a]={v:value,f:elements(c,'f')[0]?.textContent};}
  sheets[name]=cells;}
- return Ygg.fromCells(sheets,file.name,mode);
+ if(mode==='inventory'){if(!sheets['キャラシート'])throw Error('キャラシートのタブがありません');return Ygg.ownedFromCells(sheets['キャラシート']);}return Ygg.fromCells(sheets,file.name,mode);
 };
 })();

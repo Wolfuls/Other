@@ -52,6 +52,8 @@ action('deathB','即死復活バースト',0,all,'HPを0に戻した後、2D6回
 action('activateB','発動バースト',0,['AC','RE'],'AE併用不可。効果の無視は補正欄の有効/無効で管理。',{group:'バースト',factor:1}),
 action('linkB','連携バースト',0,['AC','RE'],'味方への1アクション。攻撃等の禁止行動に注意。別途その行動を追加。',{group:'バースト',factor:1})
 ];
+// AC permits only check and activation bursts; keep other timings unchanged.
+for(const a of catalog)if(a.group==='バースト'&&!['checkB','activateB'].includes(a.id))a.phases=a.phases.filter(p=>p!=='AC');
 function emptyCharacter(name='新しいキャラクター'){
  const stats={hpMax:30,ppMax:30,hit:10,hitDice:1,dodge:10,dodgeDice:1,ss:8,ssDice:1,melee:2,meleeFlat:0,weapon:2,weaponFlat:0,power:3,powerFlat:0,defense:3,resist:3,initiative:6,precision:6,spec:3,params:[6,6,6,6,6,6,6],skills:Object.fromEntries(skillNames.map(x=>[x,6]))};
  const state={hp:30,pp:30,rage:30,factor:0,spent:0,hpMax:30,ppMax:30,round:1,phase:'AC',buffs:[],usage:{},mainUsed:false,opponent:{name:'比較対象',fixed:10,dice:1,defense:3,resist:3,hp:30,rage:0},pending:[]};
@@ -90,7 +92,7 @@ function fromCells(sheets,filename,mode='progress'){
   c.actions.push(action(id(),String(name),cost,['AC','RE'],effects.join(' / ')+(note?'：'+note:''),{group:'応用技',spec,importMissing,main:false,attack:effects.some(x=>String(x).includes('攻撃'))?'power':null,effects,...(creation?{ppMode:'creation'}:{})}));
  }}
  if(missing.length)throw Error('数式の保存済み計算結果がないセルがあります：'+[...new Set(missing)].join('、')+'。ExcelまたはLibreOfficeで再計算して保存し直してください。');
- setBP(c,c.state.bp,{initial:true,previousPPBonus:0});c.importMode=mode;c.importedAt=new Date().toISOString();return c;
+ api.importSession(c,sheets,mode);setBP(c,c.state.bp,{initial:true,previousPPBonus:0});c.importMode=mode;c.importedAt=new Date().toISOString();return c;
 }
 // Inspect cached results and known allocation relationships; never execute workbook formulas.
 function detectBPSheet(sheet,c){
@@ -194,23 +196,23 @@ function effective(c,key,state=c.state){const a=activation(c,state),bp=bpBonuses
  if(key==='initiative'&&c.activation==='感覚型')flat+=a.lv;
  return{fixed:Math.floor((flat+m.flat)*m.mult),dice:Math.max(0,dice+m.dice)};
 }
-function declaredPP(row,state){const a=row.action;if(a.ppMode==='creation'){const v=row.creationPP;if(typeof v!=='number'||!Number.isInteger(v)||v<1||v>10||!Number.isInteger(a.pp)||a.pp<0)return null;return a.pp+v;}return a.replace!==undefined?Math.floor(state.pp/2):Number(a.pp||0)*Number(row.level||1);}
-function costLabel(a){return a.ppMode==='creation'?(a.pp===null?'固定追加PP未確認':(a.pp+1)+'〜'+(a.pp+10)+' PP（創造）'):a.replace!==undefined?'残PP ÷ 2':a.factor?a.factor+' 因子D'+(a.level?' / Lv':''):a.pp?a.pp+' PP'+(a.level?' / Lv':''):'消費なし';}
+function declaredPP(row,state){if(row.action.owned)row=api.resolveOwnedRows({state},[row])[0];const a=row.action;if(a.ppMode==='creation'){const v=row.creationPP;if(typeof v!=='number'||!Number.isInteger(v)||v<1||v>10||!Number.isInteger(a.pp)||a.pp<0)return null;return a.pp+v;}return a.replace!==undefined?Math.floor(state.pp/2):Number(a.pp||0)*Number(row.level||1);}
+function costLabel(a){return a.ppMode==='creation'?(a.pp===null?'固定追加PP未確認':(a.pp+1)+'〜'+(a.pp+10)+' PP（創造）'):a.replace!==undefined?'残PP ÷ 2':a.factor?a.factor+' Rd'+(a.level?' / Lv':''):a.pp?a.pp+' PP'+(a.level?' / Lv':''):'消費なし';}
 function isBattle(state){return state.phase!=='EX';}
-function phaseAllowed(a,state){return a.phases.includes(state.phase)||!isBattle(state)&&a.group==='応用技';}
+function phaseAllowed(a,state){if(state.phase==='AC'&&a.group==='バースト'&&!['checkB','activateB'].includes(a.id))return false;return a.phases.includes(state.phase)||!isBattle(state)&&a.group==='応用技';}
 function sameAction(a,b){return a.id===b.id||a.group===b.group&&['AE','応用技'].includes(a.group)&&a.name.normalize('NFKC').trim()===b.name.normalize('NFKC').trim();}
 function actionMatches(a,query){const normalize=s=>String(s??'').normalize('NFKC').toLocaleLowerCase();const text=normalize([a.name,a.note,a.group,...(a.effects||[])].join(' '));return normalize(query).trim().split(/\s+/).every(term=>text.includes(term));}
 function setMode(c,mode){if(!['battle','exploration'].includes(mode))throw Error('進行モードが不正です');const s=clone(c.state),battle=mode==='battle';if(battle===isBattle(s))return null;if(battle)s.phase=s.battlePhase||'AC';else{s.battlePhase=s.phase;s.phase='EX';}return record(c,battle?'バトル中に切替':'探索中に切替',s,{},'mode');}
-function available(c,a){if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state))return 'このフェイズでは宣言不可';if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC')&&c.state.mainUsed)return 'このラウンドは行動済み';const u=c.state.usage;
+function available(c,a){const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state))return 'このフェイズでは宣言不可';if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC')&&c.state.mainUsed)return 'このラウンドは行動済み';const u=c.state.usage;
  if(a.limit==='round'&&u[a.id+'@'+c.state.round])return 'このラウンドで使用済み';if(a.limit==='battle'&&u[a.id])return 'このバトルで使用済み';if(a.limit==='session2'&&(u.replacement||0)>=2)return '置き換えAEを2回使用済み';if(a.replace!==undefined&&c.state.pp<=3)return '残PP4以上が必要';if(a.spec>effective(c,'spec').fixed)return '必要スペック不足（SO発動はカスタム行動で登録）';return '';}
-function preview(c,rows,desperate=0){const s=c.state;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
+function preview(c,rows,desperate=0){rows=api.resolveOwnedRows(c,rows);const s=c.state;let freeRagePP=0;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
  for(const r of rows){const a=r.action,l=Number(r.level||1);if(!Number.isInteger(l)||l<1||l>(a.max||100))errors.push(a.name+'：Lvが範囲外');const why=available(c,a);if(why)errors.push(a.name+'：'+why);
  if([...seen].some(previous=>sameAction(previous,a)))errors.push(a.name+'：同じ行動は1つの宣言に1回だけ追加できます');seen.add(a);
  if(a.id==='con'){cons+=l;if(['defense','resist'].includes(r.target)&&l>5)errors.push('装甲コンセはLv5まで');}
  const chosen=declaredPP(r,s),p=chosen??0;
  if(a.ppMode==='creation'){if(chosen===null)errors.push(a.name+'：創造PPを1〜10の整数で選んでください');if(l!==1)errors.push(a.name+'：創造PPはLvとは別に指定してください');}
  if(![p,a.hp||0,a.factor||0,a.rage||0].every(x=>Number.isFinite(x)&&x>=0))errors.push(a.name+'：コストは0以上の数値で指定');
- pp+=p;hp+=(a.hp||0)*l;factor+=(a.factor||0)*l;rage+=(a.rage||0)*l;spent+=a.noSpent?0:p;rhp+=(a.recoverHP||0)*l;rpp+=(a.recoverPP||0)*l;
+ if(a.noRagePP)freeRagePP+=p;pp+=p;hp+=(a.hp||0)*l;factor+=(a.factor||0)*l;rage+=(a.rage||0)*l;spent+=a.noSpent?0:p;rhp+=(a.recoverHP||0)*l;rpp+=(a.recoverPP||0)*l;
  if(a.roll){const n=a.rollDice*l;const v=Number(r.result);if(r.result==null||r.result===''||!Number.isInteger(v)||v<n||v>6*n)errors.push(a.name+'：'+n+'D6の実際の出目（'+n+'〜'+(6*n)+'）を入力');else if(a.roll==='hp')rhp+=v;else if(a.roll==='pp')rpp+=v;else if(a.roll==='revive')rhp+=v-s.hp;else if(a.roll==='rageDown')rage-=v;else rage+=v;}
  }
  if(cons>10)errors.push('コンセントレイションの合計はLv10まで');
@@ -227,12 +229,13 @@ function preview(c,rows,desperate=0){const s=c.state;let hp=0,pp=0,factor=0,rage
  if(names.includes('heavy')&&rows.some(r=>r.action.attack==='power'))errors.push('重撃と攻撃発動は併用不可');
  if(rows.filter(r=>r.action.main).length>1)errors.push('メイン行動は1つずつ登録してください');
  if(!Number.isInteger(desperate)||desperate<0||desperate>pp)errors.push('死力Lvは0〜消費PP以内');
- rage+=pp+desperate;hp+=2*desperate;pp-=desperate;
+ rage+=pp-freeRagePP+desperate;hp+=2*desperate;pp-=desperate;
  if(pp>s.pp)errors.push('PPが'+(pp-s.pp)+'不足しています');
  if(hp>s.hp)warnings.push('HP消費によってHPが0以下になります');
  const gained=Math.floor((s.spent+spent)/5)-Math.floor(s.spent/5);
  const after={...clone(s),hp:Math.min(s.hpMax,s.hp-hp+rhp),pp:Math.min(s.ppMax,s.pp-pp+rpp),rage:Math.max(0,s.rage+rage),spent:s.spent+spent,factor:s.factor-factor+gained};
- if(after.factor<0)warnings.push('因子の前借り：残り'+after.factor+'D');
+ api.applyOwnedState(c,rows,after,errors,warnings);
+ if(after.factor<0)warnings.push('因子の前借り：残り'+after.factor+' Rd');
  const thresholds=[50,60,70,80,90,100,110,120,130,140,150].filter(x=>s.rage<x&&after.rage>=x);
  for(const x of thresholds)warnings.push(x+'%到達'+([50,70,90,110,120,130,140].includes(x)?'：暴走・臨界処理を確認':'')+(x===150?'：因子崩壊':''));
  return{hp,pp,factor,rage,spent,gained,rhp,rpp,after,errors:[...new Set(errors)],warnings,thresholds};
@@ -271,11 +274,12 @@ function validateDatabase(data){
  const fail=()=>{throw Error('バックアップのデータ形式が不正です');};
  const finite=x=>typeof x==='number'&&Number.isFinite(x);
  const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]+$/.test(x);
- const state=s=>{if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
+ const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
  if(data?.version!==1||!Array.isArray(data.characters)||data.characters.length>200)fail();
  for(const c of data.characters){if(!validId(c.id)||typeof c.name!=='string'||!c.stats||!Array.isArray(c.history)||!Array.isArray(c.actions)||!c.initial)fail();state(c.state);state(c.initial);if(!Array.isArray(c.stats.params)||c.stats.params.length!==7||!c.stats.params.every(finite)||!c.stats.skills)fail();for(const[k,v]of Object.entries(c.stats)){if(!['params','skills'].includes(k)&&!finite(v))fail();}for(const e of c.history){if(!validId(e.id)||typeof e.title!=='string'||!finite(e.round)||!phases[e.phase])fail();state(e.before);state(e.after);}for(const a of c.actions){if(!validId(a.id)||typeof a.name!=='string'||!Array.isArray(a.phases)||!a.phases.every(p=>phases[p])||!finite(a.pp))fail();if(a.ppMode!==undefined&&!['fixed','creation'].includes(a.ppMode))fail();if(a.ppMode==='creation'&&(!Number.isInteger(a.pp)||a.pp<0||a.level))fail();}}
  return data;
 }
 const api={clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
+Object.assign(api,(root.YggSessionModel||(typeof require==='function'?require('./session-model.js'):null))(api,root.YggOwnedCatalog||(typeof require==='function'?require('./owned-catalog.js'):[])));
 if(typeof module!=='undefined')module.exports=api;root.Ygg=api;
 })(globalThis);
