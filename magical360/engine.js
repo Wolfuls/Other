@@ -47,13 +47,13 @@ function openingFrame(t){
 }
 class Game{
  constructor(seed=1,options={}){this.reset(seed,options);}
- reset(seed,options={}){this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:1;this.area=0;this.room=0;this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=2;this.maxLife=2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
+ reset(seed,options={}){this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=2;this.maxLife=2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
  emit(type,data={}){if(this.storySignals){this.storySignals.add(type);this.signalTimes[type]=this.time;}this.events.push({type,...data});}
  pick(xs){return xs[Math.floor(this.rng()*xs.length)];}
  loadStage(){
-  this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter!==0)this.area=0;
+  this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter===1)this.area=0;this.movingPlatforms=[];this.crates=[];this.cargoDecor=[];this.chapterScene=null;
   this.platforms=[];this.enemies=[];this.sweets=[];this.drops=[];this.bullets=[];this.hostile=[];this.particles=[];this.texts=[];this.swapTarget=null;this.arenaLocked=false;this.bossAwake=false;
-  if(this.chapter===0){this.loadTutorial();return;}
+  if(this.chapter===0){this.loadTutorial();return;}if(this.chapter===2){this.loadChapterTwo();return;}
   const runRng=this.rng;this.rng=random(9013+this.stage);
   const count=this.stage===2?6:7;this.worldWidth=count*420+480;this.platforms.push({x:0,y:CFG.ground,w:this.worldWidth,h:100,ground:true});
   const layouts=[[[55,380,120],[225,310,130]],[[35,390,100],[190,355,130],[320,290,90]],[[95,377,190],[300,311,95]],[[45,382,100],[180,310,100],[300,375,100]],[[60,385,260]]];
@@ -154,9 +154,9 @@ class Game{
  }
  tickStory(dt){
   if(this.storyScene)this.storyScene.t+=dt;this.storyGap=Math.max(0,this.storyGap-dt);
-  const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?CONTENT.chapterOne:[]);
+  const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?(this.chapter===2?CONTENT.chapterTwo:CONTENT.chapterOne):[]);
   if(this.state==='playing')for(const e of catalogue){
-   if(e.direct||e.chapter!==this.chapter||(e.stage!=null&&e.stage!==this.stage+1)||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after))continue;
+   if(e.direct||e.chapter!==this.chapter||(e.stage!=null&&e.stage!==this.stage+1)||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after)||e.condition&&!this.chapterCondition(e.condition))continue;
    this.seenStories.add(e.id);if(this.storyValid(e))this.storyQueue.push({...e,index:0});
   }
   this.storyQueue=this.storyQueue.filter(e=>this.storyValid(e));this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
@@ -193,8 +193,8 @@ class Game{
   if(boss){s.scale=BOSS.cakeScale;s.w=22*s.scale;s.h=24*s.scale;s.x=e.x+e.w/2-s.w/2;s.y=e.y+e.h-s.h;this.hitStop=BOSS.hitStop;this.hostile=[];this.emit('hitStop');this.emit('bossCake');}
   this.sweets.push(s);e.sweet=s;this.burst(e.x+e.w/2,e.y+e.h/2,'#d1a9f0',22);if(e.lessonFirst)this.storySignals.add('firstRestored');this.emit('transform');}
  hurt(sourceX){if(this.state!=='playing'||this.hitStop>0||this.player.inv>0)return false;this.life--;this.player.inv=CFG.invincible;this.player.damageBlink=CFG.invincible;this.player.hurt=.3;this.player.dashing=false;this.player.vx=(this.player.x<sourceX?-1:1)*215;this.player.vy=-235;this.shake=.24;this.emit('hurt');if(this.life===1)this.emit('lowLife');if(this.life<=0){this.beginDefeat();}return true;}
- beginDefeat(){if(this.defeat||this.state==='lost')return;if(this.chapter===1){this.finishDefeat();return;}this.life=0;this.defeat={elapsed:0};this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];this.hitStop=0;Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});const event=this.chapter===0?CONTENT.death:this.storyEnabled?this.chapterEvent('c1-death'):null;if(event)this.beginStory(event);else this.finishDefeat();}
- finishDefeat(){if(this.state==='lost')return;this.deathMessage=this.chapter===1&&this.storyEnabled?this.chapterEvent('c1-death').lines[0]:null;this.life=0;this.shake=0;this.hitStop=0;this.defeat=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});this.state='lost';this.emit('lost');}
+ beginDefeat(){if(this.defeat||this.state==='lost')return;if(this.chapter>=1){this.finishDefeat();return;}this.life=0;this.defeat={elapsed:0};this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];this.hitStop=0;Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});const event=this.chapter===0?CONTENT.death:this.storyEnabled?this.chapterEvent('c1-death'):null;if(event)this.beginStory(event);else this.finishDefeat();}
+ finishDefeat(){if(this.state==='lost')return;this.deathMessage=this.chapter>=1&&this.storyEnabled?this.chapterEvent(this.chapter===2?'c2-death':'c1-death').lines[0]:null;this.life=0;this.shake=0;this.hitStop=0;this.defeat=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});this.state='lost';this.emit('lost');}
  shoot(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return false;const p=this.player,k=this.inventory[this.slot],w=WANDS[k];if(p.fire>0)return false;if(this.energy+1e-8<w.cost){p.dry=.25;return false;}this.energy=Math.max(0,this.energy-w.cost);p.fire=w.cooldown;p.attack=.25;const aim=aimFor(p),angles=k==='spread'?[-.19,0,.19]:[0];for(const offset of angles){const angle=aim.angle+offset;this.bullets.push({x:aim.x-6,y:aim.y-5,w:12,h:10,vx:w.speed*Math.cos(angle),vy:w.speed*Math.sin(angle),life:w.life,damage:w.damage,wand:k,hits:new Set()});}this.emit('shoot',{wand:k});return true;}
  // Grounded attacks leave jump and retreat routes without warning overlays or windup pauses.
  stepBoss(e,dt){
@@ -219,12 +219,12 @@ class Game{
    if(this.inventory.length<2){this.inventory.push(d.wand);this.slot=this.inventory.length-1;this.drops=this.drops.filter(x=>x!==d);this.emit('pickup',{name:WANDS[d.wand].name});}
    else{this.swapTarget=d;this.state='swap';this.emit('swap',{wand:d.wand});}return;}
  }
- canEnterDoor(){const p=this.player;return (this.state==='playing'||this.state==='event'&&!!this.story)&&this.life>0&&!this.defeat&&this.hitStop<=0&&this.tutorialReady(true)&&this.stage<2&&!(this.chapter===0&&this.area===2)&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-CFG.ground)<12;}
+ canEnterDoor(){const p=this.player;return (this.state==='playing'||this.state==='event'&&!!this.story)&&this.life>0&&!this.defeat&&this.hitStop<=0&&this.tutorialReady(true)&&(this.chapter===2?!!this.exit:this.stage<2)&&!(this.chapter===0&&this.area===2)&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-(this.exit.y+this.exit.h))<12;}
  enterDoor(){if(!this.canEnterDoor())return false;
   // Leaving explicitly skips this room's active and queued dialogue.
   this.skipStory();for(const event of this.storyQueue){this.seenStories.add(event.id);this.finishedStories.add(event.id);}this.storyQueue=[];this.storyScene=null;this.storyGap=0;
-  this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
- beginEntrance(){this.transition={t:.45,loaded:true,entrance:true,chapter:this.chapter,stage:this.stage};this.state='transition';this.emit('presentationStart');}
+  this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.chapter===2&&this.area<2?this.stage:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):this.chapter===2&&this.area<2?this.area+1:0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
+ beginEntrance(){this.transition={t:.45,loaded:true,entrance:true,chapter:this.chapter,stage:this.stage,area:this.area};this.state='transition';this.emit('presentationStart');}
  stepPresentation(dt){
   if(this.state==='victoryLanding'){this.physics(this.player,dt);if(this.player.grounded)this.beginCelebration();return;}
   if(this.state==='chapterClear'){this.clearFade+=dt;if(this.clearFade>=.75){this.state='won';this.emit('won');}return;}
@@ -233,21 +233,21 @@ class Game{
   if(this.state==='leaving'){const d=this.leaving;d.t+=dt;this.player.x=Math.min(d.targetX,d.startX+d.t*d.speed);this.player.walkPhase=(this.player.x-d.startX)/21%8;if(this.player.x===d.targetX)this.player.vx=0;if(d.t>=(d.targetX-d.startX)/d.speed+1)this.beginChapterOne();return;}
   if(this.state==='cinematic'){this.tickOpening(dt);return;}
   if(this.state!=='transition')return;const tr=this.transition;tr.t+=dt;
-  if(!tr.loaded&&tr.t>=.45){tr.loaded=true;if(this.chapter===0&&tr.chapter===1){this.reset(this.seed);this.emit('tutorialComplete');}else if(this.chapter===0){this.area=tr.area;this.room=tr.room??0;this.loadTutorial();}else{this.stage=tr.stage;this.loadStage();}this.transition=tr;this.state='transition';}
+  if(!tr.loaded&&tr.t>=.45){tr.loaded=true;if(this.chapter===0&&tr.chapter===1){this.reset(this.seed);this.emit('tutorialComplete');}else if(this.chapter===0){this.area=tr.area;this.room=tr.room??0;this.loadTutorial();}else{this.chapter=tr.chapter;this.stage=tr.stage;this.area=tr.area??0;this.loadStage();}this.transition=tr;this.state='transition';}
   if(tr.t>=2.35){this.transition=null;if(tr.entrance&&this.chapter===0){this.state='cinematic';this.cinematic={t:0};}else{this.state='playing';if(this.chapter===0&&this.area===2)this.beginStory(CONTENT.farewell);this.emit('presentationEnd');}}
  }
  finishOpening(){if(this.state!=='cinematic')return;this.cinematic=null;Object.assign(this.player,{x:297,y:402,vx:0,vy:0,inv:1.5,damageBlink:0,walkPhase:0,runPhase:0,dashing:false});this.state='playing';this.emit('presentationEnd');}
  swap(slot){if(this.state!=='swap'||!this.swapTarget)return;const d=this.swapTarget;if(slot!==null){const old=this.inventory[slot];this.inventory[slot]=d.wand;this.slot=slot;d.wand=old;d.cooldown=.6;this.emit('pickup',{name:WANDS[this.inventory[slot]].name});}this.swapTarget=null;this.state='playing';}
  physics(a,dt){const bottom=a.y+a.h;a.vy+=CFG.gravity*dt;a.y+=a.vy*dt;a.grounded=false;if(a.vy>=0){for(const pf of this.platforms){if(a.x+a.w>pf.x&&a.x<pf.x+pf.w&&bottom<=pf.y+2&&a.y+a.h>=pf.y){a.y=pf.y-a.h;a.vy=0;a.grounded=true;break;}}}}
  step(dt,input={}){
-  if(this.chapter===1&&this.life<=0&&['playing','event','swap'].includes(this.state)){this.finishDefeat();return;}
+  if(this.chapter>=1&&this.life<=0&&['playing','event','swap'].includes(this.state)){this.finishDefeat();return;}
   if(input.enter&&this.enterDoor())return;
   // Defeat presentation has its own bounded clock; dialogue and gameplay cannot trap it.
   if(this.defeat&&['playing','event'].includes(this.state)){dt=Math.min(dt,1/30);this.defeat.elapsed+=dt;this.shake=Math.max(0,this.shake-dt);this.tickStory(dt);if(this.defeat&&this.defeat.elapsed>=5)this.finishDefeat();return;}
   if(['transition','cinematic','leaving','encounter','celebrating','victoryLanding','chapterClear'].includes(this.state)){this.stepPresentation(Math.min(dt,1/30));return;}
   if(this.state==='playing'&&this.hitStop>0){this.hitStop=Math.max(0,this.hitStop-Math.min(dt,1/30));return;}
   if(this.state==='event'){this.tickStory(Math.min(dt,1/30));return;}if(this.state!=='playing')return;this.tickStory(Math.min(dt,1/30));if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;dt=Math.min(dt,1/30);this.time+=dt;this.shake=Math.max(0,this.shake-dt);const p=this.player;
-  this.energy=Math.min(CFG.maxEnergy,this.energy+CFG.energyRegen*dt);
+  this.energy=Math.min(CFG.maxEnergy,this.energy+CFG.energyRegen*dt);if(this.chapter===2)this.updateChapterWorld(dt);
   for(const k of ['inv','damageBlink','fire','attack','eat','hurt','dry'])p[k]=Math.max(0,p[k]-dt);
   p.coyote=p.grounded?.1:Math.max(0,p.coyote-dt);p.jumpBuffer=input.jump?.13:Math.max(0,p.jumpBuffer-dt);
   const moveDirection=(input.right?1:0)-(input.left?1:0);p.dashing=!!input.dash&&moveDirection!==0&&p.hurt<=0;if(p.hurt<=0){p.vx=moveDirection*(p.dashing?CFG.dashSpeed:CFG.speed);if(p.vx)p.facing=Math.sign(p.vx);}
@@ -260,12 +260,12 @@ class Game{
   else if(p.grounded&&p.vx===0)p.walkPhase=0;
   for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=previousX+p.w<=pf.x+2?pf.x-p.w:pf.x+pf.w;p.vx=0;}}this.physics(p,dt);if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
   this.camera+=(clamp(p.x-335,0,this.worldWidth-CFG.width)-this.camera)*Math.min(1,dt*7);
-  if(this.stage===2&&!this.storyEnabled&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
+  if(this.chapter===1&&this.stage===2&&!this.storyEnabled&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
   for(const d of this.drops)d.cooldown=Math.max(0,d.cooldown-dt);
   for(const e of this.enemies){
    e.t+=dt;e.flash=Math.max(0,e.flash-dt);
    if(e.state==='candy'){e.candyTime=Math.max(0,e.candyTime-dt);if(e.candyTime<=0){e.state='alive';e.hp=e.maxHp;e.x=e.sweet.x+(e.type==='boss'?(e.sweet.w-e.w)/2:0);e.y=e.sweet.y+e.sweet.h-e.h;e.sweet.removed=true;e.vy=0;e.attack=1.5;e.charge=0;e.phase='rest';e.phaseTime=BOSS.rest;e.telegraph=0;this.burst(e.x+e.w/2,e.y+e.h/2,'#bd8dd4',16);if(e.lessonFirst&&!this.storySignals.has('firstEaten'))this.storySignals.add('firstRevived');if(e.type==='boss')this.emit('bossRevived');this.emit('revive');}continue;}
-   if(e.state!=='alive')continue;if(e.type==='boss'&&!this.bossAwake)continue;
+   if(e.state!=='alive')continue;if((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)continue;
    const near=Math.abs(e.x-p.x)<650;
    if(e.type==='slime'){
     if(e.prologue){
@@ -280,10 +280,10 @@ class Game{
    }
    if(e.type==='bat'){e.x=e.baseX+Math.sin(e.t*1.2)*65;e.y=e.baseY+Math.sin(e.t*2.5)*34;}
    if(e.type==='sprout'){this.physics(e,dt);if(near){e.attack-=dt;e.telegraph=e.attack<.7?1:0;if(e.attack<=0){this.enemyShot(e.x+16,e.y+8,p.x+12,p.y+28,145+this.stage*15);e.attack=2.9;}}}
-   if(e.type==='boss')this.stepBoss(e,dt);
+   if(e.type==='boss')this.stepBoss(e,dt);if(e.type==='naniwa')this.stepNaniwa(e,dt);
    if(overlap(p,e)){this.hurt(e.x+e.w/2);if(this.state!=='playing')return;}
   }
-  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;for(const e of this.enemies){if(e.state!=='alive'||(e.type==='boss'&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
+  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter===2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
   this.bullets=this.bullets.filter(b=>b.life>0);
   for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
   this.hostile=this.hostile.filter(b=>b.life>0);

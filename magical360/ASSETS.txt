@@ -12,3 +12,11 @@ Portrait background is baked into the atlas; portraits are intentionally rendere
 
 v0.10: assets/miload-run-v1.png — built-in image_gen; strict reference assets/miload-motion-v2.png.
 Use case: identity-preserve. Create a RUN CYCLE sprite atlas for the EXACT pixel-art game character in the reference. Strictly preserve face, cute proportions, small black eyes, pointed ears, long orange hair, huge bent purple witch hat with pink underside and white highlight, plain closed-shoulder purple long-sleeved dress and black neck bow, bare legs and purple ankle boots. No belt, no armor, no outfit redesign. Same coarse pixel clusters and dark outlines, not painted illustration. Exactly FOUR equal columns and TWO equal rows: eight sequential frames of a single fast RUNNING cycle facing RIGHT. Strong forward lean, legs extending far apart in contact frames, knees tucked in passing frames, a brief airborne stride, hair and hat trailing LEFT; clearly faster posture than the walking cycle in the reference. She carries the same small star-tipped wand in her front hand at chest level consistently throughout. Frames 1-4 one stride, 5-8 opposite stride; do not repeat the same pose eight times. Same body scale in all cells; same pelvis position relative to cell and horizontal floor baseline; feet may lift during airborne phases. Whole character and wand within each cell with generous transparent margins, no cross-cell overlap. Low-resolution retro pixel game asset, roughly 64px character detail enlarged crisply. Transparent background, no ground line, no captions, no text.
+
+
+v0.25 — Chapter 2
+Existing Miload images are unchanged.
+assets/naniwa-sprites-v2.png: approved Naniwa revision 2, 256 x 384, 24 frames (64 x 64), 4 columns x 6 rows. Anchor (32,62), drawn at 90 x 90 like Miload.
+assets/naniwa-faces-v2.png: approved simplified portrait revision 2, 384 x 192, 8 expressions (96 x 96), 4 columns x 2 rows.
+The approved images are copied unchanged from the Naniwa v2 deliverable; no redesign.
+Chapter 2 backgrounds and cargo are code-native pixel drawings in chapter2-art.js.

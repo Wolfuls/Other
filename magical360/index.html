@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111d2b">
   <title>ミロードちゃんと真夜中のお菓子</title>
-  <link rel="stylesheet" href="style.css?v=24">
+  <link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
   <main class="app">
     <header class="masthead">
       <a class="brand" href="./" aria-label="ミロードちゃんと真夜中のお菓子 ホーム"><span class="brand-star">✦</span><span>MILOAD</span></a>
-      <div class="edition"><span class="status-dot"></span> <span class="version">v0.24</span></div>
+      <div class="edition"><span class="status-dot"></span> <span class="version">v0.25</span></div>
     </header>
     <section class="heading"><div><h1>ミロードちゃんと真夜中のお菓子</h1></div></section>
     <section class="game-shell" aria-label="ゲーム">
@@ -19,16 +19,16 @@
       <div class="playfield" id="playfield">
         <canvas id="game" width="960" height="540" tabindex="0" aria-label="横スクロールアクション。左右キーで移動、同じ方向を素早く2回入力してダッシュ、Wまたは上キーでジャンプ、カーソル方向に左クリックで魔法、ホイールで杖切替、Eで拾う、ドア前のスペースで次のステージへ。"></canvas>
         <div class="hud" id="hud" hidden><div class="vitals"><div id="hearts" class="hearts" aria-label="ライフ"></div><div class="happiness-label"><span>HAPPINESS</span><strong id="happyText">0%</strong></div><div class="happiness-track"><div id="happyFill"></div></div><div class="energy-meter" id="energyMeter" role="meter" aria-label="魔法エネルギー" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="energy-label"><span>✦ ENERGY</span><strong id="energyText">100 / 100</strong></div><div class="energy-track"><div id="energyFill"></div></div></div></div><div class="wand-hud" id="wandHud"></div></div>
-        <div class="boss-hud" id="bossHud" hidden><div><strong>夜菓子の王さま</strong><span id="bossValue"></span></div><div class="boss-track"><i id="bossFill"></i></div></div>
+        <div class="boss-hud" id="bossHud" hidden><div><strong id="bossName">夜菓子の王さま</strong><span id="bossValue"></span></div><div class="boss-track"><i id="bossFill"></i></div></div>
         <div id="toast" class="toast" role="status" aria-live="polite"></div>
         <div id="lesson" class="lesson" role="status" hidden></div><section id="dialogue" class="dialogue" aria-label="メッセージ" hidden><canvas id="portrait" width="96" height="96" role="img" aria-label="ミロードの顔"></canvas><strong id="speaker"></strong><p id="dialogueText" aria-live="polite"></p><div><button id="dialogueNext" aria-label="次へ">▼</button><button id="dialogueAuto" type="button" aria-pressed="false">AUTO OFF</button><button id="dialogueSkip">スキップ</button></div></section><div id="transitionScreen" class="transition-screen" aria-live="polite" hidden><span id="transitionChapter"></span><h2 id="transitionTitle"></h2><span id="transitionStage"></span></div><div id="sceneControls" class="scene-controls" hidden><button id="sceneAuto" type="button" aria-pressed="false">AUTO OFF</button><button id="sceneSkip">スキップ <kbd>Esc</kbd></button></div><div class="context" id="context" hidden></div>
-        <div class="overlay intro" id="overlay"><div class="intro-content"><h2>お菓子に変えて、<br>夜を駆ける。</h2><button class="primary" id="startBtn">冒険をはじめる <span>→</span></button><label class="skip-choice"><input type="checkbox" id="skipTutorial"> チャプター0をスキップする</label><p class="start-note" id="loadNote">キャラクターを読み込み中…</p></div></div>
+        <div class="overlay intro" id="overlay"><div class="intro-content"><h2>お菓子に変えて、<br>夜を駆ける。</h2><button class="primary" id="startBtn">冒険をはじめる <span>→</span></button><button class="secondary chapter-start" id="chapterTwoBtn" disabled>チャプター2から遊ぶ</button><label class="skip-choice"><input type="checkbox" id="skipTutorial"> チャプター0をスキップする</label><p class="start-note" id="loadNote">キャラクターを読み込み中…</p></div></div>
       </div>
       <div class="touch-controls" aria-label="タッチ操作"><div><button data-key="ArrowLeft" aria-label="左移動">◀</button><button data-key="ArrowRight" aria-label="右移動">▶</button></div><div><button data-key="KeyQ">杖</button><button data-key="KeyE">拾う</button><button data-key="Space">ドア</button><button data-key="KeyW">跳ぶ</button><button data-key="KeyZ" class="touch-magic">魔法</button></div></div>
     </section>
     <section class="control-guide" aria-label="操作方法"><div class="control"><span class="key-group"><kbd>←</kbd><kbd>→</kbd></span><span>移動<small>2回でダッシュ</small></span></div><div class="control"><kbd>W / ↑</kbd><span>ジャンプ </span></div><div class="control"><kbd class="mouse-key">左クリック</kbd><span>魔法 </span></div><div class="control"><kbd class="mouse-key">ホイール</kbd><span>杖切替 </span></div><div class="control"><kbd>E</kbd><span>拾う</span></div><div class="control"><kbd class="wide">SPACE</kbd><span>ドアに入る</span></div><div class="control"><kbd>ESC</kbd><span>ひとやすみ</span></div></section>
     <footer><button id="settingsBtn">操作・ルール</button></footer>
   </main>
-  <script src="content.js?v=24"></script><script src="engine.js?v=24"></script><script src="game.js?v=24"></script>
+  <script src="content.js?v=25"></script><script src="chapter2-content.js?v=25"></script><script src="engine.js?v=25"></script><script src="chapter2.js?v=25"></script><script src="chapter2-art.js?v=25"></script><script src="game.js?v=25"></script>
 </body>
 </html>

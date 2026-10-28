@@ -40,3 +40,6 @@ footer{justify-content:flex-end;padding-top:12px;padding-bottom:20px}.intro-cont
 
 /* Keep the retry controls visible even in a narrow game panel. */
 .result-actions{display:flex;flex-direction:column;align-items:center;gap:8px}.result-modal .result-actions button{margin:0}.result-modal .defeat-line{font-size:11px;line-height:1.6;margin:8px 0}@media(max-width:600px){.result-modal{padding:10px 12px}.result-modal h2{font-size:18px;margin:3px 0 5px}.result-modal .defeat-line{font-size:10px;line-height:1.4;margin:5px 0}.result-modal .run-result{padding:5px 0;margin:6px 0}.result-modal .run-result strong{font-size:18px}.result-modal .run-result span{font-size:8px}.result-actions{flex-direction:row;gap:7px}.result-modal .result-actions button{width:50%;min-width:0;padding:8px 4px;font-size:10px;letter-spacing:0}.result-modal .result-actions .primary{min-width:0;gap:0}}
+
+/* Chapter 2 uses the same portrait size and dialogue controls. */
+.chapter-start{display:block;margin-top:12px;font-size:12px}.dialogue.rival #portrait{border-color:#ba7b82}.dialogue.rival strong{color:#edbdba}
