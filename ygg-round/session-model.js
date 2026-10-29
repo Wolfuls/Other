@@ -3,19 +3,42 @@
 function install(Y,catalog){
 const normalize=s=>String(s??'').normalize('NFKC').replace(/[\s【】\[\]]/g,'').toLowerCase();
 const groups=['特殊武装','SPE','カルマ','消費アイテム'];
+function sheetName(value){
+ return String(value??'').normalize('NFKC').trim()
+  .replace(/\s*\/\s*(?:\d+\s*(?:rd|sp)|s\s*\d+)\s*$/i,'')
+  .replace(/\s*\(\s*RW\s*\)\s*$/i,'').trim();
+}
+function catalogMatches(value,group){
+ let name=sheetName(value),text=normalize(name);
+ if(group==='消費アイテム'&&text===normalize('マグタフ黒'))text=normalize('マグタフブラック');
+ let result=catalog.filter(a=>a.group===group&&normalize(a.ownedName)===text);
+ if(!result.length&&['SPE','カルマ'].includes(group)){
+  const base=name.replace(/\s*(?:【[^】]*】|\[[^\]]*\]|\([^)]*\))\s*$/,'');
+  result=catalog.filter(a=>a.group===group&&normalize(a.ownedName)===normalize(base));
+ }
+ if(!result.length&&group==='特殊武装'){
+  const base=name.replace(/\s*\([^)]*\)\s*$/,'');
+  result=catalog.filter(a=>a.group===group&&normalize(a.ownedName)===normalize(base));
+ }
+ return result;
+}
 function ownedFromCells(sheet){
  const value=k=>{const v=sheet[k];return v&&typeof v==='object'?v.v:v;};
  const slots=[['C13','SPE'],['J6','カルマ'],...Array.from({length:12},(_,i)=>['B'+(40+i),'特殊武装']),...Array.from({length:12},(_,i)=>['E'+(40+i),'消費アイテム'])];
- const result=[];
+ const result=[],attachmentNames=new Map();
+ for(let row=40;row<=51;row++)if(normalize(sheetName(value('B'+row)))==='アタッチメント'){
+  const name=String(value('E'+row)??'').trim();if(name&&!/^[-―ー—0]+$/.test(name))attachmentNames.set(row,name);
+ }
  for(const [cell,group] of slots){
+  if(cell.startsWith('E')&&attachmentNames.has(Number(cell.slice(1))))continue;
   const raw=String(value(cell)??'').normalize('NFKC').trim();if(!raw||/^[-―ー—0]+$/.test(raw))continue;
   for(const part of raw.split(/[\n、,;；]+/).filter(Boolean)){
    const amount=part.match(/(?:[×x*]\s*(\d+)|\s+(\d+)\s*(?:個|つ|本|枚))\s*$/i);
    const quantity=amount?Number(amount[1]||amount[2]):1;
-   const text=normalize(amount?part.slice(0,amount.index):part);
-   const matches=catalog.filter(a=>a.group===group&&(normalize(a.ownedName)===text||text===normalize(group)+normalize(a.ownedName)||text.startsWith(normalize(a.ownedName)+'(')));
-   const entries=matches.length?matches:[{name:part.trim(),ownedName:part.trim(),group,owned:true,pp:0,hp:0,factor:0,rage:0,spec:0,phases:['IN','AC','RE','EN','EX'],needsReview:true,note:'シートから読み込んだ名称です。効果・使用コスト・条件を編集で確認してください。',...(group==='消費アイテム'?{consumable:true,level:true,max:99}:{})}];
-   for(const entry of entries){const prior=result.find(a=>a.name===entry.name&&a.group===group);if(prior){if(entry.consumable||group==='特殊武装')prior.quantity+=quantity;continue;}result.push({...Y.clone(entry),id:Y.id(),quantity,sourceCell:'キャラシート!'+cell});}
+   const rawName=sheetName(amount?part.slice(0,amount.index):part);
+   const matches=catalogMatches(rawName,group);
+   const entries=matches.length?matches:[{name:rawName,ownedName:rawName,group,owned:true,pp:0,hp:0,factor:0,rage:0,spec:0,phases:['IN','AC','RE','EN','EX'],...(group==='消費アイテム'?{consumable:true,level:true,max:99,manualEffect:true,limitText:'1個につき1回（使い切り）',note:'この名称の効果はルールブック内に見つかりませんでした。効果は手動で記録できます。'}:{needsReview:true,note:'シートから読み込んだ名称です。効果・使用コスト・条件を編集で確認してください。'})}];
+   for(const entry of entries){const alias=cell.startsWith('B')?attachmentNames.get(Number(cell.slice(1))):null,name=alias||entry.name;const prior=result.find(a=>a.name===name&&a.group===group);if(prior){if(entry.consumable||group==='特殊武装')prior.quantity+=quantity;continue;}result.push({...Y.clone(entry),name,id:Y.id(),quantity,sourceCell:'キャラシート!'+cell,...(alias?{attachmentName:alias,aliasCell:'キャラシート!E'+cell.slice(1)}:{})});}
   }
  }
  return result;
@@ -50,11 +73,55 @@ function applyCondition(c,{hpRoll,ppRoll,bonus=weaponBonus(c),reroll=false,maxim
 }
 function useKey(a,s){return a.id+(a.usePeriod==='round'?'@'+s.round:a.usePeriod==='battle'?'@battle'+(s.battleSerial||1):'');}
 function ownedRemaining(c,a){return a.consumable?(c.state.ownedStock?.[a.id]??0):a.useLimit?Math.max(0,a.useLimit-(c.state.ownedUses?.[useKey(a,c.state)]||0)):null;}
+function ownedCountLabel(c,a){const n=ownedRemaining(c,a);return a.consumable?'@'+n:a.needsReview?'要確認':a.passive?'常時':a.perCheck?'判定ごと':n===null?'@∞':'@'+n;}
+function resourceCopy(c,key){
+ if(key==='all')return ['hp','pp','rage','factor','spent','spe','karma'].map(k=>resourceCopy(c,k)).join('　').replace(/\s+/g,' ').trim();
+ if(key==='spe'||key==='karma'){const group=key==='spe'?'SPE':'カルマ';return group+' '+(c.actions.filter(a=>a.owned&&a.group===group).map(a=>a.name+ownedCountLabel(c,a)).join(' / ')||'未登録');}
+ const s=c.state;return ({hp:'HP '+s.hp+'/'+s.hpMax,pp:'PP '+s.pp+'/'+s.ppMax,rage:'暴走率 '+s.rage+'%',factor:'因子 '+s.factor+' Rd',spent:'総消費 '+s.spent})[key]||'';
+}
+function rulesFingerprint(a){let h=2166136261;for(const x of JSON.stringify(catalog.signatureFields.map(k=>a[k]??null)))h=Math.imul(h^x.charCodeAt(0),16777619)>>>0;return h;}
+function upgradeOwned(c){
+ const upgraded=[],roundMigrations=[];
+ for(const a of c.actions){
+  if(!a.owned||a.rulesRevision===110||a.rulesEdited){upgraded.push(a);continue;}
+  const untouched19=a.rulesRevision===19&&catalog.revision19Signatures?.[a.catalogKey]===rulesFingerprint(a);
+  const untouched18=a.rulesRevision!==19&&catalog.legacySignatures?.[a.catalogKey]===rulesFingerprint(a);
+  const unknownImported=!a.catalogKey&&a.needsReview&&a.sourceCell;
+  if(!untouched19&&!untouched18&&!unknownImported){upgraded.push(a);continue;}
+  const matches=catalogMatches(a.ownedName||a.name,a.group);
+  const exact=matches.find(p=>p.catalogKey===a.catalogKey||p.name===a.name),replacement=exact?[exact]:matches;
+  if(!replacement.length){
+   if(a.group==='消費アイテム'&&a.consumable){const copy={...a,needsReview:false,manualEffect:true,limitText:'1個につき1回（使い切り）'};if(unknownImported)copy.note='この名称の効果はルールブック内に見つかりませんでした。効果は手動で記録できます。';upgraded.push(copy);}else upgraded.push(a);
+   continue;
+  }
+  const keep=exact||replacement.find(p=>!p.passive)||replacement[0];
+  if(a.usePeriod==='round'&&keep.usePeriod==='session'&&keep.roundLimit)roundMigrations.push(a.id);
+  for(const p of replacement)upgraded.push({...Y.clone(p),id:p===keep?a.id:Y.id(),quantity:a.quantity,sourceCell:a.sourceCell,...(a.attachmentName?{name:a.name,attachmentName:a.attachmentName,aliasCell:a.aliasCell}:{})});
+ }
+ c.actions=upgraded;
+ // Older versions recorded some session-limited karma under per-round keys.
+ // Convert each snapshot separately so rollback retains the usage at that point.
+ for(const s of [c.initial,c.state,...(c.history||[]).flatMap(e=>[e.before,e.after])]){
+  if(!s?.ownedUses)continue;
+  for(const id of roundMigrations){let total=0;for(const [key,n] of Object.entries(s.ownedUses)){
+   const suffix=key.startsWith(id+'@')?key.slice(id.length+1):'';if(!/^\d+$/.test(suffix))continue;
+   total+=n;const roundKey=id+'@round'+suffix;s.ownedUses[roundKey]=Math.max(s.ownedUses[roundKey]||0,n);
+  }s.ownedUses[id]=Math.max(s.ownedUses[id]||0,total);}
+ }
+ // Only pair cells whose original sheet coordinates prove they belong together.
+ for(const a of c.actions.filter(a=>a.owned&&a.group==='特殊武装'&&normalize(a.ownedName||a.name)==='アタッチメント'&&!a.attachmentName)){
+  const row=a.sourceCell?.match(/^キャラシート!B(4[0-9]|5[01])$/)?.[1];if(!row)continue;
+  const alias=c.actions.find(b=>b.owned&&b.group==='消費アイテム'&&b.sourceCell==='キャラシート!E'+row);if(!alias)continue;
+  a.name=alias.ownedName||alias.name;a.attachmentName=a.name;a.aliasCell=alias.sourceCell;c.actions=c.actions.filter(b=>b!==alias);
+ }
+ return c;
+}
 function ownedReason(c,a){
  if(!a.owned)return '';
- if(a.needsReview)return '効果とコストの確認が必要です（編集）';
+ if(a.needsReview&&!a.consumable)return '効果とコストの確認が必要です（編集）';
  if(a.passive)return '常時効果：宣言不要。読込済みの能力値に重ねて加算しません';
  if(a.conditionItem)return 'コンディション欄から使用してください';
+ if(a.roundLimit&&Y.isBattle(c.state)&&(c.state.ownedUses?.[a.id+'@round'+c.state.round]||0)>=a.roundLimit)return 'このラウンドの使用回数の上限です';
  if(ownedRemaining(c,a)===0)return a.consumable?'残数がありません':'使用回数の上限です';
  return '';
 }
@@ -74,6 +141,7 @@ function applyOwnedState(c,rows,after,errors,warnings){
   if(a.main&&Y.isBattle(c.state))after.mainUsed=true;
   if(a.consumable)after.ownedStock[a.id]=(remaining||0)-quantity;
   if(a.useLimit){const key=useKey(a,c.state);after.ownedUses[key]=(after.ownedUses[key]||0)+quantity;}
+  if(a.roundLimit&&Y.isBattle(c.state)){const key=a.id+'@round'+c.state.round;after.ownedUses[key]=(after.ownedUses[key]||0)+quantity;}
   if(a.manualEffect){warnings.push(a.name+'：効果・反動・対象への処理は登録後に確認してください');after.pending=[...(after.pending||[]),a.name+'：効果・反動を処理'];}
  }
  if(rows.some(r=>r.action.owned&&r.action.damageAction)&&rows.filter(r=>r.action.damageAction||r.action.attack).length>1)errors.push('特殊武装のダメージアクションは、他のダメージアクションと併用できません');
@@ -84,7 +152,7 @@ function validateSession(s,fail){
  for(const prop of ['ownedStock','ownedUses'])if(s[prop]!==undefined){if(!s[prop]||typeof s[prop]!=='object'||Array.isArray(s[prop]))fail();for(const n of Object.values(s[prop]))if(!Number.isInteger(n)||n<0)fail();}
  if(s.condition!==undefined){const x=s.condition;if(!x||typeof x!=='object'||!Number.isInteger(x.hp)||x.hp<0||!Number.isInteger(x.pp)||x.pp<0)fail();}
 }
-return {ownedCatalog:catalog,ownedGroups:groups,ownedFromCells,mergeOwned,importSession,weaponBonus,applyCondition,ownedRemaining,ownedReason,resolveOwnedRows,applyOwnedState,changePhase,validateSession,ownedUseKey:useKey};
+return {ownedCatalog:catalog,ownedGroups:groups,ownedFromCells,mergeOwned,importSession,weaponBonus,applyCondition,ownedRemaining,ownedCountLabel,resourceCopy,upgradeOwned,ownedReason,resolveOwnedRows,applyOwnedState,changePhase,validateSession,ownedUseKey:useKey};
 }
 if(typeof module!=='undefined')module.exports=install;root.YggSessionModel=install;
 })(globalThis);
