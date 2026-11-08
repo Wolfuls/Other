@@ -9,7 +9,7 @@ P.loadChapterTwo=function(){
  for(const [kind,x,y,w,axis,min,max,period]of map.movers){const base=axis==='x'?x:y,phase=Math.acos(clamp(1-2*(base-min)/(max-min),-1,1));const p={id:this.id++,x,y,w,h:18,kind,moving:true,baseX:x,baseY:y,axis,min,max,period,phase,dx:0,dy:0};this.movingPlatforms.push(p);this.platforms.push(p);}
  for(const [x,y,w,h]of map.crates){const p={id:this.id++,x,y,w,h,solid:true,crate:true,hp:2};this.platforms.push(p);this.crates.push(p);}
  for(const [type,x,bottom,mi]of map.enemies){const e=this.spawnEnemy(type==='guard'?'slime':type,x,bottom),pf=mi!=null?this.movingPlatforms[mi]:this.platforms.find(p=>!p.ground&&!p.crate&&Math.abs(p.y-bottom)<1&&x>=p.x&&x+e.w<=p.x+p.w);
-  if(pf){e.platform=pf;e.patrolLeft=pf.x+4;e.patrolRight=pf.x+pf.w-e.w-4;e.grounded=true;}if(type==='guard'){e.finalGuard=true;e.hp=e.maxHp=3;e.patrolLeft=x-80;e.patrolRight=x+80;}
+  if(pf){e.platform=pf;e.patrolLeft=pf.x+4;e.patrolRight=pf.x+pf.w-e.w-4;e.grounded=true;}if(type==='guard'){e.finalGuard=true;e.hp=e.maxHp=4;e.patrolLeft=x-80;e.patrolRight=x+80;}
  }
  for(const [x,y,kind,mi]of map.sweets){const s=this.sweet(x,y,kind,null);if(mi!=null)s.carrier=this.movingPlatforms[mi];this.sweets.push(s);}
  for(const [type,wand,x,y]of map.drops)this.drops.push({id:this.id++,type,wand,x,y,w:26,h:30,cooldown:0});
@@ -17,8 +17,8 @@ P.loadChapterTwo=function(){
  if(this.stage===0)this.drops.push({id:this.id++,type:'wand',wand:'guide',x:1450,y:428,w:26,h:30,cooldown:0});
  this.cargoDecor=map.cargo.map(([x,y,kind])=>({x,y,kind,tag:true}));
  this.exit=map.exit?{x:map.exit[0],y:map.exit[1]-85,w:54,h:85}:null;this.arenaStart=map.arenaStart??0;this.bossAwake=false;this.arenaLocked=false;
- if(this.stage===2)this.enemies.push({id:this.id++,type:'naniwa',x:this.arenaStart+750,y:CFG.ground-62,w:28,h:62,hp:54,maxHp:54,vx:0,vy:0,t:0,dir:-1,grounded:true,state:'alive',flash:0,phase:'rest',phaseTime:1,nextMove:0,attackPose:0,runPhase:0});
- Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dashing:false,walkPhase:0,runPhase:0,onMover:null});this.camera=0;this.rng=savedRng;this.limitStageHeart();this.emit('stage',{stage:this.stage,area:this.area,chapter:2});
+ if(this.stage===2)this.enemies.push({id:this.id++,type:'naniwa',x:this.arenaStart+750,y:CFG.ground-62,w:28,h:62,hp:76,maxHp:76,vx:0,vy:0,t:0,dir:-1,grounded:true,state:'alive',flash:0,phase:'rest',phaseTime:1,nextMove:0,attackPose:0,runPhase:0});
+ Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dashing:false,walkPhase:0,runPhase:0,onMover:null});this.camera=0;this.rng=savedRng;this.limitChapterWands();this.limitStageHeart();this.emit('stage',{stage:this.stage,area:this.area,chapter:2});
 };
 P.beginChapterTwo=function(){if(this.state!=='won'||this.chapter!==1)return false;this.story=null;this.storyQueue=[];this.storySignals.clear();this.signalTimes={};this.celebration=null;this.defeat=null;this.deathMessage=null;this.transition={t:0,loaded:false,entrance:false,chapter:2,stage:0,area:0,covered:true};this.state='transition';this.emit('presentationStart');return true;};
 P.chapterEvent=function(id){return id.startsWith('c2-')?C.chapterTwo.find(e=>e.id===id):original.chapterEvent.call(this,id);};

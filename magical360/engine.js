@@ -3,13 +3,13 @@
 'use strict';
 const CONTENT=root.MiloadContent||(typeof require!=='undefined'?require('./content.js'):null);
 const CFG={width:960,height:540,ground:458,gravity:1450,speed:224,dashSpeed:368,airDashSpeed:620,airDashSeconds:.4,airDashAnimation:.60,airDashCost:20,doubleTapSeconds:.28,jump:610,jumpReleaseSpeed:220,candySeconds:5,invincible:1.5,maxHearts:Infinity,stageCount:3,maxEnergy:100,energyRegen:18};
-const BOSS={hp:60,rest:1.3,recovery:1.1,enragedRecovery:.8,waveSpeed:230,dashSpeed:190,dashSeconds:.95,hitStop:.5,cakeScale:4};
+const BOSS={hp:84,rest:1.3,recovery:1.1,enragedRecovery:.8,waveSpeed:230,dashSpeed:190,dashSeconds:.95,hitStop:.5,cakeScale:4};
 const WANDS={
-  guide:{name:'導き星の杖',tag:'HOMING',desc:'発射時に最寄りの敵を追う。低威力・低速。',color:'#a9ecb8',cost:8,cooldown:.32,damage:.5,speed:260,life:3.2,homing:true},
+  guide:{name:'導き星の杖',tag:'HOMING',desc:'発射時に最寄りの敵を追う。低速で魔力消費が少ない。',color:'#a9ecb8',cost:6,cooldown:.28,damage:1,speed:260,life:3.2,homing:true},
   star:{name:'星くずの杖',tag:'RAPID',desc:'小さな星を連射する、最初の杖。',color:'#f3d294',cost:6,cooldown:.19,damage:1,speed:610,life:.9},
-  spread:{name:'三日月の杖',tag:'TRIPLE',desc:'3方向に魔法を放つ。近距離が得意。',color:'#a7d9da',cost:14,cooldown:.43,damage:1,speed:500,life:.75},
-  sugar:{name:'砂糖菓子の杖',tag:'SWEET',desc:'連射は遅いが、お菓子が中・大ランクに。',color:'#f1a2be',cost:18,cooldown:.5,damage:2,speed:480,life:1.05},
-  comet:{name:'彗星の杖',tag:'PIERCE',desc:'敵を貫く、大きな魔法。遠くまで届く。',color:'#b9b5ff',cost:24,cooldown:.6,damage:3,speed:670,life:1.35,pierce:true}
+  spread:{name:'三日月の杖',tag:'TRIPLE',desc:'3方向に魔法を放つ。近距離が得意。',color:'#a7d9da',cost:20,cooldown:.6,damage:2,speed:500,life:.75},
+  sugar:{name:'砂糖菓子の杖',tag:'SWEET',desc:'連射は遅いが、お菓子が中・大ランクに。',color:'#f1a2be',cost:15,cooldown:.48,damage:3,speed:480,life:1.05},
+  comet:{name:'彗星の杖',tag:'PIERCE',desc:'敵を貫く、大きな魔法。遠くまで届く。',color:'#b9b5ff',cost:20,cooldown:.55,damage:5,speed:670,life:1.35,pierce:true}
 };
 const SWEETS={candy:{name:'キャンディ',value:1,color:'#e8acda',rank:0},mint:{name:'ミントキャンディ',value:1,color:'#9ed9c6',rank:0},cookie:{name:'クッキー',value:5,color:'#e2ba80',rank:1},macaron:{name:'マカロン',value:5,color:'#c5a9e7',rank:1},cake:{name:'ショートケーキ',value:12,color:'#efaeb1',rank:2},pudding:{name:'プリン',value:12,color:'#eac378',rank:2}};
 const TABLES={slime:['candy','candy','mint','cookie','macaron'],bat:['mint','mint','macaron','cake'],sprout:['candy','cookie','cookie','pudding'],boss:['cake']};
@@ -49,9 +49,16 @@ function openingFrame(t){
 }
 class Game{
  constructor(seed=1,options={}){this.reset(seed,options);}
- reset(seed,options={}){this.debugRun=options.debug??this.debugRun??false;this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.collectedHearts=new Set();this.heartAreas=new Map();this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.playedTutorial=!!options.tutorial;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=this.debugRun?10:2;this.maxLife=this.debugRun?10:2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
+ reset(seed,options={}){this.debugRun=options.debug??this.debugRun??false;this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.collectedHearts=new Set();this.heartAreas=new Map();this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.playedTutorial=!!options.tutorial;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=this.debugRun?10:3;this.maxLife=this.debugRun?10:3;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
  emit(type,data={}){if(this.storySignals){this.storySignals.add(type);this.signalTimes[type]=this.time;}this.events.push({type,...data});}
  pick(xs){return xs[Math.floor(this.rng()*xs.length)];}
+ limitChapterWands(){
+  if(this.chapter<1)return;
+  const kinds=[['spread','guide'],['sugar'],['comet']][this.stage]||[];
+  const slots=this.drops.filter(d=>d.type==='wand').sort((a,b)=>a.x-b.x).slice(0,kinds.length);
+  slots.forEach((d,i)=>d.wand=kinds[i]);
+  this.drops=this.drops.filter(d=>d.type!=='wand'||slots.includes(d));
+ }
  loadStage(){if(this.player)Object.assign(this.player,{jumpRising:false,airDash:0,airDashAnim:0,airDashCooldown:0});this.gardenCarrier=this.chapter===1&&this.stage===1?{x:1320,y:430,t:0,phase:'waiting',bag:true,delivered:false,throwT:0}:null;this.naniwaDefeat=null;this.clearMusic=false;
   this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter===1)this.area=0;this.movingPlatforms=[];this.crates=[];this.cargoDecor=[];this.chapterScene=null;
   this.platforms=[];this.enemies=[];this.sweets=[];this.drops=[];this.bullets=[];this.hostile=[];this.particles=[];this.texts=[];this.swapTarget=null;this.arenaLocked=false;this.bossAwake=false;
@@ -70,7 +77,7 @@ class Game{
   this.spawnEnemy('slime',490,CFG.ground);
   if(this.stage===2){this.arenaStart=this.worldWidth-1200;this.platforms=this.platforms.filter(p=>p.ground||p.x+p.w<this.arenaStart-50);this.enemies=this.enemies.filter(e=>e.x<this.arenaStart-100&&(!e.platform||this.platforms.includes(e.platform)));this.sweets=this.sweets.filter(s=>s.x<this.arenaStart-50);this.drops=this.drops.filter(d=>d.x<this.arenaStart-50);this.spawnEnemy('boss',this.worldWidth-380,CFG.ground);}
   this.exit={x:this.worldWidth-150,y:CFG.ground-85,w:54,h:85};
-  Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,hurt:0});this.camera=0;this.rng=runRng;this.limitStageHeart();this.emit('stage',{stage:this.stage});
+  Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,hurt:0});this.camera=0;this.rng=runRng;this.limitChapterWands();this.limitStageHeart();this.emit('stage',{stage:this.stage});
  }
  loadTutorial(){
   this.hitStop=0;this.encounter=null;
@@ -81,13 +88,13 @@ class Game{
    else if(this.room===1){this.worldWidth=1920;this.platforms=[{x:0,y:458,w:1920,h:100,ground:true},box(530,420,90),box(790,382,110),box(1190,402,100)];this.exit={x:1780,y:373,w:54,h:85};}
    else{
     this.worldWidth=1200;this.platforms=[{x:0,y:458,w:1200,h:100,ground:true}];
-    const e=this.spawnEnemy('slime',660,458);Object.assign(e,{prologue:true,lessonFirst:true,hp:4,maxHp:4,patrolLeft:600,patrolRight:970,attack:1.2,charge:0,awake:false});
+    const e=this.spawnEnemy('slime',660,458);Object.assign(e,{prologue:true,lessonFirst:true,hp:6,maxHp:6,patrolLeft:600,patrolRight:970,attack:1.2,charge:0,awake:false});
     this.exit={x:1060,y:373,w:54,h:85};
     this.storySignals.add('slimeDiscovered');
    }
   }else if(this.area===1){
    this.worldWidth=2880;this.platforms=[{x:0,y:458,w:2880,h:100,ground:true},...[[420,385,150],[950,370,170],[1720,385,150],[2010,315,180]].map(([x,y,w])=>({x,y,w,h:16}))];
-   for(const [i,x] of [670,910,1260].entries()){const e=this.spawnEnemy('slime',x,458);Object.assign(e,{prologue:true,garden:true,candyKind:['macaron','candy','pudding'][i],hp:3,maxHp:3,patrolLeft:x-170,patrolRight:x+170,attack:1.2,charge:0,awake:false});}
+   for(const [i,x] of [670,910,1260].entries()){const e=this.spawnEnemy('slime',x,458);Object.assign(e,{prologue:true,garden:true,candyKind:['macaron','candy','pudding'][i],hp:4,maxHp:4,patrolLeft:x-170,patrolRight:x+170,attack:1.2,charge:0,awake:false});}
    for(const [x,y,kind]of [[1940,438,'mint'],[2080,293,'cookie'],[2160,293,'cake']]){const q=this.sweet(x,y,kind,null);q.placedLesson=true;this.sweets.push(q);}
    this.drops=[{id:this.id++,type:'wand',wand:'spread',x:440,y:355,w:26,h:30,cooldown:0},{id:this.id++,type:'heart',x:2450,y:431,w:25,h:27,cooldown:0}];
    this.exit={x:2730,y:373,w:54,h:85};
@@ -187,7 +194,7 @@ class Game{
   return this.tutorialReady()?'門の前で Space：出発する':'森への出入口へ進もう';
  }
  beginChapterOne(){const covered=this.state==='leaving';this.leaving=null;this.story=null;this.storyQueue=[];this.transition={t:0,loaded:false,entrance:false,chapter:1,stage:0,covered};this.state='transition';this.emit('presentationStart');}
- spawnEnemy(type,x,bottom){const hp={slime:3,bat:2,sprout:4,boss:BOSS.hp}[type]+(type==='boss'?0:this.stage);const e={id:this.id++,type,x,y:bottom-(type==='boss'?56:type==='bat'?87:28),w:type==='boss'?58:32,h:type==='boss'?56:28,hp,maxHp:hp,vx:0,vy:0,baseX:x,baseY:bottom-87,dir:this.rng()<.5?-1:1,t:this.rng()*5,attack:type==='boss'?2:1+this.rng()*2,flash:0,telegraph:0,state:'alive',candyTime:0,grounded:false,phase:'rest',phaseTime:BOSS.rest,nextMove:'wave',move:'wave',chargeDir:-1};this.enemies.push(e);return e;}
+ spawnEnemy(type,x,bottom){const baseHp={slime:3,bat:2,sprout:4,boss:BOSS.hp}[type]+(type==='boss'?0:this.stage),hp=type==='boss'?baseHp:Math.max(baseHp+1,Math.round(baseHp*1.4));const e={id:this.id++,type,x,y:bottom-(type==='boss'?56:type==='bat'?87:28),w:type==='boss'?58:32,h:type==='boss'?56:28,hp,maxHp:hp,vx:0,vy:0,baseX:x,baseY:bottom-87,dir:this.rng()<.5?-1:1,t:this.rng()*5,attack:type==='boss'?2:1+this.rng()*2,flash:0,telegraph:0,state:'alive',candyTime:0,grounded:false,phase:'rest',phaseTime:BOSS.rest,nextMove:'wave',move:'wave',chargeDir:-1};this.enemies.push(e);return e;}
  sweet(x,y,kind,enemy){return{id:this.id++,x,y,w:22,h:20,vy:0,kind,enemy,age:0};}
  switchWand(slot){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;this.slot=slot===undefined?(this.slot+1)%this.inventory.length:clamp(slot,0,this.inventory.length-1);if(this.inventory.length>1)this.tutorialSeen.add('switch');this.emit('switch',{name:WANDS[this.inventory[this.slot]].name});}
  collectSweet(s){
@@ -304,7 +311,7 @@ class Game{
   }
   for(const b of this.bullets){if(b.targetId!=null){const target=this.enemies.find(e=>e.id===b.targetId&&e.state==='alive');if(target){const current=Math.atan2(b.vy,b.vx),desired=Math.atan2(target.y+target.h/2-b.y-b.h/2,target.x+target.w/2-b.x-b.w/2),delta=Math.atan2(Math.sin(desired-current),Math.cos(desired-current)),angle=current+clamp(delta,-5*dt,5*dt),speed=WANDS[b.wand].speed;b.vx=Math.cos(angle)*speed;b.vy=Math.sin(angle)*speed;}else b.targetId=null;}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter===2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(this.hitEnemyEffect)this.hitEnemyEffect(e,b);if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
   this.bullets=this.bullets.filter(b=>b.life>0);
-  for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
+  for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)&&!(p.airDash>0)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
   this.hostile=this.hostile.filter(b=>b.life>0);
   for(const s of this.sweets){if(s.removed)continue;s.age+=dt;if(s.enemy)this.physics(s,dt);if(overlap(p,{x:s.x-5,y:s.y-5,w:s.w+10,h:s.h+10})){this.collectSweet(s);if(this.state!=='playing')break;}}
   this.sweets=this.sweets.filter(s=>!s.removed);
