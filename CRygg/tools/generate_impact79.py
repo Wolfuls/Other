@@ -1,0 +1,10 @@
+import numpy as np,wave
+r=44100;t=np.arange(int(r*.85))/r;rng=np.random.default_rng(79)
+u=np.maximum(t,0)
+body=np.sin(2*np.pi*(43*t+3*(1-np.exp(-t/.028))))*np.exp(-t/.22)
+noise=rng.normal(0,1,len(t));thud=np.convolve(noise,np.ones(70)/70,'same')*np.exp(-t/.10)
+metal=sum(a*np.sin(2*np.pi*f*t)*np.exp(-t/d) for f,a,d in [(173,.19,.18),(391,.10,.12),(879,.06,.07)])
+x=(body*.85+thud*2+metal+noise*.1*np.exp(-t/.009))*np.minimum(t/.002,1)
+x=np.tanh(x*1.6);x*=.94/np.max(abs(x));x[-4410:]*=np.linspace(1,0,4410)
+with wave.open('assets/audio/yakumono-impact-v79.wav','wb') as w:w.setparams((1,2,r,0,'NONE',''));w.writeframes((x*32767).astype('<i2').tobytes())
+print('impact peak',np.max(abs(x)))

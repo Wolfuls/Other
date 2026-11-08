@@ -90,7 +90,35 @@ function showSlash(){
  fx.style.width=(Math.min(r.width*1.44,b.width-left-3)/b.width*100)+'%';fx.style.height=(r.height*1.64/b.height*100)+'%';
  lcd.append(fx);sound('slash');
 }
+function showYakumono(){
+ if($('lcd').querySelector('.yakumono-front'))return;
+ const prop=document.createElement('div');prop.className='yakumono-front';prop.setAttribute('aria-hidden','true');
+ const art=document.createElement('canvas');art.className='yakumono-art';prop.append(art);
+ $('lcd').append(prop);
+ const impactToken=token;setTimeout(()=>{if(impactToken!==token||!prop.isConnected)return;sound('yakumonoImpact');$('lcd').classList.add('yakumono-impact');setTimeout(()=>{if(impactToken===token)$('lcd').classList.remove('yakumono-impact')},550)},360);
+}
+function clearYakumono(){ $('lcd').classList.remove('yakumono-impact'); $('lcd').querySelectorAll('.yakumono-front').forEach(el=>el.remove()); }
+function startRainbow(){
+ $('lcd').style.setProperty('--rainbow-phase',(-performance.now()/1000)+'s');
+ $('lcd').classList.add('rainbow-active');
+}
+let recoveryInput=null;
+function waitRecoveryInput(){
+ return new Promise(resolve=>{
+  const prompt=document.createElement('button');prompt.className='recovery-input';prompt.setAttribute('aria-label','ボタンを押せ！ Enter');const art=document.createElement('img');art.src='assets/images/ui/recovery-button-v71.png';art.alt='ボタンを押せ！ ENTER';prompt.append(art);
+  prompt.type='button';$('lcd').append(prompt);
+  let timer;
+  const finish=()=>{clearTimeout(timer);prompt.remove();recoveryInput=null;resolve()};
+  recoveryInput=finish;prompt.addEventListener('click',finish);timer=setTimeout(finish,3000);
+ });
+}
+window.addEventListener('keydown',e=>{
+ if(e.code==='Enter'&&recoveryInput){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)recoveryInput();}
+},true);
 function clearReelCutins(){
+ $('lcd').classList.remove('recovery-quake');
+ if(recoveryInput)recoveryInput();
+ $('reel2').classList.remove('recovery-target','recovery-impact');
  $('lcd').querySelectorAll('.slash-overlay').forEach(el=>el.remove());
  for(let i=0;i<3;i++){
   const el=$('reel'+i);el.classList.remove('cutin-one','cutin-two','cutin-slash','cutin-fade');el.querySelectorAll('.cutin-art').forEach(img=>img.remove());
@@ -106,32 +134,37 @@ async function reelRecovery(h,id,scale){
  await cutinReady;if(id!==token)return false;showReelCutin(0);sound('stop0');
  if(!await wait(650))return false;
  showReelCutin(1);sound('stop1');
- if(!await wait(600))return false;
- showSlash();h.slashPlayed=true;
- await pause(100);if(id!==token)return false;
- if(h.hit)setReel(2,h.number);
+ if(!await wait(800))return false;
+ $('reel2').classList.add('recovery-target');
+ await waitRecoveryInput();if(id!==token)return false;
+ showYakumono();$('lcd').classList.add('recovery-quake');$('reel2').classList.add('recovery-impact');showSlash();h.slashPlayed=true;
+ await pause(320);if(id!==token)return false;
+ if(h.hit){setReel(2,h.number);$('lcd').classList.add('recovery-success');startRainbow();sound('win');sound('winRoll');}
+ $('reel2').classList.remove('recovery-target','recovery-impact');
  if(!await wait(550))return false;
  $('reel0').classList.add('cutin-fade');$('reel1').classList.add('cutin-fade');
  await pause(420);if(id!==token)return false;
- clearReelCutins();return true;
+ clearReelCutins();if(!h.hit)clearYakumono();return true;
 }
 async function breakthrough(h,id,scale){
  if(h.demoRecovery||randomInt(4)===0)return reelRecovery(h,id,scale);
  return id===token;
 }
-function clearJackpot(){ $('lcd').querySelectorAll('.jackpot-scene').forEach(el=>el.remove());$('lcd').classList.remove('jackpot-running');}
+function clearJackpot(){ clearYakumono();$('lcd').classList.remove('rainbow-active','yakumono-leaving'); $('lcd').querySelectorAll('.jackpot-scene').forEach(el=>el.remove());$('lcd').classList.remove('jackpot-running','recovery-success');document.querySelector('.cabinet').classList.remove('jackpot-lit','jackpot-fading');}
 async function jackpotSequence(id){
  const scene=document.createElement('div');scene.className='jackpot-scene hush';scene.setAttribute('aria-hidden','true');
+ for(const name of ['rainbow','rays','ring','ring second']){const layer=document.createElement('div');layer.className='jackpot-'+name;scene.append(layer);}
  const tree=document.createElement('img');tree.className='jackpot-tree';tree.src='assets/images/effects/jackpot-tree-v66.png';tree.alt='';scene.append(tree);
+
  const title=document.createElement('div');title.className='jackpot-title';title.textContent='大当たり';scene.append(title);
- for(let i=0;i<24;i++){const shard=document.createElement('i');shard.style.setProperty('--angle',(i*137.5)+'deg');shard.style.setProperty('--travel',(35+i%5*9)+'cqw');shard.style.setProperty('--delay',(i%6*.04)+'s');scene.append(shard);}
+ for(let i=0;i<72;i++){const shard=document.createElement('i');shard.style.setProperty('--angle',(i*137.5)+'deg');shard.style.setProperty('--travel',(35+i%5*9)+'cqw');shard.style.setProperty('--delay',(i%12*.075)+'s');scene.append(shard);}
  $('lcd').append(scene);$('lcd').classList.add('jackpot-running');
  await pause(450);if(id!==token)return false;
- scene.className='jackpot-scene burst';sound('win');
+ showYakumono();if(!$('lcd').classList.contains('rainbow-active'))startRainbow();scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');if(!$('lcd').classList.contains('recovery-success')){sound('win');sound('winRoll');}
  await pause(600);if(id!==token)return false;
- scene.className='jackpot-scene crown';
- await pause(1900);if(id!==token)return false;
- scene.className='jackpot-scene crown leaving';
+ scene.className='jackpot-scene crown';$('lcd').classList.add('yakumono-leaving');
+ await pause(3100);if(id!==token)return false;
+ $('lcd').classList.add('yakumono-leaving');scene.className='jackpot-scene crown leaving';document.querySelector('.cabinet').classList.add('jackpot-fading');
  await pause(450);if(id!==token)return false;
  clearJackpot();return true;
 }

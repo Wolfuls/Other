@@ -1,0 +1,12 @@
+{
+   "chrome_url_overrides": {
+      "newtab": "index.html"
+   },
+   "description": "Override the new tab page with a blank one",
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApOl6m2Pk4QmyaTcW8KTWlEWxeJDu0Pq0T6xWq++9kuEGrfSF+Q/5jFmUjnsQsbCs6KvqIcnO6/wkXJf7zKLYCsH0pA84Ovy3nts5NoSLmbVZfEZcyjxhNBj08uJ/95Uk2UPfn0ZUJ8k9nLUvfMsPusK4LoMCiWwg7GA2aNGbhmKMv9Uk7SOYHGjnkKwLuTbT8yAScKF0zCIuayLF7PI+txhT+or1PfbEF1B3squpExVFe5XW6p3wE1th5qaVntVV0GPYUog7XoviF6Hqhasg/+Y+lptYl/EVeNUyswkdr+/10IknMZS3RIWX1Uo9iQ0Aa5Wk1M6WJ5zUv+LmMQY8rwIDAQAB",
+   "manifest_version": 2,
+   "name": "New Tab",
+   "permissions": [ "topSites", "chrome://favicon/", "storage" ],
+   "update_url": "https://edge.microsoft.com/extensionwebstorebase/v1/crx",
+   "version": "0.2"
+}

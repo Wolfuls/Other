@@ -14,6 +14,7 @@ P.loadChapterTwo=function(){
  for(const [x,y,kind,mi]of map.sweets){const s=this.sweet(x,y,kind,null);if(mi!=null)s.carrier=this.movingPlatforms[mi];this.sweets.push(s);}
  for(const [type,wand,x,y]of map.drops)this.drops.push({id:this.id++,type,wand,x,y,w:26,h:30,cooldown:0});
  if(!this.drops.some(d=>d.type==='heart'))this.drops.push({id:this.id++,type:'heart',x:3000,y:431,w:25,h:27,cooldown:0});
+ if(this.stage===0)this.drops.push({id:this.id++,type:'wand',wand:'guide',x:1450,y:428,w:26,h:30,cooldown:0});
  this.cargoDecor=map.cargo.map(([x,y,kind])=>({x,y,kind,tag:true}));
  this.exit=map.exit?{x:map.exit[0],y:map.exit[1]-85,w:54,h:85}:null;this.arenaStart=map.arenaStart??0;this.bossAwake=false;this.arenaLocked=false;
  if(this.stage===2)this.enemies.push({id:this.id++,type:'naniwa',x:this.arenaStart+750,y:CFG.ground-62,w:28,h:62,hp:54,maxHp:54,vx:0,vy:0,t:0,dir:-1,grounded:true,state:'alive',flash:0,phase:'rest',phaseTime:1,nextMove:0,attackPose:0,runPhase:0});

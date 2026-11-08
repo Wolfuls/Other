@@ -1,0 +1,33 @@
+[Adblock Plus 2.0]
+! Checksum: OCblXbmjCEetrnfcvX/6Hg
+! id: 19EE0193-A63B-48AF-B216-5671DF4FCD2D
+! DiffUrl: https://easylist-downloads.adblockplus.org/v3/diff/ai-search-summaries/6295f37fdaa9d0b3dfa932cf79830e0a2cf80591.json
+! Version: 202611020702
+! Title: AI Search Summaries Filter List
+! Last modified: 02 Nov 2026 07:02 UTC
+! Expires: 1 days (update frequency)
+! Homepage: https://gitlab.com/eyeo/filterlists/ai-search-summaries
+!
+! *** ai-search-summaries:ai-search-summaries.txt ***
+! Google AI Overviews
+||www.google.*/async/folsrch^$xmlhttprequest
+google.*#$#hide-if-matches-xpath '//div[@data-attnms]'
+google.*#$#hide-if-matches-xpath '//div[starts-with(@id,"folsrch")]'
+google.*#$#hide-if-matches-xpath '//div[@data-async-type="folsrch"]'
+google.*#$#hide-if-matches-xpath '//div[@id="Odp5De"][.//div[@data-attnms] or .//div[@data-async-type="folsrch"]]'
+google.*#$#hide-if-matches-xpath '//div[@id="rcnt"]//div[@data-hveid][.//a[starts-with(@href,"https://support.google.com/websearch?p=ai_overviews")]][not(.//div[@data-hveid][.//a[starts-with(@href,"https://support.google.com/websearch?p=ai_overviews")]])]'
+! Bing Copilot answers (scoped to the full results page so Copilot Search keeps working)
+bing.com#$#hide-if-matches-xpath '//body[not(contains(@class,"ShowSelAns"))][.//*[@id="b_header"]]//li[contains(@class,"b_ans")][./*[@id="copans_container"]]'
+bing.com#$#hide-if-matches-xpath '//body[not(contains(@class,"ShowSelAns"))][.//*[@id="b_header"]]//*[@id="copans_container"]'
+bing.com#$#hide-if-matches-xpath '//body[not(contains(@class,"ShowSelAns"))][.//*[@id="b_header"]]//li[contains(@class,"b_ans")][./*[contains(@class,"cht_container")]]'
+! DuckDuckGo Search Assist
+||duckduckgo.com/qna.js$xmlhttprequest
+duckduckgo.com#$#hide-if-matches-xpath '//li[.//*[@data-react-module-id="wikinlp"]]'
+duckduckgo.com#$#hide-if-matches-xpath '//*[@data-react-module-id="wikinlp"]'
+duckduckgo.com#$#hide-if-matches-xpath '//li[.//*[@data-testid="duckassist-answer-content"]]'
+duckduckgo.com#$#hide-if-matches-xpath '//nav//li[not(.//li)][.//a[@data-assist-icon-trigger]]'
+duckduckgo.com#$#hide-if-matches-xpath '//nav//li[not(.//li)][.//a[contains(@href,"&assist=")]]'
+! Brave Search "Answer with AI"
+||search.brave.com/api/chatllm/with_ask^$xmlhttprequest
+search.brave.com###llm-snippet
+search.brave.com##.chatllm-answer

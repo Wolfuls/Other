@@ -26,6 +26,7 @@
   if(from.dataset.pulse!==to.dataset.pulse&&from.classList.contains('active')){
    to.classList.remove('active');void to.offsetWidth;
   }
+  if(root){const phase=from.style.getPropertyValue('--rainbow-phase');if(phase)to.style.setProperty('--rainbow-phase',phase);else to.style.removeProperty('--rainbow-phase');}
   const skip=name=>name==='id'||name==='aria-live'||(root&&name==='style');
   for(const attr of [...to.attributes])if(!skip(attr.name)&&!from.hasAttribute(attr.name))to.removeAttribute(attr.name);
   for(const attr of from.attributes)if(!skip(attr.name)&&to.getAttribute(attr.name)!==attr.value)to.setAttribute(attr.name,attr.value);

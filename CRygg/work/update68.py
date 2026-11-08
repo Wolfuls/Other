@@ -1,0 +1,11 @@
+from pathlib import Path
+p=Path('assets/js/game.js');s=p.read_text(encoding='utf-8')
+s=s.replace("$('lcd').classList.remove('jackpot-running');}","$('lcd').classList.remove('jackpot-running');document.querySelector('.cabinet').classList.remove('jackpot-lit','jackpot-fading');}")
+s=s.replace("const tree=document.createElement('img');tree.className='jackpot-tree';", "for(const name of ['rainbow','rays','ring','ring second']){const layer=document.createElement('div');layer.className='jackpot-'+name;scene.append(layer);}\n const tree=document.createElement('img');tree.className='jackpot-tree';")
+s=s.replace('for(let i=0;i<24;i++){const shard','for(let i=0;i<72;i++){const shard').replace('(i%6*.04)', '(i%12*.075)')
+s=s.replace("scene.className='jackpot-scene burst';sound('win');", "scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');sound('win');")
+s=s.replace('await pause(1900);if(id!==token)return false;', 'await pause(3100);if(id!==token)return false;')
+s=s.replace("scene.className='jackpot-scene crown leaving';", "scene.className='jackpot-scene crown leaving';document.querySelector('.cabinet').classList.add('jackpot-fading');")
+p.write_text(s,encoding='utf-8')
+p=Path('index.html');s=p.read_text(encoding='utf-8').replace('v0.67','v0.68').replace('?v=66','?v=68').replace('?v=67','?v=68');s=s.replace('<canvas id="ballCanvas"','<div class="jackpot-spill" aria-hidden="true"></div>\n        <canvas id="ballCanvas"');p.write_text(s,encoding='utf-8')
+p=Path('assets/js/audio.js');s=p.read_text(encoding='utf-8').replace("win:'jackpot.wav'","win:'jackpot-v68.wav'");p.write_text(s,encoding='utf-8')

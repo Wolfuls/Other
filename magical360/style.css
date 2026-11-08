@@ -45,3 +45,40 @@ footer{justify-content:flex-end;padding-top:12px;padding-bottom:20px}.intro-cont
 .chapter-start{display:block;margin-top:12px;font-size:12px}.dialogue.rival #portrait{border-color:#ba7b82}.dialogue.rival strong{color:#edbdba}
 
 .scene-curtain{position:absolute;inset:0;z-index:9;background:#101b29;pointer-events:auto;opacity:0}.scene-curtain[hidden]{display:none}
+
+/* Mobile messages occupy their own row, never cover the playfield. */
+.mobile-dialogue{display:none}
+.touch-controls .pad-group{display:flex;flex-direction:column;align-items:center;gap:7px}
+.pad-group small{font-size:9px;color:#b5c6d8;white-space:nowrap}
+.virtual-pad{position:relative;width:132px;height:132px;flex:none;border-radius:50%;border:1px solid #70869a;background:radial-gradient(circle,#324b62 0 30%,#203347 31% 65%,#2b4055 66%);touch-action:none;user-select:none}
+.virtual-pad span{position:absolute;color:#d2dce4;font-size:17px;pointer-events:none}
+.pad-up{top:9px;left:58px}.pad-left{top:55px;left:10px}.pad-right{top:55px;right:10px}
+#padThumb{position:absolute;left:45px;top:45px;width:40px;height:40px;border:1px solid #c1d8e9;border-radius:50%;background:#819bb8aa;box-shadow:0 3px 8px #0005;pointer-events:none}
+.touch-controls .touch-actions{display:grid;grid-template-columns:repeat(2,58px);gap:9px;align-content:center}
+.touch-actions button{height:48px}.touch-actions .touch-magic{grid-column:1 / span 2;height:58px}
+@media(pointer:coarse),(max-width:600px){
+ .mobile-dialogue{display:block;min-height:156px;position:relative;background:#142236;border-bottom:1px solid #405260;padding:10px 12px}
+ #mobileDialogue .dialogue{position:relative;inset:auto;margin:0;padding:0;border:0;box-shadow:none;background:none;grid-template-columns:56px minmax(0,1fr);gap:4px 10px}
+ #mobileDialogue .dialogue.narration{grid-template-columns:1fr}
+ #mobileDialogue #portrait{width:56px;height:56px}
+ #mobileDialogue .dialogue strong{font-size:12px}
+ #mobileDialogue .dialogue p{font-size:13px;line-height:1.7;min-height:45px;margin:0;overflow-wrap:anywhere}
+ #mobileDialogue .dialogue button{min-height:30px;font-size:11px}
+ #mobileDialogue .scene-controls{position:relative;inset:auto;text-align:right;margin-top:5px}
+ #mobileDialogue .scene-controls button{min-height:30px}
+ .touch-controls{display:flex;padding:14px max(12px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom));align-items:center;justify-content:space-around}
+ .game-shell .playfield{aspect-ratio:16/9;min-height:0}
+ .game-shell #game{aspect-ratio:16/9;object-fit:contain}
+ .game-shell:fullscreen .playfield{flex:none;width:min(100vw,calc((100dvh - 410px)*16/9));margin:auto}
+ .game-shell:fullscreen{overflow:auto;justify-content:flex-start}
+ .game-shell:fullscreen .mobile-dialogue{flex:none;width:100%}
+ .game-shell:fullscreen .touch-controls{flex:none}
+ .control-guide{display:none}
+}
+@media(pointer:coarse) and (orientation:landscape){
+ .mobile-dialogue{min-height:120px}
+ .game-shell:fullscreen .playfield{width:min(65vw,calc((100dvh - 168px)*16/9))}
+ .game-shell:fullscreen .touch-controls{position:absolute;bottom:0;left:0;right:0;background:none;justify-content:space-between;pointer-events:none}
+ .game-shell:fullscreen .touch-controls>div{pointer-events:auto}
+ .game-shell:fullscreen .pad-group small{display:none}
+}

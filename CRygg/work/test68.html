@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><base href="../">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#0b111c" />
+<title>CR 鋼鉄のユグドラシル ― RAGNAROK ― | 試作 v0.68 左右打ち・操作パネル</title>
+<link rel="stylesheet" href="assets/css/style.css?v=68">
+<link rel="preload" as="image" href="assets/images/reels/character-1-v20.png">
+<link rel="preload" as="image" href="assets/images/reels/character-4-v20.png">
+<link rel="preload" as="image" href="assets/images/reels/character-5-v20.png">
+<link rel="preload" as="image" href="assets/images/reels/character-7-v20.png">
+<link rel="preload" as="image" href="assets/images/reels/character-8-v20.png">
+<link rel="preload" as="image" href="assets/images/reels/character-6-v22.png">
+<link rel="preload" as="image" href="assets/images/reels/character-3-v27.png">
+<link rel="preload" as="image" href="assets/images/reels/character-2-v36.png">
+</head>
+<body>
+<div class="wrap">
+  <header class="header">
+    <div class="headlines"><h1>CR 鋼鉄のユグドラシル <small>RAGNAROK</small></h1></div>
+    <span class="testbadge">非公式・架空機種</span>
+  </header>
+  <main class="layout">
+    <section class="monitor-panel" aria-label="拡大モニタ"><div id="monitorView" class="monitor-view" aria-hidden="true"></div></section>
+    <section class="cabinet" aria-label="パチンコ遊技画面">
+      <div class="marquee"><div class="brand">鋼鉄のユグドラシル</div><div class="subtitle">R A G N A R O K</div></div>
+      <div class="route-lamps"><span id="warpState" data-state="open">WARP 有効 · 左入口</span><span id="electricState" data-state="closed">電チュー 停止</span></div>
+      <div class="playfield" aria-label="物理演算で玉が釘に当たるパチンコ盤面">
+        <canvas id="pinCanvas" width="520" height="710" role="img" aria-label="釘と玉の二次元物理盤面。落下した玉が釘に当たり、スタート入賞口に入ると抽選する"></canvas>
+        <div class="jackpot-spill" aria-hidden="true"></div>
+        <canvas id="ballCanvas" width="520" height="710" aria-hidden="true"></canvas>
+      <div id="lcd" class="lcd asg">
+        <div class="skyline"></div><div id="flash" class="fxflash"></div><div id="cityAlert" class="prealert-scene" aria-hidden="true"><div class="city-blackout"></div><div class="city-power"></div></div>
+        <div class="hudtop"><div id="modePill" class="mode-pill">NORMAL</div></div>
+        
+        <div class="action" aria-live="polite"><div id="actionMain" class="one">ユグドラシルへようこそ</div></div>
+        <div class="reels"><div id="reel0" class="reel">3</div><div id="reel1" class="reel">5</div><div id="reel2" class="reel">7</div></div>
+        
+        <div class="holds" id="holds" aria-label="保留表示"><div class="hold"></div><div class="hold"></div><div class="hold"></div><div class="hold"></div></div>
+        <div class="stbar"><i id="stbar"></i></div>
+      </div>
+      </div>
+    </section>
+    <aside class="panel">
+      <div class="panel-tabs" role="tablist" aria-label="表示切替">
+        <button id="playTab" role="tab" aria-selected="true" aria-controls="playPane">遊技</button>
+        <button id="optionsTab" role="tab" aria-selected="false" aria-controls="optionsPane" tabindex="-1">オプション</button>
+      </div>
+      <div class="panel-content">
+        <div id="playPane" role="tabpanel" aria-labelledby="playTab"><section class="card">
+        <h2>RUSH 状態</h2>
+        <div class="info-row"><span>現在の状態</span><b id="rushName">通常時</b></div>
+        <div class="info-row"><span>残りST</span><b id="remaining">— / 160</b></div>
+        <div class="info-row"><span>現在連チャン</span><b id="chain">0 連</b></div>
+        <div class="progress"><div id="progress"></div></div>
+      </section><section class="card">
+        <h2>遊技データ</h2>
+        <div class="stats">
+          <div class="stat"><small>通常回転</small><b id="normalSpins">0</b></div>
+          <div class="stat"><small>初当たり</small><b id="firstHits">0</b></div>
+          <div class="stat"><small>RUSH大当たり</small><b id="rushHits">0</b></div>
+          <div class="stat"><small>総回転</small><b id="allSpins">0</b></div>
+          <div class="stat"><small>最大連チャン</small><b id="maxChain">0</b></div>
+          <div class="stat"><small>大当たり獲得累計</small><b id="balls">0</b></div>
+        </div>
+        
+      </section></div>
+        <div id="optionsPane" role="tabpanel" aria-labelledby="optionsTab" hidden>      <section class="card">
+        <h2>釘設定</h2>
+        <div class="nailbtns" aria-label="釘の配置"><button class="nailbtn" data-nail="open">開き気味</button><button class="nailbtn sel" data-nail="normal">標準</button><button class="nailbtn" data-nail="tight">締め気味</button></div>
+        <div class="stats" style="margin-top:10px">
+          <div class="stat"><small>発射した玉</small><b id="firedCount">0</b></div>
+          <div class="stat"><small>入賞した玉</small><b id="enteredCount">0</b></div>
+          <div class="stat"><small>スタート入賞率</small><b id="entryRate">—</b></div>
+        </div>
+        <div class="route-stats"><span>通常ルート入賞 <b id="directEntered">0</b></span><span>WARP経由入賞 <b id="warpEntered">0</b></span></div>
+        
+      </section>
+      
+      
+      <section class="card">
+        <h2>背景</h2>
+        <div class="stages">
+          <button class="stagebtn sel" data-stage="asg">上層<small>アースガルズ</small></button>
+          <button class="stagebtn" data-stage="mid">中層<small>ミズガルズ</small></button>
+          <button class="stagebtn" data-stage="hel">下層<small>ヘルヘイム</small></button>
+        </div>
+        
+      </section>
+      <section class="card">
+        <h2>演出カスタム</h2>
+        <div class="settings">
+          <label class="toggle">先バレ演出<input id="preAlert" type="checkbox" checked /></label>
+          <label class="toggle">プレミアUP<input id="premium" type="checkbox" /></label>
+          <label class="toggle">効果音<input id="sound" type="checkbox" checked /></label>
+          <label class="toggle">先読みチャンス<input id="preread" type="checkbox" /></label>
+        </div>
+        
+        <label class="volume-control">音量 <input id="soundVolume" type="range" min="0" max="100" value="50" aria-label="効果音の音量"></label>
+        <div class="info-row"><span>変動速度</span><span id="speedLabel">標準</span></div>
+        <div class="speed"><button data-speed="slow">ゆっくり</button><button data-speed="normal" class="sel">標準</button><button data-speed="fast">高速</button></div>
+      </section>
+      <section class="card">
+        <h2>遊技履歴</h2>
+        <ol class="events" id="events" aria-label="直近の変動履歴"><li><span class="time">--:--</span><span>遊技の準備ができた</span></li></ol>
+        <div class="info-row"><span>デモ</span><button id="demoRecovery" class="reset">デモ復活</button><button id="demoAlert" class="reset">デモ先バレ</button><button id="preview" class="reset">次回大当たり</button></div>
+        
+        <div class="info-row"><span>リセット</span><button id="reset" class="reset">データをリセット</button></div>
+      </section>
+</div>
+      </div>
+      <div class="cabctrl">
+        <div class="resources">
+          <div class="resource"><span>持ち玉</span><b id="stock">0<em>玉</em></b></div>
+          <div class="resource"><span>スタミナ</span><b id="stamina" title="上限 65,535">100</b></div>
+          <button id="borrow" class="btn gold" title="スタミナ5を消費して125玉を借りる">玉貸し<br>125玉 / 5</button>
+        </div>
+        <div class="handle-row">
+          <div class="handle-notes">
+            
+            <p>右クリック中は発射停止</p>
+            
+          </div>
+          <div id="handle" class="handle" tabindex="0" role="slider" aria-label="発射ハンドル。右にドラッグして発射。離すと停止" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="停止中">
+            <div class="handle-markings" aria-hidden="true"></div>
+            <div id="handleKnob" class="handle-knob" aria-hidden="true"><div class="handle-grip"></div><div class="handle-indicator"></div></div>
+            <span class="handle-power" id="powerLabel" aria-hidden="true">0%</span>
+          </div>
+        </div>
+        
+      </div>
+
+    </aside>
+  </main>
+  
+</div>
+<script src="assets/js/audio.js?v=68" defer></script>
+<script src="work/game68-test.js" defer></script>
+<script src="assets/js/monitor.js" defer></script>
+<script src="assets/js/panel.js" defer></script>
+</body>
+</html>
+
+

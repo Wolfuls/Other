@@ -1,0 +1,219 @@
+{
+   "checksum": "b0ff52fef51a992211ddbe5838d9c6b1",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13390855934221149",
+            "date_last_used": "13424135149011328",
+            "guid": "7d379092-3164-47d3-a5fd-50d2fa2b651e",
+            "id": "7",
+            "name": "Google",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.google.co.jp/",
+            "visit_count": 34
+         }, {
+            "date_added": "13287456645196404",
+            "date_last_used": "0",
+            "guid": "07075004-8832-4614-a748-c669aaed6fbb",
+            "id": "8",
+            "name": "AWS/CCNA/CCNP/LinuC/LPIC/Linux Essentials/HTML5/OSS-DB/オラクルマスター/ITパスポート/ITILファンデーション総合学習サイト",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://ping-t.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13287475517758321",
+            "date_last_used": "0",
+            "guid": "679eed92-f873-4389-9a61-032b39587120",
+            "id": "9",
+            "name": "Server World - ネットワークサーバー構築",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.server-world.info/",
+            "visit_count": 0
+         }, {
+            "date_added": "13287476382390489",
+            "date_last_used": "0",
+            "guid": "08970bc8-fd59-4e80-b14b-fa13bce2e8cc",
+            "id": "10",
+            "name": "Index of /i2cjp/fs",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://secure2844m.sakura.ne.jp:9802/i2cjp/fs/",
+            "visit_count": 0
+         }, {
+            "date_added": "13287479359541879",
+            "date_last_used": "0",
+            "guid": "684cfc90-16dc-4a6e-862e-79d3cdce4d6a",
+            "id": "11",
+            "name": "株式会社I2C西",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://calendar.google.com/calendar/embed?src=2019calendar.i2c.west%40gmail.com&ctz=Asia%2FTokyo",
+            "visit_count": 0
+         }, {
+            "date_added": "13287910106089223",
+            "date_last_used": "0",
+            "guid": "1dde8abf-017c-409e-a2dc-f8652cebbeea",
+            "id": "12",
+            "name": "ネットワークエンジニアとして",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.infraexpert.com/",
+            "visit_count": 0
+         }, {
+            "date_added": "13332918861089859",
+            "date_last_used": "0",
+            "guid": "dfc1d32f-802a-4bda-8cfe-74308b1d6f4a",
+            "id": "13",
+            "name": "メール一覧 - WEBメーラー",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://webmail.lolipop.jp/mail/INBOX?status=302",
+            "visit_count": 0
+         }, {
+            "date_added": "13333421170203490",
+            "date_last_used": "13401377604657262",
+            "guid": "dce937e4-7920-43a5-beed-573089b62d29",
+            "id": "14",
+            "name": "Google",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.google.co.jp/",
+            "visit_count": 13
+         }, {
+            "date_added": "13333680328505544",
+            "date_last_used": "13357355437092106",
+            "guid": "40d6fba3-d093-4857-b550-183c8cb4e561",
+            "id": "15",
+            "name": "マイページ | Ping-t",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://mondai.ping-t.com/g/mypage",
+            "visit_count": 0
+         }, {
+            "date_added": "13333681789182903",
+            "date_last_used": "13374519584586885",
+            "guid": "65b120fb-7eff-49c0-bd7d-1f84570fecdd",
+            "id": "16",
+            "name": "LPIC全試験受かったので徹底解説します【セキュリティ】【インフラエンジニア】【ハッカー】【ハッキング対策】【Linuc】 - YouTube",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://www.youtube.com/watch?v=knv-yCyrouY&ab_channel=%E3%83%90%E3%83%B3%E3%83%89%E3%83%9E%E3%83%B3%E3%82%A8%E3%83%B3%E3%82%B8%E3%83%8B%E3%82%A2%E3%81%9A%E3%81%A3%E3%81%8D%E3%81%83",
+            "visit_count": 1
+         }, {
+            "date_added": "13333650693894445",
+            "date_last_used": "13435588271011325",
+            "guid": "13335684-9de9-4839-ab9d-722ad5979662",
+            "id": "17",
+            "name": "Discord | フレンド",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://discord.com/channels/@me",
+            "visit_count": 60
+         }, {
+            "date_added": "13389335345979303",
+            "date_last_used": "0",
+            "guid": "4fba5ee5-c69f-4e24-934f-32207114b425",
+            "id": "18",
+            "meta_info": {
+               "power_bookmark_meta": ""
+            },
+            "name": "dodaキャリアカウンセリング（Teams）（河合 美月） | Microsoft Teams",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://teams.microsoft.com/light-meetings/launch?agent=web&version=25040719700&coords=eyJjb252ZXJzYXRpb25JZCI6IjE5Om1lZXRpbmdfTVRkaE9XVXhPR1F0TldZMk5DMDBNVFl4TFRobE5UQXRPRFkzWVRjeE5tWmtNbVUyQHRocmVhZC52MiIsInRlbmFudElkIjoiZjNkN2I3OWUtYjhjNS00YjA5LWExM2MtOWNlMGRjNWQ4OTE2Iiwib3JnYW5pemVySWQiOiI3YzkyOTQxZS0wYTdkLTQ0YTEtOWJhNS00NWUzODU5OTQ0NzIiLCJtZXNzYWdlSWQiOiIwIn0%3D&deeplinkId=d4420670-9cd8-4468-be77-19d6ec1831c8",
+            "visit_count": 1
+         }, {
+            "date_added": "13399784958419490",
+            "date_last_used": "0",
+            "guid": "80a5f3ab-fc22-41ad-ac7f-eaa5a8649ba4",
+            "id": "19",
+            "name": "UZUZ｜第二新卒/既卒/フリーター/新卒向け就職/転職サポート",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://uzuz.jp/",
+            "visit_count": 0
+         }, {
+            "date_added": "13402403122698208",
+            "date_last_used": "0",
+            "guid": "7982d496-20f8-4739-8b8a-686fcb05403d",
+            "id": "20",
+            "name": "SmartHR（スマートHR） | 働くすべての人を、支える。",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://staffservice-mirayell.smarthr.jp/home",
+            "visit_count": 1
+         }, {
+            "date_added": "13403598496328061",
+            "date_last_used": "13410574664146447",
+            "guid": "5419e51c-aeca-476c-a49e-078c5aab1011",
+            "id": "21",
+            "name": "マイページトップ（ご入社前）｜ミラエール マイページ",
+            "show_icon": false,
+            "source": "sync",
+            "type": "url",
+            "url": "https://mypage.staffservice.co.jp/sso/pre",
+            "visit_count": 4
+         } ],
+         "date_added": "13438611217192027",
+         "date_last_used": "0",
+         "date_modified": "13403598496328061",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "お気に入りバー",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13438611217192027",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "その他のお気に入り",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13438611217192027",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "モバイルのお気に入り",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13438611217192027",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "ワークスペース",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CkEKHgiIgQISCEkA67qhAQAAKg4QABgBIAAoBTAAOABAABIAKhhtckN3OUtRYWdybGVPdFVLbWFIa3dRPT1IA6AGDBKuAQgVEqkBChx6aDVyeThhV0FHYU5KbElEVC9CZUZ4YTU5dm89EiQ1NDE5ZTUxYy1hZWNhLTQ3NmMtYTQ5ZS0wNzhjNWFhYjEwMTEYACAAKAAwp8HOnrMzOOXCjaCZM0Dlwo2gmTNKHFJ0WEdReDZERjZEamM0aHlySGV6cEJuRFZscz1aICIe//t2RXNlb2o5UGFFdHZqeTQxaldCcWE2T2ZYL2c9ZeuF01vCPgJgBRKuAQgUEqkBChxMbkNyZThyUTVXT1FVYmt3blVZYmN2bGZ0MTA9EiQ3OTgyZDQ5Ni0yMGY4LTQ3MzktOGI4YS02ODZmY2IwNTQwM2QYACAAKAAwgquO5pQzOJa0juaUM0CWtI7mlDNKHFlQaXhvVEtOVmhCTHByYVJWTEduSzZzOHQ5UT1aICIe//dSSUFMNEw4MUpoTzltd3MvMDZIcjZ0bjFuZDg9ZSqdRwzCPgJgBRKuAQgSEqkBChxYSkhZdTF6TkVUNlNKU0xIZ0p2TkVFYWo3Y1k9EiQ0ZmJhNWVlNS1jNjlmLTRlMjQtOTM0Zi0zMjIwNzExNGI0MjUYACAAKAAw47r1juQyONm89Y7kMkDZvPWO5DJKHGhFNnI3WTVpSVVZRk1PaDRRT0E4Ri9USjh1MD1aICIe/95EYzZ6QWlKdXFJU0VabDFJZVA4OWd1b0pmNEk9Zf7rUxzCPgJgBRKMAQgFEocBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiRhNjQ5ODA2YS05Yzc0LTU3YzQtYmE1Mi1lYjQ5MmM3OTc5MzkYACAAKAAw4bv94pQzOIO+/eKUM0CDvv3ilDNKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1lAAAAAMI+AmAAEq4BCBESqQEKHEhacjF4VGhXK2Fjak5MdGJ2M2RySmpHNDU3bz0SJDEzMzM1Njg0LTlkZTktNDgzOS1hYjlkLTcyMmFkNTk3OTY2MhgAIAAoADDSjIS2kDQ4t4+tzKkxQLePrcypMUocTlNLeThudkdXWmI4MWlHRERQd2xPTU5VUk1NPVogIh7/vDU3eWorT2pZVmtSaVVUM09vY0RHZmdtVWNxQT1liBjdpMI+AmAFEq0BCBASqAEKHGlUK1Z0TnRZRUJJRENUcU1nRjNUSVNxcHRMTT0SJDY1YjEyMGZiLTdlZmYtNDljMC1iZDdkLTFmODQ1NzBmZWNkZBgAIAAoADCbnJv2rDI43ved5ZQxQN73neWUMUoccTJmdnQwZ1l6M0xMTWRhaVdEYnRFTEdSL1BnPVofIh3/eFA0Rk03ZDQwRkNTakpoNW5XMDg0ZDgrTmtjPWX9nIxKwj4CYAUSrQEIDhKoAQocQWZkY2dZMTZaNnZSZXdPVUVIc3lSK082UDFRPRIkZGNlOTM3ZTQtNzkyMC00M2E1LWJlZWQtNTczMDg5YjYyZDI5GAAgACgAMJmbjv2QMzimgvvokzFApoL76JMxShx4QVp3VzBYTm1EREVqZUtzY0ZGZWMyNEtORzg9Wh8iHf1SNEo0K3ZJbkZtdlYyNnJrdVFyUGxUaTlLU2s9ZWLpsknCPgJgBRKuAQgTEqkBChxiOFoxYUxpZnRQNmdUOUxJTm5CY0ZrOU1qTXc9EiQ4MGE1ZjNhYi1mYzIyLTQxYWQtYWM3Zi1lYWE1YTg2NDliYTQYACAAKAAwhJ7XhYszOKui14WLM0CroteFizNKHGllajlzNkZVRHNST1VCZzNYak1mYk83V0xhUT1aICIe/+9yMkFYVjZCR09nQ0VpT2JadFJBenRtaGNZZWM9ZSthcCjCPgJgBRKtAQgNEqgBChxXckhjY3JxOWpuODlNc2tNWG8wYTNXNEhTRlk9EiRkZmMxZDMyZi04MDJhLTRiZGEtOGNmZS03NDMwOGIxZDZmNGEYACAAKAAwuoatzKkxOJvAuPmRMUCbwLj5kTFKHENqdG1Nbk1qUHVpNnFMQThBNGRjazZpZFd0cz1aHyId+1Y4QnBOT0VzWGR1QTZuU1pSWUQxU3dQYnB2UT1l85hOI8I+AmAFEq0BCAsSqAEKHGNURkJQWm5jWTMrSjh3VHBiL2hRQkZySHRQQT0SJDY4NGNmYzkwLTE2ZGMtNGE2ZS04NjJlLTc5ZDNjZGNlNGQ2YRgAIAAoADC5hq3MqTE49sPP+JExQPbDz/iRMUocZmZ1VUZzRjgxeDQ1U1hRRFE3SHRFNUV2cko0PVofIh3tUStQYVQ5MkVwa1JKdEVPNDZJajh4NjR3cTNJPWXQEy3dwj4CYAUSrQEIDxKoAQocOVgyWnl2UGkzdG9ha1UzRmZSKzdWaTc5Q1c4PRIkNDBkNmZiYTMtZDA5My00ODU3LWI1NTAtMTgzYzhjYjRlNTYxGAAgACgAMNzm2v3sMTjU48TklDFA1OPE5JQxShxKWXh3MnNTTWdPbnJ6aExnUGx1Q2RkaUZNT2s9Wh8iHf5sbk5MWUJNcXdDZXJ2SFFGeG53OU43YzJoYWM9ZQAG+IDCPgJgBRKtAQgJEqgBChw2QlVoN1R0Sm9QSytHS1NrN0ZweURoMTFFcUE9EiQ2NzllZWQ5Mi1mODczLTQzODktOWE2MS0wMzJiMzk1ODcxMjAYACAAKAAwtIatzKkxOMzDz/iRMUDMw8/4kTFKHDV3NGNBM3dEQXl2UEFGTnZkclZlUjFUWUlUUT1aHyIdtVR6QzlEdDRPNDROZmx1QWMwczFzN2J0UTRPTT1lMVudMcI+AmAFEq0BCAwSqAEKHDJoTjFQdHFoVTh1L3JwVzNBUTFnbVpYQVhMRT0SJDFkZGU4YWJmLTAxN2MtNDA5ZS1hMmRjLWY4NjUyY2ViYmVlYRgAIAAoADC4hq3MqTE488TP+JExQPPEz/iRMUocdGRFb1lwcUxadklPVDZ1QmZNQ1l0TWJ1bDBjPVofIh32RjRrbEpUVitkblZPamZCaUtYWjBPUXBZU2EwPWXpfFf+wj4CYAUSjAEIAhKHAQocWWNTVG9udkVTUHdxQ3M0TDJjclZodjY4TDk4PRIkYmMwNGE0ZGUtZDNkZC01NDZkLTlmZWQtMGM3MzRhZTY2YWM4GAAgACgAMJ37stW/MDih/7LVvzBAof+y1b8wShxvUFZraHdCUmJWNjVLQ1dSMitJT05IV29PdTg9ZQAAAADCPgJgABKsAQgIEqcBChxyUkpKd0VGWUQrRVJuWjdocXpnc3I4WGFoTUk9EiQwNzA3NTAwNC04ODMyLTQ2MTQtYTc0OC1jNjY5YWFlZDZmYmIYACAAKAAwtYatzKkxONfEz/iRMUDXxM/4kTFKHGs3NHNLTGwwK04wdkpXRFM0TnVpK01xWlBObz1aHiIcMnp3TFZYS2dqdlBCMVMxT3BlRDExcU50TlJNPWUxON4/wj4CYAUSrQEIChKoAQocTFZoRnNEQlJibmxaSG84ZllUdjJJdmMyQTY4PRIkMDg5NzBiYzgtZmQ1OS00ZTgwLWIxNGItZmExM2JjZTJlOGNjGAAgACgAMOm9z/iRMTiTxM/4kTFAk8TP+JExShxMaXY4Wm5ycEo0UVFnaHdJQ2JVd2JzTmdaZTA9Wh8iHdpsM3QrU2tKYXlxZDdIZjZkYm1sVmZtY1FrMFk9ZQAAAADCPgJgBRKMAQgDEocBChxuamdEdTg4ZUNydlhwODZwRDdmSEdjcUZwODg9EiRmM2EwYmZiYS01MTZiLTU3MmItODA1MC01Mjg5ZTk3NzhhMTMYACAAKAAwnfuy1b8wOOyAs9W/MEDsgLPVvzBKHHl6TkIwMWNuNTRBN2NSVTB1VCsvUGdtVHRVbz1lAAAAAMI+AmAAEq0BCAcSqAEKHFE4WDg1WnNaTWdKdGRpakRzSklMY3lYOUQ4ST0SJDdkMzc5MDkyLTMxNjQtNDdkMy1hNWZkLTUwZDJmYTJiNjUxZRgAIAAoADDf8uDg5TM4lOj+4+kyQJTo/uPpMkocNVVxT3RSS24za1RvZXh5TEhaUjBWN1Q3dlVjPVofIh0ZVlhvMTkvQTBjb2VjaE9QUHRpSlo2WmlQM204PWVi6bJJwj4CYAUSjAEIARKHAQoceXhKLzZmdmtlY3I3a3A1RVF6QjR0V0xwZGJFPRIkYzNlNWU0NTgtOTJiZi01ZDY2LTlmOWEtNzM0NmFkYWQ4NDAyGAAgACgAMJ37stW/MDiB/7LVvzBAgf+y1b8wShxhUkNXTGdoRjliNUlucUtJRHZ1Si9qdlFrRmM9ZQAAAADCPgJgADAAOAA=",
+   "version": 1
+}

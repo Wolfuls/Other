@@ -1,0 +1,34 @@
+2026-11-08 11:33:37.360: [INFO] CurrentProfilePath: D:\マイドキュメント\GitHub\Other\CRygg\work\edge68\Default
+2026-11-08 11:33:37.360: [INFO] Profiles total count: 1
+2026-11-08 11:33:37.360: [INFO] Profile: name=プロファイル 1 path=D:\マイドキュメント\GitHub\Other\CRygg\work\edge68\Default lastActive=null
+2026-11-08 11:33:37.360: [INFO] LastUsedProfileDir: D:\マイドキュメント\GitHub\Other\CRygg\work\edge68\Default
+2026-11-08 11:33:37.360: [INFO] VisibilityChanged: 0
+2026-11-08 11:33:37.376: [INFO] OnDoneLoading sync enabled: 0
+2026-11-08 11:33:37.376: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-11-08 11:33:37.376: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-11-08 11:33:37.376: [INFO] BookmarksSnapshot Startup total=0 bar=0 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-11-08 11:33:37.433: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-11-08 11:33:39.030: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-11-08 11:33:39.032: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-11-08 11:33:39.034: [INFO] Primary account changed.
+2026-11-08 11:33:39.034: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-11-08 11:33:39.041: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-11-08 11:33:39.049: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-11-08 11:33:43.200: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.201: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.201: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.202: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.202: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.202: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.202: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.203: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.203: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.203: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.203: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.204: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.204: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.204: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.205: [INFO] BookmarkNodeAdded, ABU: 0
+2026-11-08 11:33:43.216: [INFO] BookmarkBarPrefChanged showBar=0 showBarNTP=1
+2026-11-08 11:33:43.735: [INFO] Sync initialization duration: 4596ms
+2026-11-08 11:34:18.493: [INFO] BookmarksSnapshot Shutdown total=15 bar=15 other=0 mobile=0 showBar=0 showBarNTP=1

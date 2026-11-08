@@ -1,12 +1,13 @@
 /* Layered, cached sound effects. Music remains an independent HTML audio track. */
 (function(root){'use strict';
 const rates={shoot:.045,naniwaShoot:.07,enemyShoot:.07,eat:.06,hit:.045,naniwaHit:.045};
-const lengths={naniwaDefeated:.85,messageType:.045,cloth:.24,footLand:.15,wandDrop:.3,cartRoll:.24,messageNext:.12,dashStart:.3,cookieRattle:.4,shoot:.28,naniwaShoot:.32,enemyShoot:.3,magicClash:.65,eat:.32,jump:.24,hurt:.4,transform:.7,revive:.65,pickup:.65,hit:.28,naniwaHit:.28,heal:.9,heartUpgrade:1,switch:.23,won:1.35,lost:1.1,thud:.4,rustle:.7};
+const lengths={airDash:.4,naniwaDefeated:.85,messageType:.045,cloth:.24,footLand:.15,wandDrop:.3,cartRoll:.24,messageNext:.12,dashStart:.3,cookieRattle:.4,shoot:.28,naniwaShoot:.32,enemyShoot:.3,magicClash:.65,eat:.32,jump:.24,hurt:.4,transform:.7,revive:.65,pickup:.65,hit:.28,naniwaHit:.28,heal:.9,heartUpgrade:1,switch:.23,won:1.35,lost:1.1,thud:.4,rustle:.7};
 function samples(kind,sr=44100){if(!lengths[kind])return null;const out=new Float32Array(Math.ceil(lengths[kind]*sr));let seed=37123;
 function tone(f,d,amp,at=0,end=f,brightness=.2){let phase=0;const n=Math.floor(d*sr),start=Math.floor(at*sr);for(let i=0;i<n&&i+start<out.length;i++){const u=i/n,t=i/sr;phase+=2*Math.PI*f*Math.pow(end/f,u)/sr;const env=Math.min(1,t/.004)*Math.pow(1-u,2.2);out[start+i]+=amp*env*(Math.sin(phase)+brightness*Math.sin(phase*2+.2)+brightness*.4*Math.sin(phase*3)) ;}}
 function noise(d,amp,at=0,bright=.15){let low=0;const n=Math.floor(d*sr),start=Math.floor(at*sr);for(let i=0;i<n&&i+start<out.length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const white=seed/2147483648-1;low+=bright*(white-low);const env=Math.min(1,i/(sr*.003))*Math.pow(1-i/n,2);out[start+i]+=amp*env*low;}}
 function chime(notes,step=.06,amp=.16){notes.forEach((f,i)=>{tone(f,.3,amp,i*step,f,.08);tone(f*2.76,.16,amp*.2,i*step);});}
 switch(kind){
+case'airDash':noise(.32,.5,0,.3);tone(330,.28,.15,0,660,.1);break;
 case'naniwaDefeated':noise(.2,.8,0,.6);tone(190,.35,.45,0,55,.5);chime([1046,784,523],.09,.2);break;
 case'messageType':tone(780,.03,.035,0,680,.05);break;
 case'cloth':noise(.22,.22,0,.2);break;

@@ -1,0 +1,5 @@
+2026/11/08-20:33:40.137 9378 Creating DB D:\マイドキュメント\GitHub\Other\CRygg\work\edge68\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/11/08-20:33:40.157 9378 Reusing MANIFEST D:\マイドキュメント\GitHub\Other\CRygg\work\edge68\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/11/08-20:34:12.071 8d58 Level-0 table #5: started
+2026/11/08-20:34:12.079 8d58 Level-0 table #5: 683284 bytes OK
+2026/11/08-20:34:12.080 8d58 Delete type=0 #3
