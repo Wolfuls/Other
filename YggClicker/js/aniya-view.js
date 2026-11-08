@@ -1,0 +1,20 @@
+(function(__YggBig){
+(function(root){
+'use strict';
+const xs=[0,312,624,936,1247],ys=[0,315,630,945,1261],anchors=[[160,470,778,1085],[161,470,778,1086],[162,465,779,1087],[161,449,759,1068]],feet=[[297,297,297,297],[611,611,611,611],[926,926,926,926],[1235,1234,1234,1237]];
+function frameAt(mode,t){return mode==='down'?(__YggBig.add(12,(__YggBig.min(3,(__YggBig.floor((__YggBig.div(t,300)))))))):(__YggBig.add(mode==='beam'?8:mode==='attack'?4:0,(__YggBig.floor((__YggBig.div(t,mode==='idle'?500:mode==='beam'?170:230))))%4));}
+function draw(ctx,img,index){const r=(__YggBig.floor((__YggBig.div(index,4)))),c=index%4;ctx.clearRect(0,0,384,352);ctx.imageSmoothingEnabled=false;ctx.drawImage(img,xs[c],ys[r],(__YggBig.sub(xs[(__YggBig.add(c,1))],xs[c])),(__YggBig.sub(ys[(__YggBig.add(r,1))],ys[r])),(__YggBig.add((__YggBig.sub(192,anchors[r][c])),xs[c])),(__YggBig.add((__YggBig.sub(328,feet[r][c])),ys[r])),(__YggBig.sub(xs[(__YggBig.add(c,1))],xs[c])),(__YggBig.sub(ys[(__YggBig.add(r,1))],ys[r])));}
+if(typeof module!=='undefined'&&module.exports){module.exports={frameAt,draw,anchors,feet};return;}
+let node,canvas,img,active=false,raf=0,last=0,clock=0,started=0,downAt=0,wasDown=false,mode='idle',until=0,lastAttack=(__YggBig.neg(Infinity)),paint=(__YggBig.neg(1));
+const reduced=matchMedia('(prefers-reduced-motion:reduce)');
+function images(){if(img)return;img=new Image();img.src='./img/aniya-sprites-v1.png';}
+function queue(){if(active&&!document.hidden&&!raf)raf=requestAnimationFrame(tick);}
+function setActive(value){active=!!value;if(!active||document.hidden){cancelAnimationFrame(raf);raf=0;last=0;node?.classList.remove('beaming');}else{images();queue();}}
+function mount(actor){node=actor;canvas=actor.querySelector('canvas');const beam=actor.querySelector('.aniya-beam');if(!beam.children.length)for(let i=0;(__YggBig.lt(i,64));i++){const p=document.createElement('i');p.style.cssText=(__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add('--lane:',((__YggBig.mul(i,7)))%19)),'px;--length:')),(__YggBig.add(3,((__YggBig.mul(i,11)))%15)))),'px;--thickness:')),(__YggBig.add(1,i%3)))),'px;--spark:')),['#f1ffff','#a9f7ff','#62d5ff'][i%3])),';--speed:')),(__YggBig.add(280,((__YggBig.mul(i,37)))%170)))),'ms;--delay:-')),((__YggBig.mul(i,71)))%450)),'ms'));beam.append(p);}setActive(!actor.hidden);}
+function reset(){mode='idle';until=0;lastAttack=(__YggBig.neg(Infinity));paint=(__YggBig.neg(1));node?.classList.remove('beaming');}
+function attack(frame){const burst=!!frame.extraAttack||!!frame.continuation||(__YggBig.gt(frame.count||1,1))||(__YggBig.lt((__YggBig.sub(clock,lastAttack)),1100));lastAttack=clock;const next=frame.motion==='beam'||burst?'beam':'attack',continuous=next==='beam'&&mode==='beam'&&(__YggBig.lt(clock,until));mode=next;if(!continuous)started=clock;until=(__YggBig.add(clock,mode==='beam'?850:920));}
+function tick(t){raf=0;if(!active||document.hidden)return;const dt=last?(__YggBig.min(100,(__YggBig.sub(t,last)))):0;last=t;if(node&&!node.hidden){if(!node.classList.contains('is-paused')&&node.dataset.impactStop!=='true')(clock=(__YggBig.add(clock,(__YggBig.mul(dt,Number(node.dataset.battleSpeed)||1)))));const down=node.classList.contains('downed');if(down&&!wasDown){downAt=clock;reset();}wasDown=down;if((__YggBig.ge(clock,until)))mode='idle';const current=down?'down':mode,index=reduced.matches?(down?15:current==='idle'?0:current==='beam'?10:6):frameAt(current,down?(__YggBig.sub(clock,downAt)):current==='idle'?clock:(__YggBig.sub(clock,started)));node.classList.toggle('beaming',!down&&mode==='beam'&&(__YggBig.ge((__YggBig.sub(clock,started)),170)));if(img.complete&&img.naturalWidth&&(__YggBig.ne(index,paint))){draw(canvas.getContext('2d'),img,index);paint=index;canvas.dataset.frame=String(index);}}queue();}
+document.addEventListener('visibilitychange',()=>setActive(active));root.YggAniyaView={mount,setActive,attack,reset,frameAt};
+})(typeof window!=='undefined'?window:globalThis);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

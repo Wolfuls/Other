@@ -1,3 +1,4 @@
+(function(__YggBig){
 (function(root){
   'use strict';
   const SAVE_KEYS=['yggclicker.save','yggclicker.backup','yggclicker.before-import'];
@@ -17,18 +18,20 @@
   }
   function assetUrls(data,documentUrls,base){
     const dir=new URL('./',base),result=new Set();
-    function add(value){try{const url=new URL(value,dir);if(url.origin===dir.origin&&url.pathname.startsWith(dir.pathname)&&!url.pathname.split('/').includes('old')){url.hash='';result.add(url.href);}}catch{}}
+    function add(value){try{const url=new URL(value,dir);if((__YggBig.eq(url.origin,dir.origin))&&url.pathname.startsWith(dir.pathname)&&!url.pathname.split('/').includes('old')){url.hash='';result.add(url.href);}}catch{}}
     function visit(value){if(typeof value==='string'&&value.startsWith('./img/'))add(value);else if(value&&typeof value==='object')for(const child of Object.values(value))visit(child);}
     documentUrls.forEach(add);visit(data);return [...result];
   }
   async function refresh(urls,fetchResource){
     // file: resources cannot be fetched by browsers. The caller reloads the saved local page.
     const pending=[...new Set(urls)].filter(url=>new URL(url).protocol!=='file:'),failed=[];let index=0;
-    await Promise.all(Array.from({length:Math.min(4,pending.length)},async()=>{
-      while(index<pending.length){const url=pending[index++];try{const response=await fetchResource(url,{cache:'reload',credentials:'same-origin'});if(!response.ok)throw Error('取得失敗');await response.arrayBuffer();}catch{failed.push(url);}}
+    await Promise.all(Array.from({length:(__YggBig.min(4,pending.length))},async()=>{
+      while((__YggBig.lt(index,pending.length))){const url=pending[index++];try{const response=await fetchResource(url,{cache:'reload',credentials:'same-origin'});if(!response.ok)throw Error('取得失敗');await response.arrayBuffer();}catch{failed.push(url);}}
     }));
-    return {ok:failed.length===0,failed};
+    return {ok:(__YggBig.eq(failed.length,0)),failed};
   }
   const api={SAVE_KEYS,erase,assetUrls,refresh};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggMaintenance=api;
 })(typeof window!=='undefined'?window:globalThis);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

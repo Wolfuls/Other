@@ -1,0 +1,1064 @@
+{
+  "gameId": "yggclicker",
+  "schemaVersion": 69,
+  "gameVersion": "0.89.44",
+  "exportedAt": "2026-11-08T10:41:09.685Z",
+  "state": {
+    "autoRest": {
+      "mohican-solo": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "scarecrow": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "mohicans": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "electric-rat": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "ozmorn": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "dementor": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "egg-or-chicken": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "creator": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      },
+      "infirmary": {
+        "enabled": false,
+        "kills": 0,
+        "minutes": 0,
+        "restMinutes": 5,
+        "elapsed": 0,
+        "defeats": 0,
+        "remaining": 0
+      }
+    },
+    "perkRefunded": true,
+    "perkEnabled": {
+      "meta": {
+        "mohican-slayer": true,
+        "attack-plus": false,
+        "lock-plus": false,
+        "metal-shield": false,
+        "metal-blade": false,
+        "spinning-rush": false,
+        "metal-storm": false,
+        "full-metal-burst": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "mitsuru": {
+        "wire-self": true,
+        "spark-shot": false,
+        "wire-action": false,
+        "tour-de-france": false,
+        "spaghetti-code": false,
+        "cat-cradle": false,
+        "radioactivity": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "megumin": {
+        "explosion-girl": true,
+        "wide-explosion": true,
+        "blast-barrier": true,
+        "quick-chant": true,
+        "crimson-flame": false,
+        "king-of-worlds": false,
+        "laws-of-heaven": false,
+        "rising-heat": false,
+        "destruction": false,
+        "eternal-hammer": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "vishunal": {
+        "mad-dog": true,
+        "legal-launcher": false,
+        "missile-missile": false,
+        "rabid-dog": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "richter": {
+        "g-bom": true,
+        "awaken-x-bom": true,
+        "awaken-y-bom": true,
+        "awaken-z-bom": true,
+        "dx-bom": false,
+        "bom-ber": false,
+        "v-bom": false,
+        "gx-bom": false,
+        "gx-bom-double": false,
+        "vx-bom": false,
+        "ex-bom": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "waku": {
+        "deceptive-hitbox": true,
+        "expanded-hurtbox": false,
+        "floor-clip": false,
+        "monado-smash": false,
+        "invisible-wall": false,
+        "vanishing-hurtbox": false,
+        "vanishing-hitbox": false,
+        "full-screen-hurtbox": false,
+        "next-frame": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "cherry": {
+        "assert-dominance": true,
+        "burning": false,
+        "volcano": false,
+        "incinerate-them": false,
+        "dissatisfaction": false,
+        "extinguisher": false,
+        "blazar": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "max": {
+        "gm": true,
+        "handout": false,
+        "plot-armor": false,
+        "mouth-wrestling": false,
+        "named-npc": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "jewel": {
+        "side-income": true,
+        "yellow-glow": false,
+        "crimson-fist": false,
+        "crystal-radiance": false,
+        "iolite-shield": false,
+        "adamant-fist": false,
+        "rainbow-armor": false,
+        "black-egg": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "pine": {
+        "strength": true,
+        "apple-gummy": false,
+        "strongman": false,
+        "bulk-up": false,
+        "unrivaled-strength": false,
+        "pine-gummy": false,
+        "power-is-power": false,
+        "wonderful-curiosity": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "hayato": {
+        "far-sight": true,
+        "lost-direction": false,
+        "lightheaded": false,
+        "sight-roulette": false,
+        "far-sight-mastery": false,
+        "unsteady-hands": false,
+        "death-line": false,
+        "seismic-six": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "queen": {
+        "queens-bless": true,
+        "royal-presence": false,
+        "royal-blessing": false,
+        "royal-intimidation": false,
+        "insolent": false,
+        "killer-queen": false,
+        "covering": false,
+        "revival-burst": false
+      },
+      "aniya": {
+        "big-brother": true,
+        "elder-brother": false,
+        "obey-brother": false,
+        "your-brother": true,
+        "no-fighting": false,
+        "family": false,
+        "wonderful-brother": false,
+        "brother-zone": false,
+        "covering": false,
+        "revival-burst": false
+      }
+    },
+    "unlockedPerks": {
+      "meta": [
+        "mohican-slayer",
+        "attack-plus",
+        "lock-plus",
+        "metal-shield",
+        "metal-blade",
+        "spinning-rush",
+        "metal-storm",
+        "full-metal-burst",
+        "covering",
+        "revival-burst"
+      ],
+      "mitsuru": [],
+      "megumin": [],
+      "vishunal": [],
+      "richter": [],
+      "waku": [],
+      "cherry": [],
+      "max": [],
+      "jewel": [],
+      "pine": [],
+      "hayato": [],
+      "queen": [],
+      "aniya": []
+    },
+    "runaway": {
+      "meta": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "awakening",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.02,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "mitsuru": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "recovery",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.02,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "megumin": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "awakening",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.03,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "vishunal": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "reaction",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.01,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "richter": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "awakening",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.02,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "waku": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "reaction",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.01,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "cherry": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "augment",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.005,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "max": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "recovery",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.005,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "jewel": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "awakening",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.02,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "pine": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "augment",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.02,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "hayato": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "reaction",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.01,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "queen": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "reaction",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.03,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      },
+      "aniya": {
+        "runawayRate": 0,
+        "criticalReserve": 0,
+        "activationType": "recovery",
+        "runawayCollapsed": false,
+        "runawaySymptom": null,
+        "baseRunawayPressure": 0.03,
+        "temporaryRunawayPressure": 0,
+        "thresholdArmedState": {
+          "50": true,
+          "70": true,
+          "90": true,
+          "110": true,
+          "120": true,
+          "130": true,
+          "140": true,
+          "150": true
+        }
+      }
+    },
+    "incomeTotals": {},
+    "seedLevels": {
+      "pride": 0,
+      "vanity": 0,
+      "envy": 0,
+      "wrath": 0,
+      "sloth": 0,
+      "greed": 0,
+      "gluttony": 0,
+      "lust": 0
+    },
+    "karmaSelections": {},
+    "sinTotal": 0,
+    "sinBalance": 0,
+    "dreamShop": false,
+    "dreamGain": 0,
+    "dreamPurchases": {},
+    "pendingQuestLevels": {},
+    "creatorAccess": {
+      "seen": true,
+      "defeated": false
+    },
+    "characterUnlocks": {
+      "meta": true,
+      "megumin": true,
+      "vishunal": true,
+      "pine": true
+    },
+    "defeatCounts": {},
+    "sessionClears": {},
+    "rescue": {
+      "dementorClears": 0,
+      "appearances": 0,
+      "remaining": 0,
+      "completed": false,
+      "open": false,
+      "unread": false
+    },
+    "inventory": {},
+    "missions": {},
+    "muffinLevel": 0,
+    "credits": 0,
+    "creditsEarned": 0,
+    "factors": 1e+300,
+    "earned": 0,
+    "previousRunsEarned": 0,
+    "runNumber": 1,
+    "kills": 0,
+    "clicks": 0,
+    "totalDamage": 0,
+    "viewingMemories": false,
+    "memoriesUnlocked": true,
+    "sessionId": "creator",
+    "hp": 5e+99,
+    "poisonDamage": 0,
+    "paused": false,
+    "battleSpeed": 1,
+    "options": {
+      "simplifiedNumbers": false,
+      "numberUnit": "western",
+      "showOrbits": false,
+      "hitEffects": "normal",
+      "showFactorRain": true,
+      "showRewardDice": true,
+      "showDamageNumbers": true,
+      "showOverflowLabels": true,
+      "showDefeatLabels": true
+    },
+    "siblingMarks": {},
+    "rainbowTurns": 0,
+    "floorClipTargetId": null,
+    "floorClipTurns": 0,
+    "respawnSeconds": 0,
+    "sessionStates": {
+      "scarecrow": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 35,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "mohicans": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 20,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "electric-rat": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 25,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "ozmorn": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 130,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "dementor": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 100,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "egg-or-chicken": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 3200,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "infirmary": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 1,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": null,
+        "nextEnemyId": 0,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      },
+      "mohican-solo": {
+        "siblingMarks": {},
+        "timeline": {
+          "priorities": {},
+          "turns": 0
+        },
+        "hp": 20,
+        "poisonDamage": 0,
+        "batchHpFraction": 0,
+        "batchDamageFraction": 0,
+        "respawnSeconds": 0,
+        "selectedCharacterId": null,
+        "enemies": [
+          {
+            "row": "front",
+            "id": 0,
+            "hp": 20,
+            "poisonDamage": 0,
+            "respawnSeconds": 0,
+            "actionPoints": 0,
+            "pendingAttack": null,
+            "wardSeconds": 0,
+            "defensePenalty": 0,
+            "accuracyPenalty": 0,
+            "evasionPenalty": 0,
+            "evasionPenaltyTurns": 0,
+            "evasionFailure": false,
+            "tauntId": null,
+            "slowSeconds": 0,
+            "actionPenalty": 0,
+            "queenCancels": 0
+          }
+        ],
+        "nextEnemyId": 1,
+        "focusedEnemyId": null,
+        "floorClipTargetId": null,
+        "floorClipTurns": 0,
+        "rainbowTurns": 0
+      }
+    },
+    "enemies": [
+      {
+        "creatorTurns": 0,
+        "creatorPattern": "judgment",
+        "row": "front",
+        "id": 0,
+        "hp": 5e+99,
+        "poisonDamage": 0,
+        "respawnSeconds": 0,
+        "actionPoints": 0,
+        "pendingAttack": null,
+        "wardSeconds": 0,
+        "defensePenalty": 0,
+        "accuracyPenalty": 0,
+        "evasionPenalty": 0,
+        "evasionPenaltyTurns": 0,
+        "evasionFailure": false,
+        "tauntId": null,
+        "slowSeconds": 0,
+        "actionPenalty": 0,
+        "queenCancels": 0
+      }
+    ],
+    "nextEnemyId": 1,
+    "focusedEnemyId": null,
+    "health": {
+      "meta": {
+        "hp": 1209,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "mitsuru": {
+        "hp": 32,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "megumin": {
+        "hp": 18,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "vishunal": {
+        "hp": 36,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "richter": {
+        "hp": 24,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "waku": {
+        "hp": 20,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "cherry": {
+        "hp": 15,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "max": {
+        "hp": 22,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "jewel": {
+        "hp": 36,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "pine": {
+        "hp": 65,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "hayato": {
+        "hp": 17,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "queen": {
+        "hp": 15,
+        "status": "active",
+        "regenSeconds": 0
+      },
+      "aniya": {
+        "hp": 30,
+        "status": "active",
+        "regenSeconds": 0
+      }
+    },
+    "formationRows": {
+      "meta": "front",
+      "mitsuru": "front",
+      "megumin": "front",
+      "vishunal": "front",
+      "richter": "front",
+      "waku": "front",
+      "cherry": "front",
+      "max": "front",
+      "jewel": "front",
+      "pine": "front",
+      "hayato": "front",
+      "queen": "front",
+      "aniya": "front"
+    },
+    "formations": {
+      "mohican-solo": [],
+      "scarecrow": [],
+      "mohicans": [],
+      "electric-rat": [],
+      "ozmorn": [],
+      "dementor": [],
+      "egg-or-chicken": [],
+      "creator": [
+        "meta"
+      ],
+      "infirmary": []
+    },
+    "concentration": {
+      "meta": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "mitsuru": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "megumin": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "vishunal": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "richter": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "waku": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "cherry": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "max": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "jewel": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "pine": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "hayato": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "queen": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      },
+      "aniya": {
+        "accuracy": 0,
+        "evasion": 0,
+        "power": 0,
+        "armor": 0
+      }
+    },
+    "questUnlocks": {
+      "mohican-solo": true,
+      "scarecrow": true,
+      "mohicans": false,
+      "electric-rat": false,
+      "ozmorn": true,
+      "dementor": true,
+      "egg-or-chicken": true,
+      "creator": true,
+      "infirmary": true
+    },
+    "questActiveLevels": {
+      "mohican-solo": 1,
+      "scarecrow": 1,
+      "mohicans": 1,
+      "electric-rat": 1,
+      "ozmorn": 1,
+      "dementor": 1,
+      "egg-or-chicken": 1,
+      "creator": 1,
+      "infirmary": 1
+    },
+    "questLevels": {
+      "mohican-solo": 1,
+      "scarecrow": 1,
+      "mohicans": 1,
+      "electric-rat": 1,
+      "ozmorn": 1,
+      "dementor": 1,
+      "egg-or-chicken": 1,
+      "creator": 1,
+      "infirmary": 1
+    },
+    "sceneSeconds": 0,
+    "batchHpFraction": 0,
+    "batchDamageFraction": 0,
+    "levels": {
+      "meta": 1500,
+      "mitsuru": 0,
+      "megumin": 0,
+      "vishunal": 0,
+      "richter": 0,
+      "waku": 0,
+      "cherry": 0,
+      "max": 0,
+      "jewel": 0,
+      "pine": 0,
+      "hayato": 0,
+      "queen": 0,
+      "aniya": 0
+    },
+    "timeline": {
+      "priorities": {},
+      "turns": 0
+    },
+    "actionPoints": {
+      "meta": 0,
+      "mitsuru": 0,
+      "megumin": 0,
+      "vishunal": 0,
+      "richter": 0,
+      "waku": 0,
+      "cherry": 0,
+      "max": 0,
+      "jewel": 0,
+      "pine": 0,
+      "hayato": 0,
+      "queen": 0,
+      "aniya": 0
+    },
+    "actionClock": 0,
+    "selectedCharacterId": "meta",
+    "purchasedPerks": {
+      "meta": [],
+      "mitsuru": [],
+      "megumin": [],
+      "vishunal": [],
+      "richter": [],
+      "waku": [],
+      "cherry": [],
+      "max": [],
+      "jewel": [],
+      "pine": [],
+      "hayato": [],
+      "queen": [],
+      "aniya": []
+    },
+    "upgrades": {
+      "stabilization": 0,
+      "retake": 0,
+      "reversal": 0,
+      "fightingSpirit": 0,
+      "badLuck": 0,
+      "overkill": 0,
+      "blessing": 0
+    },
+    "savedAt": 1000
+  }
+}

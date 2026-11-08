@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character:c,rng,roundTrip}=require('./current-fixtures.cjs');
@@ -28,7 +29,7 @@ test('growth gradually eases, stays monotone and caps finite values at extreme l
  }
  for(const q of D.sessions.filter(q=>!q.medical&&!q.members))for(const level of [10000,1e6,Number.MAX_SAFE_INTEGER]){
   const grown=E.sessionAtLevel(q,level);
-  for(const key of ['strength','hpStrength','actionMultiplier','hp','reward'])assert.ok(Number.isFinite(grown[key])&&grown[key]>0&&grown[key]<=1e100,key);
+  for(const key of ['strength','hpStrength','actionMultiplier','hp','reward'])assert.ok(H.isFinite(grown[key])&&H.gt(grown[key],0),key);
  }
 });
 

@@ -1,0 +1,2 @@
+Built-in ImageGen; one call per reference (1,4,5,7,8).
+Create one square pixel-art pachinko reel character portrait, using attached reference as the character identity. Preserve hair, face, clothing colors, and distinctive accessories. Crisp hand-placed 16-bit pixel art, limited palette, dark navy background, head-and-shoulders composition filling the square, readable at 80px. No text, no number, no border, no extra characters. Reference filename corresponds to reel N.

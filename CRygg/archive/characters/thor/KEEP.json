@@ -1,0 +1,38 @@
+{
+  "character": "ソール / Thor",
+  "purpose": "ユーザーが今後再利用予定。未使用素材の整理でも保持する。",
+  "retain": true,
+  "current_sheet": "character-9-sheet-v51.png",
+  "files": [
+    {
+      "file": "character-9-v40.png",
+      "original_path": "assets/images/reels/character-9-v40.png",
+      "sha256": "22ee2763d72806bf41c6b8d53eafd6be99d6c91faf3824dce53b4937c07df2b2"
+    },
+    {
+      "file": "character-9-sheet-v50.png",
+      "original_path": "assets/images/reels/character-9-sheet-v50.png",
+      "sha256": "f1b60c704ff83ca4caebc1c548c91390fa34206756cd07ec89a1e01c595ebe3f"
+    },
+    {
+      "file": "character-9-sheet-v51.png",
+      "original_path": "assets/images/reels/character-9-sheet-v51.png",
+      "sha256": "44e6f75abfac833fb75c61fba9acdf6868f797696a0951576b73e42800a0168c"
+    },
+    {
+      "file": "PROMPT-v40.txt",
+      "original_path": "PROMPT-v40.txt",
+      "sha256": "107e595b0cc3c7836faed6c3fcc7b083663d006c4d20012bf4b069b91b2fa36c"
+    },
+    {
+      "file": "PROMPT-v50.txt",
+      "original_path": "PROMPT-v50.txt",
+      "sha256": "eaf410e0064cd6bf725b933486e799f33b6db46a18cd733d21b957a05026fa98"
+    },
+    {
+      "file": "PROMPT-v51.txt",
+      "original_path": "PROMPT-v51.txt",
+      "sha256": "428ac5c5748c1deca0cf5bc451daafab262150092360517786a87fa3ba37cd0a"
+    }
+  ]
+}

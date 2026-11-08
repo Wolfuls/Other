@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character,rng,enable,roundTrip}=require('./current-fixtures.cjs');
@@ -9,7 +10,7 @@ test('SWRR matches the reference algorithm, stable ties and 30:15:15 exactly',()
  for(let tick=0;tick<8000;tick++){raw.forEach((_,i)=>raw[i]+=units[i].weight);const pick=raw.indexOf(Math.max(...raw));raw[pick]-=60;const u=E.smoothTurn(units,p);assert.equal(+u.key,pick);counts[pick]++;}assert.deepEqual(counts,[4000,2000,2000]);
 });
 test('weights sanitize extreme values without overflow; finite low weights eventually win',()=>{
- assert.equal(E.actionWeight(Infinity),1e100);assert.equal(E.actionWeight(NaN),0);assert.equal(E.actionWeight(-1),0);
+ assert.equal(E.actionWeight(Infinity),0);assert.equal(E.actionWeight(NaN),0);assert.equal(E.actionWeight(-1),0);
  const p={},units=[{key:'fast',weight:1e100},{key:'slow',weight:1e98}];let slow=0;
  for(let i=0;i<10100;i++){if(E.smoothTurn(units,p).key==='slow')slow++;assert.ok(Object.values(p).every(Number.isFinite));}assert.equal(slow,100);
 });

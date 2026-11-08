@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,character:c,ready,enable,faces,rng,roundTrip}=require('./current-fixtures.cjs');
@@ -22,7 +23,7 @@ test('manual player damage is always exactly one, including high strengths, resi
   const s=ready([],q.id);s.questLevels[q.id]=level;E.setQuestLevel(s,q.id,level);s.selectedCharacterId=null;
   if(q.members)E.selectEnemy(s,E.livingEnemies(s)[0].id);
   const before=E.livingEnemies(s)[0].hp,hit=E.click(s,()=>.5).find(e=>e.type==='attack');
-  assert.equal(hit.damage,1);assert.equal(hit.hpAfter,before-1);assert.deepEqual(E.manualStats(s),{dice:0,flat:1});assert.equal(E.profileAverage(s,E.attackProfile(s,null,true)),1);
+  assert.equal(hit.damage,1);assert.ok(H.eq(hit.hpAfter,H.sub(before,1)));assert.deepEqual(E.manualStats(s),{dice:0,flat:1});assert.equal(E.profileAverage(s,E.attackProfile(s,null,true)),1);
   if(q.id==='ozmorn'){const add=s.enemies[1];assert.equal(add.creationDamage,1);E.selectEnemy(s,add.id);assert.equal(E.click(s,()=>.5)[0].damage,1);}
  }
 });

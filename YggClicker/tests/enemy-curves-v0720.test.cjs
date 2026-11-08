@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character,rng}=require('./current-fixtures.cjs');
@@ -18,7 +19,7 @@ test('enemy curves separate HP, defense and attack while preserving action and j
  let previous={power:0,armor:0,vitality:0};
  for(let L=0;L<500;L++)for(const kind of Object.keys(previous)){const value=E.T.enemyDurability(L,kind);assert.ok(value>previous[kind]);previous[kind]=value;}
  for(const L of [10000,1e6,Number.MAX_SAFE_INTEGER])for(const kind of Object.keys(previous)){
-  const value=E.T.enemyDurability(L,kind);assert.ok(Number.isFinite(value)&&value>0&&value<=1e100);
+  const value=E.T.enemyDurability(L,kind);assert.ok(H.isFinite(value)&&H.gt(value,0));
  }
 });
 

@@ -1,9 +1,10 @@
+(function(__YggBig){
 (function(root){
   'use strict';
   const commonJS=typeof module!=='undefined'&&module.exports;
   const data = {
   "gameId": "yggclicker",
-  "version": "0.89.36",
+  "version": "0.90.4",
   "maxOfflineSeconds": 28800,
   "incomeTypes": [
     "questReward",
@@ -13,8 +14,7 @@
     "jewelDoubleHitIncome",
     "jewelDamageIncome",
     "refund",
-    "migrationRefund",
-    "prestigeReward"
+    "migrationRefund"
   ],
   "secondaryIncomeTypes": [
     "secondaryIncome",
@@ -542,10 +542,11 @@
     "sheet": "./img/jewel-animation-v11.png"
   }
 };
+  data.upgrades.push({id:"blessing",name:"祝福",cost:1e300,max:1,icon:"✧",label:"万物の創造者への道を開く。"});
   data.characters=commonJS?require('./characters.js'):root.YggCharacters;
   data.sessions=commonJS?require('./quests.js'):root.YggQuests;
   data.pendingQuests=data.sessions.pending||[];
-  data.characters.sort((a,b)=>a.cost-b.cost);
+  data.characters.sort((__YggBig.sort((a,b)=>(__YggBig.sub(a.cost,b.cost)))));
   for (const character of data.characters) {
     const pressureBand = { awakening:'normal', reaction:'slightlyLow', recovery:'low' }[character.activationType];
     character.baseRunawayPressure ??= data.runtimeBalance.basePressures[pressureBand];
@@ -557,3 +558,5 @@
   if(typeof module!=='undefined'&&module.exports)module.exports=data;
   else root.YggData=data;
 })(typeof window!=='undefined'?window:globalThis);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

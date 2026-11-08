@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,ready,character,enable,rng,roundTrip}=require('./current-fixtures.cjs');
@@ -9,7 +10,7 @@ test('sins entry is hidden and inaccessible in run one, visible from run two',()
 test('resistance and weakness are independent for attack and effect; resistance wins ties',()=>{
  const t={resistances:['shock'],weaknesses:['blast']};assert.equal(E.attributeMultiplier(t,[]),1);assert.equal(E.attributeMultiplier(t,['shock']),0);assert.equal(E.attributeMultiplier(t,['blast','blast']),1.5);assert.equal(E.attributeMultiplier(t,['shock','blast']),0);
  const p={apReduction:4,effectElements:{apReduction:['shock']}};assert.equal(E.elementalPerk(p,t).apReduction,0);assert.equal(E.elementalPerk(p,{weaknesses:['shock']}).apReduction,6);assert.equal(p.apReduction,4);
- assert.equal(E.attributeDamage(11,1.5),16);assert.equal(E.attributeDamage(1e100,1.5),1e100);
+ assert.equal(E.attributeDamage(11,1.5),16);assert.equal(E.attributeDamage(1e100,1.5),1e100*1.5);
 });
 test('only specified normal attacks are tagged; Kogumo does not inherit the boss attack tag',()=>{
  for(const id of ['megumin','vishunal','richter'])assert.deepEqual(character(id).attackElements,['blast']);

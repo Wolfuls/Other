@@ -2,7 +2,7 @@
 (function(root){
 'use strict';
 const CONTENT=root.MiloadContent||(typeof require!=='undefined'?require('./content.js'):null);
-const CFG={width:960,height:540,ground:458,gravity:1450,speed:224,dashSpeed:368,doubleTapSeconds:.28,jump:610,candySeconds:5,invincible:1.5,maxHearts:4,stageCount:3,maxEnergy:100,energyRegen:18};
+const CFG={width:960,height:540,ground:458,gravity:1450,speed:224,dashSpeed:368,doubleTapSeconds:.28,jump:610,candySeconds:5,invincible:1.5,maxHearts:Infinity,stageCount:3,maxEnergy:100,energyRegen:18};
 const BOSS={hp:60,rest:1.3,recovery:1.1,enragedRecovery:.8,waveSpeed:230,dashSpeed:190,dashSeconds:.95,hitStop:.5,cakeScale:4};
 const WANDS={
   star:{name:'星くずの杖',tag:'RAPID',desc:'小さな星を連射する、最初の杖。',color:'#f3d294',cost:6,cooldown:.19,damage:1,speed:610,life:.9},
@@ -23,10 +23,11 @@ function canvasPoint(clientX,clientY,box){const scale=Math.min(box.width/CFG.wid
 class DashInput{
  constructor(){this.clear();}
  clear(){this.down=new Set();this.active=0;this.lastDirection=0;this.lastTime=-Infinity;this.released=false;}
+ cancel(){this.active=0;this.lastDirection=0;this.lastTime=-Infinity;this.released=false;}
  press(direction,now){if(![-1,1].includes(direction)||this.down.has(direction))return;this.down.add(direction);const twice=this.released&&this.lastDirection===direction&&now>=this.lastTime&&now-this.lastTime<=CFG.doubleTapSeconds;this.active=twice&&this.down.size===1?direction:0;this.lastDirection=direction;this.lastTime=now;this.released=false;}
  release(direction){if(!this.down.delete(direction))return;if(direction===this.lastDirection)this.released=true;if(this.active===direction)this.active=0;}
 }
-function controlsFor(held,pressed,atDoor=false,dashDirection=0){const has=(set,...keys)=>keys.some(k=>set.has(k)),left=has(held,'ArrowLeft','KeyA'),right=has(held,'ArrowRight','KeyD'),direction=(right?1:0)-(left?1:0);return{left,right,dash:direction!==0&&direction===dashDirection,jumpHeld:has(held,'KeyW','ArrowUp','Space'),jump:has(pressed,'KeyW','ArrowUp')||(!atDoor&&has(pressed,'Space')),enter:atDoor&&has(pressed,'Space'),fire:has(held,'MouseLeft','KeyZ','KeyJ')};}
+function controlsFor(held,pressed,atDoor=false,dashDirection=0){const has=(set,...keys)=>keys.some(k=>set.has(k)),left=has(held,'ArrowLeft','KeyA'),right=has(held,'ArrowRight','KeyD'),direction=(right?1:0)-(left?1:0);return{left,right,dash:direction!==0&&direction===dashDirection,jumpHeld:has(held,'KeyW','ArrowUp','Space'),jump:has(pressed,'KeyW','ArrowUp')||(!atDoor&&has(pressed,'Space')),enter:atDoor&&has(pressed,'Space','KeyE'),fire:has(held,'MouseLeft','KeyZ','KeyJ')};}
 function aimFor(p){const x=p.x+p.w/2+p.facing*(p.aimActive?36:30),y=p.y+(p.aimActive?3:27),dx=p.aimX-x,dy=p.aimY-y;const angle=p.aimActive&&Math.hypot(dx,dy)>2?Math.atan2(dy,dx):(p.facing<0?Math.PI:0);return{x,y,angle,dx:Math.cos(angle),dy:Math.sin(angle)};}
 // Presentation uses a separate clock: neither combat nor candy timers advance.
 const OPENING={transform:18.4,escape:31.5,walk:36.4,door:38.6,end:36.4,actorX:315,actorY:402,exitX:838,plateX:362,plateY:421};
@@ -47,10 +48,10 @@ function openingFrame(t){
 }
 class Game{
  constructor(seed=1,options={}){this.reset(seed,options);}
- reset(seed,options={}){this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=2;this.maxLife=2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
+ reset(seed,options={}){this.debugRun=options.debug??this.debugRun??false;this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.collectedHearts=new Set();this.heartAreas=new Map();this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.playedTutorial=!!options.tutorial;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=this.debugRun?10:2;this.maxLife=this.debugRun?10:2;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
  emit(type,data={}){if(this.storySignals){this.storySignals.add(type);this.signalTimes[type]=this.time;}this.events.push({type,...data});}
  pick(xs){return xs[Math.floor(this.rng()*xs.length)];}
- loadStage(){
+ loadStage(){this.gardenCarrier=this.chapter===1&&this.stage===1?{x:1320,y:430,t:0,phase:'waiting',bag:true,delivered:false,throwT:0}:null;this.naniwaDefeat=null;this.clearMusic=false;
   this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter===1)this.area=0;this.movingPlatforms=[];this.crates=[];this.cargoDecor=[];this.chapterScene=null;
   this.platforms=[];this.enemies=[];this.sweets=[];this.drops=[];this.bullets=[];this.hostile=[];this.particles=[];this.texts=[];this.swapTarget=null;this.arenaLocked=false;this.bossAwake=false;
   if(this.chapter===0){this.loadTutorial();return;}if(this.chapter===2){this.loadChapterTwo();return;}
@@ -63,12 +64,12 @@ class Game{
    for(const [x,y,w] of layout){if(bx+x+w>this.worldWidth-330)continue;const pf={x:bx+x,y,w,h:16};this.platforms.push(pf);ledges.push(pf);for(let j=0;j<3;j++)this.sweets.push(this.sweet(bx+x+20+j*(w-40)/2,y-22,this.pick(['candy','mint','cookie']),null));}
    if(n>0){this.spawnEnemy(this.pick(this.stage===0?['slime','slime','bat']:['slime','bat','sprout']),bx+90,CFG.ground);if(ledges.length){const pf=ledges[n%ledges.length],e=this.spawnEnemy(n%2?'sprout':'slime',pf.x+(pf.w-32)/2,pf.y);e.platform=pf;e.patrolLeft=pf.x+4;e.patrolRight=pf.x+pf.w-e.w-4;}}
    if(n===1||n===3||n===5)this.drops.push({id:this.id++,type:'wand',wand:this.pick(n===1&&this.stage===0?['spread','sugar']:['spread','sugar','comet']),x:bx+15,y:CFG.ground-30,w:26,h:30,cooldown:0});
-   if(n===4&&this.stage<2){const [x,y]=layout[0];this.drops.push({id:this.id++,type:'heart',x:bx+x+40,y:y-27,w:25,h:27,cooldown:0});}
+   if(n===(this.stage===2?2:4)){const [x,y]=layout[0];this.drops.push({id:this.id++,type:'heart',x:bx+x+40,y:y-27,w:25,h:27,cooldown:0});}
   }
   this.spawnEnemy('slime',490,CFG.ground);
   if(this.stage===2){this.arenaStart=this.worldWidth-1200;this.platforms=this.platforms.filter(p=>p.ground||p.x+p.w<this.arenaStart-50);this.enemies=this.enemies.filter(e=>e.x<this.arenaStart-100&&(!e.platform||this.platforms.includes(e.platform)));this.sweets=this.sweets.filter(s=>s.x<this.arenaStart-50);this.drops=this.drops.filter(d=>d.x<this.arenaStart-50);this.spawnEnemy('boss',this.worldWidth-380,CFG.ground);}
   this.exit={x:this.worldWidth-150,y:CFG.ground-85,w:54,h:85};
-  Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,hurt:0});this.camera=0;this.rng=runRng;this.emit('stage',{stage:this.stage});
+  Object.assign(this.player,{x:85,y:CFG.ground-this.player.h,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,fire:0,attack:0,hurt:0});this.camera=0;this.rng=runRng;this.limitStageHeart();this.emit('stage',{stage:this.stage});
  }
  loadTutorial(){
   this.hitStop=0;this.encounter=null;
@@ -87,10 +88,10 @@ class Game{
    this.worldWidth=2880;this.platforms=[{x:0,y:458,w:2880,h:100,ground:true},...[[420,385,150],[950,370,170],[1720,385,150],[2010,315,180]].map(([x,y,w])=>({x,y,w,h:16}))];
    for(const [i,x] of [670,910,1260].entries()){const e=this.spawnEnemy('slime',x,458);Object.assign(e,{prologue:true,garden:true,candyKind:['macaron','candy','pudding'][i],hp:3,maxHp:3,patrolLeft:x-170,patrolRight:x+170,attack:1.2,charge:0,awake:false});}
    for(const [x,y,kind]of [[1940,438,'mint'],[2080,293,'cookie'],[2160,293,'cake']]){const q=this.sweet(x,y,kind,null);q.placedLesson=true;this.sweets.push(q);}
-   this.drops=[{id:this.id++,type:'wand',wand:'spread',x:440,y:355,w:26,h:30,cooldown:0},{id:this.id++,type:'heart',x:1750,y:358,w:25,h:27,cooldown:0}];
+   this.drops=[{id:this.id++,type:'wand',wand:'spread',x:440,y:355,w:26,h:30,cooldown:0},{id:this.id++,type:'heart',x:2450,y:431,w:25,h:27,cooldown:0}];
    this.exit={x:2730,y:373,w:54,h:85};
   }else{this.worldWidth=960;this.platforms=[{x:0,y:458,w:960,h:100,ground:true}];this.exit={x:760,y:373,w:54,h:85};}
-  Object.assign(this.player,{x:this.area===2?530:this.area===0&&this.room===0?315:85,y:402,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,walkPhase:0,runPhase:0,dashing:false});this.camera=0;this.emit('stage',{stage:0});if(this.area===2){this.player.inv=0;if(this.state==='playing')this.beginStory(CONTENT.farewell);}
+  Object.assign(this.player,{x:this.area===2?530:this.area===0&&this.room===0?315:85,y:402,vx:0,vy:0,grounded:true,inv:1.5,damageBlink:0,walkPhase:0,runPhase:0,dashing:false});this.camera=0;this.limitStageHeart();this.emit('stage',{stage:0});if(this.area===2){this.player.inv=0;if(this.state==='playing')this.beginStory(CONTENT.farewell);}
  }
  tutorialReady(skipMessages=false){if(this.chapter!==0)return skipMessages||!this.storyEnabled||(!this.story&&this.finishedStories.has(CONTENT.chapterOneExits[this.stage]));if(!skipMessages&&(this.story||this.storyQueue.length))return false;
   const explained=id=>skipMessages||this.finishedStories.has(id);
@@ -104,22 +105,24 @@ class Game{
  readingSeconds(text){return clamp(1.3+Array.from(text).length*.055,1.6,4.8);}
  beginStory(event){if(this.story||this.state!=='playing')return false;this.activateStory({...event,index:0});return true;}
  activateStory(story){this.story=story;this.seenStories.add(story.id);if(story.elapsed==null)this.setStoryLine();
-  if(story.scene)this.storyScene={kind:story.scene,t:0,x:this.player.x,actorX:clamp(this.player.x+180,this.camera+420,this.camera+660)};
-  if(story.blocking){this.state='event';this.player.vx=0;this.player.dashing=false;this.emit('presentationStart');}
+  if(story.scene&&!(this.chapter===1&&this.stage===1&&story.scene==='carrier'))this.storyScene={kind:story.scene,t:0,x:this.player.x,actorX:clamp(this.player.x+180,this.camera+420,this.camera+660)};
+  if(story.blocking){this.texts=[];this.state='event';this.player.vx=0;this.player.dashing=false;this.emit('presentationStart');}
   if(this.chapter===0)this.emit('dialoguePause');
  }
- setStoryLine(){const line=this.story.lines[this.story.index];this.story.elapsed=0;this.story.readElapsed=0;this.story.revealed=false;this.story.remaining=line.duration??(Array.from(line.text).length/22+this.readingSeconds(line.text));if(line.se)this.events.push({type:line.se});}
+ setStoryLine(){const line=this.story.lines[this.story.index];this.story.elapsed=0;this.story.readElapsed=0;this.story.revealed=false;this.story.typedCount=0;this.story.remaining=line.duration??(Array.from(line.text).length/22+this.readingSeconds(line.text));if(line.se)this.events.push({type:line.se});}
+ typingSounds(clock,text,count){const chars=Array.from(text),end=Math.min(chars.length,count);for(let i=clock.typedCount||0;i<end;i++)if(!/\s/.test(chars[i]))this.emit('messageType');clock.typedCount=end;}
  storyText(){if(!this.story)return '';const l=this.story.lines[this.story.index],n=this.story.revealed?Infinity:Math.floor(this.story.elapsed*22);return Array.from(l.text).slice(0,n).join('');}
- advanceStory(manual=false){if(!this.story)return;if(manual&&this.storyText()!==this.story.lines[this.story.index].text){this.story.revealed=true;this.story.readElapsed=0;return;}
+ advanceStory(manual=false){if(!this.story)return;if(this.storyScene?.kingAttack&&!this.storyScene.kingAttack.done)return;if(manual&&this.storyText()!==this.story.lines[this.story.index].text){this.emit('messageNext');this.story.revealed=true;this.story.typedCount=Array.from(this.story.lines[this.story.index].text).length;this.story.readElapsed=0;return;}
   if(this.story.index===this.story.lines.length-1&&this.story.minScene&&(this.storyScene?.t||0)<this.story.minScene)return;
-  this.story.index++;if(this.story.index>=this.story.lines.length)this.finishStory();else this.setStoryLine();
+  if(this.story.id==='c1-king'&&this.story.index===2&&!this.storyScene?.kingAttack){const b=this.enemies.find(e=>e.type==='boss');this.storyScene.kingAttack={t:0,bx:b.x,px:this.player.x};this.emit('bossRush');this.emit('jump');return;}
+  this.emit('messageNext');this.story.index++;if(this.story.index>=this.story.lines.length)this.finishStory();else this.setStoryLine();
  }
  skipStory(){this.finishStory(true);}
  finishStory(skipped=false){if(!this.story)return;const id=this.story.id,blocking=this.story.blocking;this.finishedStories.add(id);this.story=null;this.storyScene=null;if(blocking&&this.state==='event')this.state='playing';if(this.chapter===0||blocking)this.emit('dialoguePause');
   if(id==='first-encounter')this.beginEncounter();
   if(id==='departure'){if(skipped)this.beginChapterOne();else this.beginDepartureWalk();}
   if(id==='tutorial-death'||id==='c1-death')this.finishDefeat();
-  if(id==='c1-king'){this.bossAwake=true;this.arenaLocked=true;this.player.inv=Math.max(this.player.inv,.6);}
+  if(id==='c1-king'){this.player.y=402;this.player.vy=0;this.player.grounded=true;const king=this.enemies.find(e=>e.type==='boss');if(king){king.y=CFG.ground-king.h;king.vy=0;king.grounded=true;}this.bossAwake=true;this.arenaLocked=true;this.player.inv=Math.max(this.player.inv,.6);}
   if(id==='c1-feast'){this.celebration.read=true;this.state='celebrating';}
   if(id==='c1-ending'){this.state='chapterClear';this.clearFade=0;this.emit('presentationStart');}
   if(this.chapter===1&&!blocking)this.storyGap=.45;
@@ -134,7 +137,7 @@ class Game{
  }
  stepEncounter(dt){const d=this.encounter,p=this.player,e=d.enemy,before=d.t;d.t+=dt;const leapAt=d.walkTime+.3,u=clamp((d.t-leapAt)/.65,0,1),walk=clamp(d.t/Math.max(.001,d.walkTime),0,1);
   p.x=d.startX+(d.approachX-d.startX)*walk; p.y=402;p.vx=d.t<d.walkTime?Math.sign(d.approachX-d.startX)*CFG.speed:0;p.vy=0;p.grounded=true;p.walkPhase=Math.abs(p.x-d.startX)/21%8;
-  e.x=d.enemyX+(480-d.enemyX)*u;e.y=430-Math.sin(u*Math.PI)*82;e.t+=dt;
+  e.dir=480<d.enemyX?-1:1;e.x=d.enemyX+(480-d.enemyX)*u;e.y=430-Math.sin(u*Math.PI)*82;e.t+=dt;
   if(d.t>=leapAt){const dodge=clamp((d.t-leapAt-.06)/.5,0,1);p.x=480-145*dodge;p.y=402-Math.sin(dodge*Math.PI)*36;p.grounded=dodge===0||dodge===1;p.vy=p.grounded?0:-Math.cos(dodge*Math.PI)*226;p.vx=p.grounded?0:-290;}
   if(before<leapAt&&d.t>=leapAt)this.emit('jump');this.camera+=(clamp(p.x-335,0,this.worldWidth-CFG.width)-this.camera)*Math.min(1,dt*7);
   if(d.t>=leapAt+1.05)this.finishEncounter();
@@ -143,17 +146,23 @@ class Game{
  skipDeparture(){if(this.state==='leaving')this.beginChapterOne();}
  openingCurrent(){return this.cinematic?openingLine(this.cinematic.t):null;}
  openingText(){const line=this.openingCurrent();if(!line)return '';return Array.from(line.text).slice(0,this.cinematic.revealId===line.id?Infinity:Math.floor((this.cinematic.lineElapsed||0)*22)).join('');}
- advanceOpening(){if(this.state!=='cinematic')return;const line=this.openingCurrent();if(!line)return;if(this.openingText()!==line.text){this.cinematic.revealId=line.id;this.cinematic.readElapsed=0;}else{this.cinematic.t=Math.min(OPENING.end,line.at+line.duration);this.cinematic.lineId=null;}}
+ advanceOpening(){if(this.state!=='cinematic')return;const line=this.openingCurrent();if(!line)return;this.emit('messageNext');if(this.openingText()!==line.text){this.cinematic.revealId=line.id;this.cinematic.typedCount=Array.from(line.text).length;this.cinematic.readElapsed=0;}else{this.cinematic.t=Math.min(OPENING.end,line.at+line.duration);this.cinematic.lineId=null;}}
  tickOpening(dt){const c=this.cinematic,line=this.openingCurrent(),before=c.t;
-  if(line){if(c.lineId!==line.id){c.lineId=line.id;c.lineElapsed=0;c.readElapsed=0;}const full=this.openingText()===line.text;c.lineElapsed+=dt;if(full)c.readElapsed+=dt;c.t=Math.min(c.t+dt,line.at+line.duration-1e-6);if(this.autoDialogue&&c.t>=line.at+line.duration-1e-6&&c.readElapsed>=this.readingSeconds(line.text))this.advanceOpening();}
+  if(line){if(c.lineId!==line.id){c.lineId=line.id;c.lineElapsed=0;c.readElapsed=0;c.typedCount=c.revealId===line.id?Array.from(line.text).length:0;}const full=this.openingText()===line.text;c.lineElapsed+=dt;this.typingSounds(c,line.text,c.revealId===line.id?Infinity:Math.floor(c.lineElapsed*22));if(full)c.readElapsed+=dt;c.t=Math.min(c.t+dt,line.at+line.duration-1e-6);if(this.autoDialogue&&c.t>=line.at+line.duration-1e-6&&c.readElapsed>=this.readingSeconds(line.text))this.advanceOpening();}
   else{const next=CONTENT.openingLines.find(l=>l.at>c.t);c.t=Math.min(c.t+dt,next?next.at:OPENING.end);}
+  for(const at of [9.9,13.2])if(c.t>=at&&!(c.rattleSeen||[]).includes(at)){(c.rattleSeen??=[]).push(at);this.emit('cookieRattle');}
   if(before<OPENING.transform&&c.t>=OPENING.transform)this.events.push({type:'transform'});if(c.t>=OPENING.end)this.finishOpening();
  }
  storyValid(e){if(e.chapter!==1)return true;if(e.stage!=null&&e.stage!==this.stage+1)return false;if(e.ttl&&this.time-(this.signalTimes[e.signal]??-Infinity)>e.ttl)return false;
   const boss=this.enemies.find(e=>e.type==='boss');if(['c1-wave','c1-rush','c1-half','c1-revived'].includes(e.id)&&boss?.state!=='alive')return false;if(e.id==='c1-cake'&&boss?.state!=='candy')return false;if(e.id==='c1-hurt'&&this.life<=1)return false;return true;
  }
+ tickGardenCarrier(dt){const c=this.gardenCarrier;if(!c)return;c.t+=dt;if(c.phase==='waiting'&&c.x<this.camera+CFG.width-20){c.phase='running';this.emit('cloth');}if(c.phase==='running'){c.x=Math.min(1770,c.x+175*dt);if(c.x===1770)c.phase='ready';}if(c.phase==='ready'&&this.camera+CFG.width>1970){c.phase='throw';c.throwT=0;c.bag=false;this.emit('cloth');}if(c.phase==='throw'){c.throwT=Math.min(.7,c.throwT+dt);if(c.throwT>=.7){c.delivered=true;c.phase='leaving';this.emit('thud');}}if(c.phase==='leaving')c.x+=205*dt;c.y=430-(['running','leaving'].includes(c.phase)?Math.abs(Math.sin(c.t*10))*15:0);}
  tickStory(dt){
-  if(this.storyScene)this.storyScene.t+=dt;this.storyGap=Math.max(0,this.storyGap-dt);
+  if(this.state==='playing')this.tickGardenCarrier(dt);
+  if(this.state==='playing'&&this.storyEnabled&&this.stage===2&&(!this.story||!this.story.blocking)){const id=this.chapter===1?'c1-king':this.chapter===2?'c2-challenge':null,event=id&&this.chapterEvent(id),boundary=this.chapter===2?this.arenaStart:event?.x;if(event&&this.player.x>=boundary&&!this.finishedStories.has(id)&&!this.seenStories.has(id)){if(this.story){this.finishedStories.add(this.story.id);this.story=null;this.storyScene=null;}for(const old of this.storyQueue){this.seenStories.add(old.id);this.finishedStories.add(old.id);}this.storyQueue=[];this.storyGap=0;if(this.player.grounded)this.beginStory(event);return;}}
+
+  if(this.storyScene)this.storyScene.t+=dt;
+  const attack=this.storyScene?.kingAttack;if(attack&&!attack.done){attack.t+=dt;const b=this.enemies.find(e=>e.type==='boss'),p=this.player,t=attack.t,q=clamp(t/.55,0,1);b.x=attack.bx+(attack.px+45-attack.bx)*q;b.y=CFG.ground-b.h-Math.sin(q*Math.PI)*70;p.x=attack.px-95*clamp((t-.12)/.55,0,1);p.y=402-Math.sin(clamp((t-.12)/.55,0,1)*Math.PI)*78;p.grounded=t>=.67;p.vy=t<.39?-1:1;if(t>=.55&&!attack.impact){attack.impact=true;this.emit('thud');this.burst(b.x+b.w/2,CFG.ground,'#bbb1b0',16);}if(t>=1){attack.done=true;p.y=402;p.grounded=true;p.vy=0;b.y=CFG.ground-b.h;b.grounded=true;this.advanceStory();}return;}this.storyGap=Math.max(0,this.storyGap-dt);
   const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?(this.chapter===2?CONTENT.chapterTwo:CONTENT.chapterOne):[]);
   if(this.state==='playing')for(const e of catalogue){
    if(e.direct||e.chapter!==this.chapter||(e.stage!=null&&e.stage!==this.stage+1)||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after)||e.condition&&!this.chapterCondition(e.condition))continue;
@@ -161,12 +170,12 @@ class Game{
   }
   this.storyQueue=this.storyQueue.filter(e=>this.storyValid(e));this.storyQueue.sort((a,b)=>(b.priority||0)-(a.priority||0));
   if(this.story?.reaction&&!this.storyValid(this.story)){this.story=null;this.storyScene=null;}
-  const urgent=this.storyQueue[0];if(this.story&&!this.story.blocking&&urgent?.priority>=50&&urgent.priority>(this.story.priority||0)){if(!this.story.reaction)this.storyQueue.push(this.story);this.story=null;this.storyScene=null;}
-  if(this.story){const full=this.storyText()===this.story.lines[this.story.index].text;this.story.elapsed+=dt;if(full)this.story.readElapsed+=dt;if((this.stageDialogue()||this.autoDialogue||this.story.auto)&&this.story.readElapsed>=this.readingSeconds(this.story.lines[this.story.index].text))this.advanceStory();}
+  const urgent=this.storyQueue.find(e=>e.blocking)||this.storyQueue[0];if(this.story&&!this.story.blocking&&urgent&&(urgent.blocking||urgent.priority>=50&&urgent.priority>(this.story.priority||0))){if(urgent.blocking){this.finishedStories.add(this.story.id);for(const e of this.storyQueue.filter(e=>!e.blocking)){this.finishedStories.add(e.id);}this.storyQueue=[urgent,...this.storyQueue.filter(e=>e!==urgent&&e.blocking)];this.storyGap=0;}else if(!this.story.reaction)this.storyQueue.push(this.story);this.story=null;this.storyScene=null;}
+  if(this.story){const full=this.storyText()===this.story.lines[this.story.index].text;this.story.elapsed+=dt;this.typingSounds(this.story,this.story.lines[this.story.index].text,this.story.revealed?Infinity:Math.floor(this.story.elapsed*22));if(full)this.story.readElapsed+=dt;if((this.stageDialogue()||this.autoDialogue||this.story.auto)&&this.story.readElapsed>=this.readingSeconds(this.story.lines[this.story.index].text))this.advanceStory();}
   if(!this.story&&this.state==='playing'&&this.storyQueue.length&&this.storyGap<=0){const next=this.storyQueue[0];if(next.blocking&&!this.player.grounded)return;if(next.safe&&this.enemies.some(e=>e.state==='alive'&&Math.abs(e.x-this.player.x)<190))return;this.activateStory(this.storyQueue.shift());}
  }
  chapterEvent(id){return CONTENT.chapterOne.find(e=>e.id===id);}
- beginVictory(){this.story=null;this.storyQueue=[];this.storyScene=null;this.hostile=[];this.bullets=[];this.shake=0;this.state='victoryLanding';this.celebration=null;Object.assign(this.player,{vx:0,attack:0,eat:0,hurt:0,damageBlink:0,dashing:false});this.emit('presentationStart');if(this.player.grounded)this.beginCelebration();}
+ beginVictory(){this.clearMusic=true;this.texts=[];this.story=null;this.storyQueue=[];this.storyScene=null;this.hostile=[];this.bullets=[];this.shake=0;this.state='victoryLanding';this.celebration=null;Object.assign(this.player,{vx:0,attack:0,eat:0,hurt:0,damageBlink:0,dashing:false});this.emit('presentationStart');if(this.player.grounded)this.beginCelebration();}
  beginCelebration(){this.state='playing';this.celebration={t:0,y:this.player.y,read:!this.storyEnabled};if(this.storyEnabled)this.beginStory(this.chapterEvent('c1-feast'));this.state='celebrating';this.player.vy=0;this.player.eat=.22;}
  tutorialHint(){if(this.chapter!==0)return '';if(this.area===0){
   if(this.room===0)return this.tutorialReady()?'ドアの前で Space：物置へ':'A / D・← / → で移動。同じ方向を2回押すとダッシュ。';
@@ -187,7 +196,7 @@ class Game{
   else this.happiness+=value;
   if(s.placedLesson)this.storySignals.add('placedEaten');if(s.enemy){if(s.enemy.garden){this.gardenKills++;if(this.gardenKills>=3)this.storySignals.add('gardenCleared');}if(s.enemy.lessonFirst)this.storySignals.add('firstEaten');this.storySignals.add('enemyEaten');s.enemy.state='dead';this.defeated++;if(s.enemy.type==='boss'){this.beginVictory();}}
   if(this.chapter===1&&s.enemy&&s.enemy.type!=='boss'&&this.stage===0)this.emit('forestMeal');if(this.chapter===1&&!s.enemy&&s.y<CFG.ground-65)this.emit('sideSweet');
-  this.popup('+'+value+'%',s.x,s.y-6,'#efd396');this.burst(s.x+10,s.y+9,SWEETS[s.kind].color,9);this.emit('eat',{kind:s.kind});
+  if(this.state==='playing')this.popup('+'+value+'%',s.x,s.y-6,'#efd396');this.burst(s.x+10,s.y+9,SWEETS[s.kind].color,9);this.emit('eat',{kind:s.kind});
  }
  transform(e,wand){if(e.state!=='alive')return;e.state='candy';e.candyTime=CFG.candySeconds;const boss=e.type==='boss';let choices=TABLES[e.type];if(wand==='sugar'&&!boss)choices=['cookie','macaron','cake','pudding'];const kind=boss?'cake':e.lessonFirst?'cookie':e.candyKind||this.pick(choices);const s=this.sweet(e.x+e.w/2-11,e.y+e.h-20,kind,e);
   if(boss){s.scale=BOSS.cakeScale;s.w=22*s.scale;s.h=24*s.scale;s.x=e.x+e.w/2-s.w/2;s.y=e.y+e.h-s.h;this.hitStop=BOSS.hitStop;this.hostile=[];this.emit('hitStop');this.emit('bossCake');}
@@ -197,8 +206,12 @@ class Game{
  finishDefeat(){if(this.state==='lost')return;this.deathMessage=this.chapter>=1&&this.storyEnabled?this.chapterEvent(this.chapter===2?'c2-death':'c1-death').lines[0]:null;this.life=0;this.shake=0;this.hitStop=0;this.defeat=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.bullets=[];this.hostile=[];Object.assign(this.player,{vx:0,vy:0,dashing:false,attack:0,damageBlink:0});this.state='lost';this.emit('lost');}
  shoot(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return false;const p=this.player,k=this.inventory[this.slot],w=WANDS[k];if(p.fire>0)return false;if(this.energy+1e-8<w.cost){p.dry=.25;return false;}this.energy=Math.max(0,this.energy-w.cost);p.fire=w.cooldown;p.attack=.25;const aim=aimFor(p),angles=k==='spread'?[-.19,0,.19]:[0];for(const offset of angles){const angle=aim.angle+offset;this.bullets.push({x:aim.x-6,y:aim.y-5,w:12,h:10,vx:w.speed*Math.cos(angle),vy:w.speed*Math.sin(angle),life:w.life,damage:w.damage,wand:k,hits:new Set()});}this.emit('shoot',{wand:k});return true;}
  // Grounded attacks leave jump and retreat routes without warning overlays or windup pauses.
+ kingWave(e){const x=e.x+e.w/2,y=CFG.ground-17;for(const a of [-Math.PI,-Math.PI*3/4,-Math.PI/2,-Math.PI/4,0])this.enemyShot(x,y,x+Math.cos(a)*200,y+Math.sin(a)*200,BOSS.waveSpeed);}
  stepBoss(e,dt){
   e.phaseTime-=dt;e.telegraph=0;
+  if(e.phase==='skyRise'){e.y-=1250*dt;e.grounded=false;if(e.y+e.h<0){e.phase='skyAim';e.phaseTime=.28;e.y=-e.h-8;}return;}
+  if(e.phase==='skyAim'){if(e.phaseTime<=0){e.x=clamp(this.player.x+this.player.w/2-e.w/2,this.arenaStart+60,this.worldWidth-100);e.phase='skyFall';e.vy=1400;this.emit('cloth');}return;}
+  if(e.phase==='skyFall'){e.y+=e.vy*dt;if(e.y+e.h>=CFG.ground){e.y=CFG.ground-e.h;e.vy=0;e.grounded=true;e.phase='recover';e.phaseTime=.8;e.nextMove='wave';this.shake=.2;this.emit('thud');this.burst(e.x+e.w/2,CFG.ground,'#c7b8ad',24);this.kingWave(e);}return;}
   if(e.phase==='dash')e.x=clamp(e.x+e.chargeDir*BOSS.dashSpeed*dt,this.arenaStart+170,this.worldWidth-220);
   this.physics(e,dt);
   if(e.phaseTime>0)return;
@@ -209,13 +222,14 @@ class Game{
    const x=e.x+e.w/2,y=CFG.ground-17;
    for(const angle of [-Math.PI,-Math.PI*3/4,-Math.PI/2,-Math.PI/4,0])this.enemyShot(x,y,x+Math.cos(angle)*200,y+Math.sin(angle)*200,BOSS.waveSpeed);
    e.phase='recover';e.phaseTime=recovery;e.nextMove='dash';
-  }else{this.emit('bossRush');e.phase='dash';e.phaseTime=BOSS.dashSeconds;e.nextMove='wave';}
+  }else if(e.move==='sky'){e.phase='skyRise';e.grounded=false;e.vy=0;this.emit('jump');}else{this.emit('bossRush');e.phase='dash';e.phaseTime=BOSS.dashSeconds;e.nextMove='sky';}
  }
 
  popup(text,x,y,color){this.texts.push({text,x,y,color,t:1.05});}
  burst(x,y,color,n){for(let i=0;i<n;i++)this.particles.push({x,y,vx:(this.rng()-.5)*170,vy:(this.rng()-.6)*190,t:.35+this.rng()*.45,color,size:2+Math.floor(this.rng()*3)});}
+ limitStageHeart(){const key=String(this.chapter),area=this.stage+':'+this.area+':'+this.room;let kept=false;this.drops=this.drops.filter(d=>{if(d.type!=='heart')return true;if(this.chapter>0&&this.stage!==0)return false;if(this.collectedHearts.has(key)||kept)return false;if(this.heartAreas.has(key)&&this.heartAreas.get(key)!==area)return false;this.heartAreas.set(key,area);kept=true;return true;});}
  dropNear(){return this.drops.find(d=>d.cooldown<=0&&Math.abs(d.x+13-(this.player.x+12))<49&&Math.abs(d.y+15-(this.player.y+this.player.h/2))<65);}
- interact(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;const d=this.dropNear();if(d){if(d.type==='heart'){this.drops=this.drops.filter(x=>x!==d);if(this.maxLife<CFG.maxHearts){this.maxLife++;this.life=Math.min(this.maxLife,this.life+1);this.emit('heartUpgrade');this.popup('♥ +1 / MAX +1',d.x,d.y-20,'#efaaba');}else this.popup('MAX',d.x,d.y-20,'#efaaba');return;}
+ interact(){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;const d=this.dropNear();if(d){if(d.type==='heart'){this.collectedHearts.add(String(this.chapter));this.drops=this.drops.filter(x=>x!==d);if(this.maxLife<CFG.maxHearts){this.maxLife++;this.life=Math.min(this.maxLife,this.life+1);this.emit('heartUpgrade');this.popup('♥ +1 / MAX +1',d.x,d.y-20,'#efaaba');}else this.popup('MAX',d.x,d.y-20,'#efaaba');return;}
    if(this.inventory.length<2){this.inventory.push(d.wand);this.slot=this.inventory.length-1;this.drops=this.drops.filter(x=>x!==d);this.emit('pickup',{name:WANDS[d.wand].name});}
    else{this.swapTarget=d;this.state='swap';this.emit('swap',{wand:d.wand});}return;}
  }
@@ -223,17 +237,18 @@ class Game{
  enterDoor(){if(!this.canEnterDoor())return false;
   // Leaving explicitly skips this room's active and queued dialogue.
   this.skipStory();for(const event of this.storyQueue){this.seenStories.add(event.id);this.finishedStories.add(event.id);}this.storyQueue=[];this.storyScene=null;this.storyGap=0;
-  this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.chapter===2&&this.area<2?this.stage:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):this.chapter===2&&this.area<2?this.area+1:0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
+  this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
+ completeChapter(){this.state='won';if(this.chapter===1&&this.beginChapterTwo&&this.beginChapterTwo())return;this.emit('won');}
  beginEntrance(){this.transition={t:.45,loaded:true,entrance:true,chapter:this.chapter,stage:this.stage,area:this.area};this.state='transition';this.emit('presentationStart');}
  stepPresentation(dt){
   if(this.state==='victoryLanding'){this.physics(this.player,dt);if(this.player.grounded)this.beginCelebration();return;}
-  if(this.state==='chapterClear'){this.clearFade+=dt;if(this.clearFade>=.75){this.state='won';this.emit('won');}return;}
-  if(this.state==='celebrating'){const c=this.celebration,p=this.player;c.t+=dt;this.tickStory(dt);const h=c.t<.65?0:c.t<1.25?Math.sin((c.t-.65)/.6*Math.PI)*38:c.t<1.85?Math.sin((c.t-1.25)/.6*Math.PI)*26:0;p.y=c.y-h;p.grounded=h<=0;p.vy=c.t<.95||c.t>=1.25&&c.t<1.55?-1:1;p.eat=c.t<.6?.22:0;if(c.t>=3.1&&c.read){p.y=c.y;p.grounded=true;p.vy=0;this.celebration=null;this.state='playing';if(this.storyEnabled)this.beginStory(this.chapterEvent('c1-ending'));else{this.state='won';this.emit('won');}}return;}
+  if(this.state==='chapterClear'){this.clearFade+=dt;if(this.clearFade>=.75){this.completeChapter();}return;}
+  if(this.state==='celebrating'){const c=this.celebration,p=this.player;c.t+=dt;this.tickStory(dt);const h=c.t<.65?0:c.t<1.25?Math.sin((c.t-.65)/.6*Math.PI)*38:c.t<1.85?Math.sin((c.t-1.25)/.6*Math.PI)*26:0;p.y=c.y-h;p.grounded=h<=0;p.vy=c.t<.95||c.t>=1.25&&c.t<1.55?-1:1;p.eat=c.t<.6?.22:0;if(c.t>=3.1&&c.read){p.y=c.y;p.grounded=true;p.vy=0;this.celebration=null;this.state='playing';if(this.storyEnabled)this.beginStory(this.chapterEvent('c1-ending'));else{this.completeChapter();}}return;}
   if(this.state==='encounter'){this.stepEncounter(dt);return;}
   if(this.state==='leaving'){const d=this.leaving;d.t+=dt;this.player.x=Math.min(d.targetX,d.startX+d.t*d.speed);this.player.walkPhase=(this.player.x-d.startX)/21%8;if(this.player.x===d.targetX)this.player.vx=0;if(d.t>=(d.targetX-d.startX)/d.speed+1)this.beginChapterOne();return;}
   if(this.state==='cinematic'){this.tickOpening(dt);return;}
   if(this.state!=='transition')return;const tr=this.transition;tr.t+=dt;
-  if(!tr.loaded&&tr.t>=.45){tr.loaded=true;if(this.chapter===0&&tr.chapter===1){this.reset(this.seed);this.emit('tutorialComplete');}else if(this.chapter===0){this.area=tr.area;this.room=tr.room??0;this.loadTutorial();}else{this.chapter=tr.chapter;this.stage=tr.stage;this.area=tr.area??0;this.loadStage();}this.transition=tr;this.state='transition';}
+  if(!tr.loaded&&tr.t>=.45){tr.loaded=true;if(this.chapter===0&&tr.chapter===1){const elapsed=this.time;this.reset(this.seed);this.time=elapsed;this.playedTutorial=true;this.emit('tutorialComplete');}else if(this.chapter===0){this.area=tr.area;this.room=tr.room??0;this.loadTutorial();}else{this.chapter=tr.chapter;this.stage=tr.stage;this.area=tr.area??0;this.loadStage();}this.transition=tr;this.state='transition';}
   if(tr.t>=2.35){this.transition=null;if(tr.entrance&&this.chapter===0){this.state='cinematic';this.cinematic={t:0};}else{this.state='playing';if(this.chapter===0&&this.area===2)this.beginStory(CONTENT.farewell);this.emit('presentationEnd');}}
  }
  finishOpening(){if(this.state!=='cinematic')return;this.cinematic=null;Object.assign(this.player,{x:297,y:402,vx:0,vy:0,inv:1.5,damageBlink:0,walkPhase:0,runPhase:0,dashing:false});this.state='playing';this.emit('presentationEnd');}
@@ -250,15 +265,15 @@ class Game{
   this.energy=Math.min(CFG.maxEnergy,this.energy+CFG.energyRegen*dt);if(this.chapter===2)this.updateChapterWorld(dt);
   for(const k of ['inv','damageBlink','fire','attack','eat','hurt','dry'])p[k]=Math.max(0,p[k]-dt);
   p.coyote=p.grounded?.1:Math.max(0,p.coyote-dt);p.jumpBuffer=input.jump?.13:Math.max(0,p.jumpBuffer-dt);
-  const moveDirection=(input.right?1:0)-(input.left?1:0);p.dashing=!!input.dash&&moveDirection!==0&&p.hurt<=0;if(p.hurt<=0){p.vx=moveDirection*(p.dashing?CFG.dashSpeed:CFG.speed);if(p.vx)p.facing=Math.sign(p.vx);}
+  if(!input.dash)p.dashLocked=false;const wasDashing=p.dashing;const moveDirection=(input.right?1:0)-(input.left?1:0);p.dashing=!!input.dash&&!p.dashLocked&&p.grounded&&!(p.jumpBuffer>0&&p.coyote>0)&&moveDirection!==0&&p.hurt<=0;if(p.dashing&&!wasDashing)this.emit('dashStart');if(p.hurt<=0){p.vx=moveDirection*(p.dashing?CFG.dashSpeed:CFG.speed);if(p.vx)p.facing=Math.sign(p.vx);}
   p.aimActive=Number.isFinite(input.aimX)&&Number.isFinite(input.aimY);if(p.aimActive){p.aimX=input.aimX;p.aimY=input.aimY;}
-  if(p.jumpBuffer>0&&p.coyote>0){p.vy=-CFG.jump;p.grounded=false;p.coyote=0;p.jumpBuffer=0;this.emit('jump');}
+  if(p.jumpBuffer>0&&p.coyote>0){p.dashing=false;p.dashLocked=true;p.vy=-CFG.jump;p.grounded=false;p.coyote=0;p.jumpBuffer=0;this.emit('jump');}
   if(!input.jumpHeld&&p.vy< -220)p.vy+=CFG.gravity*dt*.9;
   const previousX=p.x;
   p.x=clamp(p.x+p.vx*dt,this.arenaLocked?this.arenaStart:0,this.worldWidth-p.w);
   if(p.grounded&&p.hurt<=0&&p.x!==previousX){p.walkPhase=(p.walkPhase+Math.abs(p.x-previousX)/21)%8;p.runPhase=(p.runPhase+Math.abs(p.x-previousX)/28)%8;}
   else if(p.grounded&&p.vx===0)p.walkPhase=0;
-  for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=previousX+p.w<=pf.x+2?pf.x-p.w:pf.x+pf.w;p.vx=0;}}this.physics(p,dt);if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
+  for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=previousX+p.w<=pf.x+2?pf.x-p.w:pf.x+pf.w;p.vx=0;}}this.physics(p,dt);if(!p.grounded){p.dashing=false;if(p.hurt<=0)p.vx=clamp(p.vx,-CFG.speed,CFG.speed);}if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
   this.camera+=(clamp(p.x-335,0,this.worldWidth-CFG.width)-this.camera)*Math.min(1,dt*7);
   if(this.chapter===1&&this.stage===2&&!this.storyEnabled&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
   for(const d of this.drops)d.cooldown=Math.max(0,d.cooldown-dt);
@@ -283,7 +298,7 @@ class Game{
    if(e.type==='boss')this.stepBoss(e,dt);if(e.type==='naniwa')this.stepNaniwa(e,dt);
    if(overlap(p,e)){this.hurt(e.x+e.w/2);if(this.state!=='playing')return;}
   }
-  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter===2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
+  for(const b of this.bullets){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter===2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(this.hitEnemyEffect)this.hitEnemyEffect(e,b);if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
   this.bullets=this.bullets.filter(b=>b.life>0);
   for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
   this.hostile=this.hostile.filter(b=>b.life>0);
@@ -296,5 +311,6 @@ class Game{
 }
 const api={Game,DashInput,CONTENT,OPENING,prologueHand,openingLine,openingFrame,CFG,BOSS,WANDS,SWEETS,THEMES,random,overlap,clamp,poseFor,canvasPoint,controlsFor,aimFor};root.Miload=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis!=='undefined'?globalThis:this);
+
 
 

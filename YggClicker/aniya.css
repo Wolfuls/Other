@@ -1,0 +1,17 @@
+.aniya-combatant{position:absolute;width:300px;height:275px;transform:translate(-50%,-50%);z-index:5;--body-foot:118.75px;--head-offset:125px}
+.aniya-sprite{display:block;width:300px;height:275px;padding:0;border:0;background:none;cursor:pointer;color:inherit}
+.aniya-sprite canvas{display:block;width:300px;height:275px;image-rendering:pixelated;pointer-events:none}
+.aniya-combatant .ally-down-sprite{display:none!important}
+.aniya-combatant.downed .aniya-sprite{visibility:visible;opacity:1;display:block}
+.aniya-combatant.manual-selected .aniya-sprite{filter:drop-shadow(0 0 5px #bea5ff)}
+.aniya-sprite:focus-visible{outline:2px solid #d3bfff;border-radius:6px}
+.aniya-avatar{background-size:400% 400%!important;background-position:0 0!important}
+
+.aniya-avatar{display:block;width:38px;height:38px;flex-shrink:0;image-rendering:pixelated}
+
+.aniya-beam{display:none;position:absolute;left:60%;top:36%;width:var(--beam-length,220px);height:22px;pointer-events:none;z-index:10;overflow:hidden;transform:translateY(-5px)}
+.aniya-combatant.beaming .aniya-beam{display:block}.aniya-combatant.downed .aniya-beam{display:none}
+.aniya-beam i{position:absolute;left:0;top:var(--lane);width:var(--length);height:var(--thickness);background:var(--spark);box-shadow:-5px 0 0 #4bcaff66,0 0 3px #8eecff;animation:aniya-particle var(--speed) linear infinite;animation-delay:var(--delay);opacity:.9}
+@keyframes aniya-particle{from{transform:translateX(-20px)}to{transform:translateX(var(--beam-length,220px))}}
+.aniya-combatant.is-paused .aniya-beam i{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.aniya-beam i{animation-play-state:paused}}

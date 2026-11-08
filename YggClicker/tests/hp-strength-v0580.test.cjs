@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 'use strict';
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {D,E,S,ready,character:c,faces,roundTrip}=require('./current-fixtures.cjs');
@@ -47,7 +48,7 @@ test('hopeless strength deficits fall to one and overwhelming attack defeats unf
  assert.ok(strong.mean>1e12);assert.ok(strong.correction>10000);
  for(const [a,d]of [[1e6,1e6],[1e6,0],[0,1e6]]){
   const damage=T.damage({dice:3,flat:1},35,T.logRatio(a,d),T.scaleLog(a,d));
-  assert.ok([damage.target,damage.mean,damage.correction].every(Number.isFinite));assert.ok(damage.target<=1e100);
+  assert.ok([damage.target,damage.mean,damage.correction].every(H.isFinite));assert.ok(H.ge(damage.target,1));
  }
 });
 
@@ -96,7 +97,7 @@ test('legacy high-level enemy HP survives harmless exponential rounding differen
  }
  const migrated=S.decode(legacy(s));
  for(const q of D.sessions.filter(q=>!q.members)){const ctx=E.battleContext(migrated,q.id),maximum=E.getSession(ctx).hp;
-  for(const enemy of ctx.enemies)if(enemy.kind!=='kogumo'){assert.ok(enemy.hp<=maximum);assert.equal(enemy.hp,maximum);}
+  for(const enemy of ctx.enemies)if(enemy.kind!=='kogumo'){assert.ok(H.le(enemy.hp,maximum));assert.ok(H.eq(enemy.hp,maximum));}
  }
  assert.deepEqual(roundTrip(migrated),migrated);
 });

@@ -1,4 +1,8 @@
+importScripts('huge.js');
+(function(__YggBig){
 'use strict';
 importScripts('characters.js','quests.js','data.js','numbers.js','strength.js','combat-effects.js','missions.js','engine.js','recovery.js');
 onmessage=async({data})=>{try{await YggRecovery.runLocal(YggEngine,data.state,data.seconds,{offline:data.offline,random:YggRecovery.seeded(data.seed),budget:20,progress:value=>postMessage({type:'progress',value})});postMessage({type:'done',state:data.state});}catch(error){postMessage({type:'error',message:String(error)});}};
 postMessage({type:'ready'});
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

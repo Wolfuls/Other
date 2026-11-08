@@ -6,7 +6,7 @@ const faces=(...v)=>()=>((v.shift()??4)-.5)/6;
 function ready(ids=['meta'],quest='scarecrow'){
  const s=E.createState(1000);s.factors=1e15;if(quest==='electric-rat')s.earned=1000;s.questActiveLevels=Object.fromEntries(D.sessions.map(q=>[q.id,1]));
  for(const id of ids)s.levels[id]=1;
- E.refreshQuestUnlocks(s);E.setFormation(s,quest,ids);E.selectSession(s,quest);E.ensureEnemies(s);s.selectedCharacterId=ids[0]||null;
+ s.questUnlocks[quest]=true;E.refreshQuestUnlocks(s);E.setFormation(s,quest,ids);E.selectSession(s,quest);E.ensureEnemies(s);s.selectedCharacterId=ids[0]||null;
  return s;
 }
 function enable(s,id,...ids){const c=character(id);for(const name of ids){const p=c.perks.find(p=>p.id===name);if(!p)throw Error(name);const field='levels';s[field][id]=Math.max(s[field][id]||0,p.level);E.togglePerk(s,id,name,true);}return s;}

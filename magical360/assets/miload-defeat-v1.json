@@ -1,0 +1,133 @@
+{
+  "method": "Built-in image_gen",
+  "referenceAssets": [
+    "miload-motion-v2.png",
+    "miload-prologue-v1.png"
+  ],
+  "atlas": "miload-defeat-v1.png",
+  "width": 192,
+  "height": 128,
+  "cellWidth": 64,
+  "cellHeight": 64,
+  "columns": 3,
+  "rows": 2,
+  "anchor": [
+    32,
+    62
+  ],
+  "suggestedDrawSize": [
+    90,
+    90
+  ],
+  "alpha": "Generated transparency preserved. Nearest-neighbor downsample, no recoloring or geometry rotation.",
+  "frames": [
+    {
+      "index": 0,
+      "pose": "startle",
+      "source": {
+        "x": 0,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 1,
+      "opaqueBounds": {
+        "x": 10,
+        "y": 3,
+        "w": 42,
+        "h": 59,
+        "bottom": 61
+      }
+    },
+    {
+      "index": 1,
+      "pose": "buckle",
+      "source": {
+        "x": 512,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 1,
+      "opaqueBounds": {
+        "x": 8,
+        "y": 5,
+        "w": 44,
+        "h": 57,
+        "bottom": 61
+      }
+    },
+    {
+      "index": 2,
+      "pose": "one-knee",
+      "source": {
+        "x": 1024,
+        "y": 0,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 1,
+      "opaqueBounds": {
+        "x": 9,
+        "y": 9,
+        "w": 45,
+        "h": 53,
+        "bottom": 61
+      }
+    },
+    {
+      "index": 3,
+      "pose": "brace",
+      "source": {
+        "x": 0,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 5,
+      "opaqueBounds": {
+        "x": 10,
+        "y": 14,
+        "w": 47,
+        "h": 48,
+        "bottom": 61
+      }
+    },
+    {
+      "index": 4,
+      "pose": "slump",
+      "source": {
+        "x": 512,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 6,
+      "opaqueBounds": {
+        "x": 8,
+        "y": 18,
+        "w": 48,
+        "h": 44,
+        "bottom": 61
+      }
+    },
+    {
+      "index": 5,
+      "pose": "settled",
+      "source": {
+        "x": 1024,
+        "y": 512,
+        "w": 512,
+        "h": 512
+      },
+      "offsetY": 6,
+      "opaqueBounds": {
+        "x": 9,
+        "y": 20,
+        "w": 48,
+        "h": 42,
+        "bottom": 61
+      }
+    }
+  ]
+}

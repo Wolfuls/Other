@@ -7,7 +7,7 @@
 - `js/data.js`: 共通設定・素材参照。両カタログに共通の既定値を付けて公開。
 - `js/strength.js`: 強度、命中確率、ダメージ分布。戦闘と見込みは同じ計算を使う。
 - `js/engine.js`: 純粋なゲーム状態の更新。DOMを参照しない。全セッションの時間進行、売買、パーク、暴走率を扱う。
-- `js/save.js`: スキーマ54の検証・旧セーブ移行。旧仕様の式や価格は移行専用なので削除しない。
+- `js/save.js`: スキーマ70の検証・旧セーブ移行。旧仕様の式や価格は移行専用なので削除しない。
 
 ## 表示
 
@@ -30,7 +30,7 @@
 
 ## 成長と周回記録
 
-- `numbers.curveLog/curveValue`は数値上限1e100の対数評価。敵強度と報酬で同じ曲線形式を使い、係数はdata.questGrowthに集約。
+- `numbers.curveLog/curveValue`は強度上限のない対数評価。敵強度と報酬で同じ曲線形式を使い、係数はdata.questGrowthに集約。
 - `strength.enemyValue`は現行の敵強度。旧セーブ移行用の`value`（1.1指数）と混同しない。基礎ロール値は変えず、強度の比率・絶対規模へ適用する。
 - `earned`は今回の周回、`previousRunsEarned`は終了済み周回の獲得合計。`incomeRecord`が累計を導出するため、同時セッションの収入を二重加算しない。
 - `nextRun`は確認された追憶からのみ新規状態を生成する。`incomeRecord().allRuns`、`runNumber + 1`、optionsだけを引き継ぎ、入力状態を直接変更しない。appは保存が成功した場合だけ新状態へ切り替える。セーブ削除は周回記録を含む全削除のまま。
@@ -129,3 +129,16 @@ shop-scene.js renders the original transparent portrait through a 64x40 WebGL me
 ### Asset cleanup and active rendering (0.89.12)
 The live merchant uses shop-scene.js with shop-merchant-cels-v3.png and a four-frame 2D canvas. The retired WebGL base64 payload is archived under old/js. Unreferenced images are archived under img/old/v0.89.12; the accompanying archive manifest records original paths and hashes. Preview pages and test utilities remain supported.
 Pine, duo combatants and the poultry background schedule animation frames only while their scene is active; visibility changes suspend the loops. Shop info only changes DOM text when the underlying value changes. Recovery workers load missions.js before engine.js. Offline catch-up advances only mission timers, with no combat or recovery simulation. Background catch-up while the page remains open continues using the worker.
+
+### 妹弟の解除判定
+対象の手番後、対象の被ダメージ時、付与者の被ダメージ時に固定確率で解除を抽選する。継続ダメージは除外する。状態はセッション内にのみ保持し、部隊再編時に破棄する。Lv200の常時付与中は解除されない。
+
+混乱も同じ3タイミングで解除抽選する。付与者IDを記録し、解除失敗ごとに確率を10ポイント上げる。手番開始時は行動先の抽選のみ行う。
+
+## 巨大数（0.90.0）
+
+`js/huge.js` を最初に読み込む。通常値は Number、巨大値は `{__huge:1,m,e}`（仮数・10進指数）の不変オブジェクトで保持する。有効桁は約15桁であり、任意精度整数ではない。指数は安全な整数の範囲。強度・HP・ダメージ・通貨・価格・報酬には旧1e100/1e300上限を適用しない。
+
+これらの値を扱う四則演算・比較・Math演算には `YggHuge`（各ファイル内の `__YggBig`）を使う。オブジェクトに直接演算子や Number.isFinite を適用しない。比率・確率・描画座標は通常のNumberに戻る。レベル・人数・暴走率などのゲーム上の制限は独立して維持する。
+
+セーブ70はJSON/structuredCloneで巨大値を維持する。69からの移行では旧上限の影響を受けるHPの残量比率を保ち、影響する戦闘の手番管理を作り直す。70のセーブを旧版へ戻すことはできないため、更新前バックアップを使用する。

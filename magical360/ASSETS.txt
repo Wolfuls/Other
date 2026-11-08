@@ -20,3 +20,14 @@ assets/naniwa-sprites-v2.png: approved Naniwa revision 2, 256 x 384, 24 frames (
 assets/naniwa-faces-v2.png: approved simplified portrait revision 2, 384 x 192, 8 expressions (96 x 96), 4 columns x 2 rows.
 The approved images are copied unchanged from the Naniwa v2 deliverable; no redesign.
 Chapter 2 backgrounds and cargo are code-native pixel drawings in chapter2-art.js.
+
+
+v0.26: All PNG images are unchanged. Hurt flash and death animation reuse approved sprites through Canvas rendering. No embedded image data in HTML.
+
+
+v0.27 — Dedicated defeat animation
+assets/miload-defeat-v1.png: 192 x 128 RGBA, six 64 x 64 cells, 3 columns x 2 rows. Anchor (32,62), rendered at 90 x 90.
+Generated with built-in image_gen, using the approved miload-motion-v2.png and miload-prologue-v1.png as identity/style references.
+Sequence: startle, buckle, one-knee, brace, slump, settled. Shared baseline y=61. Preserve alpha, nearest-neighbor sprite export.
+Full prompt: assets/miload-defeat-v1.prompt.txt. Frame bounds and source regions: assets/miload-defeat-v1.json.
+The six existing Miload/Naniwa image files are unchanged.

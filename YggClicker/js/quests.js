@@ -1,3 +1,4 @@
+(function(__YggBig){
 (function(root){
   'use strict';
   const mohicanVariants = [
@@ -306,8 +307,8 @@
     }
   }
 ];
-  quests.sort((a,b)=>['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(a.id)-['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(b.id));
-  quests.forEach((q,i)=>q.code=String(i+1).padStart(2,'0'));
+  quests.sort((__YggBig.sort((a,b)=>(__YggBig.sub(['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(a.id),['mohican-solo','scarecrow','mohicans','ozmorn','dementor'].indexOf(b.id))))));
+  quests.forEach((q,i)=>q.code=String((__YggBig.add(i,1))).padStart(2,'0'));
   for(const quest of quests){quest.row='front';quest.attackRange=['mohicans','mohican-solo'].includes(quest.id)?[1,1]:[1,3];}
   for(const quest of quests)if(quest.id==='mohicans'||quest.id==='mohican-solo')quest.variants=mohicanVariants;
   const members=[
@@ -321,27 +322,30 @@
   Object.assign(ozmorn,{attackElements:['shock'],resistances:['shock'],weaknesses:['blast']});
   Object.assign(ozmorn.summon,{attackElements:[],resistances:['shock'],weaknesses:['blast']});
   quests.push({id:'electric-rat',sheet:'./img/enemy-electric-rat-idle-v1.png',spriteFrames:3,attackSheet:'./img/enemy-electric-rat-attack-v1.png',defeatSheet:'./img/enemy-electric-rat-defeat-v2.png',combatRules:'ほうでん［射程1～3・全体］：使用時にエレキフィールドが発動。参加者全員に4点の感電・非接触ダメージ（攻撃強度倍率の0.75乗で増加）。らいげき［射程1～3・単体］：命中時、対象の行動値を5秒間50%低下。',code:'07',name:'ユグドラ民は電気鼠の夢を見るか',enemy:'バッドアスエレクトロラット',area:'中層 / 動力プラント【 ニザヴェリール 】',description:'ユグドラシル全土の約60％の動力を担う最大の動力プラント。増設を重ねた巨大施設にはパイプラインが複雑に絡み合う。管理権限は上層のグングニルが持つ。',unlockFactors:1000,unlockByEarned:true,hp:25,defense:3,resistance:2,ss:{flat:8,dice:1},accuracy:{flat:13,dice:1},evasion:{flat:14,dice:1},action:14,actionDice:{flat:7,dice:2},attack:{dice:2,flat:6},attackElements:['shock'],resistances:['shock'],resistanceLabel:'無効',weaknesses:[],reward:30,rewardTransition:100,row:'front',attackRange:[1,3],formationCount:1,traits:[],attackSeconds:.72,attacks:[{id:'discharge',name:'ほうでん',range:[1,3],area:true,electricField:true},{id:'thunderstrike',name:'らいげき',range:[1,3],actionSlowRate:.5}]});
+  quests.push({"id":"creator","code":"EX","name":"万物の創造者","enemy":"万物の創造者","area":"創世の間","description":"祝福の先で待つ、万物の創造者。","hiddenUntilUnlocked":true,"fixedLevel":65535,"unlockRequirement":{"resource":"blessing","amount":1},"hp":10000,"defense":10,"resistance":10,"action":37,"actionDice":{"flat":30,"dice":2},"accuracy":{"flat":100,"dice":2},"evasion":{"flat":100,"dice":2},"ss":{"flat":100,"dice":2},"attack":{"dice":6,"flat":10},"attackType":"mental","attackRange":[1,3],"row":"front","formationCount":1,"reward":0,"creditsReward":0,"traits":[],"sheet":"./img/creator-idle-v4.png","attackSheet":"./img/creator-attack-v4.png","defeatSheet":"./img/creator-defeat-v4.png","defeatStyle":"kneel","spriteFrames":4,"enemyScale":1.7,"background":"./img/creator-sanctum-v1.png","attackSeconds":0.8,"attacks":[{"id":"judgment","name":"裁きの光","range":[1,3]},{"id":"genesis","name":"創世の波動","range":[1,3],"area":true}],"combatRules":"固定Lv65535。裁きの光：6D6＋10の精神攻撃。4手ごとに創世の波動：6D6＋10の全体物理攻撃。HP50%以下では自身の手番ごとに物理／精神の被ダメージを交互に半減。初回撃破で因子報酬＋100%（恒久）。"});
   quests.pending=[];
   const electricEncounter=quests.find(q=>q.id==='electric-rat');
   const electroRat={name:'エレクトロラット',enemy:'エレクトロラット',spriteKind:'electro-rat',hp:15,ss:{flat:5,dice:1},accuracy:{flat:10,dice:1},evasion:{flat:11,dice:1},defense:2,resistance:1,action:13,actionDice:{flat:6,dice:2},attack:{dice:1,flat:6},attackElements:['shock'],resistances:['shock'],resistanceLabel:'無効',weaknesses:[],row:'front',attackRange:[1,3],attackSeconds:.72,sheet:'./img/enemy-electro-rat-idle-v1.png',spriteFrames:4,attackSheet:'./img/enemy-electro-rat-shock-v1.png',waveSheet:'./img/enemy-electro-rat-wave-v1.png',defeatSheet:'./img/enemy-electro-rat-defeat-v1.png',combatRules:'でんきショック［射程1～3・単体］：1d6＋6の感電攻撃。でんじは［射程1～3・単体］：ダメージなし。命中時、対象の行動力を5秒間50%低下。',attacks:[{id:'electric-shock',name:'でんきショック',range:[1,3]},{id:'thunder-wave',name:'でんじは',range:[1,3],noDamage:true,actionSlowRate:.5}]};
   electricEncounter.members=[{...electricEncounter,name:electricEncounter.enemy},{...electroRat,id:'electro-rat-a'},{...electroRat,id:'electro-rat-b'}];
   Object.assign(electricEncounter,{formationCount:3,sharedHP:false,independentRespawns:true,reviveInPlace:false,reward:8,formationLayout:'surround',groundFraction:.72,background:'./img/nidavellir-reactor-v3.png',traits:['swarm']});
-  electricEncounter.members.forEach((member,index)=>{member.reward=index===0?5:2;});
+  electricEncounter.members.forEach((member,index)=>{member.reward=(__YggBig.eq(index,0))?5:2;});
   // Session numbers are display metadata; keep persistent quest IDs unchanged.
   for(const q of quests){
-    q.code=q.id==='electric-rat'?'04':String(Number(q.code)>=4?Number(q.code)+1:Number(q.code)).padStart(2,'0');
-    if(q.members)for(const member of q.members)if(member.id===q.id)member.code=q.code;
+    q.code=q.id==='creator'?'EX':q.id==='electric-rat'?'04':String((__YggBig.ge(Number(q.code),4))?(__YggBig.add(Number(q.code),1)):Number(q.code)).padStart(2,'0');
+    if(q.members)for(const member of q.members)if((__YggBig.eq(member.id,q.id)))member.code=q.code;
   }
-  quests.sort((a,b)=>Number(a.code)-Number(b.code));
+  quests.sort((__YggBig.sort((a,b)=>(__YggBig.sub(Number(a.code),Number(b.code))))));
   quests.push({id:'infirmary',code:'00',name:'死神の宿',enemy:'トキ',medical:true,background:'img/infirmary-background-v2.png',description:'敵のいない休養用クエスト。参加者は2秒ごとに最大HPの1%を回復する。暴走圧・鎮静圧は無視し、暴走率−10%/分に置換する。',hp:1,reward:0,action:0,attack:{dice:0,flat:0},accuracy:{dice:0,flat:0},evasion:{dice:0,flat:0},ss:{dice:0,flat:0},defense:0,resistance:0,traits:[],unlockFactors:0});
-  for(const [id,value]of Object.entries({'electric-rat':2,ozmorn:30,dementor:60})){const q=quests.find(x=>x.id===id);q.costRewardBase??=q.reward;q.reward=value;}
+  for(const [id,value]of Object.entries({'electric-rat':2,ozmorn:30,dementor:60})){const q=quests.find(x=>(__YggBig.eq(x.id,id)));q.costRewardBase??=q.reward;q.reward=value;}
   Object.assign(quests.find(q=>q.id==='dementor'),{attackElements:['break'],combatRules:'ブレイク：受けたダメージの最大HPに対する割合（%）÷3だけ暴走率が上昇する。オーバーキル分も含む（上限150%）。'});
-  // Fixed C/Ps rewards are independent of quest level and Rd income modifiers.
-  const fixedRewards={'mohican-solo':[100,0],mohicans:[150,0],'electric-rat':[1000,0],ozmorn:[10000,2],dementor:[12000,3],'egg-or-chicken':[1000000,50]};
-  for(const q of quests){const [creditsReward,prestigeReward]=fixedRewards[q.id]||[0,0];Object.assign(q,{creditsReward,prestigeReward});}
-  electricEncounter.members.forEach((m,i)=>Object.assign(m,{creditsReward:i===0?2500:1000,prestigeReward:i===0?1:0}));
-  const access={'mohican-solo':{resource:'factors',amount:0},scarecrow:{resource:'factors',amount:0},mohicans:{resource:'mohicanDefeats',amount:51},'electric-rat':{resource:'prestige',amount:1000},ozmorn:{resource:'factors',amount:1500},dementor:{resource:'factors',amount:5000}};
+  // Fixed C rewards are independent of quest level and Rd income modifiers.
+  const fixedRewards={'mohican-solo':100,mohicans:150,'electric-rat':1000,ozmorn:10000,dementor:12000,'egg-or-chicken':1000000};
+  for(const q of quests){q.creditsReward=fixedRewards[q.id]||0;}
+  electricEncounter.members.forEach((m,i)=>Object.assign(m,{creditsReward:(__YggBig.eq(i,0))?2500:1000}));
+  const access={'mohican-solo':{resource:'factors',amount:0},scarecrow:{resource:'factors',amount:0},mohicans:{resource:'mohicanDefeats',amount:51},'electric-rat':{resource:'clears:mohicans',amount:10},ozmorn:{resource:'factors',amount:1500},dementor:{resource:'factors',amount:5000}};
   for(const q of quests){if(access[q.id]){q.unlockRequirement=access[q.id];delete q.unlockByEarned;}if(['mohican-solo','mohicans'].includes(q.id)){q.costRewardBase??=q.reward;q.reward=1;}}
   if(typeof module!=='undefined'&&module.exports)module.exports=quests;
   else root.YggQuests=quests;
 })(typeof window!=='undefined'?window:globalThis);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

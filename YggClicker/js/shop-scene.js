@@ -1,3 +1,4 @@
+(function(__YggBig){
 (function(root){
   'use strict';
   const scene=document.getElementById('shop-scene'),viewport=document.getElementById('arena-viewport');
@@ -13,10 +14,10 @@
   const merchantName=document.getElementById('shop-merchant-name'),walletValue=document.getElementById('shop-wallet-value');
   let lastCredits;
   function renderInfo(state){
-    const name=state.rescue?.completed?'公 未未':'施錠中',credits=Math.floor(state.credits||0);
-    if(merchantName.textContent!==name)merchantName.textContent=name;
-    if(lastCredits!==credits){lastCredits=credits;walletValue.textContent=credits.toLocaleString('ja-JP');}
-    for(const [i,node]of counts){const text=(state.inventory?.[i]||0)+'個';if(node.textContent!==text)node.textContent=text;}
+    const name=state.rescue?.completed?'公 未未':'施錠中',credits=(__YggBig.floor(state.credits||0));
+    if((__YggBig.ne(merchantName.textContent,name)))merchantName.textContent=name;
+    if((__YggBig.ne(lastCredits,credits))){lastCredits=credits;walletValue.textContent=credits.toLocaleString('ja-JP');}
+    for(const [i,node]of counts){const text=(__YggBig.add(state.inventory?.[i]||0,'個'));if((__YggBig.ne(node.textContent,text)))node.textContent=text;}
   }
   scene.addEventListener('click',event=>event.stopPropagation());
   let active=false,host=null,canvas,ctx,image,ready=false,timer=0,frame=0;
@@ -26,13 +27,13 @@
   const cels=[
     {x:0,y:0,w:887,h:444,dx:0,dy:0},
     {x:887,y:0,w:887,h:444,dx:16,dy:0},
-    {x:0,y:450,w:887,h:437,dx:-1,dy:9},
+    {x:0,y:450,w:887,h:437,dx:(__YggBig.neg(1)),dy:9},
     {x:887,y:450,w:887,h:437,dx:16,dy:9}
   ];
   function draw(){
     const c=cels[frame];ctx.clearRect(0,0,887,444);
     ctx.drawImage(image,c.x,c.y,c.w,c.h,c.dx,c.dy,c.w,c.h);
-    host.dataset.frame=String(frame+1);
+    host.dataset.frame=String((__YggBig.add(frame,1)));
   }
   function update(){
     clearInterval(timer);timer=0;
@@ -40,7 +41,7 @@
     if(reduced.matches){frame=0;draw();}
     const playing=active&&!document.hidden&&!reduced.matches;
     host.classList.toggle('sprite-playing',playing);
-    if(playing)timer=setInterval(()=>{frame=(frame+1)%cels.length;draw();},1200);
+    if(playing)timer=setInterval(()=>{frame=((__YggBig.add(frame,1)))%cels.length;draw();},1200);
   }
   function setActive(value){
     active=!!value;
@@ -57,3 +58,5 @@
   document.addEventListener('visibilitychange',update);reduced.addEventListener('change',update);
   root.YggShopScene={setActive,renderInfo};
 })(window);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

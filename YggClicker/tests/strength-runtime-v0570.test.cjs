@@ -1,3 +1,4 @@
+const H=require('../js/huge');
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const D=require('../js/data'),E=require('../js/engine'),S=require('../js/save'),T=require('../js/strength'),F=require('../js/matchup');
 const c=id=>D.characters.find(x=>x.id===id),rng=(seed=148)=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/2**32);
@@ -27,7 +28,7 @@ test('inversion selects the closest achievable hit chance over positive and nega
 test('zero and certain base wins can be crossed; huge levels never overflow',()=>{
  assert.equal(T.hit({flat:0,dice:0},{flat:10,dice:0},30).chance,1);
  assert.equal(T.hit({flat:10,dice:0},{flat:0,dice:0},-30).chance,0);
- for(const lv of [1000,1e6,Number.MAX_SAFE_INTEGER]){assert.ok(Number.isFinite(T.value(lv)));for(const sign of [-1,1]){const r=T.damage({flat:0,dice:3},35,sign*T.logRatio(lv,0));assert.ok([r.mean,r.target,r.correction].every(Number.isFinite));}}
+ for(const lv of [1000,1e6,Number.MAX_SAFE_INTEGER]){assert.ok(H.isFinite(T.value(lv)));for(const sign of [-1,1]){const r=T.damage({flat:0,dice:3},35,sign*T.logRatio(lv,0));assert.ok([r.mean,r.target,r.correction].every(H.isFinite));}}
 });
 test('original stats remain constant across training and enemy levels; HP/action/reward still grow',()=>{
  const s=ready(['meta'],'dementor'),base=E.attackProfile(s,c('meta'));s.levels.meta=80;
@@ -113,7 +114,7 @@ test('quest resets preserve ally wounds/runaway and other battle; concentration,
  s.upgrades.reward=3;assert.equal(E.reward(s,{reward:2}),2);assert.equal(E.reward(s,{reward:45}),45);assert.equal(D.questGrowth.costGrowth,1.15);
 });
 test('forecasts share corrected hit chance and original values without mutation',()=>{
- const s=ready(['meta'],'dementor');s.levels.meta=Math.max(s.levels.meta,31);const before=JSON.stringify(s),row=F.party(s).rows[0],p=E.attackProfile(s,c('meta'));almost(row.hitRate,T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance);assert.ok(Number.isFinite(row.averageDamage));assert.equal(JSON.stringify(s),before);
+ const s=ready(['meta'],'dementor');s.levels.meta=Math.max(s.levels.meta,31);const before=JSON.stringify(s),row=F.party(s).rows[0],p=E.attackProfile(s,c('meta'));almost(row.hitRate,T.hit(p.accuracy,p.evasion,p.hitLogRatio).chance);assert.ok(H.isFinite(row.averageDamage));assert.equal(JSON.stringify(s),before);
 });
 test('all income and combat state serialize after concurrent offline encounters',()=>{
  const s=ready(['meta']);s.levels.jewel=s.levels.max=1;E.setFormation(s,'scarecrow',['jewel','max']);E.advance(s,3600,rng(),false,true);const loaded=S.decode(S.encode(s));assert.deepEqual(loaded.runaway,s.runaway);assert.equal(loaded.factors,s.factors);assert.ok(loaded.incomeTotals.questReward>0);

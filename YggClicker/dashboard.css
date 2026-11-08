@@ -476,3 +476,69 @@ button.pom-unit{pointer-events:auto;cursor:pointer;border:0;padding:0;background
 
 /* Counteract camera zoom so health and runaway labels retain screen size. */
 .ally-vitals{transform:translateX(-50%) scale(var(--gauge-scale,1));transform-origin:50% 0;min-width:112px}.enemy-health{transform:translateX(-50%) scale(var(--gauge-scale,1));transform-origin:50% 0;min-width:112px;font-size:14px}.ally-vitals .ally-health,.ally-vitals .ally-runaway{font-size:14px;padding:4px 6px 6px}.ally-health:after,.enemy-health:after{height:3px}
+
+/* Two currencies, theoretical DPS, and actual income. */
+@media(min-width:900px){.dashboard .metrics{grid-template-columns:minmax(180px,1.4fr) minmax(130px,1fr) minmax(130px,1fr) minmax(180px,1.4fr)}}
+
+/* Four-frame creator sheets share one cell size and contact point. */
+.grounded .creator-art .enemy-sprite{width:var(--enemy-height);height:100%;left:50%;top:0;transform:translateX(-50%);background-image:var(--enemy-image);background-size:400% 100%;background-position:0 0;animation:creator-idle 1.6s steps(1,end) infinite!important}
+@keyframes creator-idle{0%,100%{background-position:0 0}25%{background-position:33.333333% 0}50%{background-position:66.666667% 0}75%{background-position:100% 0}}
+.grounded .creator-art.enemy-attacking:not(.enemy-defeat) .enemy-sprite{width:var(--enemy-height);height:100%;left:50%;top:0;transform:translateX(-50%);background-image:var(--enemy-attack-image);animation:enemy-attack-frames var(--enemy-attack-duration,.8s) steps(1,end) var(--enemy-attack-delay,0s) both!important}
+.grounded .creator-art.enemy-defeat.has-defeat-sheet .enemy-sprite{background-image:var(--enemy-defeat-image);animation:enemy-defeat-frames var(--fall-duration,1100ms) steps(1,end) both!important}
+.meta-arena .creator-art.enemy-defeat.has-defeat-sheet{width:var(--enemy-width);animation-name:creator-fade}
+@keyframes creator-fade{0%,75%{opacity:1}100%{opacity:0}}
+.enemy-paused .creator-art .enemy-sprite{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.grounded .creator-art .enemy-sprite,.grounded .creator-art.enemy-attacking .enemy-sprite,.grounded .creator-art.enemy-defeat .enemy-sprite{animation:none!important}.grounded .creator-art.enemy-defeat .enemy-sprite{background-position:100% 0}}
+/* Creator: telegraph at the source, then judgment pillar / planar genesis rings. */
+.creator-fx{position:absolute;width:0;height:0;pointer-events:none;--creator-fx-time:.8s}
+.creator-fx i{position:absolute;display:block;pointer-events:none}
+.creator-light-pillar{left:-22px;bottom:8px;width:44px;height:460px;background:linear-gradient(90deg,transparent,#fae7a9aa,#fffff4,#fae7a9aa,transparent);clip-path:polygon(25% 0,75% 0,100% 100%,0 100%);transform-origin:50% 100%;filter:drop-shadow(0 0 8px #ffe4a8);animation:creator-pillar var(--creator-fx-time) steps(7,end) both}
+.creator-charge .creator-light-pillar{height:95px;bottom:65px;width:64px;left:-32px;clip-path:polygon(50% 0,61% 38%,100% 50%,61% 62%,50% 100%,39% 62%,0 50%,39% 38%);animation:creator-gather var(--creator-fx-time) steps(6,end) both}
+.creator-light-spark{left:-3px;bottom:75px;width:6px;height:6px;background:#fff8d5;box-shadow:0 0 4px #ffcc52;--a:calc(var(--spark)*45deg);transform:rotate(var(--a)) translateY(-65px);animation:creator-sparks var(--creator-fx-time) steps(7,end) both}
+.creator-wave-ring{left:-80px;top:-23px;width:160px;height:46px;border:5px solid #ffefb8;border-radius:50%;box-shadow:0 0 9px #ffd35c,inset 0 0 9px #fff6c6;transform-origin:center;animation:creator-wave var(--creator-fx-time) ease-out both;animation-delay:calc(var(--ring)*.07s)}
+.creator-charge .creator-wave-ring{top:-90px;border-width:3px;animation-name:creator-ring-gather}
+@keyframes creator-gather{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:scale(1.2)}}
+@keyframes creator-pillar{0%{opacity:1;transform:scaleX(.2)}20%{opacity:1;transform:scaleX(1.3)}100%{opacity:0;transform:scaleX(.6)}}
+@keyframes creator-sparks{from{opacity:1;transform:rotate(var(--a)) translateY(-8px)}to{opacity:0;transform:rotate(var(--a)) translateY(-100px)}}
+@keyframes creator-wave{from{opacity:1;transform:scale(.3)}to{opacity:0;transform:scale(10)}}
+@keyframes creator-ring-gather{from{opacity:0;transform:scale(1.5)}to{opacity:.9;transform:scale(.35)}}
+[data-hit-effects="translucent"] .creator-fx{opacity:.45}
+[data-hit-effects="simple"] .creator-fx i:not(:first-child){display:none}
+[data-hit-effects="off"] .creator-fx{display:none}
+/* Larger creator impacts, with finite particles and a single smooth flash. */
+.creator-impact .creator-light-pillar{left:-52px;width:104px;height:850px;bottom:0;background:linear-gradient(90deg,transparent,#e6b73ecc 18%,#fff6b9 35%,#fff 48%,#fff 52%,#fff6b9 65%,#e6b73ecc 82%,transparent);filter:drop-shadow(0 0 17px #ffd05d)}
+.creator-impact .creator-wave-ring{border-width:9px;box-shadow:0 0 18px #ffd35c,inset 0 0 16px #fff6c6;animation-delay:calc(var(--ring)*.045s)}
+.creator-impact-flare{width:360px;height:360px;left:-180px;top:-230px;background:radial-gradient(ellipse,#fff9dbe6 0%,#ffe2a280 24%,#ffc65430 48%,transparent 70%);animation:creator-flare .85s ease-out both}
+.creator-genesis .creator-impact-flare{width:900px;height:500px;left:-450px;top:-250px;background:repeating-conic-gradient(from 12deg,#ffe8a843 0deg 7deg,transparent 7deg 25deg);mask-image:radial-gradient(ellipse,#000 5%,transparent 70%)}
+.creator-impact-halo{width:220px;height:74px;left:-110px;top:-35px;border:6px double #fff6c7;box-shadow:0 0 20px #ffd353;border-radius:50%;animation:creator-impact-halo 1s ease-out both}
+.creator-genesis .creator-impact-halo{width:240px;height:240px;left:-120px;top:-120px;border-width:12px;animation-name:creator-sphere}
+.creator-side-pillar{left:calc(var(--side)*90px - 18px);bottom:0;width:36px;height:750px;background:linear-gradient(90deg,transparent,#ffdc7eaa,#fff9d7,transparent);transform:rotate(calc(var(--side)*9deg));transform-origin:center bottom;animation:creator-side-pillar .85s ease-out both}
+.creator-shard{left:-4px;top:-40px;width:8px;height:19px;background:#fff8ce;box-shadow:0 0 8px #ffc947;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);animation:creator-shard 1s cubic-bezier(.12,.6,.3,1) var(--delay) both}
+.creator-genesis .creator-shard{top:-5px;width:11px;height:23px;background:#fff5ab}
+@keyframes creator-flare{0%{opacity:.9;transform:scale(.35)}24%{opacity:.85;transform:scale(1.2)}100%{opacity:0;transform:scale(1.7)}}
+@keyframes creator-impact-halo{from{opacity:1;transform:scale(.25)}to{opacity:0;transform:scale(3.2)}}
+@keyframes creator-sphere{from{opacity:.9;transform:scale(.2)}to{opacity:0;transform:scale(4.5)}}
+@keyframes creator-side-pillar{0%{opacity:0}12%,40%{opacity:.85}100%{opacity:0}}
+@keyframes creator-shard{0%{opacity:1;transform:translate(0,0) rotate(var(--rotation)) scale(.3)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rotation)) scale(.6)}}
+@keyframes creator-wave{0%{opacity:1;transform:scale(.3)}30%{opacity:.9}100%{opacity:0;transform:scale(12)}}
+/* Sacred stage motion stays behind actors and never scales the battlefield. */
+.creator-celestial{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none;contain:layout paint style}
+.creator-celestial>div,.celestial-mote{position:absolute;pointer-events:none}
+.celestial-radiance{inset:-15% 10% 20%;background:radial-gradient(ellipse at 50% 24%,#fff1b34d,transparent 58%);mix-blend-mode:screen;animation:celestial-breathe 9s ease-in-out infinite alternate}
+.celestial-shafts{inset:-25% -15% 12%;background:repeating-linear-gradient(101deg,transparent 0 12%,#fff7d40d 14%,#fff4be26 15%,transparent 18% 28%);mask-image:linear-gradient(#000,transparent);animation:celestial-shafts 18s ease-in-out infinite alternate}
+.celestial-orbit{left:50%;top:20%;width:64%;aspect-ratio:1;transform:translate(-50%,-50%) rotateX(66deg);opacity:.5}
+.celestial-orbit-1{width:42%;top:29%;opacity:.4;transform:translate(-50%,-50%) rotateX(72deg) rotateY(8deg)}
+.celestial-orbit-2{width:27%;top:39%;opacity:.35;transform:translate(-50%,-50%) rotateX(65deg) rotateY(-10deg)}
+.celestial-orbit>span{position:absolute;inset:0;border:2px solid #fff0aa;border-radius:50%;background:repeating-conic-gradient(from 0deg,transparent 0deg 28deg,#fff4b48c 29deg 30deg);mask-image:radial-gradient(circle,transparent 63%,#000 64% 71%,transparent 72%);box-shadow:0 0 12px #ffe997;animation:celestial-revolve 42s linear infinite}
+.celestial-orbit-1>span{animation-direction:reverse;animation-duration:33s}
+.celestial-orbit-2>span{animation-duration:26s}
+.celestial-reflection{inset:64% -15% -15%;background:repeating-radial-gradient(ellipse at 50% 0%,transparent 0 32px,#fff0b618 33px 35px,transparent 38px 73px);mask-image:linear-gradient(transparent,#0008,transparent);animation:celestial-reflection 12s ease-in-out infinite alternate}
+.celestial-mote{left:var(--x);top:var(--y);width:3px;height:3px;background:#fff7ca;box-shadow:0 0 5px #ffe9a6;animation:celestial-drift var(--duration) ease-in-out var(--delay) infinite}
+.celestial-mote:nth-of-type(4n){width:5px;height:5px;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%)}
+@keyframes celestial-revolve{to{transform:rotate(360deg)}}
+@keyframes celestial-breathe{from{opacity:.35}to{opacity:.85}}
+@keyframes celestial-shafts{from{opacity:.4;transform:translateX(-2%) skewX(-3deg)}to{opacity:.8;transform:translateX(3%) skewX(3deg)}}
+@keyframes celestial-reflection{from{opacity:.25;transform:translateY(0)}to{opacity:.65;transform:translateY(12px)}}
+@keyframes celestial-drift{0%{opacity:0;transform:translate(0,35px)}25%,65%{opacity:.65}100%{opacity:0;transform:translate(var(--drift),-55px)}}
+.creator-celestial.motion-paused *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.creator-celestial *{animation:none!important}.celestial-mote{display:none}}

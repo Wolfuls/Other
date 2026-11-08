@@ -1,3 +1,4 @@
+(function(__YggBig){
 (function(root){const items=[
   {
     "name": "マグタフ",
@@ -71,3 +72,5 @@
     "cost": 25000
   }
 ];if(typeof module!=='undefined'&&module.exports)module.exports=items;else root.YggShopItems=items;})(typeof globalThis!=='undefined'?globalThis:this);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);

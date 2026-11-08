@@ -43,3 +43,5 @@ footer{justify-content:flex-end;padding-top:12px;padding-bottom:20px}.intro-cont
 
 /* Chapter 2 uses the same portrait size and dialogue controls. */
 .chapter-start{display:block;margin-top:12px;font-size:12px}.dialogue.rival #portrait{border-color:#ba7b82}.dialogue.rival strong{color:#edbdba}
+
+.scene-curtain{position:absolute;inset:0;z-index:9;background:#101b29;pointer-events:auto;opacity:0}.scene-curtain[hidden]{display:none}

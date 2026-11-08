@@ -1,6 +1,8 @@
+(function(__YggBig){
 (function(root){
   'use strict';
   function create({get:$,setText,data:D,engine:E,display:UI,money,reducedMotion,blocked=()=>false,startNextRun=()=>false,schedule=setTimeout,cancel=clearTimeout}){
+    let celestial=null;
     let hidden=false,available=false,transitionTimer=null,commitTimer=null,committed=false;
     function closeQuestion(){
       if($('dream-dialog').open)$('dream-dialog').close();
@@ -26,19 +28,20 @@
       closeQuestion();
       $('memory-monolith').classList.add('dream-awakening');
       const duration=reducedMotion.matches?800:3600;
-      $('dream-transition').style.setProperty('--dream-duration',duration+'ms');
+      $('dream-transition').style.setProperty('--dream-duration',(__YggBig.add(duration,'ms')));
       $('dream-transition').showModal();
       committed=false;
       transitionTimer=schedule(finishTransition,duration);
-      commitTimer=schedule(commitDream,duration*.5);
+      commitTimer=schedule(commitDream,(__YggBig.mul(duration,.5)));
     }
     function setMotionPaused(value){
       hidden=value;
+      if(celestial)celestial.classList.toggle("motion-paused",hidden||reducedMotion.matches);
       if(hidden&&transitionTimer!==null)finishTransition();
       $('memory-scene').classList.toggle('motion-paused',hidden||reducedMotion.matches);
     }
     function mount(){
-      $('memory-particles').innerHTML=Array.from({length:48},(_,i)=>'<i style="--x:'+((i*37+13)%100)+'%;--y:'+((i*61+7)%100)+'%;--delay:'+(-i*.71)+'s;--speed:'+(6+i%9)+'s;--drift:'+(i%2?54:-42)+'px;--size:'+(2+i%3)+'px"></i>').join('');
+      $('memory-particles').innerHTML=Array.from({length:48},(_,i)=>(__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add((__YggBig.add('<i style="--x:',((__YggBig.add((__YggBig.mul(i,37)),13)))%100)),'%;--y:')),((__YggBig.add((__YggBig.mul(i,61)),7)))%100)),'%;--delay:')),(__YggBig.mul((__YggBig.neg(i)),.71)))),'s;--speed:')),(__YggBig.add(6,i%9)))),'s;--drift:')),i%2?54:(__YggBig.neg(42)))),'px;--size:')),(__YggBig.add(2,i%3)))),'px"></i>'))).join('');
       const button=$('memory-monolith');
       button.addEventListener('click',()=>{
         if(!available||blocked()||transitionTimer!==null||$('dream-dialog').open)return;
@@ -61,9 +64,16 @@
       setMotionPaused(hidden);
       $('arena-viewport').hidden=memories;
       const income=E.incomeRecord(state);
-      setText('memory-run','第'+(state.runNumber||1)+'周');
-      setText('memory-current',money(income.currentRun)+' Rd');
-      setText('memory-total',money(income.allRuns)+' Rd');
+      setText('memory-run',(__YggBig.add((__YggBig.add('第',state.runNumber||1)),'周')));
+      setText('memory-current',(__YggBig.add(money(income.currentRun),' Rd')));
+      setText('memory-total',(__YggBig.add(money(income.allRuns),' Rd')));
+      const celestialVisible=session.id==='creator'&&!memories;
+      if(celestialVisible&&!celestial){
+        celestial=document.createElement('div');celestial.className='creator-celestial';celestial.setAttribute('aria-hidden','true');
+        celestial.innerHTML='<div class="celestial-radiance"></div><div class="celestial-shafts"></div>'+[0,1,2].map(i=>'<div class="celestial-orbit celestial-orbit-'+i+'"><span></span></div>').join('')+'<div class="celestial-reflection"></div>'+Array.from({length:28},(_,i)=>'<i class="celestial-mote" style="--x:'+((i*37+9)%100)+'%;--y:'+((i*23+7)%90)+'%;--delay:'+(-i*.83)+'s;--duration:'+(7+i%7)+'s;--drift:'+((i%2?1:-1)*(12+i%5*7))+'px"></i>').join('');
+        $('arena-viewport').prepend(celestial);
+      }else if(!celestialVisible&&celestial){celestial.remove();celestial=null;}
+      if(celestial)celestial.classList.toggle('motion-paused',hidden||state.paused||blocked()||reducedMotion.matches);
       if(memories)return;
       const viewport=$('arena-viewport');
       viewport.dataset.poultry=String(session.id==='egg-or-chicken');
@@ -74,18 +84,20 @@
         const images={dawn:session.dawnBackground,day:background,dusk:session.duskBackground,night};
         background=images[phase.from];night=images[phase.to];blend=phase.blend;
       }
-      const key=background+'|'+night;
-      if(viewport.dataset.scene!==key){
+      const key=(__YggBig.add((__YggBig.add(background,'|')),night));
+      if((__YggBig.ne(viewport.dataset.scene,key))){
         viewport.dataset.scene=key;
         viewport.classList.toggle('has-scene',!!background);
-        viewport.style.setProperty('--session-background',background?'url("'+background+'")':'none');
-        viewport.style.setProperty('--session-night-background',night?'url("'+night+'")':'none');
+        viewport.style.setProperty('--session-background',background?(__YggBig.add((__YggBig.add('url("',background)),'")')):'none');
+        viewport.style.setProperty('--session-night-background',night?(__YggBig.add((__YggBig.add('url("',night)),'")')):'none');
       }
-      const opacity=night?blend.toFixed(3):'0';
-      if(viewport.style.getPropertyValue('--night-opacity')!==opacity)viewport.style.setProperty('--night-opacity',opacity);
+      const opacity=night?(__YggBig.toFixed(blend,3)):'0';
+      if((__YggBig.ne(viewport.style.getPropertyValue('--night-opacity'),opacity)))viewport.style.setProperty('--night-opacity',opacity);
     }
     return {mount,render,setMotionPaused,get transitioning(){return transitionTimer!==null;}};
   }
   const api={create};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.YggSceneView=api;
 })(typeof window!=='undefined'?window:globalThis);
+
+})(typeof module!=="undefined"&&module.exports?require("./huge.js"):globalThis.YggHuge);
