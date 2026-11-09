@@ -2,10 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0b111c" />
-<title>CR 鋼鉄のユグドラシル ― RAGNAROK ― | 試作 v0.80 左右打ち・操作パネル</title>
-<link rel="stylesheet" href="assets/css/style.css?v=80">
+<title>CR 鋼鉄のユグドラシル ― RAGNAROK ― | 試作 v0.97 左右打ち・操作パネル</title>
+<link rel="stylesheet" href="assets/css/style.css?v=97">
 <link rel="preload" as="image" href="assets/images/reels/character-1-v20.png">
 <link rel="preload" as="image" href="assets/images/reels/character-4-v20.png">
 <link rel="preload" as="image" href="assets/images/reels/character-5-v20.png">
@@ -29,6 +29,7 @@
       <div class="playfield" aria-label="物理演算で玉が釘に当たるパチンコ盤面">
         <canvas id="pinCanvas" width="520" height="710" role="img" aria-label="釘と玉の二次元物理盤面。落下した玉が釘に当たり、スタート入賞口に入ると抽選する"></canvas>
         <div class="jackpot-spill" aria-hidden="true"></div>
+        <div class="rw-sign" role="img" aria-label="鋼鉄のユグドラシル RW"><canvas class="rw-sign-art" aria-hidden="true"></canvas></div>
         <canvas id="ballCanvas" width="520" height="710" aria-hidden="true"></canvas>
       <div id="lcd" class="lcd asg">
         <div class="skyline"></div><div id="flash" class="fxflash"></div><div id="cityAlert" class="prealert-scene" aria-hidden="true"><div class="city-blackout"></div><div class="city-power"></div></div>
@@ -135,11 +136,11 @@
   </main>
   
 </div>
-<script src="assets/js/audio.js?v=80" defer></script>
-<script src="assets/js/game.js?v=80" defer></script>
-<script src="assets/js/yakumono.js?v=80" defer></script>
-<script src="assets/js/monitor.js?v=80" defer></script>
-<script src="assets/js/panel.js" defer></script>
+<script src="assets/js/audio.js?v=97" defer></script>
+<script src="assets/js/game.js?v=97" defer></script>
+<script src="assets/js/yakumono.js?v=97" defer></script>
+<script src="assets/js/monitor.js?v=83" defer></script>
+<script src="assets/js/panel.js?v=97" defer></script>
 </body>
 </html>
 

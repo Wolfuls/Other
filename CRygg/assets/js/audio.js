@@ -1,6 +1,6 @@
 (() => {
- const paths={yakumonoImpact:'yakumono-impact-v79.wav',launch:'launch-v66.wav',pocket:'pocket-v67.wav',electric:'electric-v67.wav',slash:'slash-impact-v62.wav',pin:'pin-contact.wav',start:'spin-start.wav',stop0:'reel-stop.mp3',stop1:'reel-stop.mp3',stop2:'reel-stop.mp3',reach:'reach.wav',alert:'city-alert.wav',win:'jackpot-v72.wav',winRoll:'jackpot-roll-v72.wav',rush:'rush.wav'};
- const gains={win:.8,winRoll:.55,launch:.22,pocket:.65,electric:.65};
+ const paths={winningLine:'winning-line-v97.wav',buttonArrival:'button-arrival-v96.wav',buttonPress:'button-press-v95.wav',eyeGlint:'eye-glint-v94.wav',winScratch:'jackpot-scratch-v82.wav',yakumonoImpact:'yakumono-impact-v79.wav',launch:'launch-v66.wav',pocket:'pocket-v67.wav',electric:'electric-v67.wav',slash:'slash-impact-v62.wav',pin:'pin-contact.wav',start:'spin-start.wav',stop0:'reel-stop.mp3',stop1:'reel-stop.mp3',stop2:'reel-stop.mp3',reach:'reach.wav',alert:'city-alert.wav',win:'jackpot-v72.wav',winRoll:'jackpot-roll-v81.wav',rush:'rush.wav'};
+ const gains={buttonArrival:.8,winScratch:.75,win:.8,winRoll:.9,launch:.22,pocket:.65,electric:.65};
  const pools=new Map();
  for(const [name,file] of Object.entries(paths)){
   pools.set(name,Array.from({length:2},()=>{const a=new Audio('assets/audio/'+file);a.preload='auto';return a}));

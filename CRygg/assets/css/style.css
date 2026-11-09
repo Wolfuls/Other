@@ -315,3 +315,103 @@ html,body{min-width:0;overflow-x:hidden}
 .yakumono-art{display:block;width:100%;height:100%}
 .lcd.rainbow-active .yakumono-art{animation:jackpot-color 1s linear infinite;animation-delay:var(--rainbow-phase,0s)}
 @media(prefers-reduced-motion:reduce){.lcd.rainbow-active .yakumono-art{animation:none!important}}
+/* Brief local impact when a symbol or cut-in locks in. */
+.reel.reel-jolt{animation:reel-lock-jolt .28s ease-out!important}
+@keyframes reel-lock-jolt{0%{translate:0 0}16%{translate:0 5px}34%{translate:-2px -3px}52%{translate:2px 2px}74%{translate:0 -1px}100%{translate:0 0}}
+@media(prefers-reduced-motion:reduce){.reel.reel-jolt{animation:none!important}}
+/* Fixed logo sign above the monitor. */
+.rw-sign{position:absolute;left:15.8%;top:9%;width:60.7%;height:12.5%;z-index:4;pointer-events:none;filter:drop-shadow(0 3px 2px #000) drop-shadow(0 0 4px #b8e5ff50)}
+.rw-sign-art{display:block;width:100%;height:100%}
+.rw-sign-art.lit{animation:jackpot-color 1s linear infinite;animation-delay:var(--rainbow-phase,0s);filter:drop-shadow(0 0 6px #fff3ac)}
+@media(prefers-reduced-motion:reduce){.rw-sign-art.lit{animation:none}}
+/* v84: fill the space above the LCD at the logo's original aspect ratio. */
+.rw-sign{left:15.785%;top:16.8%;width:60.738%;height:auto;aspect-ratio:2128/337;z-index:7}
+/* v89: monitor palette and one frame clock govern every rainbow surface. */
+.lcd.rainbow-active .skyline,.lcd.rainbow-active .jackpot-rainbow{background:var(--monitor-rainbow)!important;background-size:100% 100%!important;background-position:center!important;transform:none;opacity:1}
+.lcd.rainbow-active .skyline,.lcd.rainbow-active .jackpot-rainbow,.lcd.rainbow-active .yakumono-art,.rw-sign-art.lit{animation:none!important;filter:hue-rotate(var(--monitor-rainbow-hue,0deg))!important}
+/* Keep impact displacement separate from the shared color clock. */
+.lcd.rainbow-active.yakumono-impact>.skyline{animation:yakumono-screen-impact .55s ease-out!important}
+@media(prefers-reduced-motion:reduce){.lcd.rainbow-active.yakumono-impact>.skyline{animation:none!important}}
+.mobile-panel-close{display:none}
+@media(max-width:900px),(pointer:coarse) and (max-height:600px){
+ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+ .wrap{height:100dvh;box-sizing:border-box;padding:calc(4px + env(safe-area-inset-top)) 4px calc(158px + env(safe-area-inset-bottom));max-width:none}
+ .header{height:22px;margin:0 0 3px}.header h1{font-size:14px;line-height:20px}.header h1 small,.testbadge{display:none}
+ .layout{display:flex;align-items:center;justify-content:center;height:calc(100% - 25px);max-width:none;margin:0;gap:0}
+ .monitor-panel,.marquee{display:none}
+ .cabinet{width:min(calc(100vw - 12px),calc((100dvh - 220px - env(safe-area-inset-top) - env(safe-area-inset-bottom))*.7324));min-width:0;max-height:100%;padding:3px;border-radius:12px;flex:none}
+ .route-lamps{height:18px;margin:0 3px 3px;font-size:8px}.route-lamps span{padding:1px 4px}.playfield{margin:0;border-radius:10px}
+ .panel{position:fixed;inset:0;min-height:0;max-height:none;width:auto;pointer-events:none;z-index:40;display:block}
+ .panel-tabs{position:absolute;bottom:calc(110px + env(safe-area-inset-bottom));left:0;right:0;height:44px;box-sizing:border-box;background:#102332f5;border-top:1px solid #496779;padding:2px 6px;pointer-events:auto;gap:6px}
+ .panel-tabs button{min-height:38px;padding:5px 10px;font-size:14px}
+ .panel-content,.panel-content:has(#optionsPane:not([hidden])){display:none;min-height:0}
+ .panel.mobile-open .panel-content{display:block;position:absolute;top:calc(30px + env(safe-area-inset-top));bottom:calc(158px + env(safe-area-inset-bottom));left:6px;right:6px;background:#0b1928f7;border:1px solid #58768a;border-radius:12px;padding:8px;pointer-events:auto;box-shadow:0 0 0 100vmax #0006}
+ .panel.mobile-open .mobile-panel-close{display:block}
+ #playPane,#optionsPane{inset:8px;overscroll-behavior:contain;padding:0 3px 0 0}
+ .panel>.cabctrl{position:absolute;bottom:0;left:0;right:0;height:calc(110px + env(safe-area-inset-bottom));box-sizing:border-box;margin:0;padding:6px 10px calc(6px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:8px;background:#142333;border-radius:0;pointer-events:auto}
+ .cabctrl .resources{flex:1;min-width:0;display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0}
+ .resource{padding:3px 6px}.resource b{font-size:16px}.resource span{font-size:10px}.resources .btn{grid-column:1 / -1;min-height:32px;padding:2px;font-size:11px}
+ .resources .btn br{display:none}
+ .handle-row{flex-direction:row;min-height:0;padding:0;gap:0;margin:0}.handle{width:82px;height:82px;border-width:3px}.handle-notes{display:none}.handle-power{font-size:11px;bottom:8px}
+ .handle-row:before{content:'上へドラッグ\A離すと停止';white-space:pre;font-size:10px;color:#9fbacc;margin-right:8px;line-height:1.7}
+}
+@media(pointer:coarse) and (max-height:600px) and (orientation:landscape){
+ .wrap{padding-bottom:4px;padding-right:220px}.cabinet{width:min(calc(100vw - 240px),calc((100dvh - 70px - env(safe-area-inset-top))*.7324))}
+ .panel-tabs{left:auto;width:214px;top:4px;bottom:auto}.panel>.cabctrl{left:auto;width:214px;height:calc(100dvh - 52px);flex-direction:column;justify-content:flex-end;gap:12px}.cabctrl .resources{flex:0;width:100%}.handle-row{flex-direction:column}.handle-row:before{white-space:normal;margin:0}.handle{width:90px;height:90px}
+ .panel.mobile-open .panel-content{right:220px;bottom:6px;top:30px}
+}
+/* #9 advance notice: coarse pixel portrait, eye slit, single traveling glint. */
+.eye-alert{position:absolute;inset:0;z-index:24;pointer-events:none;background:#01071185;animation:eye-alert-life 1.2s linear both}
+.eye-alert-band{position:absolute;left:-3%;right:-3%;top:31%;height:31%;overflow:hidden;background:linear-gradient(110deg,#041526,#065c80,#041526);border-block:3px solid #9fefff;box-shadow:0 0 20px #35d6ff90;transform:rotate(-4deg);animation:eye-alert-open .2s ease-out both}
+.eye-alert-band img{width:100%;height:100%;object-fit:cover;object-position:50% 40%;image-rendering:pixelated}
+.eye-alert-glint{position:absolute;left:-35%;top:0;width:25%;height:100%;background:linear-gradient(110deg,transparent,#b4fcff99,#fff,transparent);mix-blend-mode:screen;animation:eye-alert-glint .38s .22s ease-out both}
+.eye-alert-band:after{content:'';position:absolute;inset:48% 0 auto;height:2px;background:#c8ffff;box-shadow:0 0 8px #00cfff;opacity:.7}
+@keyframes eye-alert-life{0%{opacity:0}8%,78%{opacity:1}100%{opacity:0}}
+@keyframes eye-alert-open{from{clip-path:inset(49% 0);translate:-8% 0}to{clip-path:inset(0);translate:0 0}}
+@keyframes eye-alert-glint{from{left:-35%}to{left:110%}}
+@media(prefers-reduced-motion:reduce){.eye-alert-band,.eye-alert-glint{animation:none}.eye-alert-glint{display:none}.eye-alert{animation:none}}
+/* Button summon: one gold/emerald burst, independent of the eventual result. */
+.recovery-input{isolation:isolate;animation:button-arrival-slam .32s cubic-bezier(.2,.8,.3,1) both}
+.recovery-input img{position:relative;z-index:2}
+.button-arrival-burst{position:absolute;inset:0;z-index:1;pointer-events:none}
+.button-arrival-burst:before,.button-arrival-burst:after{content:'';position:absolute;left:50%;top:55%;width:75%;aspect-ratio:1;border:3px solid #fff6b3;border-radius:50%;box-shadow:0 0 12px #ffcf39,inset 0 0 12px #40ffba;animation:button-arrival-ring .65s ease-out both}
+.button-arrival-burst:after{animation-delay:.09s;border-color:#70ffd0}
+.button-arrival-burst i{position:absolute;left:50%;top:55%;width:4px;height:12px;background:#ffefae;box-shadow:0 0 6px #ffbc24;animation:button-arrival-spark .6s ease-out both}
+@keyframes button-arrival-slam{0%{transform:scale(1.4);opacity:0}35%{opacity:1;transform:scale(.93)}65%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes button-arrival-ring{0%{transform:translate(-50%,-50%) scale(.3);opacity:.9}100%{transform:translate(-50%,-50%) scale(1.7);opacity:0}}
+@keyframes button-arrival-spark{0%{transform:rotate(var(--spark-angle)) translateY(0);opacity:1}100%{transform:rotate(var(--spark-angle)) translateY(calc(-1 * var(--spark-distance))) scale(.3);opacity:0}}
+@media(prefers-reduced-motion:reduce){.recovery-input{animation:none!important}.button-arrival-burst{display:none}}
+/* Jackpot keeps the three actual winning symbols in front of the rainbow. */
+.lcd.jackpot-running>.reels{position:relative;z-index:26;transform:scale(1.04);transition:transform .25s ease-out}
+.lcd.jackpot-running>.reels .reel{border-color:#fff4b1;box-shadow:0 0 9px #ffdf56,0 0 22px #ffbd4244}
+.lcd.jackpot-running>.action,.lcd.jackpot-running>.holds,.lcd.jackpot-running>.hudtop{visibility:hidden}
+.lcd.jackpot-running .jackpot-scene{background:transparent}
+/* Weighty prompt entrance, steady charge, then a physical depression on input. */
+.recovery-input{width:68%;left:16%;bottom:8%;animation:button-weighted-entry .38s cubic-bezier(.16,.8,.25,1) both;filter:drop-shadow(0 12px 8px #000c)}
+.recovery-input:before{content:'';position:absolute;inset:12%;border-radius:50%;background:#012e22a0;box-shadow:0 0 0 100vmax #0006;z-index:-1;pointer-events:none}
+.recovery-input img{animation:button-charge 1s .38s ease-in-out infinite alternate}
+.recovery-input.pressed{animation:button-depress .13s ease-in both!important}
+.recovery-input.pressed img{animation:none;filter:brightness(1.4)}
+.button-arrival-burst:before,.button-arrival-burst:after{border-width:5px}
+@keyframes button-weighted-entry{0%{transform:translateY(30%) scale(.55);opacity:0}65%{transform:translateY(-3%) scale(1.08);opacity:1}100%{transform:translateY(0) scale(1)}}
+@keyframes button-charge{from{filter:drop-shadow(0 0 2px #65ffc8)}to{filter:drop-shadow(0 0 12px #ffe080)}}
+@keyframes button-depress{to{transform:translateY(7px) scale(.9);opacity:.3}}
+@media(prefers-reduced-motion:reduce){.recovery-input,.recovery-input img,.recovery-input.pressed{animation:none!important}.lcd.jackpot-running>.reels{transition:none}}
+/* After the mechanism clears, reveal the winning line as three thick cards. */
+.lcd.jackpot-reveal>.reels{position:absolute;left:1%;right:1%;top:50%;width:98%;margin:0!important;gap:1%;transform:translateY(-50%);perspective:600px;isolation:isolate}
+.playfield .lcd.jackpot-reveal>.reels .reel{flex:1;min-width:0;width:32.6%;max-width:none;aspect-ratio:1/1.18;border:3px solid #ffeaa1;border-radius:7px;overflow:visible;background:#071027;transform-style:preserve-3d;box-shadow:3px 5px 0 #8a5c1f,5px 8px 0 #251609,0 0 20px #ffdb62;animation:winning-card-reveal .7s cubic-bezier(.15,.75,.2,1) both!important}
+.playfield .lcd.jackpot-reveal>.reels .reel:nth-child(2){animation-delay:.1s!important}.playfield .lcd.jackpot-reveal>.reels .reel:nth-child(3){animation-delay:.2s!important}
+/* Preserve sprite cells and keep numbers above the portrait. */
+.playfield .lcd.jackpot-reveal>.reels .reel{overflow:hidden}
+.playfield .lcd.jackpot-reveal>.reels img.reel-digit{width:56%;height:57%;left:0;bottom:0;z-index:12;filter:drop-shadow(1px 2px 1px #000)}
+@keyframes winning-card-reveal{0%{transform:translateY(12%) rotateY(-68deg) rotateX(12deg) scale(.72);filter:brightness(1.7)}65%{transform:translateY(-2%) rotateY(8deg) rotateX(-3deg) scale(1.03);filter:brightness(1.1)}100%{transform:translateY(0) rotateY(0) rotateX(0) scale(1);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.playfield .lcd.jackpot-reveal>.reels .reel{animation:none!important}}
+/* v97: oversized portrait panels, with readable digits in the foreground. */
+.lcd.jackpot-reveal>.reels{height:80%;align-items:stretch;perspective:700px}
+.playfield .lcd.jackpot-reveal>.reels .reel{height:100%;aspect-ratio:auto;container-type:size;border-width:2px}
+.playfield .lcd.jackpot-reveal>.reels img.character-art{animation:none!important;object-fit:fill;width:200cqh;height:200cqh;left:calc(50% - 50cqh);top:0;max-width:none}
+.playfield .lcd.jackpot-reveal>.reels img.reel-digit{width:88%;height:40%;left:6%;bottom:2%;filter:drop-shadow(2px 3px 1px #000) drop-shadow(0 0 5px #ffe18d)}
+.lcd.jackpot-lock>.reels{animation:winning-line-lock .33s ease-out both!important}
+.lcd.jackpot-lock>.reels .reel{border-color:#fffbe5;box-shadow:0 0 18px #fff6b3,0 0 35px #ffd23f}
+@keyframes winning-line-lock{0%{translate:0 0}15%{translate:0 8px}33%{translate:-4px -5px}52%{translate:3px 3px}75%{translate:-1px -1px}100%{translate:0 0}}
+@media(prefers-reduced-motion:reduce){.lcd.jackpot-lock>.reels{animation:none!important}}

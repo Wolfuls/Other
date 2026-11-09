@@ -1,12 +1,15 @@
 /* Layered, cached sound effects. Music remains an independent HTML audio track. */
 (function(root){'use strict';
 const rates={shoot:.045,naniwaShoot:.07,enemyShoot:.07,eat:.06,hit:.045,naniwaHit:.045};
-const lengths={airDash:.4,naniwaDefeated:.85,messageType:.045,cloth:.24,footLand:.15,wandDrop:.3,cartRoll:.24,messageNext:.12,dashStart:.3,cookieRattle:.4,shoot:.28,naniwaShoot:.32,enemyShoot:.3,magicClash:.65,eat:.32,jump:.24,hurt:.4,transform:.7,revive:.65,pickup:.65,hit:.28,naniwaHit:.28,heal:.9,heartUpgrade:1,switch:.23,won:1.35,lost:1.1,thud:.4,rustle:.7};
+const lengths={keeperRoar:.85,waterSplash:.9,thunder:.85,crateBroken:.65,airDash:.4,naniwaDefeated:.85,messageType:.045,cloth:.24,footLand:.15,wandDrop:.3,cartRoll:.24,messageNext:.12,dashStart:.3,cookieRattle:.4,shoot:.28,naniwaShoot:.32,enemyShoot:.3,magicClash:.65,eat:.32,jump:.24,hurt:.4,transform:.7,revive:.65,pickup:.65,hit:.28,naniwaHit:.28,heal:.9,heartUpgrade:1,switch:.23,won:1.35,lost:1.1,thud:.4,rustle:.7};
 function samples(kind,sr=44100){if(!lengths[kind])return null;const out=new Float32Array(Math.ceil(lengths[kind]*sr));let seed=37123;
 function tone(f,d,amp,at=0,end=f,brightness=.2){let phase=0;const n=Math.floor(d*sr),start=Math.floor(at*sr);for(let i=0;i<n&&i+start<out.length;i++){const u=i/n,t=i/sr;phase+=2*Math.PI*f*Math.pow(end/f,u)/sr;const env=Math.min(1,t/.004)*Math.pow(1-u,2.2);out[start+i]+=amp*env*(Math.sin(phase)+brightness*Math.sin(phase*2+.2)+brightness*.4*Math.sin(phase*3)) ;}}
 function noise(d,amp,at=0,bright=.15){let low=0;const n=Math.floor(d*sr),start=Math.floor(at*sr);for(let i=0;i<n&&i+start<out.length;i++){seed=(Math.imul(seed,1664525)+1013904223)>>>0;const white=seed/2147483648-1;low+=bright*(white-low);const env=Math.min(1,i/(sr*.003))*Math.pow(1-i/n,2);out[start+i]+=amp*env*low;}}
 function chime(notes,step=.06,amp=.16){notes.forEach((f,i)=>{tone(f,.3,amp,i*step,f,.08);tone(f*2.76,.16,amp*.2,i*step);});}
-switch(kind){
+switch(kind){case'keeperRoar':tone(110,.75,.44,0,42,.8);tone(167,.65,.22,.08,65,.6);noise(.7,.65,.05,.16);break;
+case'crateBroken':noise(.08,.9,0,.8);tone(160,.18,.3,0,60,.5);for(let i=0;i<6;i++){noise(.09,.42,i*.065,.65);tone(420+i*137,.07,.09,i*.065,180+i*60,.5);}break;
+case'waterSplash':noise(.24,.85,0,.32);noise(.55,.52,.13,.13);for(let i=0;i<7;i++)tone(500+i*130,.12,.09,.17+i*.07,220+i*45,.2);break;
+case'thunder':noise(.12,1.3,0,.95);tone(92,.75,.65,0,27,.65);noise(.7,.85,.05,.2);tone(2100,.17,.25,0,150,.5);noise(.11,.5,.13,.7);break;
 case'airDash':noise(.32,.5,0,.3);tone(330,.28,.15,0,660,.1);break;
 case'naniwaDefeated':noise(.2,.8,0,.6);tone(190,.35,.45,0,55,.5);chime([1046,784,523],.09,.2);break;
 case'messageType':tone(780,.03,.035,0,680,.05);break;

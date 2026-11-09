@@ -25,7 +25,7 @@ s.soundVolume=Math.max(0,Math.min(1,Number.isFinite(Number(s.soundVolume))?Numbe
 s.power=0; // 回したハンドルは再起動時に必ず戻す
 if(!['open','normal','tight'].includes(s.nailset))s.nailset='normal';
 s.lastRegen=Number(s.lastRegen)||Date.now();
-let holds = [], spinning=false, previewNext=false, token=0, activeFX=[], handleHeld=false, handleStartX=0, rightHeld=false;
+let holds = [], spinning=false, previewNext=false, token=0, activeFX=[], handleHeld=false, handleStartX=0, handleStartY=0, rightHeld=false;
 let log=[], bonusActive=false;
 const speeds = {slow:6,normal:4,fast:1};
 const pause = ms => new Promise(resolve=>setTimeout(resolve,ms));
@@ -48,20 +48,41 @@ function pulse(el,red=false){
 function fx(red=false){pulse($('flash'),red)}
 let demoAlertNext=false, demoRecoveryNext=false;
 let holdSerial=0;
+let eyeAlertSerial=0;
+const eyeAlertImage=new Image();eyeAlertImage.src='assets/images/cutins/prealert-9-v91.png';
+function clearEyeAlert(){eyeAlertSerial++;$('lcd').querySelectorAll('.eye-alert').forEach(el=>el.remove());}
+function showEyeAlert(){
+ clearEyeAlert();const serial=eyeAlertSerial;
+ const scene=document.createElement('div');scene.className='eye-alert';scene.setAttribute('aria-hidden','true');
+ const band=document.createElement('div');band.className='eye-alert-band';
+ const face=document.createElement('img');face.src=eyeAlertImage.src;face.alt='';band.append(face);
+ const glint=document.createElement('i');glint.className='eye-alert-glint';band.append(glint);scene.append(band);$('lcd').append(scene);
+ setTimeout(()=>{if(serial===eyeAlertSerial)sound('eyeGlint')},220);
+ setTimeout(()=>{if(serial===eyeAlertSerial)clearEyeAlert()},1200);
+}
 function preAlertArrival(added){
  const alerts=added.filter(h=>h.preAlert);
  if(!alerts.length)return;
- for(const h of alerts){h.alerting=true;h.alertUntil=performance.now()+800;}
+ const eye=alerts.some(h=>h.number===9&&h.reach);const duration=eye?1200:800;
+ for(const h of alerts){h.alerting=true;h.alertUntil=performance.now()+duration;if(h.number===9&&h.reach)h.eyeAnnounced=true;}
+ if(eye)showEyeAlert();
  pulse($('cityAlert'));sound('alert');
- setTimeout(()=>{for(const h of alerts)h.alerting=false;update()},800);
+ setTimeout(()=>{for(const h of alerts)h.alerting=false;update()},duration);
 }
 function logEvent(msg,hot=false){const date=new Date();const time=String(date.getHours()).padStart(2,'0')+':'+String(date.getMinutes()).padStart(2,'0');log.unshift({msg,time,hot});if(log.length>12)log.length=12;const ol=$('events');ol.replaceChildren();for(const entry of log){const li=document.createElement('li');if(entry.hot)li.className='hot';const a=document.createElement('span');a.className='time';a.textContent=entry.time;const b=document.createElement('span');b.textContent=entry.msg;li.append(a,b);ol.append(li)}}
 function update(){const rush=s.mode==='rush';$('modePill').classList.toggle('rushing',rush);$('modePill').textContent=rush?'RAGNAROK RUSH':'NORMAL';$('rushName').textContent=rush?'RAGNAROK RUSH':'通常時';$('remaining').textContent=rush?s.remaining+' / '+ST_MAX:'— / '+ST_MAX;$('chain').textContent=s.chain+' 連';$('progress').style.width=(rush?(s.remaining/ST_MAX*100):0)+'%';$('stbar').style.width=(rush?(s.remaining/ST_MAX*100):0)+'%';$('normalSpins').textContent=Number(s.normalSpins||0).toLocaleString('ja-JP');$('firstHits').textContent=Number(s.firstHits||0).toLocaleString('ja-JP');$('rushHits').textContent=Number(s.rushHits||0).toLocaleString('ja-JP');$('allSpins').textContent=(Number(s.normalSpins||0)+Number(s.rushSpins||0)).toLocaleString('ja-JP');$('maxChain').textContent=Number(s.maxChain||0).toLocaleString('ja-JP');$('balls').textContent=Number(s.balls||0).toLocaleString('ja-JP');$('preAlert').checked=!!s.preAlert;$('premium').checked=!!s.premium;$('sound').checked=!!s.sound;$('soundVolume').value=Math.round(s.soundVolume*100);$('preread').checked=!!s.preread;document.querySelectorAll('.speed button').forEach(b=>b.classList.toggle('sel',b.dataset.speed===s.speed));$('speedLabel').textContent={slow:'ゆっくり',normal:'標準',fast:'高速'}[s.speed];$('holds').querySelectorAll('.hold').forEach((el,i)=>{el.classList.toggle('filled',i<holds.length);el.classList.toggle('suggest',i<holds.length&&!!holds[i].preAlert);el.classList.toggle('active',i<holds.length&&!!holds[i].alerting);el.dataset.pulse=i<holds.length?String(holds[i].id):'';el.setAttribute('role','img');el.setAttribute('aria-label',i<holds.length?'保留 '+(i+1)+(holds[i].preAlert?'・先バレあり':''):'空き保留 '+(i+1))});$('demoRecovery').textContent=demoRecoveryNext?'デモ復活：予約済':'次の入賞をデモ復活';$('demoAlert').textContent=demoAlertNext?'デモ先バレ：予約済':'次の入賞をデモ先バレ';$('preview').textContent=previewNext?'次回デモ当たり：予約済':'次の入賞をデモ当たり';$('stock').innerHTML=Number(s.stock).toLocaleString('ja-JP')+'<em>玉</em>';$('stamina').textContent=s.stamina.toLocaleString('ja-JP');$('borrow').disabled=s.stamina<5;$('firedCount').textContent=Number(s.fired).toLocaleString('ja-JP');$('enteredCount').textContent=Number(s.entered).toLocaleString('ja-JP');$('entryRate').textContent=s.fired>0?(s.entered/s.fired*100).toFixed(1)+'%':'—';$('directEntered').textContent=Number(s.directEntered||0).toLocaleString('ja-JP');$('warpEntered').textContent=Number(s.warpEntered||0).toLocaleString('ja-JP');updateHandle();document.querySelectorAll('.nailbtn').forEach(b=>b.classList.toggle('sel',b.dataset.nail===s.nailset));save()}
 function createHold(forced=false){const mode=s.mode,denom=mode==='rush'?100:319;const hit=forced||randomInt(denom)===0;const preAlertChance=hit?.8:(1/denom*.8*1.5)/(1-1/denom);// approx 40% conditional confidence
 return{id:++holdSerial,mode,hit,forced,enter:hit&&(mode==='rush'||forced||randomInt(10)<7),payout:mode==='normal'?450:(randomInt(10)<7?1500:450),preAlert:s.preAlert&&randomChance(preAlertChance),preread:s.preread&&randomChance(hit?.45:.007),reach:hit||randomInt(11)===0,number:1+randomInt(9)}}
-function addHold(n=1){if(holds.length===4)return;const added=[];for(let i=0;i<n && holds.length<4;i++){let forced=false;if(previewNext){forced=true;previewNext=false;s.demo=true;logEvent('デモ抽選開始：統計の記録を停止',true)}const h=createHold(forced);if(demoRecoveryNext){demoRecoveryNext=false;h.demoRecovery=true;h.number=9;h.reach=true;s.demo=true;logEvent('デモ復活演出を予約：統計の記録を停止',true)}if(demoAlertNext){demoAlertNext=false;h.preAlert=true;s.demo=true;logEvent('デモ先バレ：統計の記録を停止',true)}holds.push(h);added.push(h)}preAlertArrival(added);update();processQueue()}
+function addHold(n=1){if(holds.length===4)return;const added=[];for(let i=0;i<n && holds.length<4;i++){let forced=false;if(previewNext){forced=true;previewNext=false;s.demo=true;logEvent('デモ抽選開始：統計の記録を停止',true)}const h=createHold(forced);if(demoRecoveryNext){demoRecoveryNext=false;h.demoRecovery=true;h.number=9;h.reach=true;s.demo=true;logEvent('デモ復活演出を予約：統計の記録を停止',true)}if(demoAlertNext){demoAlertNext=false;h.preAlert=true;h.number=9;h.reach=true;s.demo=true;logEvent('デモ先バレ：統計の記録を停止',true)}holds.push(h);added.push(h)}preAlertArrival(added);update();processQueue()}
 const REEL_IMAGES={9:'assets/images/reels/character-9-sheet-v55.png',2:'assets/images/reels/character-2-sheet-v51.png',3:'assets/images/reels/character-3-sheet-v50.png',1:'assets/images/reels/character-1-sheet-v51.png',4:'assets/images/reels/character-4-sheet-v51.png',5:'assets/images/reels/character-5-sheet-v50.png',6:'assets/images/reels/character-6-sheet-v51.png',7:'assets/images/reels/character-7-sheet-v51.png',8:'assets/images/reels/character-8-sheet-v50.png'};
 function setReel(i,n){const el=$('reel'+i);if(el.dataset.number===String(n))return;el.dataset.number=String(n);el.setAttribute('aria-label','図柄 '+n);el.replaceChildren();if(REEL_IMAGES[n]){const img=document.createElement('img');img.src=REEL_IMAGES[n];img.className='character-art';img.style.setProperty('--breath-delay',(-n*.27)+'s');img.alt='';img.draggable=false;el.append(img);const digit=document.createElement('img');digit.src='assets/images/reels/digit-'+n+'.svg';digit.className='reel-digit';digit.alt='';digit.draggable=false;el.append(digit);}else{const digit=document.createElement('img');digit.src='assets/images/reels/digit-'+n+'.svg';digit.className='number-only';digit.alt='';digit.draggable=false;el.append(digit)}}
+const reelJolts=new WeakMap();
+function joltReel(i){
+ const el=$('reel'+i),stamp={};reelJolts.set(el,stamp);
+ el.classList.remove('reel-jolt');void el.offsetWidth;el.classList.add('reel-jolt');
+ el.dataset.jolt=String(Number(el.dataset.jolt||0)+1);
+ setTimeout(()=>{if(reelJolts.get(el)===stamp)el.classList.remove('reel-jolt')},280);
+}
 function setReels(nums){nums.forEach((n,i)=>setReel(i,n))}
 function stopReelTimer(id){clearInterval(id);activeFX=activeFX.filter(x=>x!==id)}
 function setSpinClass(on){for(let i=0;i<3;i++)$('reel'+i).classList.toggle('spinning',on)}
@@ -106,9 +127,12 @@ let recoveryInput=null;
 function waitRecoveryInput(){
  return new Promise(resolve=>{
   const prompt=document.createElement('button');prompt.className='recovery-input';prompt.setAttribute('aria-label','ボタンを押せ！ Enter');const art=document.createElement('img');art.src='assets/images/ui/recovery-button-v71.png';art.alt='ボタンを押せ！ ENTER';prompt.append(art);
-  prompt.type='button';$('lcd').append(prompt);
+  prompt.type='button';
+  const burst=document.createElement('span');burst.className='button-arrival-burst';burst.setAttribute('aria-hidden','true');
+  for(let i=0;i<12;i++){const spark=document.createElement('i');spark.style.setProperty('--spark-angle',(i*30)+'deg');spark.style.setProperty('--spark-distance',(55+(i%3)*12)+'px');burst.append(spark);}
+  prompt.append(burst);$('lcd').append(prompt);sound('buttonArrival');
   let timer;
-  const finish=()=>{clearTimeout(timer);prompt.remove();recoveryInput=null;resolve()};
+  const finish=(cancel=false)=>{if(!recoveryInput)return;clearTimeout(timer);recoveryInput=null;if(cancel===true){prompt.remove();resolve();return;}sound('buttonPress');prompt.classList.add('pressed');setTimeout(()=>{prompt.remove();resolve()},130)};
   recoveryInput=finish;prompt.addEventListener('click',finish);timer=setTimeout(finish,3000);
  });
 }
@@ -117,29 +141,30 @@ window.addEventListener('keydown',e=>{
 },true);
 function clearReelCutins(){
  $('lcd').classList.remove('recovery-quake');
- if(recoveryInput)recoveryInput();
+ if(recoveryInput)recoveryInput(true);
  $('reel2').classList.remove('recovery-target','recovery-impact');
  $('lcd').querySelectorAll('.slash-overlay').forEach(el=>el.remove());
  for(let i=0;i<3;i++){
-  const el=$('reel'+i);el.classList.remove('cutin-one','cutin-two','cutin-slash','cutin-fade');el.querySelectorAll('.cutin-art').forEach(img=>img.remove());
+  const el=$('reel'+i);el.classList.remove('cutin-one','cutin-two','cutin-slash','cutin-fade','reel-jolt');el.querySelectorAll('.cutin-art').forEach(img=>img.remove());
  }
 }
 async function reelRecovery(h,id,scale){
  const wait=async ms=>{await pause(ms*Math.max(.65,Math.min(1.4,scale/4)));return id===token};
  // Never show a complete winning line before the outcome is revealed.
  const miss=h.hit?otherSymbol(h.number):h.displayed[2];
- setReels([h.number,h.number,miss]);setSpinClass(false);sound('stop2');
+ setReels([h.number,h.number,miss]);setSpinClass(false);sound('stop2');joltReel(2);
  // Let the apparent miss settle, even in fast mode.
  await pause(s.speed==='slow'?1800:s.speed==='fast'?1100:1500);if(id!==token)return false;
- await cutinReady;if(id!==token)return false;showReelCutin(0);sound('stop0');
+ if(h.number===9){showEyeAlert();await pause(1200);if(id!==token)return false;}
+ await cutinReady;if(id!==token)return false;showReelCutin(0);sound('stop0');joltReel(0);
  if(!await wait(650))return false;
- showReelCutin(1);sound('stop1');
+ showReelCutin(1);sound('stop1');joltReel(1);
  if(!await wait(800))return false;
  $('reel2').classList.add('recovery-target');
  await waitRecoveryInput();if(id!==token)return false;
- showYakumono();$('lcd').classList.add('recovery-quake');$('reel2').classList.add('recovery-impact');showSlash();h.slashPlayed=true;
+ if(h.hit)showYakumono();$('lcd').classList.add('recovery-quake');$('reel2').classList.add('recovery-impact');showSlash();h.slashPlayed=true;
  await pause(320);if(id!==token)return false;
- if(h.hit){setReel(2,h.number);$('lcd').classList.add('recovery-success');startRainbow();sound('win');sound('winRoll');}
+ if(h.hit){setReel(2,h.number);joltReel(2);$('lcd').classList.add('recovery-success');startRainbow();sound('win');sound('winRoll');sound('winScratch');}
  $('reel2').classList.remove('recovery-target','recovery-impact');
  if(!await wait(550))return false;
  $('reel0').classList.add('cutin-fade');$('reel1').classList.add('cutin-fade');
@@ -150,20 +175,27 @@ async function breakthrough(h,id,scale){
  if(h.demoRecovery||randomInt(4)===0)return reelRecovery(h,id,scale);
  return id===token;
 }
-function clearJackpot(){ clearYakumono();$('lcd').classList.remove('rainbow-active','yakumono-leaving'); $('lcd').querySelectorAll('.jackpot-scene').forEach(el=>el.remove());$('lcd').classList.remove('jackpot-running','recovery-success');document.querySelector('.cabinet').classList.remove('jackpot-lit','jackpot-fading');}
+function clearJackpot(){ clearYakumono();$('lcd').classList.remove('rainbow-active','yakumono-leaving'); $('lcd').querySelectorAll('.jackpot-scene').forEach(el=>el.remove());$('lcd').classList.remove('jackpot-running','jackpot-reveal','jackpot-lock','recovery-success');document.querySelector('.cabinet').classList.remove('jackpot-lit','jackpot-fading');}
 async function jackpotSequence(id){
  const scene=document.createElement('div');scene.className='jackpot-scene hush';scene.setAttribute('aria-hidden','true');
  for(const name of ['rainbow','rays','ring','ring second']){const layer=document.createElement('div');layer.className='jackpot-'+name;scene.append(layer);}
- const tree=document.createElement('img');tree.className='jackpot-tree';tree.src='assets/images/effects/jackpot-tree-v66.png';tree.alt='';scene.append(tree);
 
- const title=document.createElement('div');title.className='jackpot-title';title.textContent='大当たり';scene.append(title);
+
+
  for(let i=0;i<72;i++){const shard=document.createElement('i');shard.style.setProperty('--angle',(i*137.5)+'deg');shard.style.setProperty('--travel',(35+i%5*9)+'cqw');shard.style.setProperty('--delay',(i%12*.075)+'s');scene.append(shard);}
  $('lcd').append(scene);$('lcd').classList.add('jackpot-running');
  await pause(450);if(id!==token)return false;
- showYakumono();if(!$('lcd').classList.contains('rainbow-active'))startRainbow();scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');if(!$('lcd').classList.contains('recovery-success')){sound('win');sound('winRoll');}
+ showYakumono();if(!$('lcd').classList.contains('rainbow-active'))startRainbow();scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');if(!$('lcd').classList.contains('recovery-success')){sound('win');sound('winRoll');sound('winScratch');}
  await pause(600);if(id!==token)return false;
  scene.className='jackpot-scene crown';$('lcd').classList.add('yakumono-leaving');
  await pause(3100);if(id!==token)return false;
+ $('lcd').classList.add('jackpot-reveal');
+ // Third card settles after .7s motion plus .2s stagger.
+ await pause(900);if(id!==token)return false;
+ $('lcd').classList.add('jackpot-lock');sound('winningLine');
+ await pause(330);if(id!==token)return false;
+ $('lcd').classList.remove('jackpot-lock');
+ await pause(3870);if(id!==token)return false;
  $('lcd').classList.add('yakumono-leaving');scene.className='jackpot-scene crown leaving';document.querySelector('.cabinet').classList.add('jackpot-fading');
  await pause(450);if(id!==token)return false;
  clearJackpot();return true;
@@ -172,7 +204,7 @@ async function processQueue(){if(spinning||holds.length===0)return;spinning=true
 // Keep a newly announced die visible until its short arrival cue finishes.
 const arrivalWait=(holds[0].alertUntil||0)-performance.now();
 if(arrivalWait>0){await pause(arrivalWait);if(id!==token)return;}
-let h=holds.shift();if(h.mode!==s.mode){const demoRecovery=h.demoRecovery;h=createHold(h.forced);if(demoRecovery){h.demoRecovery=true;h.number=9;h.reach=true;}}const scale=speeds[s.speed];setWinClass(false);$('lcd').classList.remove('lose');stageUI();setAction('図柄、変動開始');sound('start');update();
+let h=holds.shift();if(h.mode!==s.mode){const demoRecovery=h.demoRecovery,eyeAnnounced=h.eyeAnnounced;h=createHold(h.forced);if(eyeAnnounced){h.eyeAnnounced=true;h.number=9;h.reach=true;}if(demoRecovery){h.demoRecovery=true;h.number=9;h.reach=true;}}const scale=speeds[s.speed];setWinClass(false);$('lcd').classList.remove('lose');stageUI();setAction('図柄、変動開始');sound('start');update();
 if(h.preread&&!h.preAlert){fx();setAction('保留に異変……')}
 const displayed=resultSymbols(h);h.displayed=displayed;
 const reelTimers=[0,1,2].map(i=>{const timer=setInterval(()=>setReel(i,1+randomInt(9)),s.speed==='fast'?80:120);activeFX.push(timer);return timer});setSpinClass(true);
@@ -180,7 +212,7 @@ for(let i=0;i<3;i++){
  await pause((i===0?660:i===2&&h.reach?640:250)*scale);
  if(id!==token){reelTimers.forEach(stopReelTimer);return}
  if(i===2&&h.reach){stopReelTimer(reelTimers[i]);if(!await breakthrough(h,id,scale))return;}
- stopReelTimer(reelTimers[i]);setReel(i,displayed[i]);$('reel'+i).classList.remove('spinning');if(!(i===2&&h.slashPlayed))sound('stop'+i);
+ stopReelTimer(reelTimers[i]);setReel(i,displayed[i]);$('reel'+i).classList.remove('spinning');if(!(i===2&&h.slashPlayed)){sound('stop'+i);joltReel(i);}
  if(i===1&&h.reach){setAction('REACH！');sound('reach')}
 }
 await pause((h.hit?260:200)*scale);if(id!==token)return;
@@ -192,7 +224,7 @@ logEvent((h.mode==='rush'?'RUSH中 ': '初当たり ')+h.payout+'個'+(s.mode===
 await pause(500*scale);if(id!==token)return;bonusActive=false;
 }else{if(h.mode==='rush' && s.mode==='rush'){s.remaining=Math.max(0,s.remaining-1);if(s.remaining===0){logEvent('RUSH終了｜'+s.chain+'連',true);setAction('RUSH 終了');s.mode='normal';s.chain=0;}else{setAction(h.reach?'惜しくも敗北':'戦況、変化なし');}}else{setAction(h.reach?'作戦失敗':'変動終了');};logEvent(h.reach?'リーチ → ハズレ':'ハズレ');$('lcd').classList.add('lose');await pause((h.reach?510:190)*scale);if(id!==token)return;}
 spinning=false;update();if(holds.length)processQueue();}
-function resetGame(){if(!confirm('遊技データと現在のRUSH状態をリセットする？'))return;bonusActive=false;clearJackpot();$('cityAlert').classList.remove('active','red');window.YggAudio?.stop();token++;for(const id of activeFX)clearInterval(id);activeFX=[];holds=[];spinning=false;handleHeld=false;previewNext=false;demoAlertNext=false;demoRecoveryNext=false;clearReelCutins();activeBalls=[];log=[];Object.assign(s,{...DEFAULT,lastRegen:Date.now()});buildPins();stageUI();setAction('ユグドラシルへようこそ');setReels([3,5,7]);setSpinClass(false);setWinClass(false);$('lcd').classList.remove('lose');logEvent('遊技データをリセットした');update();}
+function resetGame(){if(!confirm('遊技データと現在のRUSH状態をリセットする？'))return;bonusActive=false;clearEyeAlert();clearJackpot();$('cityAlert').classList.remove('active','red');window.YggAudio?.stop();token++;for(const id of activeFX)clearInterval(id);activeFX=[];holds=[];spinning=false;handleHeld=false;previewNext=false;demoAlertNext=false;demoRecoveryNext=false;clearReelCutins();activeBalls=[];log=[];Object.assign(s,{...DEFAULT,lastRegen:Date.now()});buildPins();stageUI();setAction('ユグドラシルへようこそ');setReels([3,5,7]);setSpinClass(false);setWinClass(false);$('lcd').classList.remove('lose');logEvent('遊技データをリセットした');update();}
 
 // 2D physics. He-so (START) is now just beneath the LCD, not on the bottom edge.
 // No large lower funnel boards; pocket visits depend on pin collisions.
@@ -354,7 +386,7 @@ function physicsStep(dt){
   // lateral approach; balls falling nearby continue along the ordinary route.
   // Its short stage redirects the ball but does not award a guaranteed entry.
   if(warpEnabled() && !b.warped && b.prevY<319 && b.y>=319 && b.vy>0 &&
-       ((b.x>63&&b.x<75&&b.vx>-20)||(b.x>405&&b.x<417&&b.vx<20))){
+       ((b.x>64&&b.x<74&&b.vx>-10)||(b.x>405&&b.x<417&&b.vx<20))){
     warpFlash=.65;b.warped=true;s.warped=(Number(s.warped)||0)+1;
     b.warpTransit=.9;b.vx=0;b.vy=0;
     continue;
@@ -568,13 +600,13 @@ window.addEventListener('blur',cancelHandle);
 
 handle.addEventListener('pointerdown',e=>{
  if(e.button!==0 && e.pointerType==='mouse')return;
- handleHeld=true;handleStartX=e.clientX;setHandlePower(0);
+ handleHeld=true;handleStartX=e.clientX;handleStartY=e.clientY;setHandlePower(0);
  handle.setPointerCapture(e.pointerId);e.preventDefault();
 });
 handle.addEventListener('pointermove',e=>{
  if(!handleHeld)return;
  // Move 25px to fire weakly; about 105px to fully twist the handle.
- setHandlePower(Math.round((e.clientX-handleStartX)/1.05));
+ setHandlePower(Math.round((e.pointerType==='touch'?Math.max(e.clientX-handleStartX,handleStartY-e.clientY):e.clientX-handleStartX)/1.05));
 });
 function setHandlePower(n){s.power=Math.min(100,Math.max(0,n));updateHandle();}
 function releaseHandle(){if(!handleHeld)return;handleHeld=false;setHandlePower(0);save();}

@@ -2,14 +2,14 @@
 (function(root){
 'use strict';
 const CONTENT=root.MiloadContent||(typeof require!=='undefined'?require('./content.js'):null);
-const CFG={width:960,height:540,ground:458,gravity:1450,speed:224,dashSpeed:368,airDashSpeed:620,airDashSeconds:.4,airDashAnimation:.60,airDashCost:20,doubleTapSeconds:.28,jump:610,jumpReleaseSpeed:220,candySeconds:5,invincible:1.5,maxHearts:Infinity,stageCount:3,maxEnergy:100,energyRegen:18};
+const CFG={width:960,height:540,ground:458,gravity:1450,speed:224,dashSpeed:368,airDashSpeed:620,airDashSeconds:.4,airDashAnimation:.60,airDashCost:15,doubleTapSeconds:.28,jump:610,jumpReleaseSpeed:220,candySeconds:5,invincible:1.5,maxHearts:Infinity,stageCount:3,maxEnergy:100,energyRegen:18};
 const BOSS={hp:84,rest:1.3,recovery:1.1,enragedRecovery:.8,waveSpeed:230,dashSpeed:190,dashSeconds:.95,hitStop:.5,cakeScale:4};
 const WANDS={
-  guide:{name:'導き星の杖',tag:'HOMING',desc:'発射時に最寄りの敵を追う。低速で魔力消費が少ない。',color:'#a9ecb8',cost:6,cooldown:.28,damage:1,speed:260,life:3.2,homing:true},
+  guide:{name:'導き星の杖',tag:'HOMING',desc:'発射時に最寄りの敵を追う。低速で魔力消費が少ない。',color:'#a9ecb8',cost:7,cooldown:.28,damage:1,speed:260,life:3.2,homing:true},
   star:{name:'星くずの杖',tag:'RAPID',desc:'小さな星を連射する、最初の杖。',color:'#f3d294',cost:6,cooldown:.19,damage:1,speed:610,life:.9},
-  spread:{name:'三日月の杖',tag:'TRIPLE',desc:'3方向に魔法を放つ。近距離が得意。',color:'#a7d9da',cost:20,cooldown:.6,damage:2,speed:500,life:.75},
+  spread:{name:'三日月の杖',tag:'TRIPLE',desc:'3方向に魔法を放つ。近距離が得意。',color:'#a7d9da',cost:24,cooldown:.7,damage:3,speed:500,life:.75},
   sugar:{name:'砂糖菓子の杖',tag:'SWEET',desc:'連射は遅いが、お菓子が中・大ランクに。',color:'#f1a2be',cost:15,cooldown:.48,damage:3,speed:480,life:1.05},
-  comet:{name:'彗星の杖',tag:'PIERCE',desc:'敵を貫く、大きな魔法。遠くまで届く。',color:'#b9b5ff',cost:20,cooldown:.55,damage:5,speed:670,life:1.35,pierce:true}
+  comet:{name:'雷鳴の杖',tag:'THUNDER',desc:'射線を瞬時に貫く雷撃。高威力・大消費・低連射。',color:'#d5edff',cost:45,cooldown:2,damage:15,speed:0,life:0,pierce:true}
 };
 const SWEETS={candy:{name:'キャンディ',value:1,color:'#e8acda',rank:0},mint:{name:'ミントキャンディ',value:1,color:'#9ed9c6',rank:0},cookie:{name:'クッキー',value:5,color:'#e2ba80',rank:1},macaron:{name:'マカロン',value:5,color:'#c5a9e7',rank:1},cake:{name:'ショートケーキ',value:12,color:'#efaeb1',rank:2},pudding:{name:'プリン',value:12,color:'#eac378',rank:2}};
 const TABLES={slime:['candy','candy','mint','cookie','macaron'],bat:['mint','mint','macaron','cake'],sprout:['candy','cookie','cookie','pudding'],boss:['cake']};
@@ -49,20 +49,26 @@ function openingFrame(t){
 }
 class Game{
  constructor(seed=1,options={}){this.reset(seed,options);}
- reset(seed,options={}){this.debugRun=options.debug??this.debugRun??false;this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.collectedHearts=new Set();this.heartAreas=new Map();this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.playedTutorial=!!options.tutorial;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=this.debugRun?10:3;this.maxLife=this.debugRun?10:3;this.happiness=0;this.energy=CFG.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
+ get maxEnergy(){return CFG.maxEnergy+25*(this.upgrades?.training||0);}
+ get candySeconds(){return CFG.candySeconds+(this.upgrades?.meal?2:0);}
+ get airDashCost(){return CFG.airDashCost-(this.upgrades?.broom?5:0);}
+ get moveSpeed(){return Math.round(CFG.speed*(this.upgrades?.exercise?1.1:1));}
+ rewardOptions(includeOwned=false){if(this.chapter===0)return [];return [{id:'meal',name:'食後のひと撃ち',desc:'お菓子化＋2秒／お菓子で魔力＋5'},{id:'broom',name:'箒の手入れ',desc:'空中ダッシュの消費魔力−5'},{id:'exercise',name:'日ごろの運動',desc:'移動速度・ジャンプ力＋10%／地上ダッシュ開始0.2秒は敵弾無効'},{id:'manners',name:'魔女のテーブルマナー',desc:'幸福度の獲得量×1.25'},{id:'training',name:'修行の成果',desc:'最大魔力＋25（繰り返し可）'},{id:'grit',name:'ド根性',desc:'残機＋1（繰り返し可）'}].filter(o=>includeOwned||['training','grit'].includes(o.id)||!this.upgrades[o.id]);}
+ chooseUpgrade(id){if(this.chapter===0||this.state!=='upgrade'||this.upgradeChapters.has(this.chapter)||!this.rewardOptions().some(o=>o.id===id))return false;this.upgrades[id]=(this.upgrades[id]||0)+1;this.upgradeChapters.add(this.chapter);if(id==='grit')this.stocks++;if(id==='training')this.energy=Math.min(this.maxEnergy,this.energy+25);this.completeChapter();return true;}
+ reset(seed,options={}){this.upgrades={};this.upgradeChapters=new Set();this.happinessQuarter=0;this.debugRun=options.debug??this.debugRun??false;this.autoDialogue=options.autoDialogue??this.autoDialogue??false;this.storyEnabled=options.story??this.storyEnabled??true;this.signalTimes={};this.defeat=null;this.deathMessage=null;this.storyScene=null;this.storyGap=0;this.transition=null;this.cinematic=null;this.leaving=null;this.encounter=null;this.celebration=null;this.hitStop=0;this.chapter=options.tutorial?0:(options.chapter??1);this.startChapter=options.chapter??1;this.area=0;this.room=0;this.collectedHearts=new Set();this.heartAreas=new Map();this.story=null;this.storyQueue=[];this.gardenKills=0;this.seenStories=new Set();this.finishedStories=new Set();this.storySignals=new Set();this.tutorialSeen=new Set();this.seed=seed>>>0;this.rng=random(this.seed);this.stage=0;this.state='playing';this.time=0;this.playedTutorial=!!options.tutorial;this.eaten=0;this.defeated=0;this.events=[];this.id=1;this.inventory=['star'];this.slot=0;this.life=this.debugRun?10:3;this.maxLife=this.debugRun?10:3;this.happiness=0;this.energy=this.maxEnergy;this.shake=0;this.camera=0;this.player={x:85,y:350,w:24,h:56,vx:0,vy:0,facing:1,grounded:false,coyote:0,jumpBuffer:0,inv:1.5,damageBlink:0,fire:0,attack:0,eat:0,hurt:0,dry:0,walkPhase:0,runPhase:0,dashing:false,aimActive:false,aimX:0,aimY:0};this.loadStage();}
  emit(type,data={}){if(this.storySignals){this.storySignals.add(type);this.signalTimes[type]=this.time;}this.events.push({type,...data});}
  pick(xs){return xs[Math.floor(this.rng()*xs.length)];}
  limitChapterWands(){
   if(this.chapter<1)return;
-  const kinds=[['spread','guide'],['sugar'],['comet']][this.stage]||[];
+  const kinds=[['spread','guide'],['sugar'],[]][this.stage]||[];
   const slots=this.drops.filter(d=>d.type==='wand').sort((a,b)=>a.x-b.x).slice(0,kinds.length);
   slots.forEach((d,i)=>d.wand=kinds[i]);
   this.drops=this.drops.filter(d=>d.type!=='wand'||slots.includes(d));
  }
- loadStage(){if(this.player)Object.assign(this.player,{jumpRising:false,airDash:0,airDashAnim:0,airDashCooldown:0});this.gardenCarrier=this.chapter===1&&this.stage===1?{x:1320,y:430,t:0,phase:'waiting',bag:true,delivered:false,throwT:0}:null;this.naniwaDefeat=null;this.clearMusic=false;
+ loadStage(){if(this.player)Object.assign(this.player,{jumpRising:false,dashInv:0,airDash:0,airDashAnim:0,airDashCooldown:0});this.gardenCarrier=this.chapter===1&&this.stage===1?{x:1320,y:430,t:0,phase:'waiting',bag:true,delivered:false,throwT:0}:null;this.naniwaDefeat=null;this.clearMusic=false;
   this.hitStop=0;this.encounter=null;this.story=null;this.storyQueue=[];this.storyScene=null;this.storyGap=0;if(this.chapter===1)this.area=0;this.movingPlatforms=[];this.crates=[];this.cargoDecor=[];this.chapterScene=null;
   this.platforms=[];this.enemies=[];this.sweets=[];this.drops=[];this.bullets=[];this.hostile=[];this.particles=[];this.texts=[];this.swapTarget=null;this.arenaLocked=false;this.bossAwake=false;
-  if(this.chapter===0){this.loadTutorial();return;}if(this.chapter===2){this.loadChapterTwo();return;}
+  if(this.chapter===0){this.loadTutorial();return;}if(this.chapter===2){this.loadChapterTwo();return;}if(this.chapter===3){this.loadChapterThree();return;}
   const runRng=this.rng;this.rng=random(9013+this.stage);
   const count=this.stage===2?6:7;this.worldWidth=count*420+480;this.platforms.push({x:0,y:CFG.ground,w:this.worldWidth,h:100,ground:true});
   const layouts=[[[55,380,120],[225,310,130]],[[35,390,100],[190,355,130],[320,290,90]],[[95,377,190],[300,311,95]],[[45,382,100],[180,310,100],[300,375,100]],[[60,385,260]]];
@@ -167,11 +173,11 @@ class Game{
  tickGardenCarrier(dt){const c=this.gardenCarrier;if(!c)return;c.t+=dt;if(c.phase==='waiting'&&c.x<this.camera+CFG.width-20){c.phase='running';this.emit('cloth');}if(c.phase==='running'){c.x=Math.min(1770,c.x+175*dt);if(c.x===1770)c.phase='ready';}if(c.phase==='ready'&&this.camera+CFG.width>1970){c.phase='throw';c.throwT=0;c.bag=false;this.emit('cloth');}if(c.phase==='throw'){c.throwT=Math.min(.7,c.throwT+dt);if(c.throwT>=.7){c.delivered=true;c.phase='leaving';this.emit('thud');}}if(c.phase==='leaving')c.x+=205*dt;c.y=430-(['running','leaving'].includes(c.phase)?Math.abs(Math.sin(c.t*10))*15:0);}
  tickStory(dt){
   if(this.state==='playing')this.tickGardenCarrier(dt);
-  if(this.state==='playing'&&this.storyEnabled&&this.stage===2&&(!this.story||!this.story.blocking)){const id=this.chapter===1?'c1-king':this.chapter===2?'c2-challenge':null,event=id&&this.chapterEvent(id),boundary=this.chapter===2?this.arenaStart:event?.x;if(event&&this.player.x>=boundary&&!this.finishedStories.has(id)&&!this.seenStories.has(id)){if(this.story){this.finishedStories.add(this.story.id);this.story=null;this.storyScene=null;}for(const old of this.storyQueue){this.seenStories.add(old.id);this.finishedStories.add(old.id);}this.storyQueue=[];this.storyGap=0;if(this.player.grounded)this.beginStory(event);return;}}
+  if(this.state==='playing'&&this.storyEnabled&&this.stage===(this.chapter===3?3:2)&&(!this.story||!this.story.blocking)){const id=this.chapter===1?'c1-king':this.chapter===2?'c2-challenge':this.chapter===3?'c3-boss':null,event=id&&this.chapterEvent(id),boundary=this.chapter===2?this.arenaStart:event?.x;if(event&&this.player.x>=boundary&&!this.finishedStories.has(id)&&!this.seenStories.has(id)){if(this.story){this.finishedStories.add(this.story.id);this.story=null;this.storyScene=null;}for(const old of this.storyQueue){this.seenStories.add(old.id);this.finishedStories.add(old.id);}this.storyQueue=[];this.storyGap=0;if(this.player.grounded)this.beginStory(event);return;}}
 
   if(this.storyScene)this.storyScene.t+=dt;
   const attack=this.storyScene?.kingAttack;if(attack&&!attack.done){attack.t+=dt;const b=this.enemies.find(e=>e.type==='boss'),p=this.player,t=attack.t,q=clamp(t/.55,0,1);b.x=attack.bx+(attack.px+45-attack.bx)*q;b.y=CFG.ground-b.h-Math.sin(q*Math.PI)*70;p.x=attack.px-95*clamp((t-.12)/.55,0,1);p.y=402-Math.sin(clamp((t-.12)/.55,0,1)*Math.PI)*78;p.grounded=t>=.67;p.vy=t<.39?-1:1;if(t>=.55&&!attack.impact){attack.impact=true;this.emit('thud');this.burst(b.x+b.w/2,CFG.ground,'#bbb1b0',16);}if(t>=1){attack.done=true;p.y=402;p.grounded=true;p.vy=0;b.y=CFG.ground-b.h;b.grounded=true;this.advanceStory();}return;}this.storyGap=Math.max(0,this.storyGap-dt);
-  const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?(this.chapter===2?CONTENT.chapterTwo:CONTENT.chapterOne):[]);
+  const catalogue=this.chapter===0?CONTENT.story:(this.storyEnabled?(this.chapter===3?CONTENT.chapterThree:this.chapter===2?CONTENT.chapterTwo:CONTENT.chapterOne):[]);
   if(this.state==='playing')for(const e of catalogue){
    if(e.direct||e.chapter!==this.chapter||(e.stage!=null&&e.stage!==this.stage+1)||(e.area!=null&&e.area!==this.area)||(e.room!=null&&e.room!==this.room)||this.player.x<e.x||this.seenStories.has(e.id)||e.signal&&!this.storySignals.has(e.signal)||e.after&&!this.finishedStories.has(e.after)||e.condition&&!this.chapterCondition(e.condition))continue;
    this.seenStories.add(e.id);if(this.storyValid(e))this.storyQueue.push({...e,index:0});
@@ -194,11 +200,11 @@ class Game{
   return this.tutorialReady()?'門の前で Space：出発する':'森への出入口へ進もう';
  }
  beginChapterOne(){const covered=this.state==='leaving';this.leaving=null;this.story=null;this.storyQueue=[];this.transition={t:0,loaded:false,entrance:false,chapter:1,stage:0,covered};this.state='transition';this.emit('presentationStart');}
- spawnEnemy(type,x,bottom){const baseHp={slime:3,bat:2,sprout:4,boss:BOSS.hp}[type]+(type==='boss'?0:this.stage),hp=type==='boss'?baseHp:Math.max(baseHp+1,Math.round(baseHp*1.4));const e={id:this.id++,type,x,y:bottom-(type==='boss'?56:type==='bat'?87:28),w:type==='boss'?58:32,h:type==='boss'?56:28,hp,maxHp:hp,vx:0,vy:0,baseX:x,baseY:bottom-87,dir:this.rng()<.5?-1:1,t:this.rng()*5,attack:type==='boss'?2:1+this.rng()*2,flash:0,telegraph:0,state:'alive',candyTime:0,grounded:false,phase:'rest',phaseTime:BOSS.rest,nextMove:'wave',move:'wave',chargeDir:-1};this.enemies.push(e);return e;}
+ spawnEnemy(type,x,bottom){const baseHp={slime:3,bat:2,sprout:4,boss:BOSS.hp}[type]+(type==='boss'?0:this.stage),hp=type==='boss'?baseHp:Math.max(baseHp+1,Math.round(baseHp*1.4));const e={id:this.id++,type,x,y:bottom-(type==='boss'?56:type==='bat'?87:28),w:type==='boss'?58:32,h:type==='boss'?56:28,hp,maxHp:hp,vx:0,vy:0,baseX:x,baseY:bottom-87,dir:this.rng()<.5?-1:1,t:this.rng()*5,attack:type==='boss'?2:1+this.rng()*2,flash:0,telegraph:0,state:'alive',candyTime:0,grounded:false,phase:'rest',phaseTime:BOSS.rest,nextMove:'wave',move:'wave',chargeDir:-1};e.spawnX=x;e.spawnY=e.y;this.enemies.push(e);return e;}
  sweet(x,y,kind,enemy){return{id:this.id++,x,y,w:22,h:20,vy:0,kind,enemy,age:0};}
  switchWand(slot){if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;this.slot=slot===undefined?(this.slot+1)%this.inventory.length:clamp(slot,0,this.inventory.length-1);if(this.inventory.length>1)this.tutorialSeen.add('switch');this.emit('switch',{name:WANDS[this.inventory[this.slot]].name});}
  collectSweet(s){
-  if(s.removed||this.hitStop>0)return;s.removed=true;this.eaten++;this.player.eat=.22;const value=SWEETS[s.kind].value;
+  if(s.removed||this.hitStop>0)return;s.removed=true;this.eaten++;this.player.eat=.22;let value=SWEETS[s.kind].value;if(this.upgrades.manners){const quarters=value*5+this.happinessQuarter;value=Math.floor(quarters/4);this.happinessQuarter=quarters%4;}if(this.upgrades.meal)this.energy=Math.min(this.maxEnergy,this.energy+5);
   if(this.life===this.maxLife)this.happiness=Math.min(99,this.happiness+value);
   else if(this.happiness+value>=100){this.happiness=0;this.life=Math.min(this.maxLife,this.life+1);this.emit('heal');this.popup('♥ +1',this.player.x,this.player.y-25,'#f3aeba');}
   else this.happiness+=value;
@@ -206,7 +212,7 @@ class Game{
   if(this.chapter===1&&s.enemy&&s.enemy.type!=='boss'&&this.stage===0)this.emit('forestMeal');if(this.chapter===1&&!s.enemy&&s.y<CFG.ground-65)this.emit('sideSweet');
   if(this.state==='playing')this.popup('+'+value+'%',s.x,s.y-6,'#efd396');this.burst(s.x+10,s.y+9,SWEETS[s.kind].color,9);this.emit('eat',{kind:s.kind});
  }
- transform(e,wand){if(e.state!=='alive')return;e.state='candy';e.candyTime=CFG.candySeconds;const boss=e.type==='boss';let choices=TABLES[e.type];if(wand==='sugar'&&!boss)choices=['cookie','macaron','cake','pudding'];const kind=boss?'cake':e.lessonFirst?'cookie':e.candyKind||this.pick(choices);const s=this.sweet(e.x+e.w/2-11,e.y+e.h-20,kind,e);
+ transform(e,wand){if(e.state!=='alive')return;e.state='candy';e.candyTime=this.candySeconds;const boss=e.type==='boss';let choices=TABLES[e.type];if(wand==='sugar'&&!boss)choices=['cookie','macaron','cake','pudding'];const kind=boss?'cake':e.lessonFirst?'cookie':e.candyKind||this.pick(choices);const s=this.sweet(e.x+e.w/2-11,e.y+e.h-20,kind,e);
   if(boss){s.scale=BOSS.cakeScale;s.w=22*s.scale;s.h=24*s.scale;s.x=e.x+e.w/2-s.w/2;s.y=e.y+e.h-s.h;this.hitStop=BOSS.hitStop;this.hostile=[];this.emit('hitStop');this.emit('bossCake');}
   this.sweets.push(s);e.sweet=s;this.burst(e.x+e.w/2,e.y+e.h/2,'#d1a9f0',22);if(e.lessonFirst)this.storySignals.add('firstRestored');this.emit('transform');}
  hurt(sourceX){if(this.state!=='playing'||this.hitStop>0||this.player.inv>0)return false;this.life--;this.player.inv=CFG.invincible;this.player.damageBlink=CFG.invincible;this.player.hurt=.3;this.player.airDash=0;this.player.airDashAnim=0;this.player.dashing=false;this.player.vx=(this.player.x<sourceX?-1:1)*215;this.player.vy=-235;this.shake=.24;this.emit('hurt');if(this.life===1)this.emit('lowLife');if(this.life<=0){this.beginDefeat();}return true;}
@@ -216,17 +222,17 @@ class Game{
  // Grounded attacks leave jump and retreat routes without warning overlays or windup pauses.
  kingWave(e){const x=e.x+e.w/2,y=CFG.ground-17;for(const a of [-Math.PI,-Math.PI*3/4,-Math.PI/2,-Math.PI/4,0])this.enemyShot(x,y,x+Math.cos(a)*200,y+Math.sin(a)*200,BOSS.waveSpeed);}
  stepBoss(e,dt){
-  e.phaseTime-=dt;e.telegraph=0;
+  e.phaseTime-=dt;e.telegraph=0;e.kingCast=Math.max(0,(e.kingCast||0)-dt);e.kingLand=Math.max(0,(e.kingLand||0)-dt);
   if(e.phase==='skyRise'){e.y-=1250*dt;e.grounded=false;if(e.y+e.h<0){e.phase='skyAim';e.phaseTime=.28;e.y=-e.h-8;}return;}
   if(e.phase==='skyAim'){if(e.phaseTime<=0){e.x=clamp(this.player.x+this.player.w/2-e.w/2,this.arenaStart+60,this.worldWidth-100);e.phase='skyFall';e.vy=1400;this.emit('cloth');}return;}
-  if(e.phase==='skyFall'){e.y+=e.vy*dt;if(e.y+e.h>=CFG.ground){e.y=CFG.ground-e.h;e.vy=0;e.grounded=true;e.phase='recover';e.phaseTime=.8;e.nextMove='wave';this.shake=.2;this.emit('thud');this.burst(e.x+e.w/2,CFG.ground,'#c7b8ad',24);this.kingWave(e);}return;}
+  if(e.phase==='skyFall'){e.y+=e.vy*dt;if(e.y+e.h>=CFG.ground){e.y=CFG.ground-e.h;e.vy=0;e.grounded=true;e.phase='recover';e.phaseTime=.8;e.kingLand=.32;e.nextMove='wave';this.shake=.2;this.emit('thud');this.burst(e.x+e.w/2,CFG.ground,'#c7b8ad',24);this.kingWave(e);}return;}
   if(e.phase==='dash')e.x=clamp(e.x+e.chargeDir*BOSS.dashSpeed*dt,this.arenaStart+170,this.worldWidth-220);
   this.physics(e,dt);
   if(e.phaseTime>0)return;
   const recovery=e.hp<=e.maxHp/2?BOSS.enragedRecovery:BOSS.recovery;
   if(e.phase==='dash'){e.phase='recover';e.phaseTime=recovery;return;}
   e.move=e.nextMove;e.chargeDir=this.player.x+this.player.w/2<e.x+e.w/2?-1:1;
-  if(e.move==='wave'){this.emit('bossWave');
+  if(e.move==='wave'){e.kingCast=.32;this.emit('bossWave');
    const x=e.x+e.w/2,y=CFG.ground-17;
    for(const angle of [-Math.PI,-Math.PI*3/4,-Math.PI/2,-Math.PI/4,0])this.enemyShot(x,y,x+Math.cos(angle)*200,y+Math.sin(angle)*200,BOSS.waveSpeed);
    e.phase='recover';e.phaseTime=recovery;e.nextMove='dash';
@@ -241,12 +247,12 @@ class Game{
    if(this.inventory.length<2){this.inventory.push(d.wand);this.slot=this.inventory.length-1;this.drops=this.drops.filter(x=>x!==d);this.emit('pickup',{name:WANDS[d.wand].name});}
    else{this.swapTarget=d;this.state='swap';this.emit('swap',{wand:d.wand});}return;}
  }
- canEnterDoor(){const p=this.player;return (this.state==='playing'||this.state==='event'&&!!this.story)&&this.life>0&&!this.defeat&&this.hitStop<=0&&this.tutorialReady(true)&&(this.chapter===2?!!this.exit:this.stage<2)&&!(this.chapter===0&&this.area===2)&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-(this.exit.y+this.exit.h))<12;}
+ canEnterDoor(){const p=this.player;return (this.state==='playing'||this.state==='event'&&!!this.story)&&this.life>0&&!this.defeat&&this.hitStop<=0&&this.tutorialReady(true)&&(this.chapter>=2?!!this.exit:this.stage<2)&&!(this.chapter===0&&this.area===2)&&p.grounded&&Math.abs(p.x+p.w/2-(this.exit.x+this.exit.w/2))<58&&Math.abs(p.y+p.h-(this.exit.y+this.exit.h))<12;}
  enterDoor(){if(!this.canEnterDoor())return false;
   // Leaving explicitly skips this room's active and queued dialogue.
   this.skipStory();for(const event of this.storyQueue){this.seenStories.add(event.id);this.finishedStories.add(event.id);}this.storyQueue=[];this.storyScene=null;this.storyGap=0;
   this.transition={t:0,loaded:false,entrance:false,chapter:this.chapter,stage:this.chapter===0?0:this.stage+1,area:this.chapter===0?(this.area===0&&this.room<2?0:this.area+1):0,room:this.chapter===0&&this.area===0&&this.room<2?this.room+1:0};this.story=null;this.state='transition';this.emit('presentationStart');return true;}
- completeChapter(){this.state='won';if(this.chapter===1&&this.beginChapterTwo&&this.beginChapterTwo())return;this.emit('won');}
+ completeChapter(){if(this.chapter>0&&!this.upgradeChapters.has(this.chapter)){this.state='upgrade';this.emit('chapterUpgrade');return;}this.state='won';if(this.chapter===2&&this.beginChapterThree()){return;}if(this.chapter===1&&this.beginChapterTwo&&this.beginChapterTwo())return;this.emit('won');}
  beginEntrance(){this.transition={t:.45,loaded:true,entrance:true,chapter:this.chapter,stage:this.stage,area:this.area};this.state='transition';this.emit('presentationStart');}
  stepPresentation(dt){
   if(this.state==='victoryLanding'){this.physics(this.player,dt);if(this.player.grounded)this.beginCelebration();return;}
@@ -270,29 +276,35 @@ class Game{
   if(['transition','cinematic','leaving','encounter','celebrating','victoryLanding','chapterClear'].includes(this.state)){this.stepPresentation(Math.min(dt,1/30));return;}
   if(this.state==='playing'&&this.hitStop>0){this.hitStop=Math.max(0,this.hitStop-Math.min(dt,1/30));return;}
   if(this.state==='event'){this.tickStory(Math.min(dt,1/30));return;}if(this.state!=='playing')return;this.tickStory(Math.min(dt,1/30));if(this.state!=='playing'||this.messagePaused()||this.hitStop>0)return;dt=Math.min(dt,1/30);this.time+=dt;this.shake=Math.max(0,this.shake-dt);const p=this.player;
-  if(!(p.airDash>0))this.energy=Math.min(CFG.maxEnergy,this.energy+CFG.energyRegen*dt);if(this.chapter===2)this.updateChapterWorld(dt);
-  for(const k of ['inv','damageBlink','fire','attack','eat','hurt','dry','airDash','airDashAnim','airDashCooldown'])p[k]=Math.max(0,(p[k]||0)-dt);
+  if(!(p.airDash>0))this.energy=Math.min(this.maxEnergy,this.energy+CFG.energyRegen*dt);if(this.chapter===2)this.updateChapterWorld(dt);if(this.chapter===3)this.updateChapterThree(dt);if(this.state!=='playing')return;
+  for(const k of ['inv','damageBlink','fire','attack','eat','hurt','dry','airDash','airDashAnim','airDashCooldown','dashInv'])p[k]=Math.max(0,(p[k]||0)-dt);
   p.coyote=p.grounded?.1:Math.max(0,p.coyote-dt);p.jumpBuffer=input.jump?.13:Math.max(0,p.jumpBuffer-dt);
-  if(!input.dash)p.dashLocked=false;const wasDashing=p.dashing;const moveDirection=(input.right?1:0)-(input.left?1:0);p.dashing=!!input.dash&&!p.dashLocked&&p.grounded&&!(p.jumpBuffer>0&&p.coyote>0)&&moveDirection!==0&&p.hurt<=0;if(p.dashing&&!wasDashing)this.emit('dashStart');if(p.hurt<=0){p.vx=moveDirection*(p.dashing?CFG.dashSpeed:CFG.speed);if(p.vx)p.facing=Math.sign(p.vx);}
+  if(!input.dash)p.dashLocked=false;const wasDashing=p.dashing;const moveDirection=(input.right?1:0)-(input.left?1:0);p.dashing=!!input.dash&&!p.dashLocked&&p.grounded&&!(p.jumpBuffer>0&&p.coyote>0)&&moveDirection!==0&&p.hurt<=0;if(p.hurt<=0){p.vx=moveDirection*(p.dashing?Math.round(CFG.dashSpeed*(this.upgrades.exercise?1.1:1)):this.moveSpeed);if(p.vx)p.facing=Math.sign(p.vx);}
   p.aimActive=Number.isFinite(input.aimX)&&Number.isFinite(input.aimY);if(p.aimActive){p.aimX=input.aimX;p.aimY=input.aimY;}
   if(p.grounded||p.vy>=0||p.hurt>0||p.airDash>0)p.jumpRising=false;
-  if(p.jumpBuffer>0&&p.coyote>0){p.jumpRising=true;p.dashing=false;p.dashLocked=true;p.vy=-CFG.jump;p.grounded=false;p.coyote=0;p.jumpBuffer=0;this.emit('jump');}
+  if(p.jumpBuffer>0&&p.coyote>0){p.jumpRising=true;p.dashing=false;p.dashLocked=true;p.vy=-Math.round(CFG.jump*(this.upgrades.exercise?1.1:1));p.grounded=false;p.coyote=0;p.jumpBuffer=0;this.emit('jump');}
   if(p.jumpRising&&!input.jumpHeld){p.vy=Math.max(p.vy,-CFG.jumpReleaseSpeed);p.jumpRising=false;}
-  if(input.airDash&&!p.grounded&&p.hurt<=0&&p.airDashCooldown<=0){if(this.energy>=CFG.airDashCost){this.energy-=CFG.airDashCost;p.airTrailClock=0;p.airDash=CFG.airDashSeconds;p.airDashAnim=CFG.airDashAnimation;p.airDashCooldown=.56;p.airDashDir=Math.sign(input.airDash);p.dashLocked=true;p.dashing=false;p.vy=0;this.emit('airDash');}else p.dry=.25;}
+  if(input.airDash&&!p.grounded&&p.hurt<=0&&p.airDashCooldown<=0){if(this.energy>=this.airDashCost){this.energy-=this.airDashCost;p.airTrailClock=0;p.airDash=CFG.airDashSeconds;p.airDashAnim=CFG.airDashAnimation;p.airDashCooldown=.56;p.airDashDir=Math.sign(input.airDash);p.dashLocked=true;p.dashing=false;p.vy=0;this.emit('airDash');}else p.dry=.25;}
   if(p.airDash>0){p.vx=p.airDashDir*CFG.airDashSpeed;p.facing=p.airDashDir;p.vy=-CFG.gravity*dt;}
   const previousX=p.x;
   p.x=clamp(p.x+p.vx*dt,this.arenaLocked?this.arenaStart:0,this.worldWidth-p.w);
-  if(p.grounded&&p.hurt<=0&&p.x!==previousX){p.walkPhase=(p.walkPhase+Math.abs(p.x-previousX)/21)%8;p.runPhase=(p.runPhase+Math.abs(p.x-previousX)/28)%8;}
-  else if(p.grounded&&p.vx===0)p.walkPhase=0;
-  for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=previousX+p.w<=pf.x+2?pf.x-p.w:pf.x+pf.w;p.vx=0;}}this.physics(p,dt);if(p.airDash>0){p.airTrailClock=(p.airTrailClock||0)+dt;while(p.airTrailClock>=1/60){p.airTrailClock-=1/60;const phase=this.time*32;for(let j=0;j<2;j++){const t=.38+this.rng()*.3;this.particles.push({x:p.x+p.w/2-p.airDashDir*23,y:p.y+p.h-42+Math.sin(phase+j*Math.PI)*9,vx:-p.airDashDir*(22+this.rng()*35),vy:Math.cos(phase+j*Math.PI)*15,t,maxT:t,color:['#b8edff','#e0baff','#fff1b7'][Math.floor(this.rng()*3)],size:1+Math.floor(this.rng()*3),airTrail:true,spark:this.rng()<.2});}}}if(p.airDash>0&&(p.grounded||p.vx===0||p.x===previousX)){p.airDash=0;p.airDashAnim=0;p.vy=Math.max(0,p.vy);}if(p.grounded)p.airDashAnim=0;if(!p.grounded){p.dashing=false;if(p.hurt<=0&&p.airDash<=0)p.vx=clamp(p.vx,-CFG.speed,CFG.speed);}if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
+  for(const pf of this.platforms){if(!pf.solid||p.y+p.h<=pf.y+2||p.y>=pf.y+pf.h)continue;if(p.x+p.w>pf.x&&p.x<pf.x+pf.w){p.x=(previousX+p.w<=pf.x+2||(previousX<pf.x+pf.w&&previousX+p.w/2<pf.x+pf.w/2))?pf.x-p.w:pf.x+pf.w;p.vx=0;}}const travelled=Math.abs(p.x-previousX);if(travelled<.001&&p.hurt<=0){p.vx=0;p.dashing=false;p.walkPhase=0;p.runPhase=0;}else if(p.grounded&&p.hurt<=0){p.walkPhase=(p.walkPhase+travelled/21)%8;p.runPhase=(p.runPhase+travelled/28)%8;if(p.dashing&&!wasDashing){this.emit('dashStart');if(this.upgrades.exercise)p.dashInv=.2;}}this.physics(p,dt);if(p.airDash>0){p.airTrailClock=(p.airTrailClock||0)+dt;while(p.airTrailClock>=1/60){p.airTrailClock-=1/60;const phase=this.time*32;for(let j=0;j<2;j++){const t=.38+this.rng()*.3;this.particles.push({x:p.x+p.w/2-p.airDashDir*23,y:p.y+p.h-42+Math.sin(phase+j*Math.PI)*9,vx:-p.airDashDir*(22+this.rng()*35),vy:Math.cos(phase+j*Math.PI)*15,t,maxT:t,color:['#b8edff','#e0baff','#fff1b7'][Math.floor(this.rng()*3)],size:1+Math.floor(this.rng()*3),airTrail:true,spark:this.rng()<.2});}}}if(p.airDash>0&&(p.grounded||p.vx===0||p.x===previousX)){p.airDash=0;p.airDashAnim=0;p.vy=Math.max(0,p.vy);}if(p.grounded)p.airDashAnim=0;if(!p.grounded){p.dashing=false;if(p.hurt<=0&&p.airDash<=0)p.vx=clamp(p.vx,-this.moveSpeed,this.moveSpeed);}if(this.chapter===0&&this.area===0){if(this.room===0&&p.x>600)this.tutorialSeen.add('moved');if(this.room===1&&input.jump)this.tutorialSeen.add('jumped');if(this.room===1&&p.x>1400&&p.grounded&&this.tutorialSeen.has('jumped'))this.tutorialSeen.add('jumpRoute');}if(input.fire)this.shoot();
   this.camera+=(clamp(p.x-335,0,this.worldWidth-CFG.width)-this.camera)*Math.min(1,dt*7);
   if(this.chapter===1&&this.stage===2&&!this.storyEnabled&&!this.bossAwake&&p.x>this.arenaStart+320){this.bossAwake=true;this.arenaLocked=true;}
   for(const d of this.drops)d.cooldown=Math.max(0,d.cooldown-dt);
   for(const e of this.enemies){
    e.t+=dt;e.flash=Math.max(0,e.flash-dt);
+   if(e.type!=='boss'&&e.type!=='naniwa'){
+    if(e.state==='respawning'){e.returnDelay-=dt;if(e.returnDelay<=0){e.state='alive';e.returning=true;e.x=e.spawnX??e.baseX;e.y=-e.h-25;e.vy=80;e.grounded=false;e.charge=0;e.action='recover';e.timer=.7;e.hopVX=0;}continue;}
+    if(e.state!=='alive')e.returning=false;
+    if(e.returning){if(e.type==='bat'){e.vy+=CFG.gravity*dt;e.y+=e.vy*dt;if(e.y>=(e.spawnY??e.baseY)){e.y=e.spawnY??e.baseY;e.returning=false;e.vy=0;}}else{this.physics(e,dt);if(e.grounded){e.returning=false;this.emit('footLand');}}if(e.y>550){e.state='respawning';e.returnDelay=2;e.returning=false;}else if(overlap(p,e))this.hurt(e.x+e.w/2);continue;}
+    const pool=this.chapter===3&&this.water?.find(w=>e.x+e.w/2>=w.x&&e.x+e.w/2<=w.end),surface=this.stage===2&&this.chapter===3?this.waterLevel:472;
+    if(e.state==='alive'&&(e.y>550||(pool&&e.y>surface+10))){e.state='respawning';e.returnDelay=2;e.returning=false;if(pool)this.burst(e.x+e.w/2,surface,'#b0d9df',14);continue;}
+   }
    if(e.state==='candy'){e.candyTime=Math.max(0,e.candyTime-dt);if(e.candyTime<=0){e.state='alive';e.hp=e.maxHp;e.x=e.sweet.x+(e.type==='boss'?(e.sweet.w-e.w)/2:0);e.y=e.sweet.y+e.sweet.h-e.h;e.sweet.removed=true;e.vy=0;e.attack=1.5;e.charge=0;e.phase='rest';e.phaseTime=BOSS.rest;e.telegraph=0;this.burst(e.x+e.w/2,e.y+e.h/2,'#bd8dd4',16);if(e.lessonFirst&&!this.storySignals.has('firstEaten'))this.storySignals.add('firstRevived');if(e.type==='boss')this.emit('bossRevived');this.emit('revive');}continue;}
    if(e.state!=='alive')continue;if((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)continue;
    const near=Math.abs(e.x-p.x)<650;
+   if(e.species){this.stepFarmEnemy(e,dt);if(overlap(p,e)){this.hurt(e.x+e.w/2);if(this.state!=='playing')return;}continue;}
    if(e.type==='slime'){
     if(e.prologue){
      // Stay in the practice arena until approached, then pursue and hop into the player.
@@ -309,9 +321,9 @@ class Game{
    if(e.type==='boss')this.stepBoss(e,dt);if(e.type==='naniwa')this.stepNaniwa(e,dt);
    if(overlap(p,e)){this.hurt(e.x+e.w/2);if(this.state!=='playing')return;}
   }
-  for(const b of this.bullets){if(b.targetId!=null){const target=this.enemies.find(e=>e.id===b.targetId&&e.state==='alive');if(target){const current=Math.atan2(b.vy,b.vx),desired=Math.atan2(target.y+target.h/2-b.y-b.h/2,target.x+target.w/2-b.x-b.w/2),delta=Math.atan2(Math.sin(desired-current),Math.cos(desired-current)),angle=current+clamp(delta,-5*dt,5*dt),speed=WANDS[b.wand].speed;b.vx=Math.cos(angle)*speed;b.vy=Math.sin(angle)*speed;}else b.targetId=null;}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter===2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(this.hitEnemyEffect)this.hitEnemyEffect(e,b);if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
+  for(const b of this.bullets){if(b.targetId!=null){const target=this.enemies.find(e=>e.id===b.targetId&&e.state==='alive');if(target){const current=Math.atan2(b.vy,b.vx),desired=Math.atan2(target.y+target.h/2-b.y-b.h/2,target.x+target.w/2-b.x-b.w/2),delta=Math.atan2(Math.sin(desired-current),Math.cos(desired-current)),angle=current+clamp(delta,-5*dt,5*dt),speed=WANDS[b.wand].speed;b.vx=Math.cos(angle)*speed;b.vy=Math.sin(angle)*speed;}else b.targetId=null;}b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(this.chapter>=2&&this.hitCrate(b))continue;for(const e of this.enemies){if(e.state!=='alive'||((e.type==='boss'||e.type==='naniwa')&&!this.bossAwake)||b.hits.has(e.id))continue;if(overlap(b,e)){if(e.lessonFirst)this.storySignals.add('firstHit');e.hp-=b.damage;if(this.hitEnemyEffect)this.hitEnemyEffect(e,b);if(e.type==='boss'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('bossHalf');if(e.type==='naniwa'&&e.hp>0&&e.hp<=e.maxHp/2)this.emit('naniwaHalf');e.flash=.1;b.hits.add(e.id);this.burst(b.x,b.y,WANDS[b.wand].color,4);if(e.hp<=0)this.transform(e,b.wand);if(this.state!=='playing')return;if(!WANDS[b.wand].pierce)b.life=0;if(this.hitStop>0){this.bullets=this.bullets.filter(shot=>shot.life>0);return;}if(b.life<=0)break;}}}
   this.bullets=this.bullets.filter(b=>b.life>0);
-  for(const b of this.hostile){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(overlap(p,b)&&!(p.airDash>0)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
+  for(const b of this.hostile){if(b.gravity)b.vy+=b.gravity*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(b.roll){b.y=CFG.ground-12;b.vy=0;}if(overlap(p,b)&&!(p.airDash>0)&&!(p.dashInv>0)){this.hurt(b.x);b.life=0;if(this.state!=='playing')return;}}
   this.hostile=this.hostile.filter(b=>b.life>0);
   for(const s of this.sweets){if(s.removed)continue;s.age+=dt;if(s.enemy)this.physics(s,dt);if(overlap(p,{x:s.x-5,y:s.y-5,w:s.w+10,h:s.h+10})){this.collectSweet(s);if(this.state!=='playing')break;}}
   this.sweets=this.sweets.filter(s=>!s.removed);

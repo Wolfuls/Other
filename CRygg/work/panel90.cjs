@@ -1,0 +1,6 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const el=(attrs={})=>({attrs,hidden:false,events:{},classes:new Set(),setAttribute(k,v){this.attrs[k]=v},getAttribute(k){return this.attrs[k]},addEventListener(k,f){this.events[k]=f},append(){},focus(){},classList:{}});
+const nodes={playTab:el({'aria-selected':'true','aria-controls':'playPane'}),optionsTab:el({'aria-selected':'false','aria-controls':'optionsPane'}),playPane:el(),optionsPane:el(),panel:el(),bar:el()};const panel=nodes.panel;panel.classList={contains:c=>panel.classes.has(c),remove:c=>panel.classes.delete(c),toggle(c,on){if(on)panel.classes.add(c);else panel.classes.delete(c)}};
+const doc={getElementById:k=>nodes[k],querySelector:s=>s==='.panel'?panel:nodes.bar,createElement:()=>el(),addEventListener(){}};
+vm.runInNewContext(fs.readFileSync('assets/js/panel.js','utf8'),{document:doc,matchMedia:()=>({matches:true,addEventListener(){}})});
+nodes.playTab.events.click();assert(panel.classes.has('mobile-open'));nodes.optionsTab.events.click();assert(panel.classes.has('mobile-open'));assert(nodes.playPane.hidden);assert(!nodes.optionsPane.hidden);nodes.optionsTab.events.click();assert(!panel.classes.has('mobile-open'));console.log('PASS mobile panel open, switch, close');

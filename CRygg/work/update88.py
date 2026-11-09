@@ -1,0 +1,5 @@
+from pathlib import Path
+p=Path('assets/js/yakumono.js');s=p.read_text(encoding='utf-8');s=s.replace("const scale=Math.min(w/sprite.naturalWidth,h/sprite.naturalHeight),iw=sprite.naturalWidth*scale,ih=sprite.naturalHeight*scale,x=(w-iw)/2,y=(h-ih)/2;", "// Trim only the sign's empty fringe in the renderer; preserve source artwork.\n   const [sx,sy,sw,sh]=isSign?[22,188,2128,337]:[0,0,sprite.naturalWidth,sprite.naturalHeight];\n   const scale=Math.min(w/sw,h/sh),iw=sw*scale,ih=sh*scale,x=(w-iw)/2,y=(h-ih)/2;")
+s=s.replace('ctx.drawImage(sprite,x,y,iw,ih)','ctx.drawImage(sprite,sx,sy,sw,sh,x,y,iw,ih)');p.write_text(s,encoding='utf-8')
+p=Path('assets/css/style.css');s=p.read_text(encoding='utf-8').replace('.rw-sign{left:11.1%;top:12%;width:70.2%;height:14.3%;z-index:7}', '.rw-sign{left:15.785%;top:16.8%;width:60.738%;height:auto;aspect-ratio:2128/337;z-index:7}');p.write_text(s,encoding='utf-8')
+p=Path('index.html');s=p.read_text(encoding='utf-8').replace('v0.87','v0.88').replace('?v=87','?v=88');p.write_text(s,encoding='utf-8')

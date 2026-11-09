@@ -283,12 +283,12 @@ C.chapterTwoMaps=[
    [
     510,
     328,
-    190
+    170
    ],
    [
-    880,
+    910,
     383,
-    190
+    160
    ],
    [
     1120,
@@ -365,10 +365,18 @@ C.chapterTwoMaps=[
   ],
   "crates": [
    [
-    730,
-    370,
-    64,
-    88
+    690,
+    170,
+    96,
+    288,
+    true
+   ],
+   [
+    786,
+    170,
+    96,
+    288,
+    true
    ],
    [
     2890,
@@ -802,15 +810,15 @@ C.chapterTwoMaps=[
  }
 ];
 C.chapterTwo=[
-event('arrival',1,0,100,[M(1,'荷札と同じ名前……。このお店から運ばれてきたのね'),M(2,'お店の人に話を聞ければいいんだけど……'),M(3,'……って、今、何か出てきた！','shock'),M(4,'袋いっぱいのパン……！','shock'),M(5,'ちょっと！　それ、どこへ持っていくの！','angry')]),
+event('arrival',1,0,100,[M(1,'荷札と同じ名前……。このお店から運ばれてきたのね'),M(2,'みんな、魔物を怖がって避難しちゃったのね……'),M(3,'……って、今、何か出てきた！','shock'),M(4,'袋いっぱいのパン……！','shock'),M(5,'ちょっと！　それ、どこへ持っていくの！','angry')]),
 event('carts',1,1,210,[M(6,'次から次へと……。ずいぶん忙しそうね'),M(7,'これに乗れば、向こうへ行けそう','happy'),M(8,'……お客さんは歓迎してくれないみたいだけど','worried')]),
 event('cart-candy',1,1,0,[M(9,'あっ、お菓子まで運ばれてる！','shock')],{signal:'cartCandy',reaction:true,priority:5,ttl:3}),
 event('cameo',1,2,440,[N(1,'今度こそ逃がさへんで！','determined','arrive',true),M(10,'今の魔法……！','shock','stop-cart'),N(2,'よしっ。これで――','confident','climb',true),N(3,'うわっ、ととと……！','flustered','slip',true),N(4,'あっ！　こら、待たんかい！','determined','chase',true),M(11,'……忙しい子ね','worried'),M(12,'あの子も、魔物を追いかけてるのかしら')],{blocking:true,scene:'naniwa-cameo',priority:60}),
 event('gathered',1,2,1120,[M(13,'こっちは果物……。あっちは小麦粉？'),M(14,'一軒のお店から盗んでるわけじゃないのね'),M(15,'別々のお店の食べ物を、ここでまとめて……'),M(16,'あの大きな倉庫へ運んでる'),M(17,'次は、あそこを調べましょう','happy')]),
 event('warehouse',2,0,100,[M(18,'うわ……。ここにもこんなに','shock'),M(19,'でも、食べ散らかしてる様子はないわね'),M(20,'置いたら、また取りに戻っていくんだ……'),M(21,'誰かに集めさせられてるのかしら')]),
 event('lifts',2,1,200,[M(22,'荷物は上の階へ運んでるのね'),M(23,'私も乗せてもらおうかしら','happy'),M(24,'……上にもいる！','shock'),M(25,'足元ばかり見てる場合じゃないわね','worried')]),
-event('crates',2,0,500,[M(26,'向こうに道があるのに……','worried'),M(27,'この箱、どかせないかしら')]),
-event('crate-broken',2,null,0,[M(28,'あ、通れた','happy')],{signal:'crateBroken',priority:25,reaction:true,ttl:5}),
+event('crates',2,0,500,[M(26,'向こうに道があるのに……','worried'),M(27,'この箱、魔法で壊せないかしら')],{condition:'cargoBlocked'}),
+event('crate-broken',2,null,0,[M(28,'あ、通れた','happy')],{signal:'cargoPassageCleared',after:'c2-warehouse',priority:25,reaction:true}),
 event('side-path',2,2,1160,[M(29,'こんなところにも隙間が……。ちょっと覗いてみようかな','happy')],{condition:'upperPath',priority:5}),
 event('sorting',2,2,790,[M(30,'ここで、袋を詰め直してるのね'),M(31,'お店の名前が付いた箱から、同じ印の袋へ……'),M(32,'街で集めて、ここでまとめて、それから別の場所へ運ぶ'),M(33,'森で見かけた荷物も、こんなふうに運ばれていたのかな'),M(34,'あの先……街の外へ続いてる'),M(35,'どこまで持っていくつもりなの？','worried')]),
 event('outbound',3,0,100,[M(36,'さっきの印……。ここにつながっていたのね'),M(37,'これだけ集めて、全部持っていくつもり？','worried'),M(38,'あの荷車を追えば、行き先が分かるかもしれない'),M(39,'今度こそ、見失わないようにしないと','angry')]),
@@ -842,5 +850,23 @@ event('death',null,null,0,[M(70,'あと少しで……行き先が分かりそ�
 ];
 const offsets=[[0,1250,2650],[0,1400,2800],[0,1600,2700]];
 for(const e of C.chapterTwo){if(e.stage!=null&&e.area!=null){if(!e.signal&&!e.direct)e.x+=(offsets[e.stage-1][e.area]||0);e.area=0;}}
+// Give the warehouse arrival conversation its own approach before the cargo barrier.
+const warehouse=C.chapterTwoMaps[1],approachLength=2400,approachStart=480;
+const shift=x=>x>=approachStart?x+approachLength:x;
+warehouse.width+=approachLength;
+for(const key of ['ledges','crates','sweets','cargo'])for(const row of warehouse[key])row[0]=shift(row[0]);
+for(const row of warehouse.enemies)row[1]=shift(row[1]);
+for(const row of warehouse.drops)row[2]=shift(row[2]);
+for(const row of warehouse.movers){row[1]=shift(row[1]);if(row[4]==='x'){row[5]=shift(row[5]);row[6]=shift(row[6]);}}
+if(warehouse.exit)warehouse.exit[0]=shift(warehouse.exit[0]);
+warehouse.ledges.push([710,394,190],[1100,355,200],[1500,394,180],[1950,365,200],[2400,394,180]);
+// Alternate ground encounters and elevated threats through the approach.
+warehouse.enemies.push(['slime',620,458],['sprout',810,394],['bat',1050,350],['slime',1190,355],['slime',1430,458],['sprout',1590,394],['bat',1840,340],['slime',2040,365],['slime',2260,458],['sprout',2490,394]);
+warehouse.cargo.push([600,458,'sack'],[1020,458,'bread'],[1430,458,'sort'],[1840,458,'barrel'],[2280,458,'stack']);
+warehouse.sweets.push([760,370,'candy'],[1160,331,'candy'],[1560,370,'cookie'],[2010,341,'candy']);
+for(const e of C.chapterTwo)if(e.stage===2&&!e.signal&&!e.direct)e.x=shift(e.x);
+C.chapterTwo.find(e=>e.id==='c2-crates').after='c2-warehouse';
+warehouse.crates.push([5680,170,96,288,'second'],[5776,170,96,288,'second']);
+warehouse.enemies.push(['sprout',5712,170]);
 if(typeof module!=='undefined')module.exports=C;
 })(typeof globalThis!=='undefined'?globalThis:this);

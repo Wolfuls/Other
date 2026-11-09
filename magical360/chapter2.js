@@ -7,8 +7,8 @@ P.loadChapterTwo=function(){
  const savedRng=this.rng;this.rng=random(22010+this.stage*10+this.area);this.worldWidth=map.width;this.movingClock=0;this.crates=[];this.movingPlatforms=[];this.chapterScene=null;
  this.platforms=[{x:0,y:CFG.ground,w:map.width,h:100,ground:true},...map.ledges.map(([x,y,w])=>({x,y,w,h:16}))];
  for(const [kind,x,y,w,axis,min,max,period]of map.movers){const base=axis==='x'?x:y,phase=Math.acos(clamp(1-2*(base-min)/(max-min),-1,1));const p={id:this.id++,x,y,w,h:18,kind,moving:true,baseX:x,baseY:y,axis,min,max,period,phase,dx:0,dy:0};this.movingPlatforms.push(p);this.platforms.push(p);}
- for(const [x,y,w,h]of map.crates){const p={id:this.id++,x,y,w,h,solid:true,crate:true,hp:2};this.platforms.push(p);this.crates.push(p);}
- for(const [type,x,bottom,mi]of map.enemies){const e=this.spawnEnemy(type==='guard'?'slime':type,x,bottom),pf=mi!=null?this.movingPlatforms[mi]:this.platforms.find(p=>!p.ground&&!p.crate&&Math.abs(p.y-bottom)<1&&x>=p.x&&x+e.w<=p.x+p.w);
+ for(const [x,y,w,h,routeBlocker=false]of map.crates)for(let row=0;row<(routeBlocker?3:1);row++){const boxH=routeBlocker?h/3:h;const p={id:this.id++,x,y:y+row*boxH,w,h:boxH,vy:0,solid:true,crate:true,hp:10,routeBlocker};this.platforms.push(p);this.crates.push(p);}
+ for(const [type,x,bottom,mi]of map.enemies){const e=this.spawnEnemy(type==='guard'?'slime':type,x,bottom),pf=mi!=null?this.movingPlatforms[mi]:this.platforms.find(p=>!p.ground&&Math.abs(p.y-bottom)<1&&x>=p.x&&x+e.w<=p.x+p.w);
   if(pf){e.platform=pf;e.patrolLeft=pf.x+4;e.patrolRight=pf.x+pf.w-e.w-4;e.grounded=true;}if(type==='guard'){e.finalGuard=true;e.hp=e.maxHp=4;e.patrolLeft=x-80;e.patrolRight=x+80;}
  }
  for(const [x,y,kind,mi]of map.sweets){const s=this.sweet(x,y,kind,null);if(mi!=null)s.carrier=this.movingPlatforms[mi];this.sweets.push(s);}
@@ -22,17 +22,33 @@ P.loadChapterTwo=function(){
 };
 P.beginChapterTwo=function(){if(this.state!=='won'||this.chapter!==1)return false;this.story=null;this.storyQueue=[];this.storySignals.clear();this.signalTimes={};this.celebration=null;this.defeat=null;this.deathMessage=null;this.transition={t:0,loaded:false,entrance:false,chapter:2,stage:0,area:0,covered:true};this.state='transition';this.emit('presentationStart');return true;};
 P.chapterEvent=function(id){return id.startsWith('c2-')?C.chapterTwo.find(e=>e.id===id):original.chapterEvent.call(this,id);};
-P.chapterCondition=function(name){return name==='upperPath'?this.player.y+this.player.h<CFG.ground-80:name==='notBoss'?!this.bossAwake:true;};
+P.chapterCondition=function(name){return name==='cargoBlocked'?this.crates.some(c=>c.routeBlocker===true&&!c.broken&&this.player.x<c.x+c.w):name==='upperPath'?this.player.y+this.player.h<CFG.ground-80:name==='notBoss'?!this.bossAwake:true;};
 P.storyValid=function(e){if(e.chapter!==2)return original.storyValid.call(this,e);if(e.stage!=null&&e.stage!==this.stage+1||e.area!=null&&e.area!==this.area)return false;if(e.ttl&&this.time-(this.signalTimes[e.signal]??-Infinity)>e.ttl)return false;if(e.condition&&!this.chapterCondition(e.condition))return false;if(['c2-fast','c2-half','c2-boss-danger','c2-fight-start'].includes(e.id)&&!this.bossAwake)return false;return true;};
 P.updateChapterWorld=function(dt){
+ // Resolve lower boxes first, so upper boxes follow their supports during a fall.
+ for(const c of this.crates.filter(c=>!c.broken).sort((a,b)=>b.y-a.y)){
+  const oldY=c.y,oldBottom=c.y+c.h;let floor=CFG.ground;
+  for(const p of this.platforms){if(p===c||p.broken||c.x+c.w<=p.x||c.x>=p.x+p.w||p.y<oldBottom-.01)continue;floor=Math.min(floor,p.y);}
+  const actor=this.player;if(c.x+c.w>actor.x&&c.x<actor.x+actor.w&&actor.y>=oldBottom-.01)floor=Math.min(floor,actor.y);
+  c.vy=(c.vy||0)+CFG.gravity*dt;c.y=Math.min(c.y+c.vy*dt,floor-c.h);
+  if(c.y+c.h>=floor-.01){if(c.vy>180)this.emit('footLand');c.vy=0;}
+  for(const a of [this.player,...this.enemies.filter(e=>e.state==='alive')])if(a.grounded&&Math.abs(a.y+a.h-oldY)<2.5&&a.x+a.w>c.x&&a.x<c.x+c.w)a.y+=c.y-oldY;
+ }
+
  if(this.stage===2&&this.player.x>=this.arenaStart&&!this.bossAwake&&!this.finishedStories.has('c2-challenge')){this.emit('arenaEntered');if(!this.storyEnabled){this.bossAwake=true;this.arenaLocked=true;}}this.movingClock+=dt;
  for(const pf of this.movingPlatforms){const ox=pf.x,oy=pf.y;pf[pf.axis]=pf.min+(pf.max-pf.min)*(1-Math.cos(this.movingClock*Math.PI*2/pf.period+pf.phase))/2;pf.dx=pf.x-ox;pf.dy=pf.y-oy;
   for(const a of [this.player,...this.enemies.filter(e=>e.state==='alive'),...this.sweets.filter(s=>!s.removed)]){const attached=a.carrier===pf,onTop=a.grounded&&Math.abs(a.y+a.h-oy)<2.5&&a.x+a.w>ox&&a.x<ox+pf.w;if(attached||onTop){a.x+=pf.dx;a.y+=pf.dy;if(a===this.player)this.player.onMover=pf;}}
   for(const e of this.enemies)if(e.platform===pf){e.patrolLeft=pf.x+4;e.patrolRight=pf.x+pf.w-e.w-4;e.baseX+=pf.dx;e.baseY+=pf.dy;}
  }
+ this.checkCargoPassage();
  const p=this.player;if(p.onMover&&p.grounded&&p.y+p.h>=CFG.ground-1){if(!this.storySignals.has('missedCart'))this.emit('missedCart');p.onMover=null;}
 };
-P.hitCrate=function(b){if(b.life<=0)return true;for(const c of this.crates){if(c.broken||b.hits.has(c.id)||!overlap(b,c))continue;b.hits.add(c.id);c.hp-=b.damage;this.burst(b.x,b.y,'#b98d67',5);if(c.hp<=0){c.broken=true;this.platforms=this.platforms.filter(p=>p!==c);this.emit('crateBroken');this.burst(c.x+c.w/2,c.y+c.h/2,'#b98d67',15);}if(!A.WANDS[b.wand].pierce){b.life=0;return true;}}return false;};
+// Reaching the far side counts, whether the player breaks or climbs over the boxes.
+P.checkCargoPassage=function(){
+ const boxes=this.crates.filter(c=>c.routeBlocker===true);
+ if(boxes.length&&!this.storySignals.has('cargoPassageCleared')&&this.player.x>=Math.max(...boxes.map(c=>c.x+c.w)))this.emit('cargoPassageCleared');
+};
+P.hitCrate=function(b){if(b.life<=0)return true;for(const c of this.crates){if(c.broken||b.hits.has(c.id)||!overlap(b,c))continue;b.hits.add(c.id);c.hp-=b.damage;this.burst(b.x,b.y,'#b98d67',5);if(c.hp<=0){c.broken=true;for(const e of this.enemies)if(e.platform===c){e.platform=null;e.grounded=false;e.vy=Math.max(0,e.vy);delete e.patrolLeft;delete e.patrolRight;e.baseX=e.x;}this.platforms=this.platforms.filter(p=>p!==c);this.emit('crateBroken');for(let i=0;i<30;i++){this.particles.push({x:c.x+this.rng()*c.w,y:c.y+this.rng()*c.h,vx:(this.rng()-.5)*430,vy:-90-this.rng()*260,t:.55+this.rng()*.5,color:['#d9b783','#ad8054','#735039'][i%3],size:3+Math.floor(this.rng()*4),wood:true,angle:this.rng()*6.28,spin:(this.rng()-.5)*14});}this.burst(c.x+c.w/2,c.y+c.h/2,'#d9c29d',18);}if(!A.WANDS[b.wand].pierce){b.life=0;return true;}}return false;};
 P.collectSweet=function(s){const guard=!s.removed&&s.enemy?.finalGuard;original.collectSweet.call(this,s);if(guard&&s.removed){this.emit('finalGuardEaten');if(!this.storyEnabled){this.bossAwake=true;this.arenaLocked=true;this.emit('naniwaAwake');}}};
 P.transform=function(e,wand){if(e.type==='naniwa'){this.defeatNaniwa(e);return;}original.transform.call(this,e,wand);if(this.chapter===2&&e.platform?.moving)this.emit('cartCandy');};
 // Choose a route through the same one-way platforms used by the player's physics.
