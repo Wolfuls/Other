@@ -156,7 +156,8 @@
       "chapter": 0,
       "stage": 1,
       "area": 0,
-      "x": 280,
+      "x": 0,
+      "screenX": 530,
       "blocking": false,
       "priority": 10,
       "lines": [
@@ -431,7 +432,8 @@
       "chapter": 0,
       "stage": 1,
       "area": 1,
-      "x": 1670,
+      "x": 0,
+      "screenX": 1940,
       "blocking": false,
       "priority": 10,
       "lines": [
@@ -1073,7 +1075,7 @@
         {
           "id": "C1-M043",
           "speaker": "ミロード",
-          "text": "……効いてる。このまま、お菓子に戻してあげる！",
+          "text": "……効いてる。大人しくしてもらうわよ、王さま！",
           "expression": "angry"
         }
       ],

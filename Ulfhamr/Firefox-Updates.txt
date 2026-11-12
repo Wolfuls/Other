@@ -1,0 +1,30 @@
+Firefox 自動更新の配布手順
+
+準備済み:
+firefox/manifest.json に GitHub Pages上の firefox-updates.json を更新先として指定。
+拡張IDは維持。署名済みリリースが未取得なので更新一覧は空。
+既存のテスト版ZIPは変更していません。
+
+初回:
+1. firefox/ の内容をZIPにまとめ、Mozilla Add-on Developer Hubで「自分自身で配布」を選び署名を申請する。
+2. 署名済みXPIをdownloads/へ配置し、配布ページにそのファイルへのリンクを設置する。
+3. GitHub Pagesへ公開し、利用者は署名済みXPIを一度インストールする。
+   一時読み込み版のデータは先にバックアップし、必要なら復元する。
+
+以後の更新:
+1. manifest.jsonのversionを増やす。同じ拡張IDとupdate_urlを維持する。
+2. 新版もMozillaで署名し、署名済みXPIをバージョン付きファイル名でdownloads/へ配置する。
+3. firefox-updates.json の updates 配列へ次の形式で追加する（例の値は実物へ置換）:
+   {"version":"VERSION","update_link":"https://wolfuls.github.io/Other/Ulfhamr/downloads/FILE.xpi","update_hash":"sha256:SHA256"}
+   SHA256は署名済みXPIからGet-FileHash -Algorithm SHA256で算出する。
+4. XPIと更新JSONを公開する。Firefoxが定期的に確認し、自動更新が有効なら更新する。
+   手動確認はabout:addonsの歯車メニュー「更新を確認」。アンインストールは不要。
+
+注意:
+ローカルフォルダに置くだけでは自動更新されません。HTTPSでアクセス可能な更新JSONと署名済みXPIが必要です。
+未署名ZIPを更新一覧へ登録しないでください。署名後のXPIを編集しないでください。
+Mozillaへの提出・署名取得・GitHubへのpushはこの設定作業では行っていません。
+
+公式資料:
+https://extensionworkshop.com/documentation/publish/self-distribution/
+https://extensionworkshop.com/documentation/manage/updating-your-extension/

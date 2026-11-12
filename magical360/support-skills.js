@@ -1,0 +1,9 @@
+(function(root){'use strict';
+const {Game,aimFor}=root.Miload,P=Game.prototype,load=P.loadStage,step=P.step,shoot=P.shoot;
+P.loadStage=function(...args){load.apply(this,args);this.wisp=null;this.shieldCooldown=0;};
+P.ensureWisp=function(){return this.wisp??={x:this.player.x-35,y:this.player.y+10,vx:0,vy:0};};
+P.step=function(dt,input){if(this.state==='playing'&&this.hitStop<=0&&!this.messagePaused())this.shieldCooldown=Math.max(0,(this.shieldCooldown||0)-dt);if(this.upgrades.wisp&&this.state==='playing'&&this.hitStop<=0&&!this.messagePaused()){const w=this.ensureWisp(),p=this.player,t=Math.min(dt,.04);const tx=p.x+12-p.facing*44,ty=p.y+10;w.vx+=(tx-w.x)*28*t;w.vy+=(ty-w.y)*28*t;const damp=Math.exp(-8*t);w.vx*=damp;w.vy*=damp;w.x+=w.vx*t;w.y+=w.vy*t;if(Math.hypot(w.x-tx,w.y-ty)>240){w.x=tx;w.y=ty;w.vx=w.vy=0;}}return step.call(this,dt,input);};
+P.shoot=function(){const ok=shoot.call(this);if(ok&&this.upgrades.wisp){const w=this.ensureWisp(),p=this.player,a=aimFor(p),tx=p.aimActive?p.aimX:a.x+Math.cos(a.angle)*800,ty=p.aimActive?p.aimY:a.y+Math.sin(a.angle)*800,angle=Math.atan2(ty-w.y,tx-w.x);this.bullets.push({x:w.x-5,y:w.y-5,w:10,h:10,vx:440*Math.cos(angle),vy:440*Math.sin(angle),life:1.8,damage:1,wand:'star',wisp:true,hits:new Set()});this.burst(w.x,w.y,'#9fe7df',5);}return ok;};
+P.shieldPose=function(){const p=this.player,x=p.x+p.w/2,y=p.y+p.h/2,angle=p.aimActive?Math.atan2(p.aimY-y,p.aimX-x):(p.facing<0?Math.PI:0);return{x:x+Math.cos(angle)*56,y:y+Math.sin(angle)*56,angle};};
+P.guardShot=function(b){if(!this.upgrades.shield||this.energy+1e-8<this.maxEnergy*.9||b.life<=0)return false;const s=this.shieldPose(),dx=b.x+b.w/2-s.x,dy=b.y+b.h/2-s.y,nx=Math.cos(s.angle),ny=Math.sin(s.angle);if(Math.abs(dx*nx+dy*ny)>3+(b.w+b.h)/4||Math.abs(-dx*ny+dy*nx)>25+(b.w+b.h)/4)return false;this.energy-=15;this.shieldCooldown=0;b.life=0;this.burst(b.x,b.y,'#b5f4f3',12);this.emit('magicClash');return true;};
+})(globalThis);

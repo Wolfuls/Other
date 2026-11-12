@@ -1,0 +1,7 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict'),root=path.join(__dirname,'..');for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g)){if(file==='game.js')continue;vm.runInThisContext(fs.readFileSync(path.join(root,file),'utf8'));}
+const g=new Miload.Game(1,{chapter:1,story:false});
+for(const ch of [1,2,4,7,12]){g.chapter=ch;g.upgrades={};assert.equal(g.maxEnergy,100);g.upgrades.training=3;assert.equal(g.maxEnergy,250);}
+g.chapter=7;g.upgrades={};g.maxLife=3;for(let i=0;i<3;i++){assert.ok(g.grantUpgrade('training'));assert.ok(g.grantUpgrade('grit'));}assert.equal(g.maxEnergy,250);assert.equal(g.maxLife,6);g.inventory=['guide'];g.energy=g.maxEnergy;assert.ok(g.shoot());assert.equal(g.energy,25);
+g.chapter=4;const before=g.maxEnergy;g.loadStage();assert.equal(g.maxEnergy,before);g.loadStage();assert.equal(g.maxEnergy,before);
+{const h=new Miload.Game(1,{chapter:1,story:false});h.completeChapter();assert.ok(h.chooseReward('stats','grit'));assert.ok(h.chooseReward('skills','focus'));assert.ok(h.chooseReward('wands','arrow'));assert.ok(h.finishRewards());for(let i=0;i<300;i++)h.step(1/120,{});assert.equal(h.chapter,2);assert.equal(h.maxEnergy,100);assert.equal(h.maxLife,4);h.state='lost';assert.ok(h.continueFromCheckpoint());assert.equal(h.maxEnergy,100);assert.equal(h.energy,100);}
+console.log('PASS no automatic chapter growth, mixed life/mana upgrades, transition and retry');

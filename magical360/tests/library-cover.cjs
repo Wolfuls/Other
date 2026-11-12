@@ -1,0 +1,11 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict');
+for(const f of ['content','chapter2-content','engine','chapter2','presentation','sfx','continues','chapter3-content','chapter3','chapter4-content','chapter4','progression','support-skills'])vm.runInThisContext(fs.readFileSync(path.join(__dirname,'..',f+'.js'),'utf8'));
+const make=()=>{const g=new Miload.Game(1,{chapter:4,story:false});g.stage=3;g.loadStage();g.bossAwake=true;g.arenaLocked=true;g.enemies=g.enemies.filter(e=>e.type==='boss');Object.assign(g.player,{x:4410,y:402,inv:999,grounded:true});return g;};
+const tick=(g,n,input={})=>{for(let i=0;i<n;i++)g.step(1/120,input);};
+const g=make(),boss=g.enemies[0],s=g.libraryShelves.find(s=>s.left===4500),bx=boss.x;assert.ok(g.toggleShelf(s));tick(g,120);assert.ok(s.x>s.left);g.toggleShelf(s);tick(g,120);assert.equal(s.x,s.left);const phases=new Set();let sawLob=false,sawArc=false;
+for(let i=0;i<2400;i++){g.step(1/120,{});phases.add(boss.phase);if(g.hostile.some(b=>b.libraryLob))sawLob=true;}
+assert.ok(sawLob,'real game loop emits lobs');assert.ok(phases.has('leap')&&phases.has('recover')&&phases.has('fan'));assert.notEqual(boss.x,bx);assert.ok(boss.x>=g.arenaStart&&boss.x<g.worldWidth);
+const fire=make(),b=fire.enemies[0];b.phase='recover';b.timer=2.2;Object.assign(fire.player,{x:s.x+s.w-30,y:s.y-56,inv:999,grounded:true});tick(fire,180,{fire:true,aimX:b.x+46,aimY:b.y+44});assert.ok(b.hp<b.maxHp,'roof counterattack');
+const h=make(),owner=h.enemies[0];h.libraryLob(owner);const lob=h.hostile.at(-1);let hit=false;for(let i=0;i<300&&lob.life>0;i++){lob.vy+=lob.gravity/120;lob.x+=lob.vx/120;lob.y+=lob.vy/120;if(h.libraryBlockShot(lob))break;if(Miload.overlap(lob,h.player)){hit=true;break;}}assert.ok(hit,'lob clears movable shelf');
+const route=new Miload.Game(1,{chapter:4,story:false});route.stage=2;route.loadStage();assert.equal(route.libraryShelves.length,4);assert.ok(route.enemies.length>=8);route.player.x=route.exit.x;route.player.y=402;assert.ok(route.enterDoor());tick(route,300);assert.equal(route.stage,3);assert.ok(route.enemies.some(e=>e.type==='boss'));
+console.log('PASS movable boss cover, first-cycle lob in real loop, walking/vaulting, roof counterattack and added stage progression');

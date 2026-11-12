@@ -1,0 +1,9 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict');
+for(const f of ['content','chapter2-content','engine','chapter2','presentation','sfx','continues','chapter3-content','chapter3'])vm.runInThisContext(fs.readFileSync(path.join(__dirname,'..',f+'.js'),'utf8'));
+function make(stage,story=false){const g=new Miload.Game(1,{chapter:3,story});g.stage=stage;g.loadStage();g.player.inv=999;return g;}
+for(const side of ['left','right']){const g=make(2);g.enemies=[];g.rafts=[];g.wheels=[];g.platforms=g.platforms.filter(p=>!p.raft&&!p.moving);const p=g.player,bank=g.platforms.find(p=>p.ground&&p.x===1470);assert.ok(bank.solid);p.x=side==='left'?bank.x-p.w-2:bank.x+bank.w+2;p.y=330;p.grounded=false;g.step(1/30,{[side==='left'?'right':'left']:true});assert.equal(p.x,side==='left'?bank.x-p.w:bank.x+bank.w);assert.equal(p.vx,0);}
+// A small overlap from a moving platform resolves to the nearby edge, never the far side of the bank.
+{const g=make(2);g.enemies=[];g.player.x=1470-20;g.player.y=330;g.player.grounded=false;g.step(1/120,{right:true});assert.equal(g.player.x,1470-g.player.w);}
+{const g=make(3,true);g.player.x=g.arenaStart+5;g.player.y=402;g.player.grounded=true;g.tickStory(0);for(let i=0;i<120&&!g.story;i++)g.step(1/120,{});assert.equal(g.story.id,'c3-boss');const x=g.player.x,t=g.time;for(let i=0;i<60;i++)g.step(1/120,{});assert.ok(g.player.x>x);assert.ok(g.player.vx>0);assert.ok(g.story.elapsed>0);assert.equal(g.time,t);for(let i=0;i<240;i++)g.step(1/120,{});assert.equal(g.player.vx,0);assert.equal(g.farmApproach,null);g.skipStory();assert.equal(g.state,'playing');assert.ok(g.bossAwake);}
+{const g=make(3,true);g.player.x=g.arenaStart;g.tickStory(0);for(let i=0;i<120&&!g.story;i++)g.step(1/120,{});g.skipStory();assert.equal(g.farmApproach,null);assert.equal(g.player.vx,0);assert.ok(g.bossAwake);}
+console.log('PASS both bank walls, overlap recovery, approach with dialogue and frozen timer, event skip');

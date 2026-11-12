@@ -1,6 +1,7 @@
 
 (() => {
 'use strict';
+const {setTimeout,setInterval,clearTimeout,clearInterval}=window.YggClock||globalThis;
 const $ = id => document.getElementById(id);
 const STORAGE = 'cr-yggdrasill-demo-v06';
 const ST_MAX = 160;
@@ -111,12 +112,13 @@ function showSlash(){
  fx.style.width=(Math.min(r.width*1.44,b.width-left-3)/b.width*100)+'%';fx.style.height=(r.height*1.64/b.height*100)+'%';
  lcd.append(fx);sound('slash');
 }
-function showYakumono(){
+function showYakumono(realtime=false){
+ const schedule=realtime?window.setTimeout:setTimeout;
  if($('lcd').querySelector('.yakumono-front'))return;
  const prop=document.createElement('div');prop.className='yakumono-front';prop.setAttribute('aria-hidden','true');
  const art=document.createElement('canvas');art.className='yakumono-art';prop.append(art);
  $('lcd').append(prop);
- const impactToken=token;setTimeout(()=>{if(impactToken!==token||!prop.isConnected)return;sound('yakumonoImpact');$('lcd').classList.add('yakumono-impact');setTimeout(()=>{if(impactToken===token)$('lcd').classList.remove('yakumono-impact')},550)},360);
+ const impactToken=token;schedule(()=>{if(impactToken!==token||!prop.isConnected)return;sound('yakumonoImpact');$('lcd').classList.add('yakumono-impact');schedule(()=>{if(impactToken===token)$('lcd').classList.remove('yakumono-impact')},550)},360);
 }
 function clearYakumono(){ $('lcd').classList.remove('yakumono-impact'); $('lcd').querySelectorAll('.yakumono-front').forEach(el=>el.remove()); }
 function startRainbow(){
@@ -137,7 +139,7 @@ function waitRecoveryInput(){
  });
 }
 window.addEventListener('keydown',e=>{
- if(e.code==='Enter'&&recoveryInput){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)recoveryInput();}
+ if(e.code==='Enter'&&recoveryInput&&!window.YggClock?.paused){e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)recoveryInput();}
 },true);
 function clearReelCutins(){
  $('lcd').classList.remove('recovery-quake');
@@ -172,11 +174,43 @@ async function reelRecovery(h,id,scale){
  clearReelCutins();if(!h.hit)clearYakumono();return true;
 }
 async function breakthrough(h,id,scale){
+ if(h.number===9&&!h.demoRecovery&&window.YggManga){
+  setSpinClass(false);setReels([9,9,otherSymbol(9)]);
+  return window.YggManga.play({hit:h.hit,valid:()=>id===token,sound,onJackpot:async()=>{
+   setReels([9,9,9]);setWinClass(true);bonusActive=true;
+   const completed=await jackpotSequence(id);if(completed)h.mangaJackpotPlayed=true;return completed;
+  }});
+ }
  if(h.demoRecovery||randomInt(4)===0)return reelRecovery(h,id,scale);
  return id===token;
 }
 function clearJackpot(){ clearYakumono();$('lcd').classList.remove('rainbow-active','yakumono-leaving'); $('lcd').querySelectorAll('.jackpot-scene').forEach(el=>el.remove());$('lcd').classList.remove('jackpot-running','jackpot-reveal','jackpot-lock','recovery-success');document.querySelector('.cabinet').classList.remove('jackpot-lit','jackpot-fading');}
-async function jackpotSequence(id){
+let mangaPreview=false;
+async function previewManga(hit){
+ if(mangaPreview)return;
+ mangaPreview=true;const id=token;window.YggClock.paused=true;
+ const savedClass=$('lcd').className,savedStyle=$('lcd').getAttribute('style'),savedCabinet=document.querySelector('.cabinet').className;
+ const savedReels=[0,1,2].map(i=>({html:$('reel'+i).innerHTML,cls:$('reel'+i).className}));
+ const savedEffects=[...$('lcd').querySelectorAll('.jackpot-scene,.yakumono-front')];
+ const animations=document.getAnimations().filter(a=>a.playState==='running');animations.forEach(a=>a.pause());
+ savedEffects.forEach(el=>el.remove());clearJackpot();
+ window.YggAudio?.stop();
+ $('demoMangaWin').disabled=$('demoMangaMiss').disabled=true;
+ try{
+  await window.YggManga.play({hit,valid:()=>id===token,sound,preview:true,onJackpot:async()=>{setSpinClass(false);setReels([9,9,9]);setWinClass(true);return jackpotSequence(id,true);}});
+ }finally{
+  clearJackpot();
+  if(id===token){$('lcd').className=savedClass;if(savedStyle===null)$('lcd').removeAttribute('style');else $('lcd').setAttribute('style',savedStyle);document.querySelector('.cabinet').className=savedCabinet;savedReels.forEach((r,i)=>{$('reel'+i).innerHTML=r.html;$('reel'+i).className=r.cls;});savedEffects.forEach(el=>$('lcd').append(el));}
+  mangaPreview=false;window.YggClock.paused=false;
+  animations.forEach(a=>{if(a.playState==='paused')a.play()});
+  $('demoMangaWin').disabled=$('demoMangaMiss').disabled=false;
+  if(id===token)processQueue();
+ }
+}
+$('demoMangaWin').addEventListener('click',()=>previewManga(true));
+$('demoMangaMiss').addEventListener('click',()=>previewManga(false));
+async function jackpotSequence(id,realtime=false){
+ const wait=realtime?ms=>new Promise(r=>window.setTimeout(r,ms)):pause;
  const scene=document.createElement('div');scene.className='jackpot-scene hush';scene.setAttribute('aria-hidden','true');
  for(const name of ['rainbow','rays','ring','ring second']){const layer=document.createElement('div');layer.className='jackpot-'+name;scene.append(layer);}
 
@@ -184,23 +218,23 @@ async function jackpotSequence(id){
 
  for(let i=0;i<72;i++){const shard=document.createElement('i');shard.style.setProperty('--angle',(i*137.5)+'deg');shard.style.setProperty('--travel',(35+i%5*9)+'cqw');shard.style.setProperty('--delay',(i%12*.075)+'s');scene.append(shard);}
  $('lcd').append(scene);$('lcd').classList.add('jackpot-running');
- await pause(450);if(id!==token)return false;
- showYakumono();if(!$('lcd').classList.contains('rainbow-active'))startRainbow();scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');if(!$('lcd').classList.contains('recovery-success')){sound('win');sound('winRoll');sound('winScratch');}
- await pause(600);if(id!==token)return false;
+ await wait(450);if(id!==token)return false;
+ showYakumono(realtime);if(!$('lcd').classList.contains('rainbow-active'))startRainbow();scene.className='jackpot-scene burst';document.querySelector('.cabinet').classList.add('jackpot-lit');if(!$('lcd').classList.contains('recovery-success')){sound('win');sound('winRoll');sound('winScratch');}
+ await wait(600);if(id!==token)return false;
  scene.className='jackpot-scene crown';$('lcd').classList.add('yakumono-leaving');
- await pause(3100);if(id!==token)return false;
+ await wait(3100);if(id!==token)return false;
  $('lcd').classList.add('jackpot-reveal');
  // Third card settles after .7s motion plus .2s stagger.
- await pause(900);if(id!==token)return false;
+ await wait(900);if(id!==token)return false;
  $('lcd').classList.add('jackpot-lock');sound('winningLine');
- await pause(330);if(id!==token)return false;
+ await wait(330);if(id!==token)return false;
  $('lcd').classList.remove('jackpot-lock');
- await pause(3870);if(id!==token)return false;
+ await wait(3870);if(id!==token)return false;
  $('lcd').classList.add('yakumono-leaving');scene.className='jackpot-scene crown leaving';document.querySelector('.cabinet').classList.add('jackpot-fading');
- await pause(450);if(id!==token)return false;
+ await wait(450);if(id!==token)return false;
  clearJackpot();return true;
 }
-async function processQueue(){if(spinning||holds.length===0)return;spinning=true;const id=++token;
+async function processQueue(){if(window.YggClock?.paused||spinning||holds.length===0)return;spinning=true;const id=++token;
 // Keep a newly announced die visible until its short arrival cue finishes.
 const arrivalWait=(holds[0].alertUntil||0)-performance.now();
 if(arrivalWait>0){await pause(arrivalWait);if(id!==token)return;}
@@ -217,14 +251,14 @@ for(let i=0;i<3;i++){
 }
 await pause((h.hit?260:200)*scale);if(id!==token)return;
 if(!s.demo){if(h.mode==='rush')s.rushSpins++;else s.normalSpins++}
-if(h.hit){bonusActive=true;setWinClass(true);if(!await jackpotSequence(id))return;const premium = s.premium?randomInt(3)===0:randomInt(20)===0;setAction(premium?'PREMIUM BONUS！':'大当たり！');s.stock+=h.payout;if(!s.demo)s.balls+=h.payout;
+if(h.hit){bonusActive=true;setWinClass(true);if(!h.mangaJackpotPlayed&&!await jackpotSequence(id))return;const premium = s.premium?randomInt(3)===0:randomInt(20)===0;setAction(premium?'PREMIUM BONUS！':'大当たり！');s.stock+=h.payout;if(!s.demo)s.balls+=h.payout;
 if(h.mode==='rush'){if(!s.demo)s.rushHits++;s.chain++;s.remaining=ST_MAX;s.mode='rush';}else if(h.enter){if(!s.demo)s.firstHits++;s.chain=1;s.remaining=ST_MAX;s.mode='rush'}else{if(!s.demo)s.firstHits++;s.mode='normal';s.remaining=0;s.chain=0;}
 if(!s.demo)s.maxChain=Math.max(s.maxChain,s.chain);
 logEvent((h.mode==='rush'?'RUSH中 ': '初当たり ')+h.payout+'個'+(s.mode==='rush'?' → RUSH継続':' → 通常'),true);update();await pause(1000*scale);if(id!==token)return;setWinClass(false);if(s.mode==='rush'){setAction('RAGNAROK RUSH');sound('rush')}else{setAction('BONUS 終了');}
 await pause(500*scale);if(id!==token)return;bonusActive=false;
 }else{if(h.mode==='rush' && s.mode==='rush'){s.remaining=Math.max(0,s.remaining-1);if(s.remaining===0){logEvent('RUSH終了｜'+s.chain+'連',true);setAction('RUSH 終了');s.mode='normal';s.chain=0;}else{setAction(h.reach?'惜しくも敗北':'戦況、変化なし');}}else{setAction(h.reach?'作戦失敗':'変動終了');};logEvent(h.reach?'リーチ → ハズレ':'ハズレ');$('lcd').classList.add('lose');await pause((h.reach?510:190)*scale);if(id!==token)return;}
 spinning=false;update();if(holds.length)processQueue();}
-function resetGame(){if(!confirm('遊技データと現在のRUSH状態をリセットする？'))return;bonusActive=false;clearEyeAlert();clearJackpot();$('cityAlert').classList.remove('active','red');window.YggAudio?.stop();token++;for(const id of activeFX)clearInterval(id);activeFX=[];holds=[];spinning=false;handleHeld=false;previewNext=false;demoAlertNext=false;demoRecoveryNext=false;clearReelCutins();activeBalls=[];log=[];Object.assign(s,{...DEFAULT,lastRegen:Date.now()});buildPins();stageUI();setAction('ユグドラシルへようこそ');setReels([3,5,7]);setSpinClass(false);setWinClass(false);$('lcd').classList.remove('lose');logEvent('遊技データをリセットした');update();}
+function resetGame(){if(!confirm('遊技データと現在のRUSH状態をリセットする？'))return;bonusActive=false;window.YggManga?.clear();clearEyeAlert();clearJackpot();$('cityAlert').classList.remove('active','red');window.YggAudio?.stop();token++;for(const id of activeFX)clearInterval(id);activeFX=[];holds=[];spinning=false;handleHeld=false;previewNext=false;demoAlertNext=false;demoRecoveryNext=false;clearReelCutins();activeBalls=[];log=[];Object.assign(s,{...DEFAULT,lastRegen:Date.now()});buildPins();stageUI();setAction('ユグドラシルへようこそ');setReels([3,5,7]);setSpinClass(false);setWinClass(false);$('lcd').classList.remove('lose');logEvent('遊技データをリセットした');update();}
 
 // 2D physics. He-so (START) is now just beneath the LCD, not on the bottom edge.
 // No large lower funnel boards; pocket visits depend on pin collisions.
@@ -561,6 +595,7 @@ function drawBalls(){
  }
 }
 function animationFrame(now){
+ if(window.YggClock?.paused){lastFrame=now;requestAnimationFrame(animationFrame);return;}
  if(!lastFrame)lastFrame=now;
  const diff=Math.min(.05,(now-lastFrame)/1000);lastFrame=now;lag=Math.min(.1,lag+diff);
  if(handleHeld && !rightHeld && s.power>=20 && s.stock>0 && now-lastFire>=600){

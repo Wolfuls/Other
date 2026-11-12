@@ -1,0 +1,6 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict'),root=path.join(__dirname,'..');for(const [,file]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g)){if(file==='game.js')continue;vm.runInThisContext(fs.readFileSync(path.join(root,file),'utf8'));}
+const expected={2:{bun:[6,7],wafer:[4,5],tin:[9,10,12],naniwa:[90]},3:{mouse:[9],moth:[8],hopper:[12],mill:[18],carrier:[24],keeper:[180]},4:{biscuit:[18],moth:[14],macaron:[24],mille:[300]}};
+for(let ch=2;ch<=4;ch++)for(let stage=0;stage<(ch===2?3:4);stage++){const g=new Miload.Game(1,{chapter:ch,story:false});g.stage=stage;g.loadStage();for(const e of g.enemies){const kind=e.libraryKind||e.species||e.townKind||e.type;assert.ok(expected[ch][kind]?.includes(e.hp),ch+':'+kind+':'+e.hp);assert.equal(e.hp,e.maxHp);}if(ch===4&&stage===3){const boss=g.enemies.find(e=>e.type==='boss');assert.ok(boss);}}
+// Lv2 remains effective in Ch4: blade 2/2/3 hits; thunder one hit per ordinary enemy.
+for(const hp of [18,14,24]){assert.ok(Math.ceil(hp/Miload.WANDS.blade.damage)<=3);assert.ok(hp<=Miload.WANDS.comet.damage);}
+console.log('PASS authored enemy HP including wheel guards, bosses and Lv2 Ch4 damage thresholds');

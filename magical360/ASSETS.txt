@@ -1,33 +1,58 @@
-v0.8 dedicated assets — built-in image_gen (not CLI)
-Strict reference: assets/miload-motion-v2.png (existing game character).
-Rejected first-pass images are not included in this distribution.
-Room and exterior: game.js, code-native pixel drawing matching the existing scenery.
+v0.86 — 現在使用している素材
 
-assets/miload-prologue-v1.png
-Create a dedicated reaction sprite sheet for this exact existing pixel-art game character, using the provided sprite sheet as strict identity AND pixel-art style reference. DO NOT redesign her. Keep precisely the same big bent purple witch hat with pink underside and pale highlight, orange long hair, small black eyes, pointed ears, warm pale peach skin, plain long-sleeved short purple one-piece dress with black neck bow, bare legs and purple ankle boots. NO belt, corset, thigh-high boots, off-shoulder clothing, gold eyes, extra ornaments, realistic rendering or painted lighting. Match reference chibi proportions, dark pixel outlines, coarse hard pixel clusters, limited colors. A transparent sprite atlas of exactly four equal columns and two equal rows, no labels. Each cell entire same-size character, consistent foot baseline and right-facing three-quarter view, extra transparent margins. Eight acting poses in reading order: anticipating cookie with happy hands together; reaching right for cookie; holding one cookie close to mouth delighted; startled wide eyes recoiling empty hands; recoiling with both hands up; pulling existing star-tipped wand from her side; pointing same wand right with determined face; leaning forward to chase right. No floor, no scene, no props except cookie in pose three and wand in poses six seven eight. This is a low-resolution game sprite sheet matching the supplied reference, not an illustration.
+assetsフォルダにはゲームから参照する画像18枚と音源10曲のみを配置しています。
+旧画像は今回の作業バックアップへ退避しました。画像そのもののリサイズ・再圧縮はしていません。
+以下は相対パスです。生成条件や旧版の記録はdocs/artを参照してください。
 
-assets/miload-faces-v1.png
-Create a dedicated six-expression dialogue portrait sprite atlas of THIS EXACT CHARACTER from the attached pixel sprite reference. Preserve identity and graphic style, no redesign: big bent purple witch hat with pink underside, long orange hair and orange bangs, small BLACK eyes (not colored irises), pointed ears, natural peach skin, simple purple dress with black neck bow and CLOSED shoulders. Coarse crisp pixel clusters, dark pixel outlines, very limited palette, retro game pixel art matching reference. NOT detailed anime painting, not smooth airbrush, no gradients or decorative clothing. Exactly three equal columns by two equal rows, same face size and framing, head and shoulders with hat tip safely inside each cell, transparent background, no text. Expressive distinct poses reading order: happy anticipation with open smile; shocked wide eyes open mouth raised brows; determined angry knitted brows; doubtful worried one raised brow; delicious eyes closed curved upward with smiling cheeks; puzzled thoughtful with hand against chin. Keep same face and hairstyle in all six. This is a dedicated low-resolution dialogue face sheet; retain reference's cute chibi face, not adult glamorous portrait.
-Portrait background is baked into the atlas; portraits are intentionally rendered as square icons.
+キャラクター
+assets/miload-redraw-v2.png       ミロードの通常動作・寸劇
+assets/miload-sprint-v3.png       ミロードの地上ダッシュ
+assets/miload-airdash-v4.png      ミロードの箒ダッシュ（回転しない現行版）
+assets/miload-faces-v1.png        ミロードの表情
+assets/naniwa-redraw-v1.png       ナニワの通常動作・寸劇
+assets/naniwa-unarmed-v1.png      ナニワの杖なし動作
+assets/naniwa-faces-v2.png        ナニワの表情
 
-v0.10: assets/miload-run-v1.png — built-in image_gen; strict reference assets/miload-motion-v2.png.
-Use case: identity-preserve. Create a RUN CYCLE sprite atlas for the EXACT pixel-art game character in the reference. Strictly preserve face, cute proportions, small black eyes, pointed ears, long orange hair, huge bent purple witch hat with pink underside and white highlight, plain closed-shoulder purple long-sleeved dress and black neck bow, bare legs and purple ankle boots. No belt, no armor, no outfit redesign. Same coarse pixel clusters and dark outlines, not painted illustration. Exactly FOUR equal columns and TWO equal rows: eight sequential frames of a single fast RUNNING cycle facing RIGHT. Strong forward lean, legs extending far apart in contact frames, knees tucked in passing frames, a brief airborne stride, hair and hat trailing LEFT; clearly faster posture than the walking cycle in the reference. She carries the same small star-tipped wand in her front hand at chest level consistently throughout. Frames 1-4 one stride, 5-8 opposite stride; do not repeat the same pose eight times. Same body scale in all cells; same pelvis position relative to cell and horizontal floor baseline; feet may lift during airborne phases. Whole character and wand within each cell with generous transparent margins, no cross-cell overlap. Low-resolution retro pixel game asset, roughly 64px character detail enlarged crisply. Transparent background, no ground line, no captions, no text.
+魔物・ボス・お菓子
+assets/chapter3-monsters-v74.png  Ch3の魔物
+assets/chapter3-keeper-v3.png     大袋の番人
+assets/chapter3-baum-v74.png      ボス由来のバウムクーヘン
+assets/night-sweets-king-v103.png  夜菓子の王さま
 
+強化アイコン
+assets/upgrade-meal.png          食後のひと撃ち
+assets/upgrade-broom.png         箒の手入れ
+assets/upgrade-exercise.png      日ごろの運動
+assets/upgrade-manners.png       魔女のテーブルマナー
+assets/upgrade-training.png      修行の成果
+assets/upgrade-grit.png          ド根性
 
-v0.25 — Chapter 2
-Existing Miload images are unchanged.
-assets/naniwa-sprites-v2.png: approved Naniwa revision 2, 256 x 384, 24 frames (64 x 64), 4 columns x 6 rows. Anchor (32,62), drawn at 90 x 90 like Miload.
-assets/naniwa-faces-v2.png: approved simplified portrait revision 2, 384 x 192, 8 expressions (96 x 96), 4 columns x 2 rows.
-The approved images are copied unchanged from the Naniwa v2 deliverable; no redesign.
-Chapter 2 backgrounds and cargo are code-native pixel drawings in chapter2-art.js.
+BGM（ユーザー提供）
+assets/moonlit-sweeties.mp3                 タイトル / Moonlit Sweeties
+assets/witchs-tea-time.mp3                  Ch0導入 / Witch's Tea Time
+assets/my-cookie-escaped.mp3                Ch0追跡以降 / My Cookie Escaped!
+assets/moonlit-quest.mp3                    Ch1 / Moonlit Quest
+assets/noctain-town.mp3                     Ch2 / Noctain Town
+assets/tracks-through-the-moonlit-fields.mp3 Ch3 / Tracks Through the Moonlit Fields
+assets/castle-shadow-march.mp3              Ch1・Ch3・Ch4ボス / Castle Shadow March
+assets/witchs-duel.mp3                      ナニワ戦 / Witch's Duel
+assets/next-path.mp3                        決着後・ステージクリアイベント / Next Path
 
+背景・小物・効果音
+背景、小物、通常のお菓子、一部の魔物・エフェクトはCanvas描画です。
+効果音はsfx.jsの合成音を使用しています。
+画像読込前のフォールバック用Canvas描画は現行コードとして残しています。
 
-v0.26: All PNG images are unchanged. Hurt flash and death animation reuse approved sprites through Canvas rendering. No embedded image data in HTML.
+assets/chapter4-monsters-v102.png  Ch4の魔物3種・書架ヤドカリ型の書庫荒らし・召喚魔導書（各8コマ、96×96）
+chapter4-art.jsのCanvas描画から生成。背景・書架・ミルフィーユも同ファイルのドット描画です。
 
+assets/moonlit-library.mp3  Ch4道中 / Moonlit Library（ユーザー提供）
 
-v0.27 — Dedicated defeat animation
-assets/miload-defeat-v1.png: 192 x 128 RGBA, six 64 x 64 cells, 3 columns x 2 rows. Anchor (32,62), rendered at 90 x 90.
-Generated with built-in image_gen, using the approved miload-motion-v2.png and miload-prologue-v1.png as identity/style references.
-Sequence: startle, buckle, one-knee, brace, slump, settled. Shared baseline y=61. Preserve alpha, nearest-neighbor sprite export.
-Full prompt: assets/miload-defeat-v1.prompt.txt. Frame bounds and source regions: assets/miload-defeat-v1.json.
-The six existing Miload/Naniwa image files are unchanged.
+assets/upgrade-shield.png 魔力の盾のアイコン
+assets/upgrade-wisp.png ウィル・オ・ウィスプのアイコン
+
+assets/library-raider-v104.png 書庫荒らし専用8コマ。ユーザー参考画像を基に画像生成、ゲーム用に整列。王様も同方式で12コマを更新。
+
+assets/chapter3-keeper-v113.png 大袋の番人12コマ（4×3、362pxセル）。ユーザー参考『大袋の番人・穀物の守護者.png』から内蔵image_genで生成。透過PNGをそのまま使用。chapter3-keeper-v3.pngは読込失敗時の代替として保持。
+
+assets/miload-eat-v115.png：既存ミロードを参考に内蔵image_genで生成した食事2コマ。杖を持たず、腕が2本の姿勢。透過PNGをそのまま使用。

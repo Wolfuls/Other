@@ -1,0 +1,8 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict');
+for(const f of ['content','chapter2-content','engine','chapter2','presentation','sfx','continues','chapter3-content','chapter3','chapter4-content','chapter4','progression'])vm.runInThisContext(fs.readFileSync(path.join(__dirname,'..',f+'.js'),'utf8'));
+const g=new Miload.Game(1,{chapter:1,story:false});g.inventory=['blade'];g.player.aimActive=true;g.player.aimX=g.player.x;g.player.aimY=0;g.player.fire=0;assert.ok(g.shoot());assert.ok(g.bullets[0].vy<0);assert.ok(Math.abs(g.bullets[0].vx)<100);
+g.platforms=[{x:0,y:458,w:2000,h:100}];g.enemies=[];const b={x:200,y:450,w:12,h:10,prevX:198,prevY:445,vx:120,vy:200,life:Infinity,damage:1,wand:'echo',hits:new Set()};g.stepEcho(b);assert.equal(b.vy,-200);assert.equal(b.vx,120);assert.equal(b.bounces,1);assert.ok(b.y+10<458);
+g.platforms=[];const e=g.spawnEnemy('slime',300,458);Object.assign(b,{x:295,y:e.y,prevX:280,prevY:e.y,vx:120});const hp=e.hp;g.stepEcho(b);assert.equal(e.hp,hp-1);assert.equal(b.vx,-120);assert.equal(b.bounces,2);g.stepEcho(b);assert.equal(b.bounces,2);Object.assign(b,{x:295,prevX:280,vx:120});g.stepEcho(b);assert.equal(b.bounces,3);b.bounces=4;Object.assign(b,{x:295,prevX:280,vx:120});g.stepEcho(b);assert.equal(b.life,0);
+g.completeChapter();assert.equal(g.stocks,3);g.completeChapter();assert.equal(g.stocks,3);
+for(const k of ['bladeSlash','bladeHit']){const samples=MiloadSfx.samples(k);assert.ok(samples.some(v=>Math.abs(v)>.05));assert.ok(samples.every(Number.isFinite));}
+console.log('PASS aimed blade, ground/enemy reflections, separation/no repeated contact, third-hit expiry, once-per-chapter stock and blade sound samples');

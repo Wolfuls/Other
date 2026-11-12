@@ -1,0 +1,21 @@
+const fs=require('fs'),assert=require('assert/strict');
+(async()=>{
+ const tabs=await(await fetch('http://127.0.0.1:9254/json')).json();const ws=new WebSocket(tabs.find(t=>t.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));let seq=0;const pending=new Map();
+ ws.addEventListener('message',e=>{const d=JSON.parse(e.data);if(pending.has(d.id)){pending.get(d.id)(d);pending.delete(d.id)}});
+ const call=(method,params={})=>new Promise(r=>{const id=++seq;pending.set(id,r);ws.send(JSON.stringify({id,method,params}))});
+ const ev=async expression=>{const r=await call('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.result.exceptionDetails)throw Error(JSON.stringify(r.result.exceptionDetails));return r.result.result.value};
+ await call('Emulation.setDeviceMetricsOverride',{width:1600,height:1000,deviceScaleFactor:1,mobile:false});
+ const delay=ms=>new Promise(r=>setTimeout(r,ms));
+ await ev(`window.saved=localStorage.getItem('cr-yggdrasill-demo-v06');window.originalTimeout=window.setTimeout;window.setTimeout=(fn,ms,...args)=>originalTimeout(fn,ms*.12,...args);window.cues=[];YggAudio.play=name=>cues.push(name);document.getElementById('demoMangaWin').click()`);
+ await delay(180);assert.equal(await ev("document.querySelectorAll('.manga-scene').length"),2);
+ assert(await ev("[...document.querySelectorAll('.manga-art')].every(i=>i.complete&&i.naturalWidth>0)"));
+ const shot=await call('Page.captureScreenshot');fs.writeFileSync('work/manga99-intro.png',Buffer.from(shot.result.data,'base64'));
+ await delay(3900);assert.equal(await ev("document.querySelectorAll('.manga-scene,.jackpot-scene').length"),0);assert(await ev("cues.includes('winningLine')"));
+ const before=await ev("JSON.parse(localStorage.getItem('cr-yggdrasill-demo-v06'))");
+ await ev("cues=[];document.getElementById('demoMangaMiss').click()");await delay(2400);
+ assert.equal(await ev("document.querySelectorAll('.manga-scene,.jackpot-scene').length"),0);assert(!await ev("cues.includes('win')||cues.includes('winningLine')"));
+ const after=await ev("JSON.parse(localStorage.getItem('cr-yggdrasill-demo-v06'))");for(const k of ['balls','stock','firstHits','normalSpins','rushHits','rushSpins','mode'])assert.equal(after[k],before[k],k);
+ await ev("document.getElementById('demoMangaWin').click();window.confirm=()=>true;document.getElementById('reset').click()");await delay(450);assert.equal(await ev("document.querySelectorAll('.manga-scene').length"),0);
+ console.log('PASS both monitors, loaded art, success jackpot, miss cleanup, preview accounting, reset cancellation');
+ await call('Browser.close');ws.close();
+})().catch(e=>{console.error(e);process.exit(1)});

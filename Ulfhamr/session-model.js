@@ -5,6 +5,7 @@ const normalize=s=>String(s??'').normalize('NFKC').replace(/[\s【】\[\]]/g,'')
 const groups=['特殊武装','SPE','カルマ','消費アイテム'];
 function sheetName(value){
  return String(value??'').normalize('NFKC').trim()
+  .replace(/^(アタッチメント)\s*\/\s*(?:スペック|SP|S)?\s*0\s*$/i,'$1')
   .replace(/\s*\/\s*(?:\d+\s*(?:rd|sp)|s\s*\d+)\s*$/i,'')
   .replace(/\s*\(\s*RW\s*\)\s*$/i,'').trim();
 }
@@ -113,6 +114,10 @@ function upgradeOwned(c){
   const row=a.sourceCell?.match(/^キャラシート!B(4[0-9]|5[01])$/)?.[1];if(!row)continue;
   const alias=c.actions.find(b=>b.owned&&b.group==='消費アイテム'&&b.sourceCell==='キャラシート!E'+row);if(!alias)continue;
   a.name=alias.ownedName||alias.name;a.attachmentName=a.name;a.aliasCell=alias.sourceCell;c.actions=c.actions.filter(b=>b!==alias);
+ }
+ // Attachments are SP 0, including older imports that missed the catalogue.
+ for(const a of c.actions)if(a.owned&&a.group==='特殊武装'&&(a.attachmentName||normalize(sheetName(a.ownedName||a.name))==='アタッチメント'||a.catalogKey==='weapon-1')){
+  a.pressure=0;a.needsReview=false;
  }
  return c;
 }

@@ -16,8 +16,8 @@ P.step=function(dt,input){
  old.step.call(this,dt,input);
  if(this.bossAwake&&!this.retryCheckpoint?.boss)this.saveRetryCheckpoint(true);
 };
-P.rewardStageStock=function(){const key=this.chapter+':'+this.stage;if(this.chapter<1||this.stockRewards.has(key))return;this.stockRewards.add(key);this.stocks++;};
-P.enterDoor=function(){const chapter=this.chapter,stage=this.stage,ok=old.enterDoor.call(this);if(ok&&chapter>0){const key=chapter+':'+stage;if(!this.stockRewards.has(key)){this.stockRewards.add(key);this.stocks++;}}return ok;};
+P.rewardStageStock=function(){const key=String(this.chapter);if(this.chapter<1||this.stockRewards.has(key))return;this.stockRewards.add(key);this.stocks++;};
+P.enterDoor=function(){return old.enterDoor.call(this);};
 P.completeChapter=function(){this.rewardStageStock();old.completeChapter.call(this);};
 P.canContinue=function(){return this.state==='lost'&&this.stocks>0&&!!this.retryCheckpoint;};
 P.continueFromCheckpoint=function(){
@@ -30,8 +30,8 @@ P.continueFromCheckpoint=function(){
  Object.assign(this.player,{inv:1.5,damageBlink:0,airDash:0,airDashAnim:0,airDashCooldown:0,jumpRising:false,hurt:0,fire:0,eat:0,deathPose:0,defeatFrame:0});
  if(c.boss){
   this.enemies=this.enemies.filter(e=>e.type==='boss'||e.type==='naniwa');this.sweets=[];this.drops=[];this.story=null;this.storyQueue=[];
-  const event=this.chapter===3?'c3-boss':this.chapter===2?'c2-challenge':'c1-king';this.seenStories.add(event);this.finishedStories.add(event);
-  this.bossAwake=true;this.arenaLocked=true;this.player.x=this.arenaStart+180;this.player.y=CFG.ground-this.player.h;this.player.grounded=true;this.player.vx=this.player.vy=0;this.camera=Math.max(0,Math.min(this.worldWidth-CFG.width,this.player.x-335));
+  const event=this.chapter===4?'c4-boss':this.chapter===3?'c3-boss':this.chapter===2?'c2-challenge':'c1-king';this.seenStories.add(event);this.finishedStories.add(event);
+  this.bossAwake=true;this.arenaLocked=true;this.player.x=this.chapter===4?4380:this.arenaStart+180;this.player.y=CFG.ground-this.player.h;this.player.grounded=true;this.player.vx=this.player.vy=0;this.camera=Math.max(0,Math.min(this.worldWidth-CFG.width,this.player.x-335));
  }
  this.beginEntrance();return true;
 };

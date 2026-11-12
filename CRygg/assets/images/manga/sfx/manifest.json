@@ -1,0 +1,47 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "id": "windup",
+      "text": "ゴオオ…",
+      "scene": "振りかぶり",
+      "file": "sfx-windup-v01.png"
+    },
+    {
+      "id": "impact",
+      "text": "ドゴォン",
+      "scene": "地面への叩きつけ",
+      "file": "sfx-impact-v01.png"
+    },
+    {
+      "id": "dodge",
+      "text": "バッ",
+      "scene": "飛び退く回避",
+      "file": "sfx-dodge-v01.png"
+    },
+    {
+      "id": "transform",
+      "text": "ギギギ",
+      "scene": "金属バットの変形",
+      "file": "sfx-transform-v01.png"
+    },
+    {
+      "id": "chainsaw",
+      "text": "ギュイイイン",
+      "scene": "チェーンソー始動",
+      "file": "sfx-chainsaw-v01.png"
+    },
+    {
+      "id": "slash",
+      "text": "ズバッ",
+      "scene": "斬撃",
+      "file": "sfx-slash-v01.png"
+    },
+    {
+      "id": "collapse",
+      "text": "ガラガラ",
+      "scene": "崩壊・瓦礫",
+      "file": "sfx-collapse-v01.png"
+    }
+  ]
+}

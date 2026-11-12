@@ -409,7 +409,19 @@ html,body{min-width:0;overflow-x:hidden}
 /* v97: oversized portrait panels, with readable digits in the foreground. */
 .lcd.jackpot-reveal>.reels{height:80%;align-items:stretch;perspective:700px}
 .playfield .lcd.jackpot-reveal>.reels .reel{height:100%;aspect-ratio:auto;container-type:size;border-width:2px}
-.playfield .lcd.jackpot-reveal>.reels img.character-art{animation:none!important;object-fit:fill;width:200cqh;height:200cqh;left:calc(50% - 50cqh);top:0;max-width:none}
+/* Frame each portrait around its head, not the middle of the source square.
+   Square sprite cells retain their aspect ratio; clip away the other 3 frames. */
+.playfield .lcd.jackpot-reveal>.reels .reel{--portrait-size:180cqw;--portrait-left:-50cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="1"]{--portrait-size:145cqw;--portrait-left:-14cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="2"]{--portrait-size:190cqw;--portrait-left:-74cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="3"]{--portrait-size:145cqw;--portrait-left:-40cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="4"]{--portrait-size:180cqw;--portrait-left:-51cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="5"]{--portrait-size:200cqw;--portrait-left:-58cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="6"]{--portrait-size:200cqw;--portrait-left:-64cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="7"]{--portrait-size:185cqw;--portrait-left:-47cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="8"]{--portrait-size:180cqw;--portrait-left:-34cqw}
+.playfield .lcd.jackpot-reveal>.reels .reel[data-number="9"]{--portrait-size:175cqw;--portrait-left:-74cqw}
+.playfield .lcd.jackpot-reveal>.reels img.character-art{animation:none!important;object-fit:fill;width:calc(var(--portrait-size)*2);height:calc(var(--portrait-size)*2);left:var(--portrait-left);top:2%;max-width:none;clip-path:inset(0 50% 50% 0)}
 .playfield .lcd.jackpot-reveal>.reels img.reel-digit{width:88%;height:40%;left:6%;bottom:2%;filter:drop-shadow(2px 3px 1px #000) drop-shadow(0 0 5px #ffe18d)}
 .lcd.jackpot-lock>.reels{animation:winning-line-lock .33s ease-out both!important}
 .lcd.jackpot-lock>.reels .reel{border-color:#fffbe5;box-shadow:0 0 18px #fff6b3,0 0 35px #ffd23f}

@@ -4,8 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0b111c" />
-<title>CR 鋼鉄のユグドラシル ― RAGNAROK ― | 試作 v0.97 左右打ち・操作パネル</title>
-<link rel="stylesheet" href="assets/css/style.css?v=97">
+<title>CR 鋼鉄のユグドラシル ― RAGNAROK ― | 試作 v0.98 左右打ち・操作パネル</title>
+<link rel="stylesheet" href="assets/css/style.css?v=98">
+<link rel="stylesheet" href="assets/css/manga.css?v=111">
 <link rel="preload" as="image" href="assets/images/reels/character-1-v20.png">
 <link rel="preload" as="image" href="assets/images/reels/character-4-v20.png">
 <link rel="preload" as="image" href="assets/images/reels/character-5-v20.png">
@@ -106,6 +107,7 @@
         <h2>遊技履歴</h2>
         <ol class="events" id="events" aria-label="直近の変動履歴"><li><span class="time">--:--</span><span>遊技の準備ができた</span></li></ol>
         <div class="info-row"><span>デモ</span><button id="demoRecovery" class="reset">デモ復活</button><button id="demoAlert" class="reset">デモ先バレ</button><button id="preview" class="reset">次回大当たり</button></div>
+        <div class="info-row"><span>漫画デモ</span><button id="demoMangaWin" class="reset">成功</button><button id="demoMangaMiss" class="reset">ハズレ</button></div>
         
         <div class="info-row"><span>リセット</span><button id="reset" class="reset">データをリセット</button></div>
       </section>
@@ -136,12 +138,20 @@
   </main>
   
 </div>
-<script src="assets/js/audio.js?v=97" defer></script>
-<script src="assets/js/game.js?v=97" defer></script>
+<script src="assets/js/audio.js?v=110" defer></script>
+<script src="assets/js/pause-clock.js?v=100" defer></script>
+<script src="assets/js/manga.js?v=111" defer></script>
+<script src="assets/js/game.js?v=111" defer></script>
 <script src="assets/js/yakumono.js?v=97" defer></script>
 <script src="assets/js/monitor.js?v=83" defer></script>
 <script src="assets/js/panel.js?v=97" defer></script>
 </body>
 </html>
+
+
+
+
+
+
 
 
