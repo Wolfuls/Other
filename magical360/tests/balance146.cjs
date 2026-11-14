@@ -1,0 +1,9 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict'),root=path.join(__dirname,'..');
+for(const [,f]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))if(f!=='game.js')vm.runInThisContext(fs.readFileSync(path.join(root,f),'utf8'));
+const A=Miload;
+const dps=(k,m,focus,h=0,hits=1)=>A.WANDS[k].damage*hits/(A.shotInterval(k,h)+A.shotCost(k,h)/(m*(focus?.27:.18)));
+for(const focus of [false,true])for(const m of [100,150,250,350,600])assert.ok(dps('fortune',m,focus)>dps('twin',m,focus,0,2));
+assert.ok(dps('spread',150,false,0,1.5)<dps('twin',150,false,0,2));assert.ok(dps('spread',450,false,0,1.5)>dps('twin',450,false,0,2));
+for(const h of [0,50,80,90,99])for(const focus of [0,1]){const g=new A.Game(42,{chapter:1,story:false});g.enemies=[];g.sweets=[];g.inventory=['fortune'];g.happiness=h;g.upgrades={training:3,focus};g.energy=0;g.platforms=[{x:0,y:458,w:5000,h:100,ground:true}];Object.assign(g.player,{x:100,y:402,grounded:true,inv:999});let shots=0;for(let i=0;i<120*120;i++){g.step(1/120,{fire:true});shots+=g.events.filter(e=>e.type==='shoot').length;g.events=[];}const actual=shots*2/120,ideal=dps('fortune',250,focus,h);assert.ok(Math.abs(actual/ideal-1)<.06,`${h}/${focus}: ${actual} / ${ideal}`);}
+{const g=new A.Game(42,{story:false});g.enemies=[];g.sweets=[];g.platforms=[{x:0,y:200,w:500,h:16},{x:0,y:270,w:500,h:16}];Object.assign(g.player,{x:100,y:144,grounded:true});g.step(1/120,{crouch:true,dropThrough:true});assert.ok(g.player.vy<0,'light upward takeoff');assert.equal(g.player.crouching,false);for(let i=0;i<120&&!g.player.grounded;i++)g.step(1/120,{});assert.equal(g.player.y+g.player.h,270,'land on next floor, not original');assert.equal(g.player.dropAnim,0);}
+console.log('PASS fortune lower bound, maximum-mana crossover, ten sustained-fire simulations and hop-down landing');

@@ -1,0 +1,8 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert/strict'),root=path.join(__dirname,'..');
+for(const [,f]of fs.readFileSync(path.join(root,'index.html'),'utf8').matchAll(/<script src="([^?]+)\?/g))if(f!=='game.js')vm.runInThisContext(fs.readFileSync(path.join(root,f),'utf8'));
+const A=Miload;
+function rate(id,hits,m,focus){const w=A.WANDS[id];return w.damage*hits/(w.cooldown+w.cost/(m*(focus?.27:.18)));}
+for(const [id,hits,cost]of [['blade',1,75],['comet',1,200],['spread',1.5,100],['echo',2,66]]){assert.equal(A.WANDS[id].cost,cost);for(const m of [200,250])for(const focus of [0,1])assert.ok(rate(id,hits,m,focus)>rate('twin',2,m,focus));}
+// Exercise actual paid firing/cooldown/recovery. Count casts; convert to the stated hit assumptions.
+for(const focus of [0,1]){const results={};for(const [id,hits]of [['twin',2],['blade',1],['comet',1],['spread',1.5],['echo',2]]){const g=new A.Game(1,{chapter:1,story:false});g.enemies=[];g.sweets=[];g.inventory=[id];g.upgrades={training:3,focus};g.energy=0;g.platforms=[{x:0,y:458,w:6000,h:100,ground:true}];Object.assign(g.player,{x:100,y:402,grounded:true,inv:999});const shoot=g.shoot;let shots=0;g.shoot=function(){const ok=shoot.call(this);if(ok)shots++;return ok;};for(let i=0;i<600*120;i++){g.step(1/120,{fire:true});g.events=[];g.bullets=[];}const actual=shots*A.WANDS[id].damage*hits/600;results[id]=actual;assert.ok(Math.abs(actual/rate(id,hits,250,focus)-1)<.03,`${id}: ${actual}`);}for(const id of ['blade','comet','spread','echo'])assert.ok(results[id]>results.twin,JSON.stringify(results));console.log('M250 sustained focus='+focus,results);}
+console.log('PASS unchanged Lv2 costs, capacity crossover and 600-second firing simulations');

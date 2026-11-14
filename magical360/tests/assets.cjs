@@ -9,7 +9,8 @@ const used = new Set([...text.matchAll(/assets\/([\w-]+\.(?:png|mp3))/g)].map(ma
 for (const id of ['shield', 'wisp', 'meal', 'broom', 'exercise', 'manners', 'training', 'grit']) used.add(`upgrade-${id}.png`);
 for (const file of used) assert.ok(fs.existsSync(path.join(root, 'assets', file)), `Missing asset: ${file}`);
 const media = fs.readdirSync(path.join(root, 'assets')).filter(file => /\.(?:png|mp3)$/.test(file));
-for (const file of media) assert.ok(used.has(file), `Unreferenced asset: ${file}`);
+const archived = new Set(['miload-drop-v145.png']); // Previous artwork retained for rollback/reference.
+for (const file of media) assert.ok(used.has(file) || archived.has(file), `Unreferenced asset: ${file}`);
 for (const [, file] of html.matchAll(/(?:src|href)="([^"?#]+)(?:\?[^"#]*)?"/g)) {
   if (!file.startsWith('http')) assert.ok(fs.existsSync(path.join(root, file)), `Missing entrypoint dependency: ${file}`);
 }
