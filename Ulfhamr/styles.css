@@ -197,3 +197,5 @@ button,a,input,select,textarea,summary{transition:background-color .12s,border-c
 .declaration-comparison{display:grid;gap:14px}.declaration-comparison>.draft{position:static;max-height:none;width:100%}.declaration-comparison .draft-body{max-height:none}.condition-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#lyc-opponent-picker{margin:12px 0;padding:10px;border:1px solid var(--line);border-radius:8px}#lyc-opponent-picker label{display:block}#lyc-opponent-picker .lyc-opponent-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}#lyc-opponent-picker input,#lyc-opponent-picker select{width:100%}
 
 .buff-effect{padding:12px 0;border-bottom:1px solid var(--border,#ddd);margin-bottom:12px}.buff-mod{white-space:normal}
+
+#surface-lock-notice{position:fixed;inset:16px 16px auto;z-index:9999;padding:16px;border:1px solid var(--primary,#315d49);border-radius:10px;background:var(--surface,#fff);color:var(--ink,#17382b);box-shadow:0 6px 24px #0003}#surface-lock-notice p{margin:0 0 12px}
