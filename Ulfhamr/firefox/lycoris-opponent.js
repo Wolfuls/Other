@@ -14,7 +14,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const labels={hp:'相手HP',fixed:'判定の固定値',dice:'判定ダイス数',defense:'防御力',resist:'抵抗力',rage:'暴走率'};
 let candidates=[],selected=null,context=null,tabId=null,busy=false;
 const panel=()=>document.getElementById('lyc-opponent-picker');
-async function activeTab(){const [tab]=await browser.tabs.query({active:true,currentWindow:true});if(!tab?.url?.startsWith('https://udonarium-lycoris.ddns.net/'))throw Error('リコリスのタブを選択してください。');return tab;}
+async function activeTab(){const tab=await window.UlfHost.currentTab();if(!tab?.url?.startsWith('https://udonarium-lycoris.ddns.net/'))throw Error('リコリスのタブを選択してください。');return tab;}
 async function send(payload){const r=await browser.tabs.sendMessage(tabId,{channel:'ulfhamr-lycoris-v1',...payload});if(!r?.ok)throw Error(r?.error||'コマを読み込めませんでした。');return r.data;}
 function aliases(key){return ({hp:['hp','体力'],fixed:context.compareMental?['ss','ss固定値']:['回避','回避力','回避固定値'],dice:context.compareMental?['ssダイス','ss判定ダイス']:['回避ダイス','回避判定ダイス'],defense:['防御','防御力'],resist:['抵抗','抵抗力'],rage:['暴走率','暴走']})[key];}
 function automatic(key){const hits=selected.fields.filter(f=>aliases(key).includes(normalize(f.label))&&parse(f.raw,key)!==null);if(hits.length===1)return hits[0];

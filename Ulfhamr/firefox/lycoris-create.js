@@ -8,7 +8,7 @@ async function add(){
  const output=document.querySelector('#token-result');
  const say=text=>{if(output)output.textContent=text;};
  try{
-  const [tab]=await browser.tabs.query({active:true,currentWindow:true});
+  const tab=await window.UlfHost.currentTab();
   if(!tab?.url||new URL(tab.url).origin!=='https://udonarium-lycoris.ddns.net')throw Error('リコリスのタブを開いた状態で追加してください。');
   const snapshot=window.UlfhamrLycoris.tokenSnapshot();if(!snapshot)throw Error('先にキャラクターを選択してください。');
   const signature=JSON.stringify(snapshot),now=Date.now();
@@ -17,7 +17,7 @@ async function add(){
   say('「'+snapshot.name+'」を盤面へ追加しています…');
   const bytes=await UlfToken.archive(snapshot,Ygg,JSZip,UlfTokenImage);
   const chunks=[];for(let i=0;i<bytes.length;i+=8192)chunks.push(String.fromCharCode(...bytes.subarray(i,i+8192)));
-  const [current]=await browser.tabs.query({active:true,currentWindow:true});
+  const current=await window.UlfHost.currentTab();
   if(current?.id!==tab.id||new URL(current.url).origin!=='https://udonarium-lycoris.ddns.net')throw Error('操作するタブが変わりました。リコリスを選び直してください。');
   const reply=await browser.tabs.sendMessage(tab.id,{channel:'ulfhamr-lycoris-v1',type:'create-token',requestId,name:snapshot.name,archive:btoa(chunks.join(''))});
   if(!reply?.ok)throw Error(reply?.error||'リコリスへ追加できませんでした。');

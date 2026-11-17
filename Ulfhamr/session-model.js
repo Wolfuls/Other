@@ -74,6 +74,17 @@ function applyCondition(c,{hpRoll,ppRoll,bonus=weaponBonus(c),reroll=false,maxim
 }
 function useKey(a,s){return a.id+(a.usePeriod==='round'?'@'+s.round:a.usePeriod==='battle'?'@battle'+(s.battleSerial||1):'');}
 function ownedRemaining(c,a){return a.consumable?(c.state.ownedStock?.[a.id]??0):a.useLimit?Math.max(0,a.useLimit-(c.state.ownedUses?.[useKey(a,c.state)]||0)):null;}
+function adjustAbilityUses(c,next,deltas){
+ next.ownedUses={...(next.ownedUses||{})};
+ for(const [id,delta] of Object.entries(deltas)){
+  const a=c.actions.find(a=>a.id===id&&a.owned&&['SPE','カルマ'].includes(a.group)&&a.useLimit);
+  if(!a||!Number.isSafeInteger(delta))throw Error('使用回数の増減を確認してください');
+  const remaining=ownedRemaining(c,a)+delta;
+  if(remaining<0||remaining>a.useLimit)throw Error(a.name+'の残り回数は0〜'+a.useLimit+'の範囲で指定してください');
+  next.ownedUses[useKey(a,next)]=a.useLimit-remaining;
+ }
+ return next;
+}
 function ownedCountLabel(c,a){const n=ownedRemaining(c,a);return a.consumable?'@'+n:a.needsReview?'要確認':a.passive?'常時':a.perCheck?'判定ごと':n===null?'@∞':'@'+n;}
 function resourceCopy(c,key){
  if(key==='all')return ['hp','pp','rage','factor','spent','spe','karma'].map(k=>resourceCopy(c,k)).join('　').replace(/\s+/g,' ').trim();
@@ -157,7 +168,7 @@ function validateSession(s,fail){
  for(const prop of ['ownedStock','ownedUses'])if(s[prop]!==undefined){if(!s[prop]||typeof s[prop]!=='object'||Array.isArray(s[prop]))fail();for(const n of Object.values(s[prop]))if(!Number.isInteger(n)||n<0)fail();}
  if(s.condition!==undefined){const x=s.condition;if(!x||typeof x!=='object'||!Number.isInteger(x.hp)||x.hp<0||!Number.isInteger(x.pp)||x.pp<0)fail();}
 }
-return {ownedCatalog:catalog,ownedGroups:groups,ownedFromCells,mergeOwned,importSession,weaponBonus,applyCondition,ownedRemaining,ownedCountLabel,resourceCopy,upgradeOwned,ownedReason,resolveOwnedRows,applyOwnedState,changePhase,validateSession,ownedUseKey:useKey};
+return {adjustAbilityUses,ownedCatalog:catalog,ownedGroups:groups,ownedFromCells,mergeOwned,importSession,weaponBonus,applyCondition,ownedRemaining,ownedCountLabel,resourceCopy,upgradeOwned,ownedReason,resolveOwnedRows,applyOwnedState,changePhase,validateSession,ownedUseKey:useKey};
 }
 if(typeof module!=='undefined')module.exports=install;root.YggSessionModel=install;
 })(globalThis);

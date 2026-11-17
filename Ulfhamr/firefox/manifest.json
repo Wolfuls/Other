@@ -1,19 +1,13 @@
 {
   "manifest_version": 3,
   "name": "情報拡張装置【ウールヴハム】",
-  "version": "1.0.5",
+  "version": "1.0.12",
   "description": "ユグドラシルRWのセッションを補助します。",
   "browser_specific_settings": {
     "gecko": {
       "id": "{24d022aa-b1a9-4203-9d77-f65b45e5119f}",
       "strict_min_version": "115.0"
     }
-  },
-  "sidebar_action": {
-    "default_title": "ウールヴハム",
-    "default_panel": "index.html",
-    "default_icon": "Ulfhamr.svg",
-    "open_at_install": true
   },
   "action": {
     "default_title": "ウールヴハムを開く",
@@ -40,12 +34,25 @@
         "https://udonarium-lycoris.ddns.net/*"
       ],
       "js": [
+        "panel-stack.js",
         "lycoris-content.js",
         "lycoris-token-bridge.js",
-        "lycoris-chat-content.js"
+        "lycoris-chat-content.js",
+        "inpage-panel.js"
       ],
       "run_at": "document_idle"
     }
   ],
-  "homepage_url": "https://wolfuls.github.io/Other/Ulfhamr/"
+  "homepage_url": "https://wolfuls.github.io/Other/Ulfhamr/",
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "index.html",
+        "Ulfhamr.svg"
+      ],
+      "matches": [
+        "https://udonarium-lycoris.ddns.net/*"
+      ]
+    }
+  ]
 }
