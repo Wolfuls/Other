@@ -6,10 +6,15 @@ const data=(name,value,attrs='')=>`<data name="${xml(name)}"${attrs}>${xml(value
 function build(character,Y,imageId){
  const c=Y.clone(character),s=c.state;
  const number=(v,label)=>{if(!Number.isSafeInteger(v))throw Error(label+'の数値を確認してください。');return v;};
+ const resource=(name,current,max=Math.max(0,current))=>data(name,number(max,name),` type="numberResource" currentValue="${number(current,name)}"`);
  const fields=[['HP',number(s.hp,'HP'),number(s.hpMax,'最大HP')],['PP',number(s.pp,'PP'),number(s.ppMax,'最大PP')],['暴走率',number(s.rage,'暴走率')],['因子D',number(s.factor,'因子D')],['行動値',number(Y.effective(c,'initiative').fixed,'行動値')]];
- let resources=fields.map(([k,v,max])=>max===undefined?data(k,v):data(k,max,` type="numberResource" currentValue="${v}"`)).join('\n');
- resources+=data('情報',s.info||'');
- const extras=data('総消費PP',s.spent)+['spe','karma'].map(k=>data(k==='spe'?'SPE':'カルマ',Y.resourceCopy(c,k).replace(/^(SPE|カルマ) /,''))).join('\n');
+ let resources=fields.map(([k,v,max])=>k==='行動値'?data(k,v):resource(k,v,max)).join('\n');
+ resources+=data('情報',s.info||'',' type="note"');
+ const extras=resource('総消費PP',s.spent)+['spe','karma'].map(k=>{
+  const group=k==='spe'?'SPE':'カルマ',actions=c.actions.filter(a=>a.owned&&a.group===group),finite=actions.filter(a=>Y.ownedRemaining(c,a)!==null);
+  return resource(group,finite.reduce((n,a)=>n+Y.ownedRemaining(c,a),0),finite.reduce((n,a)=>n+a.useLimit,0))+
+   data(group+'の内訳',actions.map(a=>a.name+Y.ownedCountLabel(c,a)).join(' / ')||'未登録',' type="note"');
+ }).join('\n');
  const keys=['hit','dodge','ss','melee','weapon','power','defense','resist','precision','spec'];
  const checks=keys.map(k=>{const v=Y.effective(c,k),fixed=number(v.fixed,k),dice=number(v.dice,k);return data(Y.labels[k],['hit','dodge','ss','melee','weapon','power'].includes(k)?`${dice}D6${fixed>=0?'+':''}${fixed}`:fixed);}).join('\n');
  const skills=Object.entries(c.stats.skills||{}).map(([k,v])=>data(k,number(v,k))).join('\n');

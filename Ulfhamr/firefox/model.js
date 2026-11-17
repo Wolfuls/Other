@@ -17,7 +17,7 @@ action('explore-precision','能力精度',0,['EX'],'能力精度による探索�
 action('con','コンセントレイション',1,['IN','AC','RE','EX'],'1Lvにつき固定値+1。合計10Lv、装甲は5Lvまで。',{level:true,max:10,target:'hit',targets:['hit','dodge','ss','damage','initiative','defense','resist','skill']}),
 action('boost','ブースト',3,['AC','RE','EX'],'1Lvにつき判定+1D6。ダメージ・行動値・装甲には不可。',{level:true,target:'hit',targets:['hit','dodge','ss','skill']}),
 action('yell','エール',3,['AC','RE','EX'],'他者の判定に+1D6。重ね掛け不可。'),
-action('heavy','重撃',1,['AC','RE'],'異能者専用。通常攻撃と応用技を併用。攻撃発動とは併用不可。'),
+action('heavy','重撃',1,['AC'],'異能者専用。通常攻撃と応用技を併用。攻撃発動とは併用不可。'),
 action('head','ヘッドショット',2,['AC'],'命中固定値を半減、ダメージ+1D6。精神発動・全体攻撃とは併用不可。'),
 action('ko','ノックアウト',3,['AC'],'NPCのHP条件を満たす攻撃で気絶判定を発生させる。'),
 action('mercy','手加減',1,['AC'],'装甲を適用する前のダメージを半減。'),
@@ -45,7 +45,7 @@ action('revive','蘇生',3,['EX'],'知識または技術で判定。成功後の
 action('hpB','HP回復バースト',0,['AC','RE','EN','EX'],'1因子につきHPを1D6回復。実際の出目を入力して登録。',{group:'バースト',factor:1,level:true,roll:'hp',rollDice:1}),
 action('ppB','PP回復バースト',0,['AC','RE','EN','EX'],'1因子につきPPを1D6回復。PP回復は総消費を減らさない。',{group:'バースト',factor:1,level:true,roll:'pp',rollDice:1}),
 action('suppressB','抑制バースト',0,['EN','EX'],'2因子につき暴走率を1D6減少。',{group:'バースト',factor:2,level:true,roll:'rageDown',rollDice:1}),
-action('rageB','暴走バースト',0,['AC','RE','EX'],'1因子につき暴走率を2D6上昇。',{group:'バースト',factor:1,level:true,roll:'rage',rollDice:2}),
+action('rageB','暴走バースト',0,['IN','EX'],'1因子につき暴走率を2D6上昇。',{group:'バースト',factor:1,level:true,roll:'rage',rollDice:2}),
 action('checkB','判定バースト',0,['AC','RE','EX'],'1因子につき判定+1D6。',{group:'バースト',factor:1,level:true,target:'hit',targets:['hit','dodge','ss','skill']}),
 action('releaseB','解除バースト',0,all,'1因子につき対象の応用技効果を1つ強制解除。',{group:'バースト',factor:1,level:true}),
 action('awakeB','気絶復活バースト',0,all.filter(p=>p!=='RE'),'現在HPに2D6を加算。気絶状態を解除。',{group:'バースト',factor:2,roll:'hp',rollDice:2}),
@@ -205,10 +205,82 @@ function effective(c,key,state=c.state){const a=activation(c,state),bp=bpBonuses
  if(key==='initiative'&&c.activation==='感覚型')flat+=a.lv;
  return{fixed:Math.floor((flat+m.flat)*m.mult)-(key==='spec'?specPressure(c):0),dice:Math.max(0,dice+m.dice)};
 }
+function techniqueEffects(a){return (Array.isArray(a.effects)?a.effects.join(' / '):String(a.note||'').split('：')[0]).normalize('NFKC');}
+function hasCharge(a){return a.group==='応用技'&&!a.chargeStep&&/チャージ/.test(techniqueEffects(a));}
+function chargeActions(c){
+ if(!c.actions.some(hasCharge)&&!c.state.charge)return [];
+ const current=c.state.charge,source=current?.source;
+ return ['count','release'].map(step=>({id:'charge-'+step,name:step==='count'?'チャージカウント':'チャージ完了',group:'応用技',phases:['AC','EX'],pp:0,hp:0,factor:0,rage:0,spec:0,main:true,chargeStep:step,chargeToken:current?.id||null,chargeSourceName:source?.name||'',
+  ...(step==='release'?{attack:source?.attack||'power',mental:source?isMental(source):false,chargeCount:current?.count||0,effects:source?.effects||[]}:{}),
+  note:step==='count'?'チャージカウントを1進めます。PPの追加消費はありません。':'蓄積カウント×3Dを命中・威力へ加えて攻撃し、チャージを終了します。'}));
+}
+function allActions(c){return [...c.actions,...catalog,...chargeActions(c)];}
+function resolveDeclarationRows(c,rows){return api.resolveOwnedRows(c,rows).map(r=>r.action.chargeStep?{...r,action:chargeActions(c).find(a=>a.id===r.action.id)||r.action}:r);}
+function chargeReason(c,a){
+ const current=c.state.charge;
+ if(hasCharge(a)&&current)return 'チャージ中です。完了または解除してから開始してください';
+ if(!a.chargeStep)return '';
+ if(!current)return '先にチャージを含む応用技を宣言・登録してください';
+ if(a.chargeToken!==current.id)return 'チャージの状態が変わりました。選び直してください';
+ if(a.chargeStep==='count'&&current.count>=current.level)return '宣言したチャージLvまで蓄積済みです';
+ if(a.chargeStep==='release'&&current.count<current.level)return 'チャージカウントが不足しています（'+current.count+'/'+current.level+'）';
+ return '';
+}
+function applyCharge(c,rows,after,errors){
+ const operations=rows.filter(r=>hasCharge(r.action)||r.action.chargeStep);
+ if(operations.length>1){errors.push('チャージの開始・カウント・完了は1つずつ宣言してください');return;}
+ const row=operations[0];if(!row)return;
+ if(rows.some(r=>r!==row&&r.action.attack))errors.push('チャージの宣言は他の攻撃行動と併用できません');
+ const a=row.action,why=chargeReason(c,a);if(why){errors.push(why);return;}
+ if(hasCharge(a))after.charge={id:a.id+'-charge-'+(c.history.length+1),source:clone(a),level:row.chargeLevel??1,count:1};
+ else if(a.chargeStep==='count')after.charge={...clone(c.state.charge),count:c.state.charge.count+1};
+ else after.charge=null;
+}
+function cancelCharge(c){if(!c.state.charge)return null;const s=clone(c.state);s.charge=null;return record(c,'チャージ解除',s,{},'charge');}
+function techniqueBonuses(c,row,rows=[]){
+ const a=row.action,precision=declaredValue(c,'precision',rows).fixed,unit=Math.floor(precision/3),items=[],notes=[];
+ if(a.group!=='応用技'||a.chargeStep==='count')return {precision,unit,items,notes,effects:[]};
+ const effects=(Array.isArray(a.effects)?a.effects:techniqueEffects(a).split('/')).flatMap(s=>String(s).normalize('NFKC').split(/[/／]/)).map(s=>s.replace(/\s+/g,''));
+ const names={命:'hit',命中:'hit',命中力:'hit',回:'dodge',回避:'dodge',回避力:'dodge',攻:'damage',攻撃:'damage',攻撃力:'damage',防:'defense',防御:'defense',防御力:'defense',抵:'resist',抵抗:'resist',抵抗力:'resist',行:'initiative',行動値:'initiative',解:'release',解除:'release',解除判定:'release'};
+ for(const text of effects){
+  const m=text.match(/^(強化|減衰|追加)(?:系)?(?:【([^】]+)】|\[([^\]]+)\]|\(([^)]+)\))?(?:[×x*](\d+))?$/i);
+  if(m){
+   const kind=m[1],target=m[2]||m[3]||m[4]||'',count=Number(m[5]||1);if(!Number.isSafeInteger(count)||count<1||count>100){notes.push(text+'：重複数を確認してください');continue;}
+   const stat=names[target]||(skillNames.includes(target)?'skill:'+target:null),flat=kind==='追加'?0:(kind==='減衰'?-1:1)*unit*count,dice=kind==='追加'?count:0;
+   const key=kind+':'+(stat||target),existing=items.find(v=>v.key===key);
+   if(existing){existing.flat+=flat;existing.dice+=dice;existing.count+=count;}
+   else items.push({key,kind,stat,label:stat?(labels[stat]||({damage:'全攻撃の威力',release:'解除判定'})[stat]||target):target==='技'?'探索技能（対象を指定）':target||'補正項目を指定',flat,dice,mult:1,count});
+  }else if(/^(拡張|制限)(?:系)?$/.test(text)){
+   const kind=text.startsWith('拡張')?'拡張':'制限',flat=kind==='拡張'?1:-1;
+   for(const label of ['各種判定','発動スペック']){const key=kind+':'+label,old=items.find(v=>v.key===key);if(old){old.flat+=flat;old.count++;}else items.push({key,kind,stat:null,label,flat,dice:0,mult:1,count:1});}
+   notes.push('拡張・制限はリザルト以降に適用。判定結果への補正は適用する判定ごとに登録してください');
+  }else if(/性質|晩成|限定|複製|縮小|衰弱/.test(text))notes.push(text+'：条件や固有処理は手動で確認してください');
+ }
+ if(items.some(v=>!v.stat))notes.push('対象が未指定の項目は、盤面の補正へ登録する際に指定してください');
+ if(hasCharge(a))notes.push('チャージ開始時には効果を適用しません。チャージ完了の攻撃時に使用してください');
+ return {precision,unit,items,notes:[...new Set(notes)],effects:items.filter(v=>v.stat).map(({stat,flat,dice,mult})=>({stat,flat,dice,mult}))};
+}
+function explorationInputs(c,rows=[]){
+ const saved=c.state.explorationCheck||{},key=declarationKeys(rows).find(k=>k.startsWith('skill:')||['hit','dodge','ss'].includes(k)),value=key?declaredValue(c,key,rows):{fixed:null,dice:null};
+ return {ownFixed:saved.ownFixed??value.fixed,ownDice:saved.ownDice??value.dice,targetFixed:Object.hasOwn(saved,'targetFixed')?saved.targetFixed:8,targetDice:Object.hasOwn(saved,'targetDice')?saved.targetDice:0,key,manual:saved.ownFixed!=null||saved.ownDice!=null};
+}
+function ppBudget(c,rows,desperate=0){
+ rows=resolveDeclarationRows(c,rows);const total=rows.reduce((n,r)=>n+(declaredPP(r,c.state)||0),0),limit=desperateLimit(c,rows),credit=Math.min(Math.max(0,Number(desperate)||0),limit),actual=total-credit;
+ const required=Math.max(Number(desperate)||0,total-c.state.pp,0);
+ return {total,actual,limit,required,canFund:required<=limit,error:actual>c.state.pp?'実消費PP '+actual+' / 現在PP '+c.state.pp+'（'+(actual-c.state.pp)+'不足）':''};
+}
+function declarationLevelLimit(c,rows,row,field,desperate=0){
+ const other=rows.filter(r=>r!==row),available=c.state.pp+Math.max(0,Number(desperate)||0)-other.reduce((n,r)=>n+(declaredPP(r,c.state)||0),0),a=row.action;
+ if(field==='chargeLevel')return Math.max(0,Math.floor((available-(declaredPP({...row,chargeLevel:1},c.state)||0))/2)+1);
+ if(field==='creationPP')return Math.max(0,Math.min(10,available-(declaredPP({...row,creationPP:1},c.state)||0)+1));
+ return a.pp>0&&!a.owned&&a.replace===undefined?Math.max(0,Math.min(a.max||100,Math.floor((available-(hasCharge(a)?2*((row.chargeLevel??1)-1):0))/a.pp))):a.max||100;
+}
+function isMental(a){return a.mental===true||a.attack==='mental'||/精神/.test(techniqueEffects(a));}
 function declarationInputError(row){
  const a=row.action;
  if(a.level&&(!Number.isInteger(row.level)||row.level<1||row.level>(a.max||100)))return (a.consumable?'使用個数':'宣言Lv')+'は1〜'+(a.max||100)+'の整数で指定してください';
  if(a.ppMode==='creation'&&(!Number.isInteger(row.creationPP)||row.creationPP<1||row.creationPP>10))return '創造PPを1〜10から選んでください';
+ if(hasCharge(a)&&(!Number.isSafeInteger(row.chargeLevel===undefined?1:row.chargeLevel)||(row.chargeLevel===undefined?1:row.chargeLevel)<1))return 'チャージLvは1以上の整数で指定してください';
  if(a.targets&&!a.targets.includes(row.target))return '補正先を選んでください';
  if(a.id==='con'&&['defense','resist'].includes(row.target)&&row.level>5)return '装甲コンセはLv5までです';
  return '';
@@ -216,6 +288,7 @@ function declarationInputError(row){
 function declarationKeys(rows){
  const keys=new Set();
  for(const {action:a,target} of rows){
+  if(hasCharge(a)||a.chargeStep==='count')continue;
   const effects=(a.effects||[]).join(' / '),mental=a.mental===true||a.attack==='mental'||/精神/.test(effects)||(!effects&&/精神(?:攻撃|発動)/.test(a.note||''));
   if(a.attack){keys.add(mental?'ss':'hit');keys.add(a.attack==='mental'?'power':a.attack);}
   if(a.id==='dodge')keys.add('dodge');if(a.id==='sense')keys.add('ss');
@@ -230,30 +303,91 @@ function declarationKeys(rows){
  return [...keys];
 }
 function declaredValue(c,key,rows=[],extra={}){
+ rows=resolveDeclarationRows(c,rows);
  const skill=key.startsWith('skill:'),attack=['melee','weapon','power'].includes(key);
  let value;
- if(skill){const name=key.slice(6),m=modifiers(c,'skill'),a=activation(c);const base=name==='能力精度'?c.stats.precision:c.stats.skills[name]||0;value={fixed:Math.floor((base+(c.activation==='感覚型'?a.lv:0)+m.flat)*m.mult),dice:Math.max(0,1+a.dice+m.dice)};}
+ if(skill){const name=key.slice(6),m=modifiers(c,'skill'),a=activation(c);const specific=modifiers(c,key);m.flat+=specific.flat;m.dice+=specific.dice;m.mult*=specific.mult;const base=name==='能力精度'?c.stats.precision:c.stats.skills[name]||0;value={fixed:Math.floor((base+(c.activation==='感覚型'?a.lv:0)+m.flat)*m.mult),dice:Math.max(0,1+a.dice+m.dice)};}
  else value=effective(c,key);
  value.fixed+=Number(extra.fixed||0);value.dice+=Number(extra.dice||0);
  for(const r of rows){const a=r.action,target=attack?'damage':skill?'skill':key;const applies=r.target===target||key==='ss'&&r.target==='hit';if(applies&&a.id==='con')value.fixed+=Number(r.level||1);if(applies&&['boost','checkB'].includes(a.id))value.dice+=Number(r.level||1);}
  if(rows.some(r=>r.action.id==='head')){if(['hit','ss'].includes(key))value.fixed=Math.floor(value.fixed/2);if(attack)value.dice++;}
  const replace=rows.find(r=>r.action.replace!==undefined);if(replace&&['hit','ss'].includes(key))value.fixed=c.stats.params[replace.action.replace];
+ const release=rows.find(r=>r.action.chargeStep==='release');
+ if(release&&c.state.charge&&!chargeReason(c,release.action)){
+  const a=release.action;if(key===(isMental(a)?'ss':'hit')||key===(a.attack==='mental'?'power':a.attack))value.dice+=3*c.state.charge.count;
+ }
+ if(key==='precision'&&rows.some(r=>r.action.id==='focus'))value.fixed+=Math.max(0,8-c.actions.filter(a=>a.group==='応用技').length);
  return value;
 }
-function declaredPP(row,state){if(row.action.owned)row=api.resolveOwnedRows({state},[row])[0];const a=row.action;if(a.ppMode==='creation'){const v=row.creationPP;if(typeof v!=='number'||!Number.isInteger(v)||v<1||v>10||!Number.isInteger(a.pp)||a.pp<0)return null;return a.pp+v;}return a.replace!==undefined?Math.floor(state.pp/2):Number(a.pp||0)*Number(row.level||1);}
+function comparisonContext(rows=[],selection='auto'){
+ const choices={melee:{ownKey:'hit',enemyKey:'dodge',attack:'melee'},weapon:{ownKey:'hit',enemyKey:'dodge',attack:'weapon'},power:{ownKey:'hit',enemyKey:'dodge',attack:'power'},mental:{ownKey:'ss',enemyKey:'ss',attack:'power'},dodge:{ownKey:'dodge',enemyKey:'hit',defending:true},sense:{ownKey:'ss',enemyKey:'ss',defending:true}};
+ let value=choices[selection],inferred=false;
+ if(!value){
+  const defense=rows.find(r=>['dodge','sense'].includes(r.action.id));
+  const attack=rows.find(r=>r.action.attack&&!hasCharge(r.action)),hold=rows.some(r=>r.action.id==='hold');
+  if(defense)value=choices[defense.action.id];
+  else if(attack)value=isMental(attack.action)?choices.mental:choices[attack.action.attack];
+  else if(hold)value={ownKey:'hit',enemyKey:'dodge'};
+  inferred=!!value;
+ }
+ return {...(value||choices.weapon),mental:value?.ownKey==='ss',defending:!!value?.defending,ready:!!value,inferred};
+}
+function opponentCheck(opponent,key){
+ const checks=opponent.checks||{};
+ if(Object.prototype.hasOwnProperty.call(checks,key))return checks[key];
+ if((opponent.checkKey||'dodge')===key)return {fixed:opponent.fixed,dice:opponent.dice};
+ return {fixed:null,dice:null};
+}
+function withOpponentCheck(opponent,key,part,value){
+ const next=clone(opponent),checks={...next.checks};
+ const oldKey=next.checkKey||'dodge';if(!checks[oldKey])checks[oldKey]={fixed:next.fixed,dice:next.dice};
+ checks[key]={...opponentCheck(next,key),[part]:value};next.checks=checks;next.checkKey=key;
+ // Keep legacy numeric fields for older backups; null in checks means not entered.
+ for(const field of ['fixed','dice'])next[field]=checks[key][field]??0;
+ return next;
+}
+function validOpponentChecks(checks){
+ return !!checks&&typeof checks==='object'&&!Array.isArray(checks)&&Object.entries(checks).every(([key,v])=>['hit','dodge','ss'].includes(key)&&v&&['fixed','dice'].every(part=>v[part]===null||Number.isSafeInteger(v[part])&&(part!=='dice'||v[part]>=0&&v[part]<=20)));
+}
+function declaredPP(row,state){
+ if(row.action.owned)row=api.resolveOwnedRows({state},[row])[0];const a=row.action;
+ const charge=hasCharge(a)?(row.chargeLevel===undefined?1:row.chargeLevel):1;if(!Number.isSafeInteger(charge)||charge<1)return null;
+ let base;if(a.ppMode==='creation'){const v=row.creationPP;if(typeof v!=='number'||!Number.isInteger(v)||v<1||v>10||!Number.isInteger(a.pp)||a.pp<0)return null;base=a.pp+v;}
+ else base=a.replace!==undefined?Math.floor(state.pp/2):Number(a.pp||0)*Number(row.level||1);
+ const pp=base+2*(charge-1);return Number.isSafeInteger(pp)?pp:null;
+}
+function desperateLimit(c,rows){
+ let pp=0,hp=0;for(const r of api.resolveOwnedRows(c,rows)){pp+=declaredPP(r,c.state)||0;hp+=(r.action.hp||0)*Number(r.level||1);}
+ return Math.max(0,Math.min(pp,Math.floor((c.state.hp-hp)/2)));
+}
 function costLabel(a){return a.ppMode==='creation'?(a.pp===null?'固定追加PP未確認':(a.pp+1)+'〜'+(a.pp+10)+' PP（創造）'):a.replace!==undefined?'残PP ÷ 2':a.factor?a.factor+' Rd'+(a.level?' / Lv':''):a.pp?a.pp+' PP'+(a.level?' / Lv':''):'消費なし';}
 function isBattle(state){return state.phase!=='EX';}
-function phaseAllowed(a,state){if(state.phase==='RE'&&['overclock','supply','awakeB','dyingB','deathB'].includes(a.id))return false;if(state.phase==='AC'&&a.group==='バースト'&&!['checkB','activateB'].includes(a.id))return false;return a.phases.includes(state.phase)||!isBattle(state)&&a.group==='応用技';}
+function phaseAllowed(a,state,rows=[]){
+ const phase=state.phase,reactive=/オート|トラップ/.test(techniqueEffects(a));
+ if(a.chargeStep)return ['AC','EX'].includes(phase);
+ if(a.group==='応用技'&&phase==='RE')return reactive||rows.some(r=>r.action.id==='linkB');
+ if(a.group==='応用技'&&phase==='EN')return reactive;
+ if(a.group==='特殊武装'&&phase==='RE')return ['トラップボム','毒電波発生装置','アーマー','ワイヤートラップ','ブラックボックス'].includes(String(a.ownedName||a.name).normalize('NFKC').replace(/^特殊武装[/／]/,''));
+ if(phase==='RE'&&['overclock','supply','heavy'].includes(a.id))return false;
+ if(a.group==='バースト'){
+  if(phase==='RE')return ['checkB','activateB','linkB'].includes(a.id);
+  if(phase==='IN')return a.id==='rageB';
+  if(phase==='AC')return ['checkB','activateB'].includes(a.id);
+ }
+ return a.phases.includes(phase)||!isBattle(state)&&a.group==='応用技';
+}
 function sameAction(a,b){return a.id===b.id||a.group===b.group&&['AE','応用技'].includes(a.group)&&a.name.normalize('NFKC').trim()===b.name.normalize('NFKC').trim();}
 function actionMatches(a,query){const normalize=s=>String(s??'').normalize('NFKC').toLocaleLowerCase();const text=normalize([a.name,a.note,a.group,...(a.effects||[])].join(' '));return normalize(query).trim().split(/\s+/).every(term=>text.includes(term));}
 function setMode(c,mode){if(!['battle','exploration'].includes(mode))throw Error('進行モードが不正です');const s=clone(c.state),battle=mode==='battle';if(battle===isBattle(s))return null;if(battle)s.phase=s.battlePhase||'AC';else{s.battlePhase=s.phase;s.phase='EX';}return record(c,battle?'バトル中に切替':'探索中に切替',s,{},'mode');}
-function available(c,a){if(a.spec<0)return '常時効果（'+(-a.spec)+' SP圧迫・宣言不要）';const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state))return 'このフェイズでは宣言不可';if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC')&&c.state.mainUsed)return 'このラウンドは行動済み';const u=c.state.usage;
+function available(c,a,rows=[]){const charging=chargeReason(c,a);if(charging)return charging;if(a.spec<0)return '常時効果（'+(-a.spec)+' SP圧迫・宣言不要）';const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state,rows))return 'このフェイズでは宣言不可';if(['AC','RE'].includes(c.state.phase)&&a.group==='基本行動'&&rows.some(r=>r.action.group==='基本行動'&&!sameAction(r.action,a)))return '基本行動は1つの宣言に1つまで';if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC')&&c.state.mainUsed)return 'このラウンドは行動済み';const u=c.state.usage;
  if(a.limit==='round'&&u[a.id+'@'+c.state.round])return 'このラウンドで使用済み';if(a.limit==='battle'&&u[a.id])return 'このバトルで使用済み';if(a.limit==='session2'&&(u.replacement||0)>=2)return '置き換えAEを2回使用済み';if(a.replace!==undefined&&c.state.pp<=3)return '残PP4以上が必要';if(a.spec>effective(c,'spec').fixed)return '必要スペック不足（SO発動はカスタム行動で登録）';return '';}
-function preview(c,rows,desperate=0){rows=api.resolveOwnedRows(c,rows);const s=c.state;let freeRagePP=0;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
- for(const r of rows){const a=r.action,l=Number(r.level||1);if(!Number.isInteger(l)||l<1||l>(a.max||100))errors.push(a.name+'：Lvが範囲外');const why=available(c,a);if(why)errors.push(a.name+'：'+why);
+function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclarationRows(c,rows);const s=c.state;let freeRagePP=0;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
+ for(const r of originalRows){const why=chargeReason(c,r.action);if(why)errors.push(why);}
+ for(const r of rows){const a=r.action,l=Number(r.level||1);if(!Number.isInteger(l)||l<1||l>(a.max||100))errors.push(a.name+'：Lvが範囲外');const why=available(c,a,rows)||declarationInputError(r);if(why)errors.push(a.name+'：'+why);
  if([...seen].some(previous=>sameAction(previous,a)))errors.push(a.name+'：同じ行動は1つの宣言に1回だけ追加できます');seen.add(a);
  if(a.id==='con'){cons+=l;if(['defense','resist'].includes(r.target)&&l>5)errors.push('装甲コンセはLv5まで');}
  const chosen=declaredPP(r,s),p=chosen??0;
+ if(chosen===null&&a.ppMode!=='creation')errors.push(a.name+'：消費PPを計算できません。宣言Lvを確認してください');
  if(a.ppMode==='creation'){if(chosen===null)errors.push(a.name+'：創造PPを1〜10の整数で選んでください');if(l!==1)errors.push(a.name+'：創造PPはLvとは別に指定してください');}
  if(![p,a.hp||0,a.factor||0,a.rage||0].every(x=>Number.isFinite(x)&&x>=0))errors.push(a.name+'：コストは0以上の数値で指定');
  if(a.noRagePP)freeRagePP+=p;pp+=p;hp+=(a.hp||0)*l;factor+=(a.factor||0)*l;rage+=(a.rage||0)*l;spent+=a.noSpent?0:p;rhp+=(a.recoverHP||0)*l;rpp+=(a.recoverPP||0)*l;
@@ -272,29 +406,35 @@ function preview(c,rows,desperate=0){rows=api.resolveOwnedRows(c,rows);const s=c
  if(names.includes('focus')&&!rows.some(r=>r.action.group==='応用技'))errors.push('集束には応用技が必要');
  if(names.includes('heavy')&&rows.some(r=>r.action.attack==='power'))errors.push('重撃と攻撃発動は併用不可');
  if(rows.filter(r=>r.action.main).length>1)errors.push('メイン行動は1つずつ登録してください');
+ if(['AC','RE'].includes(s.phase)&&rows.filter(r=>r.action.group==='基本行動').length>1)errors.push('基本行動は1つの宣言に1つまで');
  if(!Number.isInteger(desperate)||desperate<0||desperate>pp)errors.push('死力Lvは0〜消費PP以内');
+ if(desperate>0&&hp+2*desperate>s.hp)errors.push('死力のHP消費は現在HP以内です（HP0ちょうどは可）');
  rage+=pp-freeRagePP+desperate;hp+=2*desperate;pp-=desperate;
  if(pp>s.pp)errors.push('PPが'+(pp-s.pp)+'不足しています');
- if(hp>s.hp)warnings.push('HP消費によってHPが0以下になります');
+ if(hp>s.hp)warnings.push('HP消費によってHPが0未満になります');
  const gained=Math.floor((s.spent+spent)/5)-Math.floor(s.spent/5);
  const after={...clone(s),hp:Math.min(s.hpMax,s.hp-hp+rhp),pp:Math.min(s.ppMax,s.pp-pp+rpp),rage:Math.max(0,s.rage+rage),spent:s.spent+spent,factor:s.factor-factor+gained};
  api.applyOwnedState(c,rows,after,errors,warnings);
+ applyCharge(c,rows,after,errors);
  if(after.factor<0)warnings.push('因子の前借り：残り'+after.factor+' Rd');
  const thresholds=[50,60,70,80,90,100,110,120,130,140,150].filter(x=>s.rage<x&&after.rage>=x);
  for(const x of thresholds)warnings.push(x+'%到達'+([50,70,90,110,120,130,140].includes(x)?'：暴走・臨界処理を確認':'')+(x===150?'：因子崩壊':''));
  return{hp,pp,factor,rage,spent,gained,rhp,rpp,after,errors:[...new Set(errors)],warnings,thresholds};
 }
 function record(c,title,next,detail={},type='action'){const before=clone(c.state);const event={id:id(),time:new Date().toISOString(),type,title,round:before.round,phase:before.phase,before,after:clone(next),detail:clone(detail)};c.state=clone(next);c.history.push(event);return event;}
-function commit(c,rows,desperate=0,note=''){const p=preview(c,rows,desperate);if(!rows.length)throw Error('行動を選んでください');if(p.errors.length)throw Error(p.errors.join('\n'));const next=p.after;
+function commit(c,rows,desperate=0,note=''){const p=preview(c,rows,desperate);if(!rows.length)throw Error('行動を選んでください');if(p.errors.length)throw Error(p.errors.join('\n'));rows=resolveDeclarationRows(c,rows);const next=p.after;
  for(const r of rows){const a=r.action;if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC'))next.mainUsed=true;if(a.limit==='round')next.usage[a.id+'@'+next.round]=true;if(a.limit==='battle')next.usage[a.id]=true;if(a.replace!==undefined)next.usage.replacement=(next.usage.replacement||0)+1;if(a.id==='skip')next.buffs.push({id:id(),name:'行動放棄：次ラウンドIN +4',target:'self',stat:'initiative',flat:4,dice:0,mult:1,active:false,startRound:next.round+1,endRound:next.round+1});}
  next.pending=[...(next.pending||[]),...p.thresholds.map(x=>x+'%到達：活性・暴走・臨界処理')];
  const resolved=rows.map(r=>({...clone(r),declaredPP:declaredPP(r,c.state)}));
- return record(c,rows.map(r=>r.action.name+(r.action.ppMode==='creation'?'〔創造'+r.creationPP+'PP＋固定追加'+r.action.pp+'PP〕':r.level>1?' Lv'+r.level:'')).join(' ＋ '),next,{...p,after:undefined,rows:resolved,note,desperate});}
+ return record(c,rows.map(r=>r.action.name+(r.action.ppMode==='creation'?'〔創造'+r.creationPP+'PP＋固定追加'+r.action.pp+'PP〕':r.level>1?' Lv'+r.level:'')+(hasCharge(r.action)?'〔チャージLv'+(r.chargeLevel??1)+'〕':'')+(r.action.chargeStep==='release'?'〔'+r.action.chargeCount+'カウント・命中/威力+'+(3*r.action.chargeCount)+'D〕':'')).join(' ＋ '),next,{...p,after:undefined,rows:resolved,note,desperate});}
 function declarationActionCopy(row){
  const a=row.action,details=[],level=Number(row.level||1);
  if(a.level)details.push(a.consumable?'使用個数 '+level:'Lv'+level);
  if(a.targets)details.push('補正先 '+(labels[row.target]||({damage:'ダメージ',skill:'技能・解除'})[row.target]||row.target||'未選択'));
  if(a.ppMode==='creation')details.push('創造PP '+(row.creationPP??'未選択'));
+ if(hasCharge(a))details.push('チャージLv'+(row.chargeLevel===undefined?1:row.chargeLevel));
+ if(a.chargeStep&&a.chargeSourceName)details.push(a.chargeSourceName);
+ if(a.chargeStep==='release')details.push((a.chargeCount||0)+'カウント・命中/威力+'+(3*(a.chargeCount||0))+'D');
  if(a.itemTarget)details.push('対象 '+(row.itemTarget==='other'?'他者':'自分'));
  return String(a.name??'').replace(/\r\n?/g,'\n').trim()+(details.length?'（'+details.join('・')+'）':'');
 }
@@ -310,7 +450,7 @@ function nextRound(c){if(!isBattle(c.state))throw Error('探索中はラウン�
 // Joint PMF of signed die contribution and critical count; infinite tail < 1e-10.
 const cache=new Map();
 function checkDistribution(fixed,n,mode='cf'){
- if(!Number.isInteger(n)||n<0||n>20||!Number.isFinite(fixed)||Math.abs(fixed)>10000)throw Error('判定ダイスは0〜20、固定値は±10000の範囲です');
+ if(!Number.isInteger(n)||n<0||n>100||!Number.isFinite(fixed)||Math.abs(fixed)>10000)throw Error('判定ダイスは0〜100、固定値は±10000の範囲です');
  const key=n+':'+mode;let d=cache.get(key);
  if(!d){let one=[];if(mode==='normal'){for(let v=1;v<=6;v++)one.push([v,0,1/6]);}else{
   for(let v=1;v<=6;v++)one.push([1-v,0,1/36]);for(let v=2;v<=5;v++)one.push([v,0,1/6]);
@@ -333,13 +473,13 @@ function validateDatabase(data){
  const fail=()=>{throw Error('バックアップのデータ形式が不正です');};
  const finite=x=>typeof x==='number'&&Number.isFinite(x);
  const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]+$/.test(x);
- const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.info!==undefined&&typeof s.info!=='string')fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();if(b.effects!==undefined){if(!Array.isArray(b.effects)||!b.effects.length)fail();for(const e of b.effects)if(typeof e.stat!=='string'||!finite(e.flat)||!finite(e.dice)||!finite(e.mult))fail();}}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
+ const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.charge!=null){const q=s.charge;if(!q||!validId(q.id)||!q.source||!validId(q.source.id)||typeof q.source.name!=='string'||!hasCharge(q.source)||!Number.isSafeInteger(q.level)||q.level<1||!Number.isSafeInteger(q.count)||q.count<1||q.count>q.level)fail();}if(s.explorationCheck!==undefined){const q=s.explorationCheck;if(!q||typeof q!=='object'||Array.isArray(q))fail();for(const k of ['ownFixed','ownDice','targetFixed','targetDice'])if(q[k]!=null&&(!Number.isInteger(q[k])||Math.abs(q[k])>10000||(k.endsWith('Dice')&&(q[k]<0||q[k]>100))))fail();}if(s.info!==undefined&&typeof s.info!=='string')fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.checkKey!==undefined&&!['hit','dodge','ss'].includes(s.opponent.checkKey))fail();if(s.opponent.checks!==undefined&&!validOpponentChecks(s.opponent.checks))fail();if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();if(b.effects!==undefined){if(!Array.isArray(b.effects)||!b.effects.length)fail();for(const e of b.effects)if(typeof e.stat!=='string'||!finite(e.flat)||!finite(e.dice)||!finite(e.mult))fail();}}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
  if(data?.version!==1||!Array.isArray(data.characters)||data.characters.length>200)fail();
  for(const c of data.characters){if(!validId(c.id)||typeof c.name!=='string'||!c.stats||!Array.isArray(c.history)||!Array.isArray(c.actions)||!c.initial)fail();state(c.state);state(c.initial);if(!Array.isArray(c.stats.params)||c.stats.params.length!==7||!c.stats.params.every(finite)||!c.stats.skills)fail();for(const[k,v]of Object.entries(c.stats)){if(!['params','skills'].includes(k)&&!finite(v))fail();}for(const e of c.history){if(!validId(e.id)||typeof e.title!=='string'||!finite(e.round)||!phases[e.phase])fail();state(e.before);state(e.after);}for(const a of c.actions){if(!validId(a.id)||typeof a.name!=='string'||!Array.isArray(a.phases)||!a.phases.every(p=>phases[p])||!finite(a.pp))fail();if(a.ppMode!==undefined&&!['fixed','creation'].includes(a.ppMode))fail();if(a.ppMode==='creation'&&(!Number.isInteger(a.pp)||a.pp<0||a.level))fail();}}
  for(const c of data.characters)api.upgradeOwned(c);
  return data;
 }
-const api={declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
+const api={chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
 Object.assign(api,(root.YggSessionModel||(typeof require==='function'?require('./session-model.js'):null))(api,root.YggOwnedCatalog||(typeof require==='function'?require('./owned-catalog.js'):[])));
 if(typeof module!=='undefined')module.exports=api;root.Ygg=api;
 })(globalThis);
