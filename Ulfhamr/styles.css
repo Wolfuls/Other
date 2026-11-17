@@ -233,3 +233,23 @@ button,a,input,select,textarea,summary{transition:background-color .12s,border-c
 
 /* Charge progress, inferred technique effects and exploration targets. */
 .charge-status{display:flex;gap:6px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:7px 9px;margin:7px 0;background:var(--tint);border:1px solid var(--line);border-radius:5px;font-size:12px}.technique-bonuses{padding:8px;margin:7px 0;border:1px solid var(--line);border-radius:5px;font-size:12px}.bonus-chips{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}.bonus-chips>span{padding:3px 6px;background:var(--tint);border-radius:4px}.technique-bonuses>.usage-note{display:block}.funding-choice:empty{display:none}.funding-choice button{width:100%;margin:4px 0}.pp-budget{font-size:12px;font-weight:700;margin:8px 0}.exploration-values{display:grid;grid-template-columns:1fr 1fr;gap:10px}.exploration-values fieldset{display:grid;grid-template-columns:1fr 1fr;gap:7px;border:1px solid var(--line);border-radius:5px;padding:8px;min-width:0}.exploration-values legend{font-size:12px;font-weight:700}.compact-compare .check-only{grid-template-columns:repeat(2,minmax(0,1fr))}@media(max-width:380px){.exploration-values{grid-template-columns:1fr}}
+
+/* Phase identities remain distinct in both theme templates. */
+:root[data-theme] .phase-bar button[data-phase="IN"]{--phase-color:#7253ac;--phase-pale:#eee7fb}
+:root[data-theme] .phase-bar button[data-phase="AC"]{--phase-color:#ad4b25;--phase-pale:#ffeadf}
+:root[data-theme] .phase-bar button[data-phase="RE"]{--phase-color:#236ea0;--phase-pale:#e0f2ff}
+:root[data-theme] .phase-bar button[data-phase="EN"]{--phase-color:#38714b;--phase-pale:#e3f2e5}
+:root[data-theme] .phase-bar button[data-phase]{background:var(--phase-pale);color:var(--phase-color);border:1px solid var(--phase-color);border-bottom-width:3px;opacity:.85}
+:root[data-theme] .phase-bar button[data-phase]:hover{opacity:1;box-shadow:inset 0 0 0 1px var(--phase-color)}
+:root[data-theme] .phase-bar button[data-phase].active{background:var(--phase-color);color:#fff;opacity:1;box-shadow:inset 0 0 0 2px #ffffff80;font-weight:800}
+.pending-panel{margin:8px 0 12px;border:1px solid var(--line);border-radius:7px;background:var(--card);font-size:12px}
+.pending-panel>summary{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px;cursor:pointer}
+.pending-panel>summary:hover{background:var(--tint)}
+.pending-count{border-radius:12px;padding:2px 7px;background:var(--tint)}
+.pending-count.has-pending{background:#fae3bc;color:#754209;font-weight:800}
+.pending-body{max-height:290px;overflow:auto;overscroll-behavior:contain;padding:0 10px 10px}
+.pending-body h3{font-size:12px;margin:10px 0 5px}
+.pending-entry{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line)}
+.pending-entry strong{min-width:0;overflow-wrap:anywhere}.pending-entry button{flex-shrink:0}
+.pending-trap{padding:9px;border:1px solid var(--line);border-radius:5px;margin:6px 0}.pending-trap:hover{background:var(--tint)}
+.pending-trap dl{display:grid;grid-template-columns:5em 1fr;gap:3px;margin:5px 0}.pending-trap dt{color:var(--muted)}.pending-trap dd{margin:0;overflow-wrap:anywhere}.pending-trap .row{margin-top:6px}

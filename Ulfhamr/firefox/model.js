@@ -206,7 +206,7 @@ function effective(c,key,state=c.state){const a=activation(c,state),bp=bpBonuses
  return{fixed:Math.floor((flat+m.flat)*m.mult)-(key==='spec'?specPressure(c):0),dice:Math.max(0,dice+m.dice)};
 }
 function techniqueEffects(a){return (Array.isArray(a.effects)?a.effects.join(' / '):String(a.note||'').split('：')[0]).normalize('NFKC');}
-function hasCharge(a){return a.group==='応用技'&&!a.chargeStep&&/チャージ/.test(techniqueEffects(a));}
+function hasCharge(a){return a.group==='応用技'&&!a.chargeStep&&!isTrap(a)&&/チャージ/.test(techniqueEffects(a));}
 function chargeActions(c){
  if(!c.actions.some(hasCharge)&&!c.state.charge)return [];
  const current=c.state.charge,source=current?.source;
@@ -214,8 +214,22 @@ function chargeActions(c){
   ...(step==='release'?{attack:source?.attack||'power',mental:source?isMental(source):false,chargeCount:current?.count||0,effects:source?.effects||[]}:{}),
   note:step==='count'?'チャージカウントを1進めます。PPの追加消費はありません。':'蓄積カウント×3Dを命中・威力へ加えて攻撃し、チャージを終了します。'}));
 }
-function allActions(c){return [...c.actions,...catalog,...chargeActions(c)];}
-function resolveDeclarationRows(c,rows){return api.resolveOwnedRows(c,rows).map(r=>r.action.chargeStep?{...r,action:chargeActions(c).find(a=>a.id===r.action.id)||r.action}:r);}
+function trapActions(c){return (c.state.traps||[]).flatMap(t=>['release','activate'].map(stage=>({id:t.id+'-'+stage,name:t.source.name+'【'+(stage==='release'?'解放':'起動')+'／'+t.label+'】',group:'応用技',effects:t.source.effects||[],attack:t.source.attack,mental:isMental(t.source),pp:0,hp:0,rage:0,factor:0,spec:0,phases:['EX','IN','AC','RE','EN'],trapId:t.id,trapStage:stage,trapTarget:t.target,trapValues:t.values,note:'設置済みトラップ。'+(t.trigger?'条件：'+t.trigger+'。':'')+'登録すると設置済みから取り除きます。'})));}
+function trapInstalling(r){return isTrap(r.action)&&!r.action.trapId;}
+function trapStage(r){return r.action.trapStage||r.trapStage||'install';}
+function trapNeedsCheck(r){return !trapInstalling(r)||r.trapTarget==='enemy';}
+function applyTraps(c,rows,after,errors){
+ const traps=clone(c.state.traps||[]),used=new Set();
+ for(const r of rows){const a=r.action;if(!isTrap(a))continue;
+ if(a.trapId){const i=traps.findIndex(t=>t.id===a.trapId);if(i<0||used.has(a.trapId)){errors.push('このトラップは既に使用済みです');continue;}used.add(a.trapId);traps.splice(i,1);}
+ else{if(!['self','ally','enemy','field'].includes(r.trapTarget)){errors.push('トラップの設置先を選んでください');continue;}if(r.trapResult==='miss')continue;
+ const values={};for(const key of ['hit','ss','melee','weapon','power'])values[key]=declaredValue(c,key,rows);
+ const label=({self:'自身',ally:'他者・味方',enemy:'他者・敵',field:'場'})[r.trapTarget]+(r.trapLabel?'：'+r.trapLabel:'');
+ traps.push({id:id(),source:clone(a),target:r.trapTarget,label,trigger:String(r.trapTrigger||''),values});}
+ }after.traps=traps;
+}
+function allActions(c){return [...c.actions,...catalog,...chargeActions(c),...trapActions(c)];}
+function resolveDeclarationRows(c,rows){return api.resolveOwnedRows(c,rows).map(r=>r.action.trapId?{...r,action:trapActions(c).find(a=>a.id===r.action.id)||r.action}:r.action.chargeStep?{...r,action:chargeActions(c).find(a=>a.id===r.action.id)||r.action}:r);}
 function chargeReason(c,a){
  const current=c.state.charge;
  if(hasCharge(a)&&current)return 'チャージ中です。完了または解除してから開始してください';
@@ -275,6 +289,8 @@ function declarationLevelLimit(c,rows,row,field,desperate=0){
  if(field==='creationPP')return Math.max(0,Math.min(10,available-(declaredPP({...row,creationPP:1},c.state)||0)+1));
  return a.pp>0&&!a.owned&&a.replace===undefined?Math.max(0,Math.min(a.max||100,Math.floor((available-(hasCharge(a)?2*((row.chargeLevel??1)-1):0))/a.pp))):a.max||100;
 }
+function isTrap(a){return a.group==='応用技'&&/トラップ/.test(techniqueEffects(a));}
+function attackCheck(row){return isTrap(row.action)?(trapStage(row)==='activate'?'ss':'hit'):(isMental(row.action)?'ss':'hit');}
 function isMental(a){return a.mental===true||a.attack==='mental'||/精神/.test(techniqueEffects(a));}
 function declarationInputError(row){
  const a=row.action;
@@ -287,10 +303,10 @@ function declarationInputError(row){
 }
 function declarationKeys(rows){
  const keys=new Set();
- for(const {action:a,target} of rows){
+ for(const row of rows){const {action:a,target}=row;
   if(hasCharge(a)||a.chargeStep==='count')continue;
   const effects=(a.effects||[]).join(' / '),mental=a.mental===true||a.attack==='mental'||/精神/.test(effects)||(!effects&&/精神(?:攻撃|発動)/.test(a.note||''));
-  if(a.attack){keys.add(mental?'ss':'hit');keys.add(a.attack==='mental'?'power':a.attack);}
+  if(a.attack&&(!isTrap(a)||trapNeedsCheck(row))){keys.add(attackCheck(row));if(!trapInstalling(row))keys.add(a.attack==='mental'?'power':a.attack);}
   if(a.id==='dodge')keys.add('dodge');if(a.id==='sense')keys.add('ss');
   if(a.explorationSkill)keys.add('skill:'+a.explorationSkill);
   if(a.id==='scan'){keys.add('skill:観察眼');keys.add('skill:察知');}
@@ -308,14 +324,16 @@ function declaredValue(c,key,rows=[],extra={}){
  let value;
  if(skill){const name=key.slice(6),m=modifiers(c,'skill'),a=activation(c);const specific=modifiers(c,key);m.flat+=specific.flat;m.dice+=specific.dice;m.mult*=specific.mult;const base=name==='能力精度'?c.stats.precision:c.stats.skills[name]||0;value={fixed:Math.floor((base+(c.activation==='感覚型'?a.lv:0)+m.flat)*m.mult),dice:Math.max(0,1+a.dice+m.dice)};}
  else value=effective(c,key);
+ const trapped=rows.find(r=>r.action.trapId&&r.action.trapValues?.[key]);if(trapped)value=clone(trapped.action.trapValues[key]);
  value.fixed+=Number(extra.fixed||0);value.dice+=Number(extra.dice||0);
  for(const r of rows){const a=r.action,target=attack?'damage':skill?'skill':key;const applies=r.target===target||key==='ss'&&r.target==='hit';if(applies&&a.id==='con')value.fixed+=Number(r.level||1);if(applies&&['boost','checkB'].includes(a.id))value.dice+=Number(r.level||1);}
  if(rows.some(r=>r.action.id==='head')){if(['hit','ss'].includes(key))value.fixed=Math.floor(value.fixed/2);if(attack)value.dice++;}
  const replace=rows.find(r=>r.action.replace!==undefined);if(replace&&['hit','ss'].includes(key))value.fixed=c.stats.params[replace.action.replace];
  const release=rows.find(r=>r.action.chargeStep==='release');
  if(release&&c.state.charge&&!chargeReason(c,release.action)){
-  const a=release.action;if(key===(isMental(a)?'ss':'hit')||key===(a.attack==='mental'?'power':a.attack))value.dice+=3*c.state.charge.count;
+  const a=release.action;if(key===attackCheck(release)||key===(a.attack==='mental'?'power':a.attack))value.dice+=3*c.state.charge.count;
  }
+ for(const r of rows)if(r.action.trapId&&r.action.trapTarget==='enemy'&&(key===attackCheck(r)||key===(r.action.attack==='mental'?'power':r.action.attack)))value.dice+=2;
  if(key==='precision'&&rows.some(r=>r.action.id==='focus'))value.fixed+=Math.max(0,8-c.actions.filter(a=>a.group==='応用技').length);
  return value;
 }
@@ -324,13 +342,13 @@ function comparisonContext(rows=[],selection='auto'){
  let value=choices[selection],inferred=false;
  if(!value){
   const defense=rows.find(r=>['dodge','sense'].includes(r.action.id));
-  const attack=rows.find(r=>r.action.attack&&!hasCharge(r.action)),hold=rows.some(r=>r.action.id==='hold');
+  const attack=rows.find(r=>r.action.attack&&!hasCharge(r.action)&&(!isTrap(r.action)||trapNeedsCheck(r))),hold=rows.some(r=>r.action.id==='hold');
   if(defense)value=choices[defense.action.id];
-  else if(attack)value=isMental(attack.action)?choices.mental:choices[attack.action.attack];
+  else if(attack){const check=attackCheck(attack);value={ownKey:check,enemyKey:check==='ss'?'ss':'dodge',attack:trapInstalling(attack)?null:attack.action.attack==='mental'?'power':attack.action.attack,mental:isMental(attack.action)};}
   else if(hold)value={ownKey:'hit',enemyKey:'dodge'};
   inferred=!!value;
  }
- return {...(value||choices.weapon),mental:value?.ownKey==='ss',defending:!!value?.defending,ready:!!value,inferred};
+ return {...(value||choices.weapon),mental:value?.mental??(value?.ownKey==='ss'),defending:!!value?.defending,ready:!!value,inferred};
 }
 function opponentCheck(opponent,key){
  const checks=opponent.checks||{};
@@ -364,6 +382,7 @@ function costLabel(a){return a.ppMode==='creation'?(a.pp===null?'固定追加PP�
 function isBattle(state){return state.phase!=='EX';}
 function phaseAllowed(a,state,rows=[]){
  const phase=state.phase,reactive=/オート|トラップ/.test(techniqueEffects(a));
+ if(a.trapId)return true;
  if(a.chargeStep)return ['AC','EX'].includes(phase);
  if(a.group==='応用技'&&phase==='RE')return reactive||rows.some(r=>r.action.id==='linkB');
  if(a.group==='応用技'&&phase==='EN')return reactive;
@@ -376,10 +395,10 @@ function phaseAllowed(a,state,rows=[]){
  }
  return a.phases.includes(phase)||!isBattle(state)&&a.group==='応用技';
 }
-function sameAction(a,b){return a.id===b.id||a.group===b.group&&['AE','応用技'].includes(a.group)&&a.name.normalize('NFKC').trim()===b.name.normalize('NFKC').trim();}
+function sameAction(a,b){if(a.trapId||b.trapId)return a.id===b.id;return a.id===b.id||a.group===b.group&&['AE','応用技'].includes(a.group)&&a.name.normalize('NFKC').trim()===b.name.normalize('NFKC').trim();}
 function actionMatches(a,query){const normalize=s=>String(s??'').normalize('NFKC').toLocaleLowerCase();const text=normalize([a.name,a.note,a.group,...(a.effects||[])].join(' '));return normalize(query).trim().split(/\s+/).every(term=>text.includes(term));}
 function setMode(c,mode){if(!['battle','exploration'].includes(mode))throw Error('進行モードが不正です');const s=clone(c.state),battle=mode==='battle';if(battle===isBattle(s))return null;if(battle)s.phase=s.battlePhase||'AC';else{s.battlePhase=s.phase;s.phase='EX';}return record(c,battle?'バトル中に切替':'探索中に切替',s,{},'mode');}
-function available(c,a,rows=[]){const charging=chargeReason(c,a);if(charging)return charging;if(a.spec<0)return '常時効果（'+(-a.spec)+' SP圧迫・宣言不要）';const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state,rows))return 'このフェイズでは宣言不可';if(['AC','RE'].includes(c.state.phase)&&a.group==='基本行動'&&rows.some(r=>r.action.group==='基本行動'&&!sameAction(r.action,a)))return '基本行動は1つの宣言に1つまで';if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC')&&c.state.mainUsed)return 'このラウンドは行動済み';const u=c.state.usage;
+function available(c,a,rows=[]){const charging=chargeReason(c,a);if(charging)return charging;if(a.spec<0)return '常時効果（'+(-a.spec)+' SP圧迫・宣言不要）';const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state,rows))return 'このフェイズでは宣言不可';if(['AC','RE'].includes(c.state.phase)&&a.group==='基本行動'&&rows.some(r=>r.action.group==='基本行動'&&!sameAction(r.action,a)))return '基本行動は1つの宣言に1つまで';const u=c.state.usage;
  if(a.limit==='round'&&u[a.id+'@'+c.state.round])return 'このラウンドで使用済み';if(a.limit==='battle'&&u[a.id])return 'このバトルで使用済み';if(a.limit==='session2'&&(u.replacement||0)>=2)return '置き換えAEを2回使用済み';if(a.replace!==undefined&&c.state.pp<=3)return '残PP4以上が必要';if(a.spec>effective(c,'spec').fixed)return '必要スペック不足（SO発動はカスタム行動で登録）';return '';}
 function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclarationRows(c,rows);const s=c.state;let freeRagePP=0;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
  for(const r of originalRows){const why=chargeReason(c,r.action);if(why)errors.push(why);}
@@ -416,6 +435,7 @@ function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclara
  const after={...clone(s),hp:Math.min(s.hpMax,s.hp-hp+rhp),pp:Math.min(s.ppMax,s.pp-pp+rpp),rage:Math.max(0,s.rage+rage),spent:s.spent+spent,factor:s.factor-factor+gained};
  api.applyOwnedState(c,rows,after,errors,warnings);
  applyCharge(c,rows,after,errors);
+ applyTraps(c,rows,after,errors);
  if(after.factor<0)warnings.push('因子の前借り：残り'+after.factor+' Rd');
  const thresholds=[50,60,70,80,90,100,110,120,130,140,150].filter(x=>s.rage<x&&after.rage>=x);
  for(const x of thresholds)warnings.push(x+'%到達'+([50,70,90,110,120,130,140].includes(x)?'：暴走・臨界処理を確認':'')+(x===150?'：因子崩壊':''));
@@ -423,12 +443,14 @@ function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclara
 }
 function record(c,title,next,detail={},type='action'){const before=clone(c.state);const event={id:id(),time:new Date().toISOString(),type,title,round:before.round,phase:before.phase,before,after:clone(next),detail:clone(detail)};c.state=clone(next);c.history.push(event);return event;}
 function commit(c,rows,desperate=0,note=''){const p=preview(c,rows,desperate);if(!rows.length)throw Error('行動を選んでください');if(p.errors.length)throw Error(p.errors.join('\n'));rows=resolveDeclarationRows(c,rows);const next=p.after;
- for(const r of rows){const a=r.action;if(isBattle(c.state)&&(a.main||a.group==='応用技'&&c.state.phase==='AC'))next.mainUsed=true;if(a.limit==='round')next.usage[a.id+'@'+next.round]=true;if(a.limit==='battle')next.usage[a.id]=true;if(a.replace!==undefined)next.usage.replacement=(next.usage.replacement||0)+1;if(a.id==='skip')next.buffs.push({id:id(),name:'行動放棄：次ラウンドIN +4',target:'self',stat:'initiative',flat:4,dice:0,mult:1,active:false,startRound:next.round+1,endRound:next.round+1});}
+ for(const r of rows){const a=r.action;if(isBattle(c.state)&&(a.main||a.group==='応用技'&&!a.trapId&&c.state.phase==='AC'))next.mainUsed=true;if(a.limit==='round')next.usage[a.id+'@'+next.round]=true;if(a.limit==='battle')next.usage[a.id]=true;if(a.replace!==undefined)next.usage.replacement=(next.usage.replacement||0)+1;if(a.id==='skip')next.buffs.push({id:id(),name:'行動放棄：次ラウンドIN +4',target:'self',stat:'initiative',flat:4,dice:0,mult:1,active:false,startRound:next.round+1,endRound:next.round+1});}
  next.pending=[...(next.pending||[]),...p.thresholds.map(x=>x+'%到達：活性・暴走・臨界処理')];
  const resolved=rows.map(r=>({...clone(r),declaredPP:declaredPP(r,c.state)}));
  return record(c,rows.map(r=>r.action.name+(r.action.ppMode==='creation'?'〔創造'+r.creationPP+'PP＋固定追加'+r.action.pp+'PP〕':r.level>1?' Lv'+r.level:'')+(hasCharge(r.action)?'〔チャージLv'+(r.chargeLevel??1)+'〕':'')+(r.action.chargeStep==='release'?'〔'+r.action.chargeCount+'カウント・命中/威力+'+(3*r.action.chargeCount)+'D〕':'')).join(' ＋ '),next,{...p,after:undefined,rows:resolved,note,desperate});}
 function declarationActionCopy(row){
  const a=row.action,details=[],level=Number(row.level||1);
+ if(isTrap(a))details.push(({install:'設置',release:'解放',activate:'起動'})[trapStage(row)]);
+ if(trapInstalling(row))details.push(({self:'自身',ally:'他者・味方',enemy:'他者・敵',field:'場'})[row.trapTarget]||'設置先未選択',row.trapLabel||'',row.trapTrigger?'条件：'+row.trapTrigger:'',row.trapResult==='miss'?'設置失敗':'');
  if(a.level)details.push(a.consumable?'使用個数 '+level:'Lv'+level);
  if(a.targets)details.push('補正先 '+(labels[row.target]||({damage:'ダメージ',skill:'技能・解除'})[row.target]||row.target||'未選択'));
  if(a.ppMode==='creation')details.push('創造PP '+(row.creationPP??'未選択'));
@@ -469,17 +491,19 @@ function compare(opts){const{ownFixed,ownDice,enemyFixed,enemyDice,damageDice=0,
  }
  return{win,equal,double,damage:ev,onHit:win?ev/win:0,ownMean:a.mean,enemyMean:b.mean,own:a.pmf,enemy:b.pmf,tail:Math.max(0,1-a.mass*b.mass)};
 }
+function pendingLabel(text){const m=String(text).match(/^(\d+)%到達：活性・暴走・臨界処理$/);if(!m)return String(text);const n=Number(m[1]);return n+'%：'+([50,70,90].includes(n)?'暴走ロール'+(n<=70?'・活性を確認':''):[110,120,130,140].includes(n)?'臨界ロール・因子+1 Rdを記録':n===100?'因子+1 Rdを記録':n===150?'因子崩壊を確認':'活性の変化を確認');}
+function completePending(state,index,expected){if(!Number.isInteger(index)||index<0||index>=(state.pending||[]).length||state.pending[index]!==expected)throw Error('保留中の処理が更新されました。一覧から選び直してください');state.pending.splice(index,1);}
 function validateDatabase(data){
  const fail=()=>{throw Error('バックアップのデータ形式が不正です');};
  const finite=x=>typeof x==='number'&&Number.isFinite(x);
  const validId=x=>typeof x==='string'&&/^[a-zA-Z0-9-]+$/.test(x);
- const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.charge!=null){const q=s.charge;if(!q||!validId(q.id)||!q.source||!validId(q.source.id)||typeof q.source.name!=='string'||!hasCharge(q.source)||!Number.isSafeInteger(q.level)||q.level<1||!Number.isSafeInteger(q.count)||q.count<1||q.count>q.level)fail();}if(s.explorationCheck!==undefined){const q=s.explorationCheck;if(!q||typeof q!=='object'||Array.isArray(q))fail();for(const k of ['ownFixed','ownDice','targetFixed','targetDice'])if(q[k]!=null&&(!Number.isInteger(q[k])||Math.abs(q[k])>10000||(k.endsWith('Dice')&&(q[k]<0||q[k]>100))))fail();}if(s.info!==undefined&&typeof s.info!=='string')fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.checkKey!==undefined&&!['hit','dodge','ss'].includes(s.opponent.checkKey))fail();if(s.opponent.checks!==undefined&&!validOpponentChecks(s.opponent.checks))fail();if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();if(b.effects!==undefined){if(!Array.isArray(b.effects)||!b.effects.length)fail();for(const e of b.effects)if(typeof e.stat!=='string'||!finite(e.flat)||!finite(e.dice)||!finite(e.mult))fail();}}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
+ const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.traps!==undefined){if(!Array.isArray(s.traps))fail();const ids=new Set();for(const t of s.traps){if(!t||!validId(t.id)||ids.has(t.id)||!t.source||!isTrap(t.source)||typeof t.source.name!=='string'||!['self','ally','enemy','field'].includes(t.target)||typeof t.label!=='string'||typeof t.trigger!=='string'||!t.values)fail();ids.add(t.id);for(const k of ['hit','ss','melee','weapon','power'])if(!t.values[k]||!finite(t.values[k].fixed)||!finite(t.values[k].dice))fail();}}if(s.charge!=null){const q=s.charge;if(!q||!validId(q.id)||!q.source||!validId(q.source.id)||typeof q.source.name!=='string'||!hasCharge(q.source)||!Number.isSafeInteger(q.level)||q.level<1||!Number.isSafeInteger(q.count)||q.count<1||q.count>q.level)fail();}if(s.explorationCheck!==undefined){const q=s.explorationCheck;if(!q||typeof q!=='object'||Array.isArray(q))fail();for(const k of ['ownFixed','ownDice','targetFixed','targetDice'])if(q[k]!=null&&(!Number.isInteger(q[k])||Math.abs(q[k])>10000||(k.endsWith('Dice')&&(q[k]<0||q[k]>100))))fail();}if(s.info!==undefined&&typeof s.info!=='string')fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.checkKey!==undefined&&!['hit','dodge','ss'].includes(s.opponent.checkKey))fail();if(s.opponent.checks!==undefined&&!validOpponentChecks(s.opponent.checks))fail();if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();if(b.effects!==undefined){if(!Array.isArray(b.effects)||!b.effects.length)fail();for(const e of b.effects)if(typeof e.stat!=='string'||!finite(e.flat)||!finite(e.dice)||!finite(e.mult))fail();}}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
  if(data?.version!==1||!Array.isArray(data.characters)||data.characters.length>200)fail();
  for(const c of data.characters){if(!validId(c.id)||typeof c.name!=='string'||!c.stats||!Array.isArray(c.history)||!Array.isArray(c.actions)||!c.initial)fail();state(c.state);state(c.initial);if(!Array.isArray(c.stats.params)||c.stats.params.length!==7||!c.stats.params.every(finite)||!c.stats.skills)fail();for(const[k,v]of Object.entries(c.stats)){if(!['params','skills'].includes(k)&&!finite(v))fail();}for(const e of c.history){if(!validId(e.id)||typeof e.title!=='string'||!finite(e.round)||!phases[e.phase])fail();state(e.before);state(e.after);}for(const a of c.actions){if(!validId(a.id)||typeof a.name!=='string'||!Array.isArray(a.phases)||!a.phases.every(p=>phases[p])||!finite(a.pp))fail();if(a.ppMode!==undefined&&!['fixed','creation'].includes(a.ppMode))fail();if(a.ppMode==='creation'&&(!Number.isInteger(a.pp)||a.pp<0||a.level))fail();}}
  for(const c of data.characters)api.upgradeOwned(c);
  return data;
 }
-const api={chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
+const api={pendingLabel,completePending,trapActions,trapInstalling,trapStage,trapNeedsCheck,isTrap,attackCheck,chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
 Object.assign(api,(root.YggSessionModel||(typeof require==='function'?require('./session-model.js'):null))(api,root.YggOwnedCatalog||(typeof require==='function'?require('./owned-catalog.js'):[])));
 if(typeof module!=='undefined')module.exports=api;root.Ygg=api;
 })(globalThis);
