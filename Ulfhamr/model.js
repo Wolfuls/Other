@@ -229,7 +229,15 @@ function applyTraps(c,rows,after,errors){
  }after.traps=traps;
 }
 function allActions(c){return [...c.actions,...catalog,...chargeActions(c),...trapActions(c)];}
-function resolveDeclarationRows(c,rows){return api.resolveOwnedRows(c,rows).map(r=>r.action.trapId?{...r,action:trapActions(c).find(a=>a.id===r.action.id)||r.action}:r.action.chargeStep?{...r,action:chargeActions(c).find(a=>a.id===r.action.id)||r.action}:r);}
+function resolveDeclarationRows(c,rows){
+ const resolved=api.resolveOwnedRows(c,rows);
+ if(!resolved.some(r=>r.action.trapId||r.action.chargeStep))return resolved;
+ const generated=new Map([
+  ...(resolved.some(r=>r.action.trapId)?trapActions(c):[]),
+  ...(resolved.some(r=>r.action.chargeStep)?chargeActions(c):[])
+ ].map(a=>[a.id,a]));
+ return resolved.map(r=>r.action.trapId||r.action.chargeStep?{...r,action:generated.get(r.action.id)||r.action}:r);
+}
 function chargeReason(c,a){
  const current=c.state.charge;
  if(hasCharge(a)&&current)return 'チャージ中です。完了または解除してから開始してください';
@@ -305,7 +313,6 @@ function declarationKeys(rows){
  const keys=new Set();
  for(const row of rows){const {action:a,target}=row;
   if(hasCharge(a)||a.chargeStep==='count')continue;
-  const effects=(a.effects||[]).join(' / '),mental=a.mental===true||a.attack==='mental'||/精神/.test(effects)||(!effects&&/精神(?:攻撃|発動)/.test(a.note||''));
   if(a.attack&&(!isTrap(a)||trapNeedsCheck(row))){keys.add(attackCheck(row));if(!trapInstalling(row))keys.add(a.attack==='mental'?'power':a.attack);}
   if(a.id==='dodge')keys.add('dodge');if(a.id==='sense')keys.add('ss');
   if(a.explorationSkill)keys.add('skill:'+a.explorationSkill);
@@ -398,8 +405,14 @@ function phaseAllowed(a,state,rows=[]){
 function sameAction(a,b){if(a.trapId||b.trapId)return a.id===b.id;return a.id===b.id||a.group===b.group&&['AE','応用技'].includes(a.group)&&a.name.normalize('NFKC').trim()===b.name.normalize('NFKC').trim();}
 function actionMatches(a,query){const normalize=s=>String(s??'').normalize('NFKC').toLocaleLowerCase();const text=normalize([a.name,a.note,a.group,...(a.effects||[])].join(' '));return normalize(query).trim().split(/\s+/).every(term=>text.includes(term));}
 function setMode(c,mode){if(!['battle','exploration'].includes(mode))throw Error('進行モードが不正です');const s=clone(c.state),battle=mode==='battle';if(battle===isBattle(s))return null;if(battle)s.phase=s.battlePhase||'AC';else{s.battlePhase=s.phase;s.phase='EX';}return record(c,battle?'バトル中に切替':'探索中に切替',s,{},'mode');}
+function specOver(c,action,rows){
+ if(action.group!=='応用技'||!(action.spec>0))return 0;
+ const next=rows.filter(r=>r.itemTarget!=='other'&&r.action.group==='消費アイテム'&&(r.action.catalogKey==='item-130'||r.action.name==='ネクスト'));
+ const bonus=Math.min(3,next.reduce((total,row)=>total+Number(row.level||1),0));
+ return Math.max(0,action.spec-effective(c,'spec').fixed-bonus);
+}
 function available(c,a,rows=[]){const charging=chargeReason(c,a);if(charging)return charging;if(a.spec<0)return '常時効果（'+(-a.spec)+' SP圧迫・宣言不要）';const owned=api.ownedReason(c,a);if(owned)return owned;if(a.pp===null||a.spec===null)return a.ppMode==='creation'?'固定追加PP・必要スペックを確認してください':'消費PP・必要スペックを確認してください';if(!phaseAllowed(a,c.state,rows))return 'このフェイズでは宣言不可';if(['AC','RE'].includes(c.state.phase)&&a.group==='基本行動'&&rows.some(r=>r.action.group==='基本行動'&&!sameAction(r.action,a)))return '基本行動は1つの宣言に1つまで';const u=c.state.usage;
- if(a.limit==='round'&&u[a.id+'@'+c.state.round])return 'このラウンドで使用済み';if(a.limit==='battle'&&u[a.id])return 'このバトルで使用済み';if(a.limit==='session2'&&(u.replacement||0)>=2)return '置き換えAEを2回使用済み';if(a.replace!==undefined&&c.state.pp<=3)return '残PP4以上が必要';if(a.spec>effective(c,'spec').fixed)return '必要スペック不足（SO発動はカスタム行動で登録）';return '';}
+ if(a.limit==='round'&&u[a.id+'@'+c.state.round])return 'このラウンドで使用済み';if(a.limit==='battle'&&u[a.id])return 'このバトルで使用済み';if(a.limit==='session2'&&(u.replacement||0)>=2)return '置き換えAEを2回使用済み';if(a.replace!==undefined&&c.state.pp<=3)return '残PP4以上が必要';if(specOver(c,a,rows)>=6)return 'SO6以上の応用技は宣言できません';if(a.group!=='応用技'&&a.spec>0&&a.spec>effective(c,'spec').fixed)return '必要スペック不足';return '';}
 function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclarationRows(c,rows);const s=c.state;let freeRagePP=0;let hp=0,pp=0,factor=0,rage=0,rhp=0,rpp=0,spent=0;let errors=[],warnings=[];const names=rows.map(r=>r.action.id);let cons=0;const seen=new Set();
  for(const r of originalRows){const why=chargeReason(c,r.action);if(why)errors.push(why);}
  for(const r of rows){const a=r.action,l=Number(r.level||1);if(!Number.isInteger(l)||l<1||l>(a.max||100))errors.push(a.name+'：Lvが範囲外');const why=available(c,a,rows)||declarationInputError(r);if(why)errors.push(a.name+'：'+why);
@@ -434,17 +447,25 @@ function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclara
  const gained=Math.floor((s.spent+spent)/5)-Math.floor(s.spent/5);
  const after={...clone(s),hp:Math.min(s.hpMax,s.hp-hp+rhp),pp:Math.min(s.ppMax,s.pp-pp+rpp),rage:Math.max(0,s.rage+rage),spent:s.spent+spent,factor:s.factor-factor+gained};
  api.applyOwnedState(c,rows,after,errors,warnings);
+ for(const row of rows){
+  const level=specOver(c,row.action,rows);
+  if(level>0&&level<6){
+   const label='SO'+level+'処理：'+row.action.name;
+   warnings.push(label);
+   (after.pending||=[]).push(label);
+  }
+ }
  applyCharge(c,rows,after,errors);
  applyTraps(c,rows,after,errors);
  if(after.factor<0)warnings.push('因子の前借り：残り'+after.factor+' Rd');
- const thresholds=[50,60,70,80,90,100,110,120,130,140,150].filter(x=>s.rage<x&&after.rage>=x);
+ const thresholds=rageThresholds(s.rage,after.rage);
  for(const x of thresholds)warnings.push(x+'%到達'+([50,70,90,110,120,130,140].includes(x)?'：暴走・臨界処理を確認':'')+(x===150?'：因子崩壊':''));
  return{hp,pp,factor,rage,spent,gained,rhp,rpp,after,errors:[...new Set(errors)],warnings,thresholds};
 }
 function record(c,title,next,detail={},type='action'){const before=clone(c.state);const event={id:id(),time:new Date().toISOString(),type,title,round:before.round,phase:before.phase,before,after:clone(next),detail:clone(detail)};c.state=clone(next);c.history.push(event);return event;}
 function commit(c,rows,desperate=0,note=''){const p=preview(c,rows,desperate);if(!rows.length)throw Error('行動を選んでください');if(p.errors.length)throw Error(p.errors.join('\n'));rows=resolveDeclarationRows(c,rows);const next=p.after;
  for(const r of rows){const a=r.action;if(isBattle(c.state)&&(a.main||a.group==='応用技'&&!a.trapId&&c.state.phase==='AC'))next.mainUsed=true;if(a.limit==='round')next.usage[a.id+'@'+next.round]=true;if(a.limit==='battle')next.usage[a.id]=true;if(a.replace!==undefined)next.usage.replacement=(next.usage.replacement||0)+1;if(a.id==='skip')next.buffs.push({id:id(),name:'行動放棄：次ラウンドIN +4',target:'self',stat:'initiative',flat:4,dice:0,mult:1,active:false,startRound:next.round+1,endRound:next.round+1});}
- next.pending=[...(next.pending||[]),...p.thresholds.map(x=>x+'%到達：活性・暴走・臨界処理')];
+ appendRagePending(next,c.state.rage);
  const resolved=rows.map(r=>({...clone(r),declaredPP:declaredPP(r,c.state)}));
  return record(c,rows.map(r=>r.action.name+(r.action.ppMode==='creation'?'〔創造'+r.creationPP+'PP＋固定追加'+r.action.pp+'PP〕':r.level>1?' Lv'+r.level:'')+(hasCharge(r.action)?'〔チャージLv'+(r.chargeLevel??1)+'〕':'')+(r.action.chargeStep==='release'?'〔'+r.action.chargeCount+'カウント・命中/威力+'+(3*r.action.chargeCount)+'D〕':'')).join(' ＋ '),next,{...p,after:undefined,rows:resolved,note,desperate});}
 function declarationActionCopy(row){
@@ -468,9 +489,19 @@ function declarationCopy(c,rows,desperate=0,note=''){
  return lines.join('\n');
 }
 function rollback(c,eventId){const e=c.history.find(e=>e.id===eventId);const next=eventId==='initial'?c.initial:e?.after;if(!next)throw Error('履歴が見つかりません');return record(c,'巻き戻し：'+(e?.title||'読み込み時'),next,{target:eventId},'rollback');}
+const rageSteps=[50,60,70,80,90,100,110,120,130,140,150];
+function rageThresholds(before,after){return rageSteps.filter(x=>before<x&&after>=x);}
+function appendRagePending(state,before){
+ state.pending=[...(state.pending||[]),...rageThresholds(before,state.rage).map(x=>x+'%到達：活性・暴走・臨界処理')];
+}
 function nextRound(c){if(!isBattle(c.state))throw Error('探索中はラウンドを進めません');const s=clone(c.state);s.round++;s.phase='IN';s.mainUsed=false;for(const b of s.buffs){if(b.startRound&&s.round>=b.startRound)b.active=true;if(b.endRound&&s.round>b.endRound)b.active=false;}return record(c,'ラウンド '+s.round+' 開始',s,{},'round');}
 // Joint PMF of signed die contribution and critical count; infinite tail < 1e-10.
-const cache=new Map();
+function boundedCache(limit){
+ const entries=new Map();
+ return {get(key){if(!entries.has(key))return;const value=entries.get(key);entries.delete(key);entries.set(key,value);return value;},
+ set(key,value){entries.delete(key);entries.set(key,value);if(entries.size>limit)entries.delete(entries.keys().next().value);return value;}};
+}
+const cache=boundedCache(12);
 function checkDistribution(fixed,n,mode='cf'){
  if(!Number.isInteger(n)||n<0||n>100||!Number.isFinite(fixed)||Math.abs(fixed)>10000)throw Error('判定ダイスは0〜100、固定値は±10000の範囲です');
  const key=n+':'+mode;let d=cache.get(key);
@@ -478,17 +509,45 @@ function checkDistribution(fixed,n,mode='cf'){
   for(let v=1;v<=6;v++)one.push([1-v,0,1/36]);for(let v=2;v<=5;v++)one.push([v,0,1/6]);
   for(let k=1;k<=14;k++)for(let v=1;v<=5;v++)one.push([6*k+v,k,Math.pow(1/6,k+1)]);
  }
- d=new Map([['0,0',1]]);for(let i=0;i<n;i++){const nd=new Map();for(const [k,p]of d){const[v,c]=k.split(',').map(Number);for(const[w,e,q]of one){const prob=p*q;if(prob<1e-16)continue;const key=(v+w)+','+(c+e);nd.set(key,(nd.get(key)||0)+prob);}}d=nd;}cache.set(key,d);}
- const joint=[],pmf=new Map();let mean=0,mass=0;for(const[k,p]of d){const[v,c]=k.split(',').map(Number);const score=Math.max(1,fixed+v);joint.push({score,crits:c,p});pmf.set(score,(pmf.get(score)||0)+p);mean+=score*p;mass+=p;}return{joint,pmf,mean,mass};
+ d=new Map([['0,0',1]]);for(let i=0;i<n;i++){const nd=new Map();for(const [k,p]of d){const[v,c]=k.split(',').map(Number);for(const[w,e,q]of one){const prob=p*q;if(prob<1e-16)continue;const key=(v+w)+','+(c+e);nd.set(key,(nd.get(key)||0)+prob);}}d=nd;}d=[...d].map(([k,p])=>{const[v,c]=k.split(',').map(Number);return {v,c,p};});cache.set(key,d);}
+ const joint=[],pmf=new Map();let mean=0,mass=0;for(const{v,c,p}of d){const score=Math.max(1,fixed+v);joint.push({score,crits:c,p});pmf.set(score,(pmf.get(score)||0)+p);mean+=score*p;mass+=p;}return{joint,pmf,mean,mass};
 }
-const damageCache=new Map();
-function damageMean(n,flat,armor,half=false,minimum=0,reduction=0){const key=[n,flat,armor,half,minimum,reduction].join(':');if(damageCache.has(key))return damageCache.get(key);let d=new Map([[0,1]]);for(let i=0;i<n;i++){let nd=new Map();for(const[v,p]of d)for(let k=1;k<=6;k++)nd.set(v+k,(nd.get(v+k)||0)+p/6);d=nd;}let ev=0;for(const[v,p]of d){let raw=Math.max(1,v+flat);if(half)raw=Math.floor(raw/2);ev+=reduceDamage(raw,armor,reduction,minimum)*p;}damageCache.set(key,ev);return ev;}
-function compare(opts){const{ownFixed,ownDice,enemyFixed,enemyDice,damageDice=0,damageFlat=0,armor=0,mode='cf',tie='reroll',half=false,minimum=0,reduction=0}=opts;
- const a=checkDistribution(ownFixed,ownDice,mode),b=checkDistribution(enemyFixed,enemyDice,mode);let win=0,equal=0,double=0,ev=0;const tieWeight=tie==='attacker'?1:tie==='defender'?0:.5;
- for(const x of a.joint){let low=0,eq=0,dbl=0;for(const[y,p]of b.pmf){if(x.score>y){low+=p;if(x.score>=2*y)dbl+=p;}else if(x.score===y)eq+=p;}
-  const hit=low+eq*tieWeight;win+=x.p*hit;equal+=x.p*eq;double+=x.p*dbl;
-  const smash=mode==='cf'?Math.floor(x.crits/2):0;ev+=x.p*((hit-dbl)*damageMean(damageDice+smash,damageFlat,armor,half,minimum,reduction)+dbl*damageMean(damageDice+smash+1,damageFlat,armor,half,minimum,reduction));
+const damageCache=boundedCache(256),damageDistributions=boundedCache(32);
+function damageDistribution(n){
+ const cached=damageDistributions.get(n);if(cached)return cached;
+ let d=new Float64Array([1]),start=0;
+ // Reuse an adjacent distribution when criticals add more damage dice.
+ for(let previous=n-1;previous>0;previous--){const found=damageDistributions.get(previous);if(found){d=found;start=previous;break;}}
+ for(let i=start;i<n;i++){
+  const next=new Float64Array(d.length+6);
+  for(let v=i;v<d.length;v++)for(let face=1;face<=6;face++)next[v+face]+=d[v]/6;
+  d=next;
  }
+ return damageDistributions.set(n,d);
+}
+function damageMean(n,flat,armor,half=false,minimum=0,reduction=0){
+ // Match the original convolution loop for existing numeric inputs.
+ n=Math.max(0,Math.ceil(n)||0);
+ const key=[n,flat,armor,half,minimum,reduction].join(':'),cached=damageCache.get(key);if(cached!==undefined)return cached;
+ const d=damageDistribution(n);let ev=0;
+ for(let v=n;v<d.length;v++){let raw=Math.max(1,v+flat);if(half)raw=Math.floor(raw/2);ev+=reduceDamage(raw,armor,reduction,minimum)*d[v];}
+ return damageCache.set(key,ev);
+}
+function compare(opts){const{ownFixed,ownDice,enemyFixed,enemyDice,damageDice=0,damageFlat=0,armor=0,mode='cf',tie='reroll',half=false,minimum=0,reduction=0}=opts;
+ const a=checkDistribution(ownFixed,ownDice,mode),b=checkDistribution(enemyFixed,enemyDice,mode);
+ const enemy=[...b.pmf].sort((x,y)=>x[0]-y[0]),prefix=[0];
+ for(const[,p]of enemy)prefix.push(prefix[prefix.length-1]+p);
+ const below=(score,inclusive=false)=>{let lo=0,hi=enemy.length;while(lo<hi){const mid=(lo+hi)>>>1;if(inclusive?enemy[mid][0]<=score:enemy[mid][0]<score)lo=mid+1;else hi=mid;}return prefix[lo];};
+ const scores=new Map(),damageWeights=new Map();let win=0,equal=0,double=0,ev=0;const tieWeight=tie==='attacker'?1:tie==='defender'?0:.5;
+ for(const x of a.joint){
+  let weights=scores.get(x.score);
+  if(!weights){const low=below(x.score),eq=b.pmf.get(x.score)||0;weights={hit:low+eq*tieWeight,eq,dbl:below(x.score/2,true)};scores.set(x.score,weights);}
+  const{hit,eq,dbl}=weights;win+=x.p*hit;equal+=x.p*eq;double+=x.p*dbl;
+  const n=damageDice+(mode==='cf'?Math.floor(x.crits/2):0);
+  damageWeights.set(n,(damageWeights.get(n)||0)+x.p*(hit-dbl));
+  damageWeights.set(n+1,(damageWeights.get(n+1)||0)+x.p*dbl);
+ }
+ for(const[n,weight]of damageWeights)if(weight)ev+=weight*damageMean(n,damageFlat,armor,half,minimum,reduction);
  return{win,equal,double,damage:ev,onHit:win?ev/win:0,ownMean:a.mean,enemyMean:b.mean,own:a.pmf,enemy:b.pmf,tail:Math.max(0,1-a.mass*b.mass)};
 }
 function pendingLabel(text){const m=String(text).match(/^(\d+)%到達：活性・暴走・臨界処理$/);if(!m)return String(text);const n=Number(m[1]);return n+'%：'+([50,70,90].includes(n)?'暴走ロール'+(n<=70?'・活性を確認':''):[110,120,130,140].includes(n)?'臨界ロール・因子+1 Rdを記録':n===100?'因子+1 Rdを記録':n===150?'因子崩壊を確認':'活性の変化を確認');}
@@ -503,7 +562,7 @@ function validateDatabase(data){
  for(const c of data.characters)api.upgradeOwned(c);
  return data;
 }
-const api={pendingLabel,completePending,trapActions,trapInstalling,trapStage,trapNeedsCheck,isTrap,attackCheck,chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
+const api={rageThresholds,appendRagePending,pendingLabel,completePending,trapActions,trapInstalling,trapStage,trapNeedsCheck,isTrap,attackCheck,chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
 Object.assign(api,(root.YggSessionModel||(typeof require==='function'?require('./session-model.js'):null))(api,root.YggOwnedCatalog||(typeof require==='function'?require('./owned-catalog.js'):[])));
 if(typeof module!=='undefined')module.exports=api;root.Ygg=api;
 })(globalThis);
