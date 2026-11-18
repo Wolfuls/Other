@@ -3,7 +3,7 @@
 let uiDocument=document;
 const surfaces=new Map([[document,{tab:"actions"}]]), popupTitles={actions:"行動一覧",draft:"宣言・期待値",compare:"期待値",buffs:"盤面の補正",history:"行動履歴",character:"キャラ設定"};
 const Y=Ygg,$=s=>uiDocument.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const WINDOWS_FILE='Ulfhamr-Windows-v1.35.zip',WINDOWS_DOWNLOAD='downloads/'+WINDOWS_FILE;
+const WINDOWS_FILE='Ulfhamr-Windows-v1.36.zip',WINDOWS_DOWNLOAD='downloads/'+WINDOWS_FILE;
 const firefoxMode=!!document.getElementById('lycoris-integration');
 const KEY='ygg-round-v1';let db={version:1,characters:[],activeId:null},storageError='';
 const Theme=UlfTheme,THEME_KEY='ulfhamr-theme-v2',LEGACY_THEME_KEY='ulfhamr-theme-v1';

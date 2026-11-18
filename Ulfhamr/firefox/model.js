@@ -94,12 +94,11 @@ function fromCells(sheets,filename,mode='progress'){
   c.actions.push(action(id(),String(name),cost,['AC','RE'],effects.join(' / ')+(note?'：'+note:''),{group:'応用技',spec,importMissing,main:false,attack:effects.some(x=>String(x).includes('攻撃'))?'power':null,effects,...(creation?{ppMode:'creation'}:{})}));
  }}
  if(missing.length)throw Error('数式の保存済み計算結果がないセルがあります：'+[...new Set(missing)].join('、')+'。ExcelまたはLibreOfficeで再計算して保存し直してください。');
- // The standard sheet already subtracts technique pressure in X59. Restore
- // that part of the input before applying the current technique list below.
- const sheetPressure=Number(val(sheet,'X59')),pressureFormula=String(sheet.X59?.f||'').replace(/[$'\s]/g,'');
- const included=Number.isFinite(sheetPressure)&&sheetPressure<0&&pressureFormula==='応用技!G5+応用技!J5'&&Number(val(sheet,'AA59'))===c.stats.spec;
- c.specImport={pressureIncluded:included?-sheetPressure:0};
- if(included)c.stats.spec-=sheetPressure;
+ // H27 is the sheet's final capacity, including equipment and passive techniques.
+ // Normalize only the rows that effective() will later deduct.
+ const pressure=specPressure(c);
+ c.stats.spec+=pressure;
+ c.specImport={version:2,pressureIncluded:pressure};
  api.importSession(c,sheets,mode);setBP(c,c.state.bp,{initial:true,previousPPBonus:0});c.importMode=mode;c.importedAt=new Date().toISOString();return c;
 }
 // Inspect cached results and known allocation relationships; never execute workbook formulas.
@@ -559,7 +558,17 @@ function validateDatabase(data){
  const state=s=>{api.validateSession(s,fail);if(!s||!Array.isArray(s.buffs)||!s.opponent||!s.usage)fail();for(const k of ['hp','pp','rage','factor','spent','hpMax','ppMax','round'])if(!finite(s[k]))fail();if(s.traps!==undefined){if(!Array.isArray(s.traps))fail();const ids=new Set();for(const t of s.traps){if(!t||!validId(t.id)||ids.has(t.id)||!t.source||!isTrap(t.source)||typeof t.source.name!=='string'||!['self','ally','enemy','field'].includes(t.target)||typeof t.label!=='string'||typeof t.trigger!=='string'||!t.values)fail();ids.add(t.id);for(const k of ['hit','ss','melee','weapon','power'])if(!t.values[k]||!finite(t.values[k].fixed)||!finite(t.values[k].dice))fail();}}if(s.charge!=null){const q=s.charge;if(!q||!validId(q.id)||!q.source||!validId(q.source.id)||typeof q.source.name!=='string'||!hasCharge(q.source)||!Number.isSafeInteger(q.level)||q.level<1||!Number.isSafeInteger(q.count)||q.count<1||q.count>q.level)fail();}if(s.explorationCheck!==undefined){const q=s.explorationCheck;if(!q||typeof q!=='object'||Array.isArray(q))fail();for(const k of ['ownFixed','ownDice','targetFixed','targetDice'])if(q[k]!=null&&(!Number.isInteger(q[k])||Math.abs(q[k])>10000||(k.endsWith('Dice')&&(q[k]<0||q[k]>100))))fail();}if(s.info!==undefined&&typeof s.info!=='string')fail();if(s.spent<0||s.round<1||!phases[s.phase])fail();if(s.battlePhase!==undefined&&!['IN','AC','RE','EN'].includes(s.battlePhase))fail();if(s.bp!==undefined){if(!s.bp||typeof s.bp!=='object'||Array.isArray(s.bp))fail();if(s.bp.enabled!==undefined&&typeof s.bp.enabled!=='boolean')fail();for(const k of ['statsIncluded','damageIncluded','defenseIncluded','ppIncluded','hitIncluded','dodgeIncluded','initiativeIncluded','meleeIncluded','weaponIncluded','powerIncluded'])if(s.bp[k]!==undefined&&s.bp[k]!==null&&typeof s.bp[k]!=='boolean')fail();}if(s.opponent.checkKey!==undefined&&!['hit','dodge','ss'].includes(s.opponent.checkKey))fail();if(s.opponent.checks!==undefined&&!validOpponentChecks(s.opponent.checks))fail();if(s.opponent.rage!==undefined&&!finite(s.opponent.rage))fail();if(s.opponent.activation!==undefined&&typeof s.opponent.activation!=='string')fail();for(const b of s.buffs){if(!validId(b.id)||typeof b.name!=='string'||!['self','enemy','both'].includes(b.target)||!finite(b.flat)||!finite(b.dice)||!finite(b.mult))fail();if(b.effects!==undefined){if(!Array.isArray(b.effects)||!b.effects.length)fail();for(const e of b.effects)if(typeof e.stat!=='string'||!finite(e.flat)||!finite(e.dice)||!finite(e.mult))fail();}}for(const k of['fixed','dice','defense','resist','hp'])if(!finite(s.opponent[k]))fail();};
  if(data?.version!==1||!Array.isArray(data.characters)||data.characters.length>200)fail();
  for(const c of data.characters){if(!validId(c.id)||typeof c.name!=='string'||!c.stats||!Array.isArray(c.history)||!Array.isArray(c.actions)||!c.initial)fail();state(c.state);state(c.initial);if(!Array.isArray(c.stats.params)||c.stats.params.length!==7||!c.stats.params.every(finite)||!c.stats.skills)fail();for(const[k,v]of Object.entries(c.stats)){if(!['params','skills'].includes(k)&&!finite(v))fail();}for(const e of c.history){if(!validId(e.id)||typeof e.title!=='string'||!finite(e.round)||!phases[e.phase])fail();state(e.before);state(e.after);}for(const a of c.actions){if(!validId(a.id)||typeof a.name!=='string'||!Array.isArray(a.phases)||!a.phases.every(p=>phases[p])||!finite(a.pp))fail();if(a.ppMode!==undefined&&!['fixed','creation'].includes(a.ppMode))fail();if(a.ppMode==='creation'&&(!Number.isInteger(a.pp)||a.pp<0||a.level))fail();}}
- for(const c of data.characters)api.upgradeOwned(c);
+ for(const c of data.characters){
+  api.upgradeOwned(c);
+  if(c.importedAt&&c.specImport?.version!==2){
+   // Earlier imports only restored pressure if X59 matched a specific formula.
+   // If it was restored, preserve subsequent edits to the technique list.
+   const previous=c.specImport?.pressureIncluded||0;
+   const pressure=previous||specPressure({actions:c.actions.filter(a=>a.group==='応用技'&&Array.isArray(a.importMissing))});
+   c.stats.spec+=pressure-previous;
+   c.specImport={version:2,pressureIncluded:pressure};
+  }
+ }
  return data;
 }
 const api={rageThresholds,appendRagePending,pendingLabel,completePending,trapActions,trapInstalling,trapStage,trapNeedsCheck,isTrap,attackCheck,chargeActions,allActions,resolveDeclarationRows,chargeReason,cancelCharge,ppBudget,declarationLevelLimit,techniqueBonuses,explorationInputs,hasCharge,techniqueEffects,isMental,desperateLimit,comparisonContext,opponentCheck,withOpponentCheck,validOpponentChecks,declarationInputError,declarationKeys,declaredValue,clone,id,labels,skillNames,phases,catalog,emptyCharacter,fromCells,detectBPSheet,activation,bpConfig,bpIncluded,bpBonuses,setBP,damageReduction,reduceDamage,damageTaken,takeDamage,modifiers,specPressure,effective,declaredPP,costLabel,isBattle,phaseAllowed,sameAction,actionMatches,setMode,available,preview,record,commit,declarationActionCopy,declarationCopy,rollback,nextRound,checkDistribution,damageMean,compare,validateDatabase};
