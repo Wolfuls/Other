@@ -3,7 +3,7 @@
 let uiDocument=document;
 const surfaces=new Map([[document,{tab:"actions"}]]), popupTitles={actions:"行動一覧",draft:"宣言・期待値",compare:"期待値",buffs:"盤面の補正",history:"行動履歴",character:"キャラ設定"};
 const Y=Ygg,$=s=>uiDocument.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const WINDOWS_FILE='Ulfhamr-Windows-v1.36.zip',WINDOWS_DOWNLOAD='downloads/'+WINDOWS_FILE;
+const WINDOWS_FILE='Ulfhamr-Windows-v1.40.zip',WINDOWS_DOWNLOAD='downloads/'+WINDOWS_FILE;
 const firefoxMode=!!document.getElementById('lycoris-integration');
 const KEY='ygg-round-v1';let db={version:1,characters:[],activeId:null},storageError='';
 const Theme=UlfTheme,THEME_KEY='ulfhamr-theme-v2',LEGACY_THEME_KEY='ulfhamr-theme-v1';
@@ -222,7 +222,46 @@ function damageDialog(){modal('被ダメージを登録',`<form id="damage-form"
 function updateDamagePreview(){const f=$('#damage-form');if(!f)return;try{const d=new FormData(f),r=Y.damageTaken(c(),Number(d.get('damageRaw')),d.get('damageKind'));$('#damage-preview').textContent=`判定 ${r.raw} ／ 増強軽減 ${r.reduction} ／ 装甲 ${r.armor} → 被ダメージ ${r.damage}　HP ${c().state.hp} → ${r.afterHP}`;}catch(e){$('#damage-preview').textContent=e.message;}}
 
 function abilityUseInputs(){return c().actions.filter(a=>a.owned&&['SPE','カルマ'].includes(a.group)).map(a=>a.useLimit?input(esc('uses-'+a.id),esc(a.group+' '+a.name+' 残り回数の増減（現在 '+Y.ownedRemaining(c(),a)+' / '+a.useLimit+'）'),0):('<p>'+esc(a.group+' '+a.name)+'：回数調整の対象外（常時・無制限）</p>')).join('');}
-function adjustDialog(resolve=false){const s=c().state,index=Number.isInteger(resolve)?resolve:null,entry=index===null?null:s.pending?.[index];if(index!==null&&entry===undefined){toast('一覧から選び直してください');return;}modal(index!==null?'追加処理を記録':'状態を調整',`<form id="adjust-form" data-resolve="${index!==null}" data-pending-index="${index??''}" data-pending-key="${esc(entry??'')}"><p class="subtle" style="margin-bottom:18px">回復・シーンチェック・臨界因子など、実際の増減を入力します。攻撃を受ける場合は「被ダメージ」で装甲・増強軽減を計算できます。</p><div class="form-grid">${input('hp','HP増減',0)}${input('pp','PP増減（回復・直接増減）',0)}${input('rage','暴走率増減',0)}${input('factor','因子増減（Rd）',0)}${input('costPP','消費PP（総消費と暴走に加算）',0,'number','min="0"')}${input('hpMax','セッション最大HP',s.hpMax,'number','min="1"')}${input('ppMax','セッション最大PP',s.ppMax,'number','min="0"')}${abilityUseInputs()}${input('reason','メモ',index!==null?Y.pendingLabel(entry):'状態調整','text','required')}</div><p class="usage-note">SPE・カルマは正数で残り回数を回復、負数で消費します。上限は所持品に設定した使用回数です。この画面のHP直接増減には装甲・増強軽減を適用しません。「PP増減」は総消費PP・暴走率を変更しません。PPを消費する場合は「消費PP」を使います。HP/PPの回復はセッション最大値で止まります。</p>${index!==null?'<p class="warning">暴走・臨界ロール、回復型の活性回復、臨界域の因子獲得は実際の結果を入力してください。</p>':''}<div class="form-actions"><button type="button" data-do="close">キャンセル</button><button class="primary">調整を履歴に登録</button></div></form>`);}
+const erosion=['制御異常','過負荷','聴覚異常','視覚異常','身体異常','自制','能力異常','言語異常','記憶異常','精神異常','忘我'];
+const symptomTables={
+ '50%：暴走ロール':['発作','高揚','自制'],
+ '70%：暴走ロール':['自爆','暴発','連鎖','発症','自制'],
+ '90%：暴走ロール':erosion,
+ SO1:['消費負荷','反動','制御成功'],SO2:['自爆','消費負荷','反動','制御成功'],
+ SO3:['自爆','消費負荷','過反動','制御成功'],SO4:['崩壊','超負荷','過反動','制御成功'],
+ SO5:['崩壊','超負荷','制御成功']
+};
+function criticalOptions(key){
+ return /^(110|120|130|140)%：臨界ロール・因子\+1 Rdを記録$/.test(key)?['自壊','超活性']:null;
+}
+function symptomOptions(key){
+ const critical=criticalOptions(key);
+ if(critical)return critical;
+ return symptomTables[key]||symptomTables[/^(SO[1-5])処理：/.exec(key)?.[1]];
+}
+function symptomSelect(name,choices){
+ return '<label>症状<select required name="'+name+'"><option value="">選択してください</option>'+choices.map(x=>'<option>'+x+'</option>').join('')+'</select></label>';
+}
+function symptomFields(name){
+ const number=(key,label,min,max)=>input(key,label,'','number','required min="'+min+'"'+(max?' max="'+max+'"':''));
+ if(name==='自壊')return number('damage','自壊ダメージ（最も高い攻撃力、防御無視）',0);
+ if(name==='超活性')return number('criticalHeal','HP・PP共通の回復量（2D6の合計）',2,12);
+ if(['発作','自爆','過負荷','崩壊'].includes(name))return number('damage','自身の被ダメージ',0);
+ if(name==='高揚'||name==='連鎖')return number('rise','暴走率上昇（'+(name==='高揚'?'1D':'2D')+'）',name==='高揚'?1:2,name==='高揚'?6:12);
+ if(name==='消費負荷'||name==='超負荷')return number('extraPP','追加の実消費PP',0)+number('rise','追加の暴走率上昇',0);
+ if(name==='反動'||name==='過反動')return number('penalty','命中・回避の減少値（'+(name==='反動'?'1D':'2D')+'）',name==='反動'?1:2,name==='反動'?6:12);
+ if(name==='暴発')return input('target','対象・結果','','text','required')+number('damage','自身の被ダメージ（他者なら0）',0);
+ if(name==='発症')return symptomSelect('erosion',erosion)+'<div data-erosion-fields></div>';
+ if(name==='回復活性')return number('activationHeal','HP・PP共通の回復量（1D6の出目）',1,6);
+ return '';
+}
+function symptomDialog(index,key){
+ const choices=symptomOptions(key);
+ if(!choices&&!key.endsWith('：回復活性'))return false;
+ modal(esc(key),'<form id="symptom-form" data-index="'+index+'" data-key="'+esc(key)+'">'+(choices?symptomSelect('symptom',choices):'')+'<div data-symptom-fields>'+(!choices?symptomFields('回復活性'):'')+'</div><div class="form-actions"><button type="button" data-do="close">キャンセル</button><button class="primary">結果を記録</button></div></form>');
+ return true;
+}
+function adjustDialog(resolve=false){const s=c().state,index=Number.isInteger(resolve)?resolve:null,entry=index===null?null:s.pending?.[index];if(index!==null&&entry===undefined){toast('一覧から選び直してください');return;}if(entry&&symptomDialog(index,entry))return;modal(index!==null?'追加処理を記録':'状態を調整',`<form id="adjust-form" data-resolve="${index!==null}" data-pending-index="${index??''}" data-pending-key="${esc(entry??'')}"><p class="subtle" style="margin-bottom:18px">回復・シーンチェック・臨界因子など、実際の増減を入力します。攻撃を受ける場合は「被ダメージ」で装甲・増強軽減を計算できます。</p><div class="form-grid">${input('hp','HP増減',0)}${input('pp','PP増減（回復・直接増減）',0)}${input('rage','暴走率増減',0)}${input('factor','因子増減（Rd）',0)}${input('costPP','消費PP（総消費と暴走に加算）',0,'number','min="0"')}${input('hpMax','セッション最大HP',s.hpMax,'number','min="1"')}${input('ppMax','セッション最大PP',s.ppMax,'number','min="0"')}${abilityUseInputs()}${input('reason','メモ',index!==null?Y.pendingLabel(entry):'状態調整','text','required')}</div><p class="usage-note">SPE・カルマは正数で残り回数を回復、負数で消費します。上限は所持品に設定した使用回数です。この画面のHP直接増減には装甲・増強軽減を適用しません。「PP増減」は総消費PP・暴走率を変更しません。PPを消費する場合は「消費PP」を使います。HP/PPの回復はセッション最大値で止まります。</p>${index!==null?'<p class="warning">暴走・臨界ロール、回復型の活性回復、臨界域の因子獲得は実際の結果を入力してください。</p>':''}<div class="form-actions"><button type="button" data-do="close">キャンセル</button><button class="primary">調整を履歴に登録</button></div></form>`);}
 function buffEffectRow(e={stat:'hit',flat:0,dice:0,mult:1}){return `<div class="buff-effect form-grid two">${select('stat','補正項目',e.stat,[['','補正項目を選択'],...['hit','dodge','ss','defense','resist','initiative','precision','spec'].map(k=>[k,Y.labels[k]]),['damage','全攻撃のダメージ'],['melee','格闘ダメージ'],['weapon','武器ダメージ'],['power','能力ダメージ'],['allChecks','命中・回避・SS・技能'],['skill','技能・解除'],['release','解除判定'],...Y.skillNames.map(k=>['skill:'+k,k])])}${input('flat','固定値の増減',e.flat)}${input('dice','ダイスの増減',e.dice)}${select('mult','固定値の倍率',e.mult,[[1,'×1'],[.5,'×0.5'],[2,'×2'],[0,'×0']])}<button type="button" data-do="remove-buff-effect">この項目を外す</button></div>`;}
 function buffDialog(b){b=b||{id:Y.id(),name:'',target:'self',stat:'hit',flat:0,dice:0,mult:1,active:true,endRound:''};modal('盤面の補正を登録',`<form id="buff-form" data-id="${esc(b.id)}"><div class="form-grid two">${input('name','バフ・デバフ名',b.name,'text','required')}${select('target','対象',b.target,[['self','自分'],['enemy','相手'],['both','両者']])}${input('endRound','有効な最終ラウンド（空欄＝継続）',b.endRound,'number','min="1"')}<label class="checkbox"><input type="checkbox" name="active" ${b.active!==false?'checked':''}>有効</label></div><div id="buff-effects">${(b.effects||[b]).map(buffEffectRow).join('')}</div><button type="button" data-do="add-buff-effect">＋ 補正項目を追加</button><div class="form-actions">${c().state.buffs.some(x=>x.id===b.id)?`<button type="button" class="danger" data-do="delete-buff" data-id="${b.id}">バフを削除</button>`:''}<button type="button" data-do="close">キャンセル</button><button class="primary">補正を保存</button></div></form>`);}
 function buffEffectsLabel(b){return (b.effects||[b]).map(e=>`${Y.labels[e.stat]||({damage:'ダメージ',skill:'技能・解除',allChecks:'すべての判定'})[e.stat]||esc(e.stat)} ${e.flat>=0?'+':''}${e.flat}${e.dice?' / '+(e.dice>0?'+':'')+e.dice+'D6':''}${e.mult!==1?' / ×'+e.mult:''}`).join('<br>');}
@@ -394,6 +433,10 @@ listen(document,'compositionstart',e=>{if(e.target.id==='action-search')composin
 listen(document,'compositionend',e=>{if(e.target.id==='action-search'){composingSearch.delete(e.target);refreshActionSearch(e.target);}});
 listen(document,'input',e=>{const el=e.target;if(el.dataset.commandField){updateCommandInput(el);return;}if(el.dataset.themeColor){setThemeColor(el);return;}if(el.form?.id==='condition-form')updateConditionPreview();if(el.form?.id==='damage-form')updateDamagePreview();if(el.form?.id==='character-form')updateBPPreview();if(el.id==='action-note')note=el.value;if(el.id==='action-search'&&!e.isComposing&&!composingSearch.has(el)){refreshActionSearch(el);}});
 listen(document,'change',e=>{const el=e.target;try{
+ if(el.form?.id==='symptom-form'&&['symptom','erosion'].includes(el.name)){
+  el.form.querySelector('[data-'+el.name+'-fields]').innerHTML=symptomFields(el.value);return;
+ }
+
  if(el.dataset.commandField){updateCommandInput(el);return;}
  if(el.dataset.themeColor){if(!Theme.validColor(el.value.trim()))toast('色コードは #RRGGBB の形式で入力してください。');return;}
  if(el.form?.id==='condition-form')updateConditionPreview();if(el.form?.id==='damage-form')updateDamagePreview();if(el.form?.id==='character-form')updateBPPreview();
@@ -436,7 +479,27 @@ listen(document,'submit',e=>{e.preventDefault();const f=e.target,d=new FormData(
  }
 
  else if(f.id==='damage-form'){Y.takeDamage(c(),n('damageRaw'),d.get('damageKind'),String(d.get('damageNote')));}
- else if(f.id==='adjust-form'){const char=c(),s=Y.clone(char.state),cost=n('costPP');if(cost<0||cost>s.pp)throw Error('消費PPは0〜残PPの範囲で指定してください');const gain=Math.floor((s.spent+cost)/5)-Math.floor(s.spent/5);s.hpMax=n('hpMax');s.ppMax=n('ppMax');s.hp=Math.min(s.hpMax,s.hp+n('hp'));s.pp=Math.min(s.ppMax,s.pp-cost+n('pp'));if(s.pp<0)throw Error('PPが0未満になります');s.rage=Math.max(0,s.rage+cost+n('rage'));s.factor+=n('factor')+gain;s.spent+=cost;const deltas={};for(const a of char.actions)if(a.owned&&['SPE','カルマ'].includes(a.group)&&a.useLimit)deltas[a.id]=n('uses-'+a.id);Y.adjustAbilityUses(char,s,deltas);if(f.dataset.resolve==='true')Y.completePending(s,Number(f.dataset.pendingIndex),f.dataset.pendingKey);Y.appendRagePending(s,char.state.rage);Y.record(char,String(d.get('reason')),s,{pp:cost,spent:cost,gained:gain,note:String(d.get('reason'))},'adjust');}
+ else if(f.id==='symptom-form'){
+  const char=c(),state=Y.clone(char.state),key=f.dataset.key;
+  Y.completePending(state,Number(f.dataset.index),key);
+  const choice=d.get('symptom')||'回復活性',name=d.get('erosion')||choice;
+  const critical=criticalOptions(key);
+  if(critical&&!critical.includes(choice))throw Error('到達した暴走率に対応する症状を選んでください');
+  const recoveryActivation=key.endsWith('：回復活性');
+  const heal=recoveryActivation?n('activationHeal'):choice==='超活性'?n('criticalHeal'):0;
+  if(recoveryActivation&&(heal<1||heal>6))throw Error('1D6の出目（1～6）を入力してください');
+  if(choice==='超活性'&&(!Number.isInteger(heal)||heal<2||heal>12))throw Error('2D6の合計（2～12）を入力してください');
+  const cost=n('extraPP'),gain=Math.floor((state.spent+cost)/5)-Math.floor(state.spent/5)+(critical?1:0);
+  if(cost>state.pp)throw Error('追加消費が残りPPを超えています。実際に消費した値を入力してください');
+  state.hp=Math.min(state.hpMax,state.hp+heal-n('damage'));
+  state.pp=Math.min(state.ppMax,state.pp+heal-cost);
+  state.spent+=cost;state.factor+=gain;state.rage+=n('rise')+(name==='能力異常'?2:0);
+  if(n('penalty'))state.buffs.push({id:Y.id(),name,target:'self',active:true,endRound:state.round,effects:['hit','dodge'].map(stat=>({stat,flat:-n('penalty'),dice:0,mult:1})),stat:'hit',flat:-n('penalty'),dice:0,mult:1});
+  Y.appendRagePending(state,char.state.rage,char.activation);
+  const title=key+' ／ '+(choice===name?name:choice+'：'+name);
+  Y.record(char,title,state,{note:[title,d.get('target')].filter(Boolean).join(' ／ '),result:Object.fromEntries(d),spent:cost,gained:gain},'adjust');
+ }
+ else if(f.id==='adjust-form'){const char=c(),s=Y.clone(char.state),cost=n('costPP');if(cost<0||cost>s.pp)throw Error('消費PPは0〜残PPの範囲で指定してください');const gain=Math.floor((s.spent+cost)/5)-Math.floor(s.spent/5);s.hpMax=n('hpMax');s.ppMax=n('ppMax');s.hp=Math.min(s.hpMax,s.hp+n('hp'));s.pp=Math.min(s.ppMax,s.pp-cost+n('pp'));if(s.pp<0)throw Error('PPが0未満になります');s.rage=Math.max(0,s.rage+cost+n('rage'));s.factor+=n('factor')+gain;s.spent+=cost;const deltas={};for(const a of char.actions)if(a.owned&&['SPE','カルマ'].includes(a.group)&&a.useLimit)deltas[a.id]=n('uses-'+a.id);Y.adjustAbilityUses(char,s,deltas);if(f.dataset.resolve==='true')Y.completePending(s,Number(f.dataset.pendingIndex),f.dataset.pendingKey);Y.appendRagePending(s,char.state.rage,char.activation);Y.record(char,String(d.get('reason')),s,{pp:cost,spent:cost,gained:gain,note:String(d.get('reason'))},'adjust');}
  else if(f.id==='buff-form'){const s=Y.clone(c().state),b={id:f.dataset.id,name:String(d.get('name')),target:d.get('target'),stat:d.get('stat'),flat:n('flat'),dice:n('dice'),mult:Number(d.get('mult')),endRound:d.get('endRound')?n('endRound'):null,active:d.has('active')};b.effects=Array.from(f.querySelectorAll('.buff-effect')).map(row=>({stat:row.querySelector('[name=stat]').value,flat:Number(row.querySelector('[name=flat]').value),dice:Number(row.querySelector('[name=dice]').value),mult:Number(row.querySelector('[name=mult]').value)}));if(!b.effects.length||b.effects.some(e=>!e.stat||![e.flat,e.dice,e.mult].every(Number.isFinite)))throw Error('補正値を確認してください');if(!b.name.trim())throw Error('補正名を入力してください');s.buffs=s.buffs.filter(x=>x.id!==b.id);s.buffs.push(b);Y.record(c(),'補正を登録：'+b.name,s,{},'buff');}
  else if(f.id==='custom-form'){const a={...c().actions.find(x=>x.id===f.dataset.id),id:f.dataset.id,name:String(d.get('name')),pp:n('pp'),ppMode:d.get('ppMode')||'fixed',hp:n('hp'),factor:n('factor'),rage:n('rage'),spec:n('spec'),group:d.get('group'),attack:d.get('attack')||null,main:d.has('main'),note:String(d.get('note')),phases:Object.keys(Y.phases).filter(k=>d.has('phase-'+k))};if(!a.name.trim()||!a.phases.length)throw Error('名前と宣言可能なフェイズを指定してください');if(!['fixed','creation'].includes(a.ppMode))throw Error('PPの決め方を確認してください');if([a.pp,a.hp,a.factor,a.rage].some(x=>x<0))throw Error('コストは0以上にしてください');c().actions=c().actions.filter(x=>x.id!==a.id);c().actions.push(a);}
  else return;

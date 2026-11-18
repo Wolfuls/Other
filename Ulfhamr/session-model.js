@@ -69,7 +69,7 @@ function applyCondition(c,{hpRoll,ppRoll,bonus=weaponBonus(c),reroll=false,maxim
  if(s.hpMax+dh<1||s.ppMax+dp<0)throw Error('セッション最大値が不正になります');
  s.hpMax+=dh;s.ppMax+=dp;s.hp=Math.min(s.hpMax,s.hp+dh);s.pp=Math.max(0,Math.min(s.ppMax,s.pp+dp));s.rage=Math.max(0,s.rage+dp);if(reroll)s.factor--;
  s.condition={hp,pp,hpRoll,ppRoll,weaponBonus:bonus,source:'tool',applied:true};
- Y.appendRagePending(s,c.state.rage);
+ Y.appendRagePending(s,c.state.rage,c.activation);
  return Y.record(c,reroll?'コンディションを振り直し（1 Rd）':old.hp||old.pp?'コンディションを訂正':'コンディションロール',s,{note:'HP '+hpRoll+' + 武装 '+bonus+' / PP '+ppRoll+'、暴走率 '+(dp>=0?'+':'')+dp+'%',factor:reroll?1:0},'condition');
 }
 function useKey(a,s){return a.id+(a.usePeriod==='round'?'@'+s.round:a.usePeriod==='battle'?'@battle'+(s.battleSerial||1):'');}

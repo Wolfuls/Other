@@ -1,4 +1,4 @@
-﻿情報拡張装置【ウールヴハム】 v1.36
+﻿情報拡張装置【ウールヴハム】 v1.40
 
 配布ページ・取扱説明書
 このフォルダの index.html を開いてください。
@@ -8,7 +8,7 @@
 構成
 index.html / guide.css / guide-assets/    配布ページ・取扱説明書
 app.html / app.js / model.js             ブラウザ版
-firefox/                                Firefox拡張機能 v1.0.22
+firefox/                                Firefox拡張機能 v1.0.26
 downloads/                              最新のWindows ZIP・Firefox ZIP・導入EXE
 vendor/                                 JSZipとライセンス
 
@@ -18,15 +18,15 @@ app.html で起動します。同じURL・同じブラウザの保存データ�
 ブラウザ・Windows・Firefox間の移行はオプションの「バックアップ」「復元」を使います。
 
 Windows版
-downloads/Ulfhamr-Windows-v1.36.zip を展開し、Ulfhamr.exe を実行します。
+downloads/Ulfhamr-Windows-v1.40.zip を展開し、Ulfhamr.exe を実行します。
 64bit WindowsとWebView2 Runtimeが必要です。更新時は旧アプリを終了してください。
 データの保存先と内部URLは従来のままです。終了前に未登録の宣言を登録してください。
 しおりから各画面を左右に引き出し、上端のボタンで独立ウィンドウにできます。
 
 Firefox版
-Windowsでは downloads/Ulfhamr-Firefox-Setup-v1.0.22.exe から配置・更新・起動できます。
+Windowsでは downloads/Ulfhamr-Firefox-Setup-v1.0.26.exe から配置・更新・起動できます。
 導入EXEは卓専用のFirefoxプロファイルを使い、拡張機能を一時読み込みしてリコリスを開きます。
-手動導入には downloads/Ulfhamr-Firefox-Lycoris-v1.0.22-test.zip を使用します。
+手動導入には downloads/Ulfhamr-Firefox-Lycoris-v1.0.26-test.zip を使用します。
 更新・起動手順と専用プロファイルの説明は配布ページを参照してください。
 Mozillaの署名取得は保留中です。署名による恒久インストール・自動更新は行いません。
 

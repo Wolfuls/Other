@@ -464,7 +464,7 @@ function preview(c,rows,desperate=0){const originalRows=rows;rows=resolveDeclara
 function record(c,title,next,detail={},type='action'){const before=clone(c.state);const event={id:id(),time:new Date().toISOString(),type,title,round:before.round,phase:before.phase,before,after:clone(next),detail:clone(detail)};c.state=clone(next);c.history.push(event);return event;}
 function commit(c,rows,desperate=0,note=''){const p=preview(c,rows,desperate);if(!rows.length)throw Error('行動を選んでください');if(p.errors.length)throw Error(p.errors.join('\n'));rows=resolveDeclarationRows(c,rows);const next=p.after;
  for(const r of rows){const a=r.action;if(isBattle(c.state)&&(a.main||a.group==='応用技'&&!a.trapId&&c.state.phase==='AC'))next.mainUsed=true;if(a.limit==='round')next.usage[a.id+'@'+next.round]=true;if(a.limit==='battle')next.usage[a.id]=true;if(a.replace!==undefined)next.usage.replacement=(next.usage.replacement||0)+1;if(a.id==='skip')next.buffs.push({id:id(),name:'行動放棄：次ラウンドIN +4',target:'self',stat:'initiative',flat:4,dice:0,mult:1,active:false,startRound:next.round+1,endRound:next.round+1});}
- appendRagePending(next,c.state.rage);
+ appendRagePending(next,c.state.rage,c.activation);
  const resolved=rows.map(r=>({...clone(r),declaredPP:declaredPP(r,c.state)}));
  return record(c,rows.map(r=>r.action.name+(r.action.ppMode==='creation'?'〔創造'+r.creationPP+'PP＋固定追加'+r.action.pp+'PP〕':r.level>1?' Lv'+r.level:'')+(hasCharge(r.action)?'〔チャージLv'+(r.chargeLevel??1)+'〕':'')+(r.action.chargeStep==='release'?'〔'+r.action.chargeCount+'カウント・命中/威力+'+(3*r.action.chargeCount)+'D〕':'')).join(' ＋ '),next,{...p,after:undefined,rows:resolved,note,desperate});}
 function declarationActionCopy(row){
@@ -487,11 +487,24 @@ function declarationCopy(c,rows,desperate=0,note=''){
  if(String(note).trim())lines.push(String(note).replace(/\r\n?/g,'\n'));
  return lines.join('\n');
 }
-function rollback(c,eventId){const e=c.history.find(e=>e.id===eventId);const next=eventId==='initial'?c.initial:e?.after;if(!next)throw Error('履歴が見つかりません');return record(c,'巻き戻し：'+(e?.title||'読み込み時'),next,{target:eventId},'rollback');}
+function rollback(c,eventId){const e=c.history.find(e=>e.id===eventId);const next=eventId==='initial'?c.initial:e?.after;if(!next)throw Error('履歴が見つかりません');const restored=clone(next);migratePending(restored,c.activation);return record(c,'巻き戻し：'+(e?.title||'読み込み時'),restored,{target:eventId},'rollback');}
 const rageSteps=[50,60,70,80,90,100,110,120,130,140,150];
 function rageThresholds(before,after){return rageSteps.filter(x=>before<x&&after>=x);}
-function appendRagePending(state,before){
- state.pending=[...(state.pending||[]),...rageThresholds(before,state.rage).map(x=>x+'%到達：活性・暴走・臨界処理')];
+function thresholdTasks(n,activation){
+ const tasks=[];
+ if([50,70,90].includes(n))tasks.push(n+'%：暴走ロール');
+ if(n>=50&&n<=70&&activation==='回復型')tasks.push(n+'%：回復活性');
+ if(n>=100)tasks.push(pendingLabel(n+'%到達：活性・暴走・臨界処理'));
+ return tasks;
+}
+function migratePending(state,activation){
+ if(state?.pending)state.pending=state.pending.flatMap(text=>{
+  const old=/^(\d+)%到達：活性・暴走・臨界処理$/.exec(text);
+  return old?thresholdTasks(Number(old[1]),activation):[text];
+ });
+}
+function appendRagePending(state,before,activation){
+ state.pending=[...(state.pending||[]),...rageThresholds(before,state.rage).flatMap(n=>thresholdTasks(n,activation))];
 }
 function nextRound(c){if(!isBattle(c.state))throw Error('探索中はラウンドを進めません');const s=clone(c.state);s.round++;s.phase='IN';s.mainUsed=false;for(const b of s.buffs){if(b.startRound&&s.round>=b.startRound)b.active=true;if(b.endRound&&s.round>b.endRound)b.active=false;}return record(c,'ラウンド '+s.round+' 開始',s,{},'round');}
 // Joint PMF of signed die contribution and critical count; infinite tail < 1e-10.
@@ -560,6 +573,7 @@ function validateDatabase(data){
  for(const c of data.characters){if(!validId(c.id)||typeof c.name!=='string'||!c.stats||!Array.isArray(c.history)||!Array.isArray(c.actions)||!c.initial)fail();state(c.state);state(c.initial);if(!Array.isArray(c.stats.params)||c.stats.params.length!==7||!c.stats.params.every(finite)||!c.stats.skills)fail();for(const[k,v]of Object.entries(c.stats)){if(!['params','skills'].includes(k)&&!finite(v))fail();}for(const e of c.history){if(!validId(e.id)||typeof e.title!=='string'||!finite(e.round)||!phases[e.phase])fail();state(e.before);state(e.after);}for(const a of c.actions){if(!validId(a.id)||typeof a.name!=='string'||!Array.isArray(a.phases)||!a.phases.every(p=>phases[p])||!finite(a.pp))fail();if(a.ppMode!==undefined&&!['fixed','creation'].includes(a.ppMode))fail();if(a.ppMode==='creation'&&(!Number.isInteger(a.pp)||a.pp<0||a.level))fail();}}
  for(const c of data.characters){
   api.upgradeOwned(c);
+  migratePending(c.state,c.activation);
   if(c.importedAt&&c.specImport?.version!==2){
    // Earlier imports only restored pressure if X59 matched a specific formula.
    // If it was restored, preserve subsequent edits to the technique list.

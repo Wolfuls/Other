@@ -1,4 +1,4 @@
-﻿情報拡張装置【ウールヴハム】 Firefox v1.0.22 テスト版
+﻿情報拡張装置【ウールヴハム】 Firefox v1.0.26 テスト版
 配布ページ・取扱説明書: https://wolfuls.github.io/Other/Ulfhamr/
 
 Windowsでの導入・起動
